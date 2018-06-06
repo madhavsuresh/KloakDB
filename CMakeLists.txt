@@ -8,3 +8,11 @@ set(RUNNER_SRCS
 add_executable(runner ${RUNNER_SRCS})
 
 target_link_libraries(runner pq pqxx)
+
+set(JOIN_SRCS
+    SimpleJoin.cpp
+    test_simplejoin.cpp)
+
+add_executable(join ${JOIN_SRCS})
+
+target_link_libraries(join gtest)
