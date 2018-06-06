@@ -1,4 +1,0 @@
-/home/mocco/vaultdb_operators/build/CMakeFiles/rebuild_cache.dir
-/home/mocco/vaultdb_operators/build/CMakeFiles/edit_cache.dir
-/home/mocco/vaultdb_operators/build/CMakeFiles/runner.dir
-/home/mocco/vaultdb_operators/build/CMakeFiles/join.dir

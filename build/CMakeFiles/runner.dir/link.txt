@@ -1,1 +1,0 @@
-/usr/bin/c++    -rdynamic CMakeFiles/runner.dir/postgres_client.cpp.o CMakeFiles/runner.dir/Filter.cpp.o CMakeFiles/runner.dir/runner.cpp.o CMakeFiles/runner.dir/Expressions.cpp.o  -o runner -lpq -lpqxx 
