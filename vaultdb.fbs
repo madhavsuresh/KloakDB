@@ -1,0 +1,59 @@
+
+enum FieldType : byte {VARCHAR, INT, TIMESTAMP, UNSUPPORTED}
+
+union ExprUnion {
+    EqExpr
+}
+
+
+union FieldVal {
+    TimeStampField,
+    IntField,
+    VarCharField
+}
+
+table EqExpr {
+    colno:int;
+    val:FieldVal;
+}
+
+table TimeStampField {
+    val:float;
+}
+
+table VarCharField {
+    val:string;
+}
+
+table IntField {
+    val:int;
+}
+
+table FieldDesc {
+    type:FieldType;
+    name:string;
+    col:int = -1 (key);
+}
+
+table Schema {
+    fielddescs:[FieldDesc];
+}
+
+table Field {
+    fieldnum:int =-1 (key);
+    val:FieldVal;
+}
+
+table Tuple {
+    schema:Schema;
+    fields:[Field];
+}
+
+table Expr {
+    expr:ExprUnion;
+}
+
+table Table {
+    schema:Schema;
+    tuples:[Tuple];
+}
