@@ -114,6 +114,11 @@ namespace
         other_column2.push_back(5);
         common_column1.push_back(5);
         common_column2.push_back(5);
+        // 5 again
+        other_column1.push_back(6);
+        other_column2.push_back(7);
+        common_column1.push_back(5);
+        common_column2.push_back(5);
 
         // 1
         std::vector< vector<int> > table1;
@@ -132,6 +137,13 @@ namespace
 
         // assert check that the output length is as expected
         ASSERT_EQ(3, joined_table.size());
+        ASSERT_EQ(1, joined_table[0][0][0]);
+        ASSERT_EQ(2, joined_table[0][1][0]);
+        ASSERT_EQ(3, joined_table[0][2][0]);
+        ASSERT_EQ(5, joined_table[0][3][0]);
+        ASSERT_EQ(5, joined_table[1][3][0]);
+        ASSERT_EQ(6, joined_table[1][3][1]);
+        ASSERT_EQ(7, joined_table[2][3][1]);
     }
 }
 
