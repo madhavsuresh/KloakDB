@@ -42,11 +42,13 @@ table Schema {
 table Field {
     fieldnum:int =-1 (key);
     val:FieldVal;
+    genval:FieldVal;
 }
 
 table Tuple {
     schema:Schema;
     fields:[Field];
+    isdummy:bool = false;
 }
 
 table Expr {
