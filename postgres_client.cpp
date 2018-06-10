@@ -79,6 +79,7 @@ flatbuffers::Offset<Field> get_field_offset_from_query(pqxx::field f, flatbuffer
 uint8_t * postgres_query_writer(std::string query_string, std::string dbname) {
     pqxx::result res = query(query_string, dbname);
     flatbuffers::FlatBufferBuilder builder(1024);
+    builder.ForceDefaults(true);
     auto schema_offset = get_schema_offset_from_query(res, builder);
     //auto schema = flatbuffers::GetRoot<Schema>(schema_buf);
 

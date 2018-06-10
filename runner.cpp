@@ -21,4 +21,17 @@ int main() {
     //uint8_t* eq_expr_buf  = b.GetBufferPointer();
 
     filter(table, buff);
+
+    auto table2 = flatbuffers::GetRoot<Table>(table);
+    auto &tuples = *table2->tuples();
+    std::cout << std::endl;
+    for (auto t : tuples) {
+	if(!t->isdummy()) {
+	    for (auto f : *t->fields()) {
+		std::cout << f->val_as_IntField()->val() << "| ";
+	    }
+		std::cout << std::endl;
+	}
+//	std::cout << std::endl;
+    }
 }
