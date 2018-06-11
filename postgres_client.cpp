@@ -76,7 +76,7 @@ flatbuffers::Offset<Field> get_field_offset_from_query(pqxx::field f, flatbuffer
     }
 }
 
-uint8_t * postgres_query_writer(std::string query_string, std::string dbname) {
+flatbuffers::DetachedBuffer postgres_query_writer(std::string query_string, std::string dbname) {
     pqxx::result res = query(query_string, dbname);
     flatbuffers::FlatBufferBuilder builder(1024);
     builder.ForceDefaults(true);
@@ -98,8 +98,8 @@ uint8_t * postgres_query_writer(std::string query_string, std::string dbname) {
     auto tuples = builder.CreateVector(tuple_vector);
     auto table = CreateTable(builder, schema_offset, tuples);
     builder.Finish(table);
-    uint8_t *buf = builder.GetBufferPointer();
-    return buf;
+    auto detached_buf = builder.Release();
+    return detached_buf;
     /*
 
     auto s = flatbuffers::FlatBufferToString(buf, TableTypeTable());
