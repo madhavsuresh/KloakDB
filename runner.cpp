@@ -1,12 +1,13 @@
 #include "postgres_client.h"
 #include "Filter.h"
+#include "Repartition.h"
 #include "flatbuffers/minireflect.h"
 #include <iostream>
 
 int main() {
     std::string query_string("SELECT * FROM t_random_300");
     std::string dbname("dbname=test");
-    auto table = postgres_query_writer(query_string, dbname);
+    auto table3 = postgres_query_writer(query_string, dbname);
 
     flatbuffers::FlatBufferBuilder b(1024);
     auto int_field = CreateIntField(b, 2);
@@ -20,6 +21,8 @@ int main() {
     //std::cout << ii->val();
     //uint8_t* eq_expr_buf  = b.GetBufferPointer();
 
+    auto table = table3.data();
+    repart_step_one(table);
     filter(table, buff);
 
     auto table2 = flatbuffers::GetRoot<Table>(table);
