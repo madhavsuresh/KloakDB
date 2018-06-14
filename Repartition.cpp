@@ -1,10 +1,10 @@
+#include "sgx_tcrypto.h"
 #include "vaultdb_generated.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <map>
 #include <vector>
-#include "sgx_tcrypto.h"
 
 flatbuffers::Offset<Schema> cp_schema(const Schema *schema_to_cp,
                                       flatbuffers::FlatBufferBuilder &builder) {
@@ -134,28 +134,48 @@ int repart_step_one(uint8_t *table_buf) {
   // send_out_repartition_step_one()
 }
 
-auto hash_field(const Field * f) {
-  sgx_sha256_hash_t hash_output;
+sgx_sha256_hash_t *hash_field(const Field *f) {
+  sgx_sha256_hash_t *hash_output =
+      reinterpret_cast<sgx_sha256_hash_t *>(malloc(sizeof(sgx_sha256_hash_t)));
+  uint32_t size;
+  const unsigned char * data_ptr;
   switch (f->val_type()) {
   case FieldVal_IntField: {
-    auto val = f->val_as_IntField();
-    return val;
+    int32_t val = f->val_as_IntField()->val();
+    size = sizeof(int32_t);
+    data_ptr = reinterpret_cast<const unsigned char *>(&val);
   }
   case FieldVal_VarCharField: {
-    auto val = f->val_as_VarCharField();
+    const flatbuffers::String *val = f->val_as_VarCharField()->val();
+    data_ptr = reinterpret_cast<const unsigned char *>(val->c_str());
+    size = val->size();
   }
   case FieldVal_TimeStampField: {
-    auto val = f->val_as_TimeStampField();
+    float val = f->val_as_TimeStampField()->val();
+    data_ptr = reinterpret_cast<const unsigned char *>(&val);
   }
   case FieldVal_NONE: {
   }
   }
+  sgx_sha256_msg(data_ptr, size, hash_output);
+  return hash_output;
 }
 
-uint64_t hash_to_host(uint64_t control_flow_col, uint64_t num_hosts,
+uint32_t hash_to_host(uint64_t control_flow_col, uint64_t num_hosts,
                       const Tuple *tuple) {
   auto field = tuple->fields()->Get(control_flow_col);
-  uint64_t auto hash_val = hash_field(field);
+  sgx_sha256_hash_t *hash_output = hash_field(field);
+
+  //For now, we'll look at the first four words. 
+  union {
+      uint32_t u;
+      unsigned char u8[sizeof(uint32_t)];
+  } out;
+  out.u8[0] = *hash_output[0];
+  out.u8[1] = *hash_output[1];
+  out.u8[2] = *hash_output[2];
+  out.u8[3] = *hash_output[3];
+  return out.u % num_hosts;
 }
 
 int repart_step_two(std::vector<uint8_t *> tables) {
