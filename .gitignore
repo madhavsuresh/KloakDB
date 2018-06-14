@@ -1,1 +1,4 @@
 *build/
+*.swp
+vaultdb_generated.h
+tags
