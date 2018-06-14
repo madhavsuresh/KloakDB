@@ -4,4 +4,4 @@
 #define INT4OID		23
 #define TIMESTAMPOID	1114
 
-uint8_t * postgres_query_writer(std::string query_string, std::string dbname);
+flatbuffers::DetachedBuffer postgres_query_writer(std::string query_string, std::string dbname);
