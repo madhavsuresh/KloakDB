@@ -135,6 +135,7 @@ namespace
         // vector< vector<int> >
         std::vector< std::vector< std::vector<int> > > joined_table = hashjoin(table1, table2, 1, 0);
 
+        
         // assert check that the output length is as expected
         ASSERT_EQ(3, joined_table.size());
         ASSERT_EQ(1, joined_table[0][0][0]);
