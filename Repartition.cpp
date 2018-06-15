@@ -1,10 +1,10 @@
-#include "sgx_tcrypto.h"
 #include "vaultdb_generated.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
 #include <map>
 #include <vector>
+#include "sgx_tcrypto.h"
 
 flatbuffers::Offset<Schema> cp_schema(const Schema *schema_to_cp,
                                       flatbuffers::FlatBufferBuilder &builder) {
@@ -161,21 +161,25 @@ sgx_sha256_hash_t *hash_field(const Field *f) {
   return hash_output;
 }
 
-uint32_t hash_to_host(uint64_t control_flow_col, uint64_t num_hosts,
-                      const Tuple *tuple) {
-  auto field = tuple->fields()->Get(control_flow_col);
-  sgx_sha256_hash_t *hash_output = hash_field(field);
-
-  //For now, we'll look at the first four words. 
+uint32_t hash_to_uint(const Field *f) {
   union {
       uint32_t u;
       unsigned char u8[sizeof(uint32_t)];
   } out;
+    sgx_sha256_hash_t *hash_output = hash_field(field);
   out.u8[0] = *hash_output[0];
   out.u8[1] = *hash_output[1];
   out.u8[2] = *hash_output[2];
   out.u8[3] = *hash_output[3];
-  return out.u % num_hosts;
+  free(hash_output);
+  return out.u;
+}
+
+uint32_t hash_to_host(uint64_t control_flow_col, uint64_t num_hosts,
+                      const Tuple *tuple) {
+  auto field = tuple->fields()->Get(control_flow_col);
+  uint32_t hash = hash_to_uint(field);
+  return hash % num_hosts;
 }
 
 int repart_step_two(std::vector<uint8_t *> tables) {

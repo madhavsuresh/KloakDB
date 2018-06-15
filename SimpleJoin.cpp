@@ -3,7 +3,9 @@
 #include <string>
 #include <vector>
 #include "vaultdb_generated.h"
+#include "SimpleJoin.h"
 #include "sgx_tcrypto.h"
+
 using namespace std;
 
 vector<vector<int>> simplejoin(vector<vector<int>> table1,
@@ -114,39 +116,44 @@ uint8_t *hashjoin(uint8_t * left_table_buf, uint8_t * right_table_buf,
     auto left_tuples = left_table->tuples();
     for (int i = 0; i < (int)left_tuples->Length(); i++) {
 	auto each_tuple = left_tuples->Get(i);
-	uint32_t hash_output = hash_field(each_tuple->fields()->Get(left_expr->expr.EqExpr->colno));
-	pair<map<uint32_t,vector<uint32_t>>::iterator, bool> ret;
-	ret = left_hash.insert(pair<uint32_t, vector<uint32_t>>(hash_output, vector<uint32_t>(1, i)));
-	if(!ret.second) {
+	auto left_col_no = left_expr->expr_as_EqExpr()->colno();
+        uint32_t hash_output =
+            hash_to_uint(each_tuple->fields()->Get(left_col_no));
+        pair<map<uint32_t,vector<uint32_t>>::iterator, bool> ret;
+        ret = left_hash.insert(pair<uint32_t, vector<uint32_t>>(
+            hash_output, vector<uint32_t>(1, i)));
+        if(!ret.second) {
 	    ret.first->second.push_back(i);
 	}
     }
     // .find for the join column on the right. if found, 
     map<uint32_t, vector<uint32_t> >::iterator iter;
     for (auto right_tuple : *right_table->tuples()) {
-	uint32_t hash_output = hash_field(right_tuple->fields()->Get(right_expr->expr().EqExpr->colno()));
+	auto right_col_no = right_expr->expr_as_EqExpr()->colno();
+	uint32_t hash_output = hash_to_uint(right_tuple->fields()->Get(right_col_no));
 	iter = left_hash.find(hash_output);
 	if(iter != left_hash.end()) {
 	    // Now need to merge the tuples and add them to the new table.
 	    for(int i : iter->second) {
 		vector<flatbuffers::Offset<Field> > field_vector;
 		auto left_tuple = left_table->tuples()->Get(i);
-		for (auto left_field : *left_tuple->fields()) {
-		    field_vector.push_back(left_field);
-		}
-		for (auto right_field: *right_tuple->fields()) {
-		    field_vector.push_back(right_field);
-		}
-		auto row = builder.CreateVector(field_vector);
-		auto new_tuple = CreateTuple(builder, joined_schema, row);
-		bool is_dummy = left_tuple->isdummy() && right_tuple->isdummy();
-		new_tuple.isdummy() = is_dummy;
-		tuple_vector.push_back(field_vector);
+                for (auto left_field : *left_tuple->fields()) {
+                  // because it's const
+                  field_vector.push_back(cp_field(left_field, builder));
+                }
+                for (auto right_field : *right_tuple->fields()) {
+                  field_vector.push_back(cp_field(right_field, builder));
+                }
+                auto row = builder.CreateVector(field_vector);
+                bool is_dummy = left_tuple->isdummy() || right_tuple->isdummy();
+                auto new_tuple =
+                    CreateTuple(builder, joined_schema, row, is_dummy);
+                tuple_vector.push_back(new_tuple);
 	    }
 	}
     }
-
-    auto new_table = CreateTable(builder, joined_schema, tuple_vector);
+    auto new_tuples = builder.CreateVector(tuple_vector);
+    auto new_table = CreateTable(builder, joined_schema, new_tuples);
     builder.Finish(new_table);
     uint8_t *buf = builder.GetBufferPointer();
     return buf;
