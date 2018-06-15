@@ -124,7 +124,7 @@ uint8_t *hashjoin(uint8_t * left_table_buf, uint8_t * right_table_buf,
     // .find for the join column on the right. if found, 
     map<uint32_t, vector<uint32_t> >::iterator iter;
     for (auto right_tuple : *right_table->tuples()) {
-	uint32_t hash_output = hash_field(right_tuple->fields()->Get(right_expr->expr().EqExpr->colno));
+	uint32_t hash_output = hash_field(right_tuple->fields()->Get(right_expr->expr().EqExpr->colno()));
 	iter = left_hash.find(hash_output);
 	if(iter != left_hash.end()) {
 	    // Now need to merge the tuples and add them to the new table.

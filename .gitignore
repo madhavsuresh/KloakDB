@@ -2,3 +2,5 @@
 *.swp
 vaultdb_generated.h
 tags
+todo.txt
+compile_commands.json
