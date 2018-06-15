@@ -1,0 +1,17 @@
+join(uint8_t * left_table_buf, uint8_t * right_table_buf, uint8_t * eq_left, uint8_t * eq_right)     {
+  2   flatbuffers::FlatBufferBuilder builder(1024);
+  3   // create a new schema offset for the left and right. -iterate through
+  4
+  5   // table setup, left table, right table, new table
+  6   auto left_table = flatbuffers::GetMutableRoot<Table>(left_table_buf);
+  7   auto left_table = flatbuffers::GetMutableRoot<Table>(left_table_buf);
+  8   auto left_table = flatbuffers::GetMutableRoot<Table>(left_table_buf);
+  9   // left expression - which column to join
+ 10   // right expression - which column to join
+ 11
+ 12   // hashtable for left
+ 13   // .find for the join column on the right, if found merge, , create new tuple, add the new tupl    e to the new table
+ 14
+ 15   // return new table
+
+}

@@ -1,0 +1,37 @@
+[
+{
+  "directory": "/home/mocco/vaultdb_operators/build",
+  "command": "/usr/bin/c++   -I/include  -g -g -fno-omit-frame-pointer -fsanitize=address   -std=gnu++14 -o CMakeFiles/runner.dir/postgres_client.o -c /home/mocco/vaultdb_operators/postgres_client.cpp",
+  "file": "/home/mocco/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/home/mocco/vaultdb_operators/build",
+  "command": "/usr/bin/c++   -I/include  -g -g -fno-omit-frame-pointer -fsanitize=address   -std=gnu++14 -o CMakeFiles/runner.dir/Filter.o -c /home/mocco/vaultdb_operators/Filter.cpp",
+  "file": "/home/mocco/vaultdb_operators/Filter.cpp"
+},
+{
+  "directory": "/home/mocco/vaultdb_operators/build",
+  "command": "/usr/bin/c++   -I/include  -g -g -fno-omit-frame-pointer -fsanitize=address   -std=gnu++14 -o CMakeFiles/runner.dir/runner.o -c /home/mocco/vaultdb_operators/runner.cpp",
+  "file": "/home/mocco/vaultdb_operators/runner.cpp"
+},
+{
+  "directory": "/home/mocco/vaultdb_operators/build",
+  "command": "/usr/bin/c++   -I/include  -g -g -fno-omit-frame-pointer -fsanitize=address   -std=gnu++14 -o CMakeFiles/runner.dir/Expressions.o -c /home/mocco/vaultdb_operators/Expressions.cpp",
+  "file": "/home/mocco/vaultdb_operators/Expressions.cpp"
+},
+{
+  "directory": "/home/mocco/vaultdb_operators/build",
+  "command": "/usr/bin/c++   -I/include  -g -g -fno-omit-frame-pointer -fsanitize=address   -std=gnu++14 -o CMakeFiles/runner.dir/Repartition.o -c /home/mocco/vaultdb_operators/Repartition.cpp",
+  "file": "/home/mocco/vaultdb_operators/Repartition.cpp"
+},
+{
+  "directory": "/home/mocco/vaultdb_operators/build",
+  "command": "/usr/bin/c++   -I/include  -g -g -fno-omit-frame-pointer -fsanitize=address   -std=gnu++14 -o CMakeFiles/join.dir/SimpleJoin.o -c /home/mocco/vaultdb_operators/SimpleJoin.cpp",
+  "file": "/home/mocco/vaultdb_operators/SimpleJoin.cpp"
+},
+{
+  "directory": "/home/mocco/vaultdb_operators/build",
+  "command": "/usr/bin/c++   -I/include  -g -g -fno-omit-frame-pointer -fsanitize=address   -std=gnu++14 -o CMakeFiles/join.dir/test_simplejoin.o -c /home/mocco/vaultdb_operators/test_simplejoin.cpp",
+  "file": "/home/mocco/vaultdb_operators/test_simplejoin.cpp"
+}
+]
