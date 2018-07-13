@@ -21,7 +21,7 @@ set(RUNNER_SRCS
 	runner.cpp
 	Expressions.cpp
 	Repartition.cpp
-    vaultdb_generated.h Aggregate.cpp)
+    vaultdb_generated.h Aggregate.cpp Aggregate.h)
 
 add_executable(runner ${RUNNER_SRCS})
 

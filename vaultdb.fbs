@@ -1,7 +1,7 @@
 
 enum FieldType : byte {VARCHAR, INT, TIMESTAMP, UNSUPPORTED}
 
-enum GroupByType : byte {MIN, COUNT, UNSUPPPORTED}
+enum GroupByType : byte {MINX, COUNT, UNSUPPPORTED}
 
 
 union ExprUnion {
