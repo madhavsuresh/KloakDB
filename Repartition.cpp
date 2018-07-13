@@ -122,11 +122,11 @@ int repart_step_one(uint8_t *table_buf) {
   for (int i = 0; i < (int)tuples->Length(); i++) {
     rand_assignment[std::rand() % num_hosts].push_back(i);
   }
-  for (std::map<int, std::vector<int>>::iterator it = rand_assignment.begin();
+  for (auto it = rand_assignment.begin();
        it != rand_assignment.end(); it++) {
     int host = it->first;
     uint8_t *buf = cp_tuples_by_index_lst(tuples, it->second);
-    outbound_queue.push_back(std::make_pair(host, buf));
+    outbound_queue.emplace_back(std::make_pair(host, buf));
   }
 
   // TODO: SEND OUT REPARITION
@@ -135,7 +135,7 @@ int repart_step_one(uint8_t *table_buf) {
 }
 
 sgx_sha256_hash_t *hash_field(const Field *f) {
-  sgx_sha256_hash_t *hash_output =
+  auto *hash_output =
       reinterpret_cast<sgx_sha256_hash_t *>(malloc(sizeof(sgx_sha256_hash_t)));
   uint32_t size;
   const unsigned char * data_ptr;

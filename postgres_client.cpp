@@ -23,7 +23,7 @@ FieldType get_OID_field_type(pqxx::oid oid) {
 }
 
 flatbuffers::Offset<Schema> get_schema_offset_from_query(pqxx::result res, flatbuffers::FlatBufferBuilder &builder) {
-    pqxx::row::size_type num_columns = res.columns();
+    pqxx::tuple::size_type num_columns = res.columns();
     std::vector<flatbuffers::Offset<FieldDesc>> field_vector_desc;
     for (int i = 0; i < num_columns; i++) {
 	auto column_name = builder.CreateString(res.column_name(i));

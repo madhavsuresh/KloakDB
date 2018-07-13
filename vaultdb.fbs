@@ -1,6 +1,9 @@
 
 enum FieldType : byte {VARCHAR, INT, TIMESTAMP, UNSUPPORTED}
 
+enum GroupByType : byte {MIN, COUNT, UNSUPPPORTED}
+
+
 union ExprUnion {
     EqExpr
 }
@@ -10,6 +13,15 @@ union FieldVal {
     TimeStampField,
     IntField,
     VarCharField
+}
+
+table ProjectList {
+    cols:[int];
+}
+
+table GroupByDef {
+    colno:int;
+    optype:GroupByType;
 }
 
 table EqExpr {
