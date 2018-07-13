@@ -52,6 +52,8 @@ flatbuffers::Offset<Field> get_field_offset_from_query(pqxx::field f, flatbuffer
 	    field_builder.add_fieldnum(f.num());
 	    field_builder.add_val_type(FieldVal_VarCharField);
 	    field_builder.add_val(var_char.Union());
+		field_builder.add_genval_type(FieldVal_VarCharField);
+		field_builder.add_genval(var_char.Union());
 	    auto field = field_builder.Finish();
 	    return field;
 	}
@@ -61,6 +63,8 @@ flatbuffers::Offset<Field> get_field_offset_from_query(pqxx::field f, flatbuffer
 	    field_builder.add_fieldnum(f.num());
 	    field_builder.add_val_type(FieldVal_IntField);
 	    field_builder.add_val(int_field.Union());
+		field_builder.add_genval_type(FieldVal_IntField);
+		field_builder.add_genval(int_field.Union());
 	    auto field = field_builder.Finish();
 	    return field;
 	}
@@ -70,6 +74,8 @@ flatbuffers::Offset<Field> get_field_offset_from_query(pqxx::field f, flatbuffer
 	    field_builder.add_fieldnum(f.num());
 	    field_builder.add_val_type(FieldVal_TimeStampField);
 	    field_builder.add_val(time_stamp_field.Union());
+	    field_builder.add_genval_type(FieldVal_TimeStampField);
+		field_builder.add_genval(time_stamp_field.Union());
 	    auto field = field_builder.Finish();
 	    return field;
         }
@@ -100,9 +106,4 @@ flatbuffers::DetachedBuffer postgres_query_writer(std::string query_string, std:
     builder.Finish(table);
     auto detached_buf = builder.Release();
     return detached_buf;
-    /*
-
-    auto s = flatbuffers::FlatBufferToString(buf, TableTypeTable());
-    std::cout << s << std::endl;
-    */
 }

@@ -111,6 +111,9 @@ uint8_t * aggregate_count_varchar(flatbuffers::FlatBufferBuilder &b, const Group
     std::map<T, int> agg;
     for (int i = 0; i < (int) tuples->Length(); i++) {
         auto tup = tuples->GetMutableObject(i);
+        if (tup->isdummy()) {
+            continue;
+        }
         auto f = tup->fields()->LookupByKey(col);
             if (agg.count(f->genval_as_VarCharField()->val()->str()) == 0) {
                 agg[f->genval_as_VarCharField()->val()->str()] = 1;
@@ -130,11 +133,14 @@ uint8_t * aggregate_count_int(flatbuffers::FlatBufferBuilder &b, const GroupByDe
     std::map<T, int> agg;
     for (int i = 0; i < (int) tuples->Length(); i++) {
         auto tup = tuples->GetMutableObject(i);
+        if (tup->isdummy()) {
+            continue;
+        }
         auto f = tup->fields()->LookupByKey(col);
         if (agg.count(f->val_as_IntField()->val())== 0) {
-            agg[f->val_as_IntField()->val()] = 1;
+            agg[f->genval_as_IntField()->val()] = 1;
         } else {
-            agg[f->val_as_IntField()->val()]++;
+            agg[f->genval_as_IntField()->val()]++;
         }
     }
     auto ret = build_aggregate_from_map_int(b, agg, t->schema()->fielddescs()->LookupByKey(gb_def->colno()));
@@ -148,6 +154,9 @@ uint8_t * aggregate_count_timestamp(flatbuffers::FlatBufferBuilder &b, const Gro
     std::map<T, int> agg;
     for (int i = 0; i < (int) tuples->Length(); i++) {
         auto tup = tuples->GetMutableObject(i);
+        if (tup->isdummy()) {
+            continue;
+        }
         auto f = tup->fields()->LookupByKey(col);
         if (agg.count(f->genval_as_TimeStampField()->val())== 0) {
             agg[f->genval_as_TimeStampField()->val()] = 1;

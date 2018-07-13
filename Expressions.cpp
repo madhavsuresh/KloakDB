@@ -18,7 +18,7 @@ bool expression_eval(const Expr *expr, const Tuple *tuple) {
       break;
     case FieldVal_IntField:
       if (eqexpr->val_as_IntField()->val() ==
-          tup_field->val_as_IntField()->val()) {
+          tup_field->genval_as_IntField()->val()) {
         return true;
       } else {
         return false;
