@@ -1,15 +1,15 @@
 #include "postgres_client.h"
 #include "Filter.h"
-#include "Aggregate.h"
 #include "Repartition.h"
 #include "flatbuffers/minireflect.h"
 #include <iostream>
 
 int main() {
-    std::string query_string("SELECT * FROM t_random_300");
+    std::string query_string("SELECT * FROM t_random_500");
     std::string dbname("dbname=test");
     auto table3 = postgres_query_writer(query_string, dbname);
 
+    /*
     flatbuffers::FlatBufferBuilder b(1024);
     auto int_field = CreateIntField(b, 2);
     auto eqexpr = CreateEqExpr(b, 1, FieldVal_IntField, int_field.Union());
@@ -26,23 +26,6 @@ int main() {
     repart_step_one(table);
     filter(table, buff);
 
-    auto gb_def = CreateGroupByDef(b, 1,GroupByType_COUNT);
-    b.Finish(gb_def);
-    uint8_t * buff2 = b.GetBufferPointer();
-
-
-    uint8_t * k;
-    k = aggregate(table, buff2);
-    auto outputAgg = flatbuffers::GetRoot<Table>(k);
-    auto &tuples = *outputAgg->tuples();
-    for (auto t : tuples) {
-        for (auto f : *t->fields()) {
-            std::cout << f->val_as_IntField()->val() << "| ";
-        }
-        std::cout << std::endl;
-    }
-
-    /*
     auto table2 = flatbuffers::GetRoot<Table>(table);
     auto &tuples = *table2->tuples();
     std::cout << std::endl;

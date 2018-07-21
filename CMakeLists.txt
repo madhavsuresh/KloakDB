@@ -21,10 +21,10 @@ set(RUNNER_SRCS
 	runner.cpp
 	Expressions.cpp
 	Repartition.cpp
-    vaultdb_generated.h Aggregate.cpp Aggregate.h)
+    vaultdb_generated.h Aggregate.cpp Aggregate.h Sort.cpp)
 
 add_executable(runner ${RUNNER_SRCS})
 
 set(REPART_SRCS
     Repartition.cpp)
-target_link_libraries(runner pq pqxx sgx_tcrypto)
+target_link_libraries(runner pq pqxx sgx_tcrypto profiler tcmalloc)
