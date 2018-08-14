@@ -45,13 +45,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -O1 -fno-omit-frame-p
 #set (CMAKE_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 
 
-find_package(glog)
+#find_library(GLOG glog)
 include_directories("/home/madhav/DB/linux-sgx/sgxsdk/include")
 link_directories(/home/madhav/DB/linux-sgx/sgxsdk/lib64)
 find_library(SGXCRYPTO sgx_tcrypto)
 set(RUNNER_SRCS
 	postgres_client.cpp
-	Filter.cpp
 	runner.cpp
 	Expressions.cpp
 	Repartition.cpp
@@ -60,8 +59,13 @@ set(RUNNER_SRCS
 add_executable(runner ${RUNNER_SRCS})
 
 add_executable(postgres_test postgres_client_test.cpp postgres_client.cpp)
-target_link_libraries(postgres_test gtest_main pq pqxx glog)
-add_test(NAME get_schema COMMAND postgres_test)
+target_link_libraries(postgres_test gtest_main pq pqxx glog profiler tcmalloc)
+add_test(NAME postgres_test COMMAND postgres_test)
+
+
+add_executable(filter_test filter_test.cpp Filter.cpp postgres_client.cpp Expressions.cpp)
+target_link_libraries(filter_test gtest_main pq pqxx glog profiler tcmalloc)
+add_test(NAME filter_test COMMAND filter_test)
 
 set(REPART_SRCS
     Repartition.cpp)
