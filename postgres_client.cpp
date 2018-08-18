@@ -2,6 +2,9 @@
 #include <glog/logging.h>
 #include "flatbuffers/minireflect.h"
 
+uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
+    return (PAGE_SIZE - sizeof(uint64_t)) /tuple_size;
+}
 
  void print_tuple(tuple_t * t) {
      int num_tuples = t->num_fields;
@@ -16,7 +19,7 @@
                  break;
              }
              case UNSUPPORTED : {
-                 printf("ERROR");
+                 printf("ERROR, Unsupported type in print");
                  break;
              }
          }
@@ -57,7 +60,6 @@ void free_table(table_t * t) {
     for (int i = 0; i < t->num_tuple_pages; i++) {
         free(t->tuple_pages[i]);
     }
-    free(t->tuple_pages[0]);
     free(t);
 
 }
@@ -67,6 +69,7 @@ tuple_page_t * allocate_tuple_page(table_builder_t * tb) {
     bzero(tb->table->tuple_pages[tb->curr_page], PAGE_SIZE);
     tb->table->tuple_pages[tb->curr_page]->page_no = tb->curr_page;
     tb->num_pages_allocated++;
+    tb->table->num_tuple_pages++;
     return tb->table->tuple_pages[tb->curr_page];
 }
 
@@ -85,43 +88,14 @@ tuple_t * get_tuple_from_page(int page_tuple_num, tuple_page_t * tp, table_t * t
 }
 
 tuple_t * get_tuple(int tuple_number, table_t * table) {
-    int num_tuples_per_page = PAGE_SIZE/table->size_of_tuple;
+    int num_tuples_per_page = (int)tuples_per_page(PAGE_SIZE,table->size_of_tuple);
     int page_num = (tuple_number)/(num_tuples_per_page);
     tuple_page_t * tp = table->tuple_pages[page_num];
     int page_tuple_num = tuple_number % num_tuples_per_page;
     return (tuple_t *)(((char *)tp->tuple_list)+(table->size_of_tuple*page_tuple_num));
 }
 
-table_builder_t *table_builder(std::string query_string, std::string dbname) {
-    auto *tb = (table_builder_t *) malloc(sizeof(table_builder_t));
-    bzero(tb, sizeof(table_builder_t));
-
-    pqxx::result res = query(query_string, dbname);
-    tb->expected_tuples = res.capacity();
-    tb->num_columns = res.columns();
-    //DLOG_IF(INFO, tb->num_columns > MAX_FIELDS) << "Max fields exceeded num columns:" << tb->num_columns;
-    schema_t *schema = get_schema_from_query(tb, res);
-    tb->size_of_tuple = sizeof(tuple) +
-                        schema->num_fields * (sizeof(FIELD_TYPE) + FIELD_LEN) + sizeof(uint64_t);
-
-    uint64_t total_size = tb->expected_tuples * tb->size_of_tuple;
-    tb->expected_pages = total_size / PAGE_SIZE + 1;
-    tb->table = (table_t *) malloc(sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
-    bzero(tb->table, sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
-    // Copy schema to new table
-    memcpy(&tb->table->schema, schema, sizeof(schema_t));
-    free(schema);
-
-    tb->table->size_of_tuple = tb->size_of_tuple;
-    tb->num_tuples_per_page = PAGE_SIZE / tb->size_of_tuple;
-
-
-    // Everything should be zero-indexed
-    tb->curr_tuple = 0;
-    tb->curr_page = 0;
-
-    // Initialize first page regardless
-    initialize_tuple_page(tb);
+void write_table_from_postgres(pqxx::result res, table_builder_t * tb) {
     tuple_page_t *curr_tp = tb->table->tuple_pages[tb->curr_page];
     for (auto psql_row : res) {
         // Don't want to jump on the first tuple
@@ -150,7 +124,50 @@ table_builder_t *table_builder(std::string query_string, std::string dbname) {
             field_counter++;
         }
         tb->curr_tuple++;
+        fflush(stdin);
     }
+}
+
+
+
+void init_table_builder(pqxx::result res ,table_builder_t * tb) {
+
+    tb->expected_tuples = res.capacity();
+    tb->num_columns = res.columns();
+    //DLOG_IF(INFO, tb->num_columns > MAX_FIELDS) << "Max fields exceeded num columns:" << tb->num_columns;
+    schema_t *schema = get_schema_from_query(tb, res);
+    tb->size_of_tuple = sizeof(tuple) +
+                        schema->num_fields * (sizeof(field_t));
+
+    uint64_t total_size = tb->expected_tuples * tb->size_of_tuple;
+    tb->expected_pages = total_size / PAGE_SIZE + 1;
+    tb->table = (table_t *) malloc(sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
+    bzero(tb->table, sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
+    // Copy schema to new table
+    memcpy(&tb->table->schema, schema, sizeof(schema_t));
+    free(schema);
+
+    tb->table->size_of_tuple = tb->size_of_tuple;
+    tb->num_tuples_per_page = tuples_per_page(PAGE_SIZE, tb->table->size_of_tuple);
+    tb->curr_tuple = 0;
+    tb->curr_page = 0;
+
+    // Initialize first page regardless
+    initialize_tuple_page(tb);
+}
+
+
+table_builder_t *table_builder(std::string query_string, std::string dbname) {
+    auto *tb = (table_builder_t *) malloc(sizeof(table_builder_t));
+    bzero(tb, sizeof(table_builder_t));
+
+    pqxx::result res = query(query_string, dbname);
+
+    init_table_builder(res, tb);
+    write_table_from_postgres(res,tb);
+
+
+    // Everything should be zero-indexed
     return tb;
 }
 

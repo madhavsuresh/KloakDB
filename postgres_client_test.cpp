@@ -49,13 +49,30 @@ TEST_F(postgres_client_test, get_schema) {
     res = query(query_destroy, dbname);
 }
 
+TEST_F(postgres_client_test, get_tuple) {
+    std::string query_create("create table if not exists test_random_get_tuple as select s, floor(random() * 100 +1)::int from generate_series(1,30000) s;");
+    pqxx::result res2;
+    res2 = query(query_create, dbname);
+    std::string query_string = "SELECT * FROM test_random_get_tuple";
+    auto *tb = (table_builder_t *) malloc(sizeof(table_builder_t));
+    bzero(tb, sizeof(table_builder_t));
+
+    pqxx::result res = query(query_string, dbname);
+    init_table_builder(res, tb);
+    tuple_t * t = get_tuple(0, tb->table);
+    void * b = tb->table->tuple_pages[0];
+    ASSERT_EQ(t,b + sizeof(uint64_t));
+
+}
+
 TEST_F(postgres_client_test, build_table) {
-    std::string query_create("create table test_random as select s, floor(random() * 100 +1)::int from generate_series(1,3) s;");
+    std::string query_create("create table if not exists test_random as select s, floor(random() * 100 +1)::int from generate_series(1,30000) s;");
     pqxx::result res2;
     res2 = query(query_create, dbname);
     std::string query_string = "SELECT * FROM test_random";
     pqxx::result t_random = query(query_string, dbname);
     table_builder_t * tb = table_builder(query_string, dbname);
+    printf("\n num tuples per page: %d", tb->num_tuples_per_page);
     check_int_table(tb->table);
     free_table(tb->table);
     free(tb);
@@ -64,7 +81,14 @@ TEST_F(postgres_client_test, build_table) {
     res2 = query(query_destroy, dbname);
 }
 
+TEST_F(postgres_client_test, test_size) {
+    printf("tuple_t %d", (int)sizeof(tuple_t));
+    printf("field_t %d", + (int)sizeof(field_t));
+    printf("field_union %d", + (int)sizeof(field_union));
+}
+
 // TODO(madhavsuresh): write tests that pull out all values
+// TODO(madhavsuresh): test different width
 
 void check_int_table(table_t * table) {
     uint32_t num_tuples = table->num_tuples;

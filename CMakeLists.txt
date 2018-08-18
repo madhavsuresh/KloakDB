@@ -54,7 +54,7 @@ set(RUNNER_SRCS
 	runner.cpp
 	Expressions.cpp
 	Repartition.cpp
-    vaultdb_generated.h Aggregate.cpp Aggregate.h Sort.cpp)
+    vaultdb_generated.h Aggregate.cpp Aggregate.h)
 
 add_executable(runner ${RUNNER_SRCS})
 
@@ -66,6 +66,10 @@ add_test(NAME postgres_test COMMAND postgres_test)
 add_executable(filter_test filter_test.cpp Filter.cpp postgres_client.cpp Expressions.cpp)
 target_link_libraries(filter_test gtest_main pq pqxx glog profiler tcmalloc)
 add_test(NAME filter_test COMMAND filter_test)
+
+add_executable(sort_test sort_test.cpp Sort.cpp postgres_client.cpp Expressions.cpp postgres_client_test.cpp)
+target_link_libraries(sort_test gtest_main pq pqxx glog profiler tcmalloc)
+add_test(NAME sort_test COMMAND sort_test)
 
 set(REPART_SRCS
     Repartition.cpp)

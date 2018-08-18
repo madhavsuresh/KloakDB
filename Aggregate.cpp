@@ -3,6 +3,7 @@
 //
 #include "vaultdb_generated.h"
 #include "Expressions.h"
+#include "Aggregate.h"
 #include <map>
 
 uint8_t *build_aggregate_from_map_str(flatbuffers::FlatBufferBuilder &b, std::map<std::string, int> agg, const FieldDesc *fd) {
@@ -183,6 +184,64 @@ uint8_t * aggregate_count(flatbuffers::FlatBufferBuilder &b, const GroupByDef *g
         }
         case FieldType_UNSUPPORTED:break;
     }
+}
+
+table_t * aggregate_count(table_t * t, uint32_t colno) {
+    std::map<std::string, int> agg_map;
+    // This will always be the same.
+    FIELD_TYPE type = get_tuple(0, t)->field_list[colno].type;
+    for (int i = 0; i < t->num_tuples; i++) {
+        tuple_t *tup = get_tuple(i, t);
+        std::string key;
+        switch (type) {
+            case INT : {
+                key = std::to_string(tup->field_list[colno].f.int_field.val);
+            }
+            case FIXEDCHAR: {
+                key = std::string(tup->field_list[colno].f.fixed_char_field.val);
+            }
+            case UNSUPPORTED:
+                break;
+        }
+        if (agg_map[key] == 0) {
+            agg_map[key] = 1;
+        } else {
+            agg_map[key]++;
+        }
+    }
+    free_table(t);
+    agg_map.size();
+    for (const auto &agg_pair : agg) {
+        //TODO(madhavsuresh): output representation of aggregate
+        // merge aggregate outputs
+        agg_pair.first
+    }
+    return nullptr;
+}
+
+table_t * create_aggregate_output_table(table_t * t, uint32_t colno) {
+    t->schema.fields[colno].field_name
+
+
+}
+
+
+table_t * aggregate(table_t * t, groupby_def_t * def) {
+    switch (def->type) {
+        case COUNT: {
+            return aggregate_count(t, def->colno) ;
+            break;
+        }
+        case MINX : {
+            printf("UNIMPLEMENTED");
+        }
+        case GROUPBY_UNSUPPORTED : {
+            printf("UNSUPPORTED");
+        }
+    }
+    for (int i = 0; i < t->num_tuples; i++) {
+    }
+
 }
 
 uint8_t * aggregate(uint8_t *table_buf, uint8_t *groupby_defs_buf) {

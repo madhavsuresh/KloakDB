@@ -51,7 +51,6 @@ union field_union {
     field_fixed_char_t fixed_char_field;
 };
 
-// TODO(madhav): this is going to result in unaligned structs
 // FIXME(madhav): if this causes performance problems
 // TODO(madhav): deal with sizeof more elegantly
 typedef struct field {
@@ -75,8 +74,7 @@ typedef struct tuple {
 } tuple_t;
 
 typedef struct tuple_page {
-    int page_no;
-    int num_tuples;
+    uint64_t page_no;
     tuple_t tuple_list[];
 } tuple_page_t;
 
@@ -116,4 +114,5 @@ tuple_t * get_tuple(int tuple_number, table_t * table);
 void free_table(table_t * table);
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno);
 void print_tuple(tuple_t * t);
+void init_table_builder(pqxx::result res ,table_builder_t * tb);
 #endif //PROJECT_POSTGRES_CLIENT_H
