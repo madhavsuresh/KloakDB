@@ -60,8 +60,8 @@ TEST_F(postgres_client_test, get_tuple) {
     pqxx::result res = query(query_string, dbname);
     init_table_builder(res, tb);
     tuple_t * t = get_tuple(0, tb->table);
-    void * b = tb->table->tuple_pages[0];
-    ASSERT_EQ(t,b + sizeof(uint64_t));
+    char*  b = (char *) tb->table->tuple_pages[0];
+    ASSERT_EQ((char *)t,b + sizeof(uint64_t));
 
 }
 

@@ -57,6 +57,7 @@ FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
 }
 
 void free_table(table_t * t) {
+    //TODO(madhavsuresh): there is a memory leak here!
     for (int i = 0; i < t->num_tuple_pages; i++) {
         free(t->tuple_pages[i]);
     }
@@ -81,6 +82,7 @@ tuple_page_t * initialize_tuple_page(table_builder_t * tb) {
 tuple_page_t * add_tuple_page(table_builder_t * tb) {
     tb->curr_page++;
     allocate_tuple_page(tb);
+
 }
 
 tuple_t * get_tuple_from_page(int page_tuple_num, tuple_page_t * tp, table_t * table) {
@@ -140,7 +142,8 @@ void init_table_builder(pqxx::result res ,table_builder_t * tb) {
                         schema->num_fields * (sizeof(field_t));
 
     uint64_t total_size = tb->expected_tuples * tb->size_of_tuple;
-    tb->expected_pages = total_size / PAGE_SIZE + 1;
+    tb->expected_pages = tb->expected_tuples/tuples_per_page(PAGE_SIZE, tb->size_of_tuple) + 1;
+   // total_size / PAGE_SIZE + 2;
     tb->table = (table_t *) malloc(sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
     bzero(tb->table, sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
     // Copy schema to new table
