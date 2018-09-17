@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package vaultdb;
+
+service VaultDBOperators {
+    rpc DBQuery (DBQueryRequest) returns (DBQueryResponse) {}
+}
+
+message DBQueryRequest {
+    string query_string = 1;
+    string dbname = 2;
+}
+
+message DBQueryResponse {
+    string db_response = 1;
+}
+
+
+
