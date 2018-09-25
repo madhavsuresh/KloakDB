@@ -1,5 +1,6 @@
 #include "postgres_client.h"
 #include <glog/logging.h>
+#include <iostream>
 #include "flatbuffers/minireflect.h"
 
 uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
@@ -7,7 +8,6 @@ uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
 }
 
  void print_tuple(tuple_t * t) {
-     int num_tuples = t->num_fields;
      for (int i = 0; i < t->num_fields; i++) {
          switch (t->field_list[i].type) {
              case FIXEDCHAR: {
@@ -37,9 +37,21 @@ expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno) {
 }
 
 pqxx::result query(std::string query_string, std::string dbname) {
+    try {
+        pqxx::connection c(dbname);
+    } catch (const std::exception& e){
+        std::cerr << e.what() << std::endl;
+    }
     pqxx::connection c(dbname);
     pqxx::work txn(c);
-    pqxx::result res = txn.exec(query_string);
+    pqxx::result res;
+    try {
+        res = txn.exec(query_string);
+    }
+    catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+    }
+
     txn.commit();
     txn.commit();
     return res;
@@ -130,7 +142,9 @@ void write_table_from_postgres(pqxx::result res, table_builder_t * tb) {
     }
 }
 
-
+table_t * allocate_table(int num_tuple_pages) {
+    return (table_t*)malloc(sizeof(table_t) + num_tuple_pages* sizeof(tuple_page_t *));
+}
 
 void init_table_builder(pqxx::result res ,table_builder_t * tb) {
 
@@ -144,7 +158,8 @@ void init_table_builder(pqxx::result res ,table_builder_t * tb) {
     uint64_t total_size = tb->expected_tuples * tb->size_of_tuple;
     tb->expected_pages = tb->expected_tuples/tuples_per_page(PAGE_SIZE, tb->size_of_tuple) + 1;
    // total_size / PAGE_SIZE + 2;
-    tb->table = (table_t *) malloc(sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
+   //TODO(madhavsuresh): this needs to be abstracted out. this is terrible.
+    tb->table = allocate_table(tb->expected_pages); //(table_t *) malloc(sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
     bzero(tb->table, sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
     // Copy schema to new table
     memcpy(&tb->table->schema, schema, sizeof(schema_t));
@@ -185,35 +200,4 @@ schema_t *get_schema_from_query(table_builder_t *tb, pqxx::result res) {
     }
     //DLOG(INFO) << "Completed Schema with columns: " << tb->num_columns;
     return schema;
-}
-
-
-
-flatbuffers::DetachedBuffer postgres_query_writer(std::string query_string,
-                                                  std::string dbname) {
-    /*flatbuffers::FlatBufferBuilder builder(1024);*/
-
-    /*builder.ForceDefaults(true);*/
-    //auto schema_offset = get_schema_from_query(res);
-    // auto schema = flatbuffers::GetRoot<Schema>(schema_buf);
-
-    /*
-std::vector<flatbuffers::Offset<Tuple>> tuple_vector;
-for (auto psql_row : res) {
-std::vector<flatbuffers::Offset<Field>> field_vector;
-for (auto psql_field : psql_row) {
-flatbuffers::Offset<Field> field_offset =
-    get_field_offset_from_query(psql_field, builder);
-field_vector.push_back(field_offset);
-}
-auto row = builder.CreateVector(field_vector);
-auto tuple = CreateTuple(builder, schema_offset, row);
-tuple_vector.push_back(tuple);
-}
-auto tuples = builder.CreateVector(tuple_vector);
-auto table = CreateTable(builder, schema_offset, tuples);
-builder.Finish(table);
-auto detached_buf = builder.Release();
-     */
-    //return detached_buf;
 }

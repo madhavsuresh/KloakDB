@@ -39,7 +39,7 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
 	)
 ENDIF()
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -O1 -fno-omit-frame-pointer -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address ${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -g")
 #set(CMAKE_CXX_FLAGS "-g")
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
@@ -54,7 +54,7 @@ set(RUNNER_SRCS
 	runner.cpp
 	Expressions.cpp
 	Repartition.cpp
-    vaultdb_generated.h Aggregate.cpp Aggregate.h)
+	vaultdb_generated.h Aggregate.cpp Aggregate.h rpc/DOServer.cpp rpc/DOClient.cpp)
 
 add_executable(runner ${RUNNER_SRCS})
 
@@ -74,3 +74,5 @@ add_test(NAME sort_test COMMAND sort_test)
 set(REPART_SRCS
     Repartition.cpp)
 target_link_libraries(runner pq pqxx sgx_tcrypto profiler tcmalloc)
+
+add_subdirectory(rpc)

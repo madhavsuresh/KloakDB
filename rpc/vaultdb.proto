@@ -4,6 +4,8 @@ package vaultdb;
 
 service VaultDBOperators {
     rpc DBQuery (DBQueryRequest) returns (DBQueryResponse) {}
+    rpc GetTableStream (TableRequest) returns (stream TableStream){}
+    rpc GetTable (TableQueryRequest) returns (stream TableQueryResponse) {}
 }
 
 message DBQueryRequest {
@@ -15,5 +17,71 @@ message DBQueryResponse {
     string db_response = 1;
 }
 
+message TableRequest {
 
+}
+
+message TableResponse {
+    Table t = 1;
+}
+
+message schema {
+    repeated Table q = 2;
+}
+
+message TableStream {
+    Table t = 1;
+    int32 page_no = 3;
+    bytes page = 4;
+}
+
+//TODO(madhavsuresh): do we need to serialize/unserialize the schema?
+message Table {
+    int32 num_tuple_pages = 1;
+    int32 num_tuples = 2;
+    int32 size_of_tuple = 3;
+    bytes schema = 4;
+}
+
+message TuplePage {
+    int32 page_no = 1;
+    bytes page = 2;
+}
+
+
+message FieldDesc {
+    string field_name = 1;
+    int32 col_no = 2;
+
+    enum FieldType {
+        UNSUPPORTED = 0;
+        FIXEDCHAR = 1;
+        INT = 2;
+    }
+    FieldType field_type = 3;
+}
+
+message Schema {
+    int32 num_fields = 1;
+    repeated FieldDesc field = 2;
+}
+
+message TableQueryRequest {
+    string dbname = 1;
+    string query = 2;
+}
+
+message TableQueryResponse {
+    // This message is unforuantely overloaded.
+    // The first message in the stream is the metadata associated with
+    // the query.
+    bool is_header = 2;
+    Schema schema = 3;
+    int32 num_tuples = 4;
+    int32 size_of_tuple = 5;
+    int32 num_tuple_pages = 6;
+
+    int32 page_no = 7;
+    bytes page = 8;
+}
 

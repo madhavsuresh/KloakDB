@@ -13,7 +13,7 @@ rpc_protos:
 	protoc -I . --cpp_out=. vaultdb.proto
 
 vaultdb_do: vaultdb.pb.o vaultdb.grpc.pb.o DOServer.o ../postgres_client.o
-	$(CXX)  $^ $(LDFLAGS) -o $@
+	$(CXX)  -g $^ $(LDFLAGS) -o $@
 
 vaultdb_client: vaultdb.pb.o vaultdb.grpc.pb.o DOClient.o 
-	$(CXX)  $^ $(LDFLAGS) -o $@
+	$(CXX)  -g $^ $(LDFLAGS) -o $@

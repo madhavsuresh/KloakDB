@@ -1,6 +1,5 @@
 #ifndef PROJECT_POSTGRES_CLIENT_H
 #define PROJECT_POSTGRES_CLIENT_H
-#include "vaultdb_generated.h"
 #include <pqxx/pqxx>
 	//OID constants taken from postgres/catalog/pg_type.h, not included in Ubuntu 16.04 postgres package. These are global constants set in postgres
 #define VARCHAROID	1043
@@ -103,7 +102,6 @@ typedef struct table_builder {
 //TODO(madhavsuresh): might need to worry about blocks
 
 
-flatbuffers::DetachedBuffer postgres_query_writer(std::string query_string, std::string dbname);
 
 pqxx::result query(std::string query_string, std::string dbname);
 
@@ -115,4 +113,5 @@ void free_table(table_t * table);
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno);
 void print_tuple(tuple_t * t);
 void init_table_builder(pqxx::result res ,table_builder_t * tb);
+table_t * allocate_table(int num_tuple_pages);
 #endif //PROJECT_POSTGRES_CLIENT_H
