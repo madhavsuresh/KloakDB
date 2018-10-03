@@ -39,13 +39,14 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
 	)
 ENDIF()
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address ${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -g")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
 #set(CMAKE_CXX_FLAGS "-g")
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 
 
 #find_library(GLOG glog)
+link_directories(/usr/local/lib /home/madhav/DB/grpc/libs/opt/)
 include_directories("/home/madhav/DB/linux-sgx/sgxsdk/include")
 link_directories(/home/madhav/DB/linux-sgx/sgxsdk/lib64)
 find_library(SGXCRYPTO sgx_tcrypto)
@@ -74,5 +75,9 @@ add_test(NAME sort_test COMMAND sort_test)
 set(REPART_SRCS
     Repartition.cpp)
 target_link_libraries(runner pq pqxx sgx_tcrypto profiler tcmalloc)
+
+add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h)
+
+target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl)
 
 add_subdirectory(rpc)

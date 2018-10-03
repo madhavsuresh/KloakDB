@@ -8,6 +8,46 @@ service VaultDBOperators {
     rpc GetTable (TableQueryRequest) returns (stream TableQueryResponse) {}
 }
 
+service HonestBroker {
+    rpc NumHosts (NumHostsRequest) returns (NumHostResp) {}
+    rpc Register (RegisterRequest) returns (RegisterResponse) {}
+}
+
+service DataOwner {
+    rpc DBMSQuery (DBMSQueryRequest) returns (DBMSQueryResponse){}
+}
+
+message TableID {
+    string dbname = 1;
+    string query = 2;
+    int32 hostnum = 3;
+    int32 tableid = 4;
+}
+
+message DBMSQueryRequest {
+    string dbname = 1;
+    string query = 2;
+}
+
+message DBMSQueryResponse {
+    TableID tableId = 1;
+}
+
+message RegisterRequest {
+    string hostname = 1;
+}
+
+message RegisterResponse {
+    int32 host_num = 1;
+}
+
+message NumHostsRequest {
+}
+
+message NumHostResp {
+    int32 num_hosts = 1;
+}
+
 message DBQueryRequest {
     string query_string = 1;
     string dbname = 2;
@@ -84,4 +124,5 @@ message TableQueryResponse {
     int32 page_no = 7;
     bytes page = 8;
 }
+
 

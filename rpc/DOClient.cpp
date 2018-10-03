@@ -4,6 +4,7 @@
 #include "vaultdb.grpc.pb.h"
 #include "../postgres_client.h"
 #include <grpcpp/grpcpp.h>
+#include "HBGeneralize.h"
 
 class VaultDBClient {
 public:
@@ -22,26 +23,25 @@ public:
 
         } else {
                 std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
-                return -1;
+                throw;
         }
     }
 
     //TODO(madhavsuresh): write tests for this
-    table_t * GetTable() {
+    table_t * GetTable(std::string dbname, std::string query) {
         table_t *t;
         grpc::ClientContext context;
         vaultdb::TableQueryRequest req;
         vaultdb::TableQueryResponse resp;
 
-        req.set_dbname("dbname=test");
-        req.set_query("SELECT * FROM rpc_test_big;");
+        req.set_dbname(dbname);
+        req.set_query(query);
 
         std::unique_ptr<grpc::ClientReader<vaultdb::TableQueryResponse>> reader(stub_->GetTable(&context, req));
 
         while (reader->Read(&resp)) {
 
             if (resp.is_header()) {
-                //TODO(madhavsuresh) #URGENT there needs to be a allocate_table function.
                 t = allocate_table(resp.num_tuple_pages());
 
                 t->num_tuples = resp.num_tuples();
@@ -62,6 +62,9 @@ public:
                         case vaultdb::FieldDesc_FieldType_INT: {
                             t->schema.fields[i].type = INT;
                             break;
+                        }
+                        default: {
+                            throw;
                         }
 
                     }
@@ -90,18 +93,45 @@ private:
 
 };
 
-int main() {
-       VaultDBClient client( grpc::CreateChannel("0.0.0.0:50051",
-                       grpc::InsecureChannelCredentials()));
-
-    table_t * t = client.GetTable();
-    printf("size: %d, num_tuples: %d, num_tuple_pages: %d\n", t->size_of_tuple, t->num_tuples, t->num_tuple_pages);
-
-    for (int i = 0; i < t->num_tuples; i++) {
-        print_tuple(get_tuple(i,t));
-        printf("\n");
+void Generalize(std::vector<TableStatistics> allStats) {
+    int num_hosts =  allStats.size();
+    for (int i = 0; i < num_hosts; i++) {
+        for (int j = 0; j < num_hosts; j++) {
+            std::map<int, int> newMap;
+            if (j == i) {
+                continue;
+            }
+            std::map<int, int> currMap = allStats.at(j).GetMap();
+            for (std::map<int,int>::iterator it = currMap.begin(); it!= currMap.end(); ++it) {
+                if (newMap.count(it->first) == 1) {
+                    newMap[it->first]+= it->second;
+                } else {
+                    newMap[it->first] = it->second;
+                }
+            }
+        }
     }
+}
 
-    free_table(t);
+void generalize() {
+    std::vector<TableStatistics> allStats;
+    VaultDBClient client(grpc::CreateChannel("0.0.0.0:50051",
+                                             grpc::InsecureChannelCredentials()));
+    std::string db1 = "dbname=test";
+    std::string q1 = "SELECT floor, COUNT(*) from rpc_test group by floor;";
+    std::string q2 = "SELECT floor, COUNT(*) from rpc_test1 group by floor;";
+    table_t * t1 = client.GetTable(db1, q1);
+    table_t * t2 = client.GetTable(db1, q2);
+    TableStatistics ts;
+    ts.IngestAllocatedTable(t1);
+    TableStatistics ts2;
+    ts2.IngestAllocatedTable(t2);
+    allStats.push_back(ts);
+    allStats.push_back(ts2);
+    Generalize(allStats);
+}
+
+int main() {
+    generalize();
 }
 

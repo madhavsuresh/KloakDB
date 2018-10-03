@@ -3,6 +3,7 @@
 #include <pqxx/pqxx>
 	//OID constants taken from postgres/catalog/pg_type.h, not included in Ubuntu 16.04 postgres package. These are global constants set in postgres
 #define VARCHAROID	1043
+#define INT8OID     20
 #define INT4OID		23
 #define TIMESTAMPOID	1114
 
@@ -109,6 +110,8 @@ schema_t *get_schema_from_query(table_builder_t *tb, pqxx::result res);
 table_builder_t *table_builder(std::string query_string, std::string dbname);
 tuple_t * get_tuple_from_page(int tuple_number, tuple_page_t * tp, table_t * table);
 tuple_t * get_tuple(int tuple_number, table_t * table);
+int get_int_field(tuple_t * tup, int field_no);
+table_t * get_table(std::string query_string, std::string dbname);
 void free_table(table_t * table);
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno);
 void print_tuple(tuple_t * t);

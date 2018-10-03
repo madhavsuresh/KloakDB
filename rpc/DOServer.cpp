@@ -38,19 +38,21 @@ class DOServerImpl final : public vaultdb::VaultDBOperators::Service {
         }
     }
 
+    virtual Status NumHosts(::grpc::ServerContext* context, const ::vaultdb::NumHostsRequest* request,
+            ::vaultdb::NumHostResp* response) {
+        response->set_num_hosts(this->num_hosts);
+        return Status::OK;
+    }
+
     virtual Status GetTable(ServerContext * context, const TableQueryRequest* request,
             ServerWriter<TableQueryResponse> * writer) {
         //request->dbname();
         //TODO(madhavsuresh): this api needs to be changed.
         table_builder_t *tb = table_builder(request->query(), request->dbname());
-
         table * t = tb->table;
         //TODO(madhavsuresh): this is a poor abstraction.
         free(tb);
-
-
         TableQueryResponse header;
-
         header.set_is_header(true);
         header.set_num_tuples(t->num_tuples);
         header.set_num_tuple_pages(t->num_tuple_pages);
@@ -76,38 +78,21 @@ class DOServerImpl final : public vaultdb::VaultDBOperators::Service {
                 }
             }
         }
-
         writer->Write(header);
-
         TableQueryResponse pages;
         for (int i = 0; i < t->num_tuple_pages; i++) {
             pages.set_is_header(false) ;
             pages.set_page_no(i);
             pages.set_page((char *) t->tuple_pages[i], PAGE_SIZE);
             writer->Write(pages);
-            //free(t->tuple_pages[i]);
+            free(t->tuple_pages[i]);
         }
-        //free(t);
+        free(t);
         return Status::OK;
     }
 
-    /*
-    //TODO(madhavsuresh): this api is extremely messy
-    virtual Status GetTable(ServerContext* context, const TableRequest* request, TableResponse* response) override {
-
-        table_builder_t * tb = table_builder("SELECT * FROM rpc_test;", "dbname=test");
-        vaultdb::Table t;
-        t.set_num_tuple_pages(tb->table->num_tuple_pages);
-        t.set_num_tuples(tb->table->num_tuples);
-        t.set_size_of_tuple(tb->table->size_of_tuple);
-        t.set_schema(&tb->table->schema, sizeof(schema_t));
-        //TODO(madhavsuresh): is this memory efficient. do protobufs allocate the fields?
-        response->mutable_t()->CopyFrom(t);
-        printf("schema_field: %s", ((schema_t *)response->t().schema().c_str())->fields[0].field_name);
-
-        return Status::OK;
-    }
-     */
+private:
+    int num_hosts = 3;
 
 };
 
@@ -118,7 +103,7 @@ void RunServer() {
     ServerBuilder builder;
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
     builder.RegisterService(&service);
-    std::unique_ptr<Server> server(builder.BuildAndStart());
+    //std::unique_ptr<Server> server(builder.BuildAndStart());
     std::cout << "Server listening on " << server_address << std::endl;
     server->Wait();
 }
