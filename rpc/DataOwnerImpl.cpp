@@ -11,6 +11,15 @@ DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) {
 }
 
 ::grpc::Status
+GetPeerHosts(::grpc::ServerContext* context, const ::vaultdb::GetPeerHostsRequest* request, ::vaultdb::GetPeerHostsResponse* response) {
+    for (int i = 0; i < request->hostnames_size(); i++) {
+        auto host = request->hostnames(i);
+    }
+
+    return grpc::Status::OK;
+}
+
+::grpc::Status
 DataOwnerImpl::DBMSQuery(::grpc::ServerContext* context,
           const ::vaultdb::DBMSQueryRequest* request,
           ::vaultdb::DBMSQueryResponse* response) {

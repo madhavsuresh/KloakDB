@@ -34,17 +34,16 @@ TEST_F(postgres_client_test, get_schema) {
     pqxx::result res = query(select, dbname);
     tb.expected_tuples = res.capacity();
     tb.num_columns = res.columns();
-    schema_t *s = get_schema_from_query(&tb, res);
-    ASSERT_EQ(s->num_fields, 2);
-    ASSERT_STRCASEEQ(s->fields[0].field_name, "s");
-    ASSERT_EQ(s->fields[0].col_no, 0);
-    ASSERT_EQ(s->fields[0].type, INT);
-    ASSERT_STRCASEEQ(s->fields[1].field_name, "floor");
-    ASSERT_EQ(s->fields[1].col_no, 1);
-    ASSERT_EQ(s->fields[1].type, INT);
+    schema_t s = get_schema_from_query(&tb, res);
+    ASSERT_EQ(s.num_fields, 2);
+    ASSERT_STRCASEEQ(s.fields[0].field_name, "s");
+    ASSERT_EQ(s.fields[0].col_no, 0);
+    ASSERT_EQ(s.fields[0].type, INT);
+    ASSERT_STRCASEEQ(s.fields[1].field_name, "floor");
+    ASSERT_EQ(s.fields[1].col_no, 1);
+    ASSERT_EQ(s.fields[1].type, INT);
     //ASSERT_LE(malloc_usable_size(t.schema), 328);
     //ASSERT_EQ(t.schema.num_fields, s->num_fields);
-    free(s);
     std::string query_destroy("DROP TABLE tz");
     res = query(query_destroy, dbname);
 }
@@ -58,7 +57,7 @@ TEST_F(postgres_client_test, get_tuple) {
     bzero(tb, sizeof(table_builder_t));
 
     pqxx::result res = query(query_string, dbname);
-    init_table_builder(res, tb);
+    init_table_builder_from_pq(res, tb);
     tuple_t * t = get_tuple(0, tb->table);
     char*  b = (char *) tb->table->tuple_pages[0];
     ASSERT_EQ((char *)t,b + sizeof(uint64_t));

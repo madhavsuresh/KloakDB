@@ -8,8 +8,9 @@
 #include <vector>
 
 
+
 int repart_step_one(table_t * t, int num_hosts) {
-    std::srand(std::time(nullptr));
+    std::srand(time(nullptr));
     std::map<int, table_t *> partition_map;
     std::map<int, std::vector<int>> rand_assignment;
     for (int i = 0; i < t->num_tuples; i++) {
@@ -20,9 +21,11 @@ int repart_step_one(table_t * t, int num_hosts) {
     it!= rand_assignment.end(); it++) {
         int host = it->first;
         std::vector<int> index_lst = it->second;
+        table_t * output_table = copy_table_by_index(t, index_lst);
+
+        free_table(output_table);
     }
     //TODO(madhavsuresh) need insert tuple method
-
 }
 
 int repart_step_one(uint8_t *table_buf) {

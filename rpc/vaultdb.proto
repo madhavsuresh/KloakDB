@@ -15,6 +15,51 @@ service HonestBroker {
 
 service DataOwner {
     rpc DBMSQuery (DBMSQueryRequest) returns (DBMSQueryResponse){}
+    rpc GetPeerHosts (GetPeerHostsRequest) returns (GetPeerHostsResponse){}
+    rpc KFilter (KFilterRequest) returns (KFilterResponse){}
+    rpc KJoin (KJoinRequest) returns (KJoinResponse) {}
+    rpc KSort (KSortRequest) returns (KSortResponse) {}
+    rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
+}
+
+message KFilterRequest {
+    int32 tableID = 1;
+}
+
+message KFilterResponse {
+
+}
+
+message KJoinRequest {
+
+}
+
+message KJoinResponse {
+
+}
+
+message KSortRequest {
+
+}
+
+message KSortResponse {
+
+}
+
+message GeneralizeRequest {
+
+}
+
+message GeneralizeResponse {
+
+}
+
+message GetPeerHostsRequest {
+    repeated string hostnames = 1;
+}
+
+message GetPeerHostsResponse {
+    bool ok = 1;
 }
 
 message TableID {
