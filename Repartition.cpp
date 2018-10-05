@@ -9,11 +9,20 @@
 #include <vector>
 
 
+typedef int32_t hostNum;
+typedef int32_t tableID;
+typedef std::pair<hostNum, tableID> HostIDPair;
 
 int repart_step_one(table_t * t, int num_hosts, DataOwnerPrivate * p) {
+    // If there is only one host, we do not want to reparition.
+    if (num_hosts == 1) {
+        return 0;
+    }
+
     std::srand(time(nullptr));
     std::map<int, table_t *> partition_map;
     std::map<int, std::vector<int>> rand_assignment;
+    std::vector<HostIDPair> host_tableID_pair;
     for (int i = 0; i < t->num_tuples; i++) {
         rand_assignment[std::rand() % num_hosts].push_back(i);
     }
@@ -23,9 +32,11 @@ int repart_step_one(table_t * t, int num_hosts, DataOwnerPrivate * p) {
         int host = it->first;
         std::vector<int> index_lst = it->second;
         table_t *output_table = copy_table_by_index(t, index_lst);
-        p->SendTable(host, t);
+        tableID id = p->SendTable(host, t);
+        host_tableID_pair.push_back(std::make_pair(host, id));
         free_table(output_table);
     }
+
 }
 
 /*

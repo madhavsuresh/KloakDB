@@ -20,6 +20,8 @@ public:
     ::grpc::Status
     Register(::grpc::ServerContext* context, const ::vaultdb::RegisterRequest* request,
                             ::vaultdb::RegisterResponse* response);
+
+
     void
     Start(std::string);
 

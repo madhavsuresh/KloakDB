@@ -45,7 +45,8 @@ int main(int argc, char** argv) {
         std::thread hb_thread(runHonestBrokerServer, p);
         getchar();
         p->DBMSQuery(1, "dbname=test",
-                "SELECT floor, COUNT(*) from rpc_test group by floor;");
+                "SELECT * from rpc_test;");
+        p->Repartition(1);
         hb_thread.join();
     } else {
         DataOwnerPrivate * p = new DataOwnerPrivate(FLAGS_address,

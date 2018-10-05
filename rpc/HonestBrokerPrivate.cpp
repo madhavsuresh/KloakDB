@@ -31,6 +31,10 @@ int HonestBrokerPrivate::DBMSQuery(int host_num, std::string dbname,
     return this->do_clients[host_num]->DBMSQuery(dbname, query);
 }
 
+int HonestBrokerPrivate::Repartition(int host_num, int table_id) {
+
+}
+
 int HonestBrokerPrivate::NumHosts() {
     return this->num_hosts;
 }

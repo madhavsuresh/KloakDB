@@ -21,6 +21,13 @@ service DataOwner {
     rpc KSort (KSortRequest) returns (KSortResponse) {}
     rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
     rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
+    rpc RepartitionStepOne (RepartitionStepOneRequest) returns (stream RepartitionStepOneResponse) {}
+}
+
+message RepartitionStepOneRequest {}
+
+message RepartitionStepOneResponse {
+    repeated TableID remoteRepartitionIDs = 1;
 }
 
 message SendTableRequest {
