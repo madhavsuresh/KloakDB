@@ -84,6 +84,16 @@ HonestBrokerPrivate::Filter(
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+HonestBrokerPrivate::Join(std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>, std::shared_ptr<const ::vaultdb::TableID>>> &ids, ::vaultdb::JoinDef &join) {
+
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> joined_tables;
+    for (auto &i : ids) {
+        joined_tables.emplace_back(do_clients[i.first.get()->hostnum()]->Join(i.first, i.second, join));
+    }
+    return joined_tables;
+}
+
+std::vector<std::shared_ptr<const ::vaultdb::TableID>>
 HonestBrokerPrivate::Sort(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids, ::vaultdb::SortDef &sort) {
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> sorted_tables;
   for (auto &i : ids) {

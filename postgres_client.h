@@ -13,6 +13,8 @@
 #define FIXEDCHAR_LEN 16
 #define MAX_FIELDS 10
 #define PAGE_SIZE 32768 // 32k sized pages. This could be much bigger.
+#define LEFT_RELATION 0
+#define RIGHT_RELATION 1
 
 // invariant that every table has the same size tuple
 
@@ -34,6 +36,18 @@ typedef struct schema {
   uint32_t unused;
   field_desc_t fields[MAX_FIELDS];
 } schema_t;
+
+typedef struct join_col_ID {
+    int32_t side; //Either 0, or 1. 0-> left table, 1-> right table
+    int32_t col_no;
+} join_colID_t;
+
+typedef struct join_def {
+    int32_t l_col; // Column to join on in left relation.
+    int32_t r_col; // Column to join on in right relation.
+    join_colID_t project_list[MAX_FIELDS]; // ordered list of columns to project after join.
+    int32_t project_len; // Number of fields in project list
+} join_def_t;
 
 typedef struct field_int {
   int64_t val;
@@ -122,4 +136,5 @@ void init_table_builder_from_pq(pqxx::result res, table_builder_t *tb);
 void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
 void print_tuple_log(int i, tuple_t *t);
+std::string tuple_string(tuple_t * t);;
 #endif // PROJECT_POSTGRES_CLIENT_H
