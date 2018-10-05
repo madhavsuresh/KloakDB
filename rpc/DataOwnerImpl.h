@@ -19,7 +19,9 @@ public:
             const ::vaultdb::DBMSQueryRequest* request,
             ::vaultdb::DBMSQueryResponse* response);
 
-
+    ::grpc::Status
+    SendTable(::grpc::ServerContext* context, ::grpc::ServerReader< ::vaultdb::SendTableRequest>* reader,
+            ::vaultdb::SendTableResponse* response);
 private:
     DataOwnerPrivate *p;
 };

@@ -1,6 +1,7 @@
-#include "sgx_tcrypto.h"
+//#include "sgx_tcrypto.h"
 #include "vaultdb_generated.h"
 #include "postgres_client.h"
+#include "rpc/DataOwnerPrivate.h"
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -9,52 +10,25 @@
 
 
 
-int repart_step_one(table_t * t, int num_hosts) {
+int repart_step_one(table_t * t, int num_hosts, DataOwnerPrivate * p) {
     std::srand(time(nullptr));
     std::map<int, table_t *> partition_map;
     std::map<int, std::vector<int>> rand_assignment;
     for (int i = 0; i < t->num_tuples; i++) {
-       rand_assignment[std::rand() % num_hosts].push_back(i);
+        rand_assignment[std::rand() % num_hosts].push_back(i);
     }
 
     for (auto it = rand_assignment.begin();
-    it!= rand_assignment.end(); it++) {
+         it != rand_assignment.end(); it++) {
         int host = it->first;
         std::vector<int> index_lst = it->second;
-        table_t * output_table = copy_table_by_index(t, index_lst);
-
+        table_t *output_table = copy_table_by_index(t, index_lst);
+        p->SendTable(host, t);
         free_table(output_table);
     }
-    //TODO(madhavsuresh) need insert tuple method
 }
 
-int repart_step_one(uint8_t *table_buf) {
-  // TODO: FILL IN NUMBER OF ACTUAL HOSTS
-  uint64_t num_hosts = 10; // get_num_hosts_HB();
-  std::srand(std::time(nullptr));
-  auto table = flatbuffers::GetRoot<Table>(table_buf);
-  std::vector<flatbuffers::FlatBufferBuilder> builders(num_hosts);
-  auto tuples = table->tuples();
-  std::map<int, std::vector<int>> rand_assignment;
-  std::vector<std::pair<int, uint8_t *>> outbound_queue(num_hosts);
-  // TODO: make this process better
-  // The reason we first populate a random map is
-  // so we can pack the Flatbuffers all at once.
-  for (int i = 0; i < (int)tuples->Length(); i++) {
-    rand_assignment[std::rand() % num_hosts].push_back(i);
-  }
-  for (auto it = rand_assignment.begin();
-       it != rand_assignment.end(); it++) {
-    int host = it->first;
-    uint8_t *buf = cp_tuples_by_index_lst(tuples, it->second);
-    outbound_queue.emplace_back(std::make_pair(host, buf));
-  }
-
-  // TODO: SEND OUT REPARITION
-  return 0;
-  // send_out_repartition_step_one()
-}
-
+/*
 sgx_sha256_hash_t *hash_field(const Field *f) {
   auto *hash_output =
       reinterpret_cast<sgx_sha256_hash_t *>(malloc(sizeof(sgx_sha256_hash_t)));
@@ -116,3 +90,4 @@ int repart_step_two(std::vector<uint8_t *> tables) {
     // iterate through table, add
   }
 }
+ */

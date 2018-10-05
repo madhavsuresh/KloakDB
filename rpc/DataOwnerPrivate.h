@@ -19,6 +19,7 @@ public:
     int HostNum();
     void Register();
     int AddTable(table_t *t);
+    int SendTable(int worker_host_num, table_t * t);
 
 private:
     //TODO(madhavsuresh): should this be a managed pointer

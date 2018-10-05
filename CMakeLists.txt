@@ -46,18 +46,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-point
 
 
 #find_library(GLOG glog)
-link_directories(/usr/local/lib /home/madhav/DB/grpc/libs/opt/)
-include_directories("/home/madhav/DB/linux-sgx/sgxsdk/include")
+link_directories(/usr/local/lib /opt/grpc/lib)
+include_directories("/opt/grpc/include")
+#/home/madhav/DB/linux-sgx/sgxsdk/include
 link_directories(/home/madhav/DB/linux-sgx/sgxsdk/lib64)
 find_library(SGXCRYPTO sgx_tcrypto)
-set(RUNNER_SRCS
-	postgres_client.cpp
-	runner.cpp
-	Expressions.cpp
-	Repartition.cpp
-	vaultdb_generated.h Aggregate.cpp Aggregate.h rpc/DOServer.cpp rpc/DOClient.cpp)
 
-add_executable(runner ${RUNNER_SRCS})
 
 add_executable(postgres_test postgres_client_test.cpp postgres_client.cpp)
 target_link_libraries(postgres_test gtest_main pq pqxx glog profiler tcmalloc)
@@ -74,9 +68,8 @@ add_test(NAME sort_test COMMAND sort_test)
 
 set(REPART_SRCS
     Repartition.cpp)
-target_link_libraries(runner pq pqxx sgx_tcrypto profiler tcmalloc)
 
-add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h)
+add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h Repartition.cpp)
 
 target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl)
 

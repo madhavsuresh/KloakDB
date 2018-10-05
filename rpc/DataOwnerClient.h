@@ -8,6 +8,7 @@
 
 #include <string>
 #include "vaultdb.grpc.pb.h"
+#include "../postgres_client.h"
 #include <grpcpp/grpcpp.h>
 
 class DataOwnerClient {
@@ -17,6 +18,8 @@ public:
     :stub_(vaultdb::DataOwner::NewStub(channel)) {}
 
     int DBMSQuery(std::string dbname, std::string query);
+
+    int SendTable(table_t * t);
 private:
     std::unique_ptr<vaultdb::DataOwner::Stub> stub_;
 

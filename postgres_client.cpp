@@ -1,7 +1,6 @@
 #include "postgres_client.h"
 #include <glog/logging.h>
 #include <iostream>
-#include "flatbuffers/minireflect.h"
 #include <cstring>
 
 uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
@@ -207,10 +206,10 @@ table_t * copy_table_by_index(table_t *t , std::vector<int> index_list) {
     init_table_builder(expected_tuples, num_columns, &t->schema, &tb);
 
     for (auto i : index_list) {
-        tuple_t * tup  = get_tuple(i, t);
         if (check_add_tuple_page(&tb)) {
             add_tuple_page(&tb);
         }
+        tuple_t * tup  = get_tuple(i, t);
         tb.table->num_tuples++;
         copy_tuple_to_position(tb.table, tb.curr_tuple, get_tuple(i, t));
         tb.curr_tuple++;

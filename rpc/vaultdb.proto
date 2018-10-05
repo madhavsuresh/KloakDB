@@ -20,6 +20,26 @@ service DataOwner {
     rpc KJoin (KJoinRequest) returns (KJoinResponse) {}
     rpc KSort (KSortRequest) returns (KSortResponse) {}
     rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
+    rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
+}
+
+message SendTableRequest {
+
+    // This message is unforuantely overloaded.
+    // The first message in the stream is the metadata associated with
+    // the query.
+    bool is_header = 2;
+    Schema schema = 3;
+    int32 num_tuples = 4;
+    int32 size_of_tuple = 5;
+    int32 num_tuple_pages = 6;
+
+    int32 page_no = 7;
+    bytes page = 8;
+
+}
+message SendTableResponse {
+    int32 tableID = 1;
 }
 
 message KFilterRequest {

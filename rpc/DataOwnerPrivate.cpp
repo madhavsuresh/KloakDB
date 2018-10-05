@@ -14,6 +14,7 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name, std::string hb_host_na
     this->table_counter = 0;
 }
 
+
 void DataOwnerPrivate::Register() {
     this->host_num = client->Register(this->HostName());
 }
@@ -29,5 +30,11 @@ int DataOwnerPrivate::AddTable(table_t *t) {
     table_catalog[table_id] = t;
     this->table_counter++;
     this->table_catalog_mutex.unlock();
+    return table_id;
+}
+
+int DataOwnerPrivate::SendTable(int worker_host_num, table_t * t) {
+    auto worker_client = this->data_owner_clients[worker_host_num];
+    int table_id = worker_client->SendTable(t);
     return table_id;
 }
