@@ -6,9 +6,12 @@
 #include "HonestBrokerPrivate.h"
 
 
+DEFINE_int32(expected_num_hosts, 1, "Expected number of hosts");
+
 HonestBrokerPrivate::HonestBrokerPrivate(std::string honest_broker_address)
 : InfoPrivate(honest_broker_address){
     this->num_hosts = 0;
+    this->expected_num_hosts = FLAGS_expected_num_hosts;
 }
 
 int HonestBrokerPrivate::RegisterHost(std::string hostName) {

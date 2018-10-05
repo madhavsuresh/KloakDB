@@ -8,6 +8,7 @@
 
 #include <string>
 #include "HonestBrokerClient.h"
+#include "DataOwnerClient.h"
 #include "../postgres_client.h"
 #include "InfoPrivate.h"
 
@@ -22,6 +23,7 @@ public:
 private:
     //TODO(madhavsuresh): should this be a managed pointer
     HonestBrokerClient *client;
+    std::map<int, DataOwnerClient *> data_owner_clients;
     int num_hosts;
     std::string hb_host_name;
     int host_num;

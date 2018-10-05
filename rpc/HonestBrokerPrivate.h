@@ -22,11 +22,12 @@ public:
     int DBMSQuery(int host_num, std::string dbname, std::string query);
 private:
     std::mutex registrationMutex;
+    //Expected num hosts is used for the bootstrapping process
+    int expected_num_hosts;
     int num_hosts;
     std::vector<std::string> remoteHostnames;
     std::map<int, std::string> numToHostMap;
     std::map<int, DataOwnerClient *> do_clients;
 };
-
 
 #endif //PROJECT_HONESTBROKERPRIVATE_H
