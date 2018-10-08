@@ -4,7 +4,28 @@
 
 #include "DataOwnerClient.h"
 
-int DataOwnerClient::DBMSQuery(std::string dbname, std::string query) {
+std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(std::vector<::vaultdb::TableID> table_fragments) {
+
+}
+
+ std::vector<::vaultdb::TableID>  DataOwnerClient::RepartitionStepOne(::vaultdb::TableID tid) {
+    vaultdb::RepartitionStepOneRequest req;
+    vaultdb::RepartitionStepOneResponse resp;
+    grpc::ClientContext context;
+
+    auto t = req.mutable_tableid();
+    t->set_hostnum(tid.hostnum());
+    t->set_tableid(tid.hostnum());
+
+    stub_->RepartitionStepOne(&context, req, &resp);
+    std::vector<vaultdb::TableID> vec;
+    for (int i = 0; i < resp.remoterepartitionids_size();i++) {
+        vec.push_back(resp.remoterepartitionids(i));
+    }
+    return vec;
+}
+
+::vaultdb::TableID DataOwnerClient::DBMSQuery(std::string dbname, std::string query) {
     vaultdb::DBMSQueryRequest req;
     vaultdb::DBMSQueryResponse resp;
     grpc::ClientContext context;
@@ -14,7 +35,7 @@ int DataOwnerClient::DBMSQuery(std::string dbname, std::string query) {
 
     auto status = stub_->DBMSQuery(&context, req, &resp);
     if (status.ok()) {
-        return resp.tableid().tableid();
+        return resp.tableid();
     } else {
         std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
         throw;
@@ -43,6 +64,7 @@ void table_schema_to_proto_schema(table_t * t, vaultdb::Schema *s) {
     }
 }
 
+    //TODO(madhavsuresh): refactor this to return
 int DataOwnerClient::SendTable(table_t * t) {
     ::vaultdb::SendTableResponse resp;
     ::grpc::ClientContext context;

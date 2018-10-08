@@ -6,6 +6,21 @@
 #include "vaultdb.grpc.pb.h"
 #include "vaultdb.pb.h"
 
+
+::vaultdb::ControlFlowColumn HonestBrokerClient::GetControlFlowColID() {
+    vaultdb::GetControlFlowColumnRequest req;
+    vaultdb::GetControlFlowColumnResponse resp;
+    grpc::ClientContext context;
+
+    auto status = stub_->GetControlFlowColumn(&context, req, &resp);
+    if (status.ok()) {
+        return resp.cf();
+    } else {
+        std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
+        throw;
+    }
+}
+
 int HonestBrokerClient::GetNumHosts() {
     vaultdb::NumHostsRequest req;
     vaultdb::NumHostResp resp;

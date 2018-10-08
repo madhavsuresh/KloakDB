@@ -123,4 +123,5 @@ void copy_tuple_to_position(table_t * t, int pos, tuple_t * tup);
 table_t * copy_table_by_index(table_t *t , std::vector<int> index_list);
 table_t * allocate_table(int num_tuple_pages);
 void init_table_builder_from_pq(pqxx::result res ,table_builder_t * tb);
+void append_tuple_table_builder(table_builder_t * tb, tuple_t * tup);
 #endif //PROJECT_POSTGRES_CLIENT_H

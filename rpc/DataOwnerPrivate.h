@@ -17,9 +17,12 @@ class DataOwnerPrivate : public InfoPrivate {
 public:
     DataOwnerPrivate(std::string hostname, std::string hb_host_name);
     int HostNum();
+    int NumHosts();
     void Register();
     int AddTable(table_t *t);
     int SendTable(int worker_host_num, table_t * t);
+    ::vaultdb::ControlFlowColumn GetControlFlowColID();
+    table_t * GetTable(int table_id);
 
 private:
     //TODO(madhavsuresh): should this be a managed pointer

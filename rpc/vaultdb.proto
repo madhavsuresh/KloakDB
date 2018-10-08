@@ -11,6 +11,7 @@ service VaultDBOperators {
 service HonestBroker {
     rpc NumHosts (NumHostsRequest) returns (NumHostResp) {}
     rpc Register (RegisterRequest) returns (RegisterResponse) {}
+    rpc GetControlFlowColumn (GetControlFlowColumnRequest) returns (GetControlFlowColumnResponse) {}
 }
 
 service DataOwner {
@@ -21,10 +22,39 @@ service DataOwner {
     rpc KSort (KSortRequest) returns (KSortResponse) {}
     rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
     rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
-    rpc RepartitionStepOne (RepartitionStepOneRequest) returns (stream RepartitionStepOneResponse) {}
+    rpc RepartitionStepOne (RepartitionStepOneRequest) returns (RepartitionStepOneResponse) {}
+    rpc RepartitionStepTwo (RepartitionStepTwoRequest) returns (RepartitionStepTwoResponse) {}
 }
 
-message RepartitionStepOneRequest {}
+message GetControlFlowColumnRequest {}
+
+message GetControlFlowColumnResponse{
+    ControlFlowColumn cf = 1;
+}
+
+message ControlFlowColumn {
+    int32 cfid = 1;
+}
+
+message RepartitionStepTwoRequest {
+    repeated TableID tablefragments = 1;
+}
+
+message RepartitionStepTwoResponse {
+    repeated TableID remoteRepartitionIDs = 1;
+}
+
+message RepartitionStepOneRequest {
+    TableID tableid = 1;
+}
+
+message TableID {
+    string dbname = 1;
+    string query = 2;
+    //TODO(madhavsuresh): this needs to be refactored to be hostID
+    int32 hostnum = 3;
+    int32 tableid = 4;
+}
 
 message RepartitionStepOneResponse {
     repeated TableID remoteRepartitionIDs = 1;
@@ -89,12 +119,6 @@ message GetPeerHostsResponse {
     bool ok = 1;
 }
 
-message TableID {
-    string dbname = 1;
-    string query = 2;
-    int32 hostnum = 3;
-    int32 tableid = 4;
-}
 
 message DBMSQueryRequest {
     string dbname = 1;

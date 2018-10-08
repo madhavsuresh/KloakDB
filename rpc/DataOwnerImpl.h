@@ -22,6 +22,14 @@ public:
     ::grpc::Status
     SendTable(::grpc::ServerContext* context, ::grpc::ServerReader< ::vaultdb::SendTableRequest>* reader,
             ::vaultdb::SendTableResponse* response);
+
+    ::grpc::Status
+    RepartitionStepOne(::grpc::ServerContext* context, const ::vaultdb::RepartitionStepOneRequest* request,
+            ::vaultdb::RepartitionStepOneResponse* response);
+
+    ::grpc::Status
+    RepartitionStepTwo(::grpc::ServerContext* context, const ::vaultdb::RepartitionStepTwoRequest* request,
+                       ::vaultdb::RepartitionStepTwoResponse* response);
 private:
     DataOwnerPrivate *p;
 };

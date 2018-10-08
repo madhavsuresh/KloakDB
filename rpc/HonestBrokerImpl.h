@@ -22,6 +22,9 @@ public:
                             ::vaultdb::RegisterResponse* response);
 
 
+    ::grpc::Status
+    GetControlFlowColumn(::grpc::ServerContext* context,
+                                           const ::vaultdb::GetControlFlowColumnRequest* request, ::vaultdb::GetControlFlowColumnResponse* response);
     void
     Start(std::string);
 

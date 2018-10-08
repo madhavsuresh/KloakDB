@@ -120,8 +120,6 @@ void copy_tuple_to_position(table_t * t, int pos, tuple_t * tup) {
     memcpy(curr_tup, tup, t->size_of_tuple);
 }
 
-void append_tuple_to_table(table_t * t, int pos, tuple_t * tup) {
-}
 
 void build_tuple_from_pq(pqxx::tuple tup, tuple_t * tuple, schema_t * s) {
     int field_counter = 0;
@@ -198,6 +196,15 @@ void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
 
 }
 
+void append_tuple_table_builder(table_builder_t * tb, tuple_t * tup) {
+    if (check_add_tuple_page(tb)) {
+        add_tuple_page(tb);
+    }
+    tb->table->num_tuples++;
+    copy_tuple_to_position(tb->table, tb->curr_tuple, tup);
+    tb->curr_tuple++;
+}
+
 table_t * copy_table_by_index(table_t *t , std::vector<int> index_list) {
     int expected_tuples = index_list.size();
     int num_columns = t->schema.num_fields;
@@ -206,18 +213,13 @@ table_t * copy_table_by_index(table_t *t , std::vector<int> index_list) {
     init_table_builder(expected_tuples, num_columns, &t->schema, &tb);
 
     for (auto i : index_list) {
-        if (check_add_tuple_page(&tb)) {
-            add_tuple_page(&tb);
-        }
         tuple_t * tup  = get_tuple(i, t);
-        tb.table->num_tuples++;
-        copy_tuple_to_position(tb.table, tb.curr_tuple, get_tuple(i, t));
-        tb.curr_tuple++;
+        append_tuple_table_builder(&tb, tup);
     }
     return tb.table;
 }
 
-void init_table_builder_from_pq(pqxx::result res ,table_builder_t * tb) {
+void init_table_builder_from_pq(pqxx::result res , table_builder_t * tb) {
     schema_t schema = get_schema_from_query(tb, res);
     init_table_builder(res.capacity(), res.columns(), &schema, tb);
 }

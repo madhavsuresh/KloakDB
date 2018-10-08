@@ -9,6 +9,7 @@ HonestBrokerImpl::HonestBrokerImpl(HonestBrokerPrivate *p) {
     this->p = p;
 }
 
+
 ::grpc::Status
 HonestBrokerImpl::NumHosts(::grpc::ServerContext* context, const ::vaultdb::NumHostsRequest* request,
                            ::vaultdb::NumHostResp* response) {
@@ -25,3 +26,10 @@ HonestBrokerImpl::Register(::grpc::ServerContext* context, const ::vaultdb::Regi
 }
 
 
+::grpc::Status
+HonestBrokerImpl::GetControlFlowColumn(::grpc::ServerContext* context,
+        const ::vaultdb::GetControlFlowColumnRequest* request, ::vaultdb::GetControlFlowColumnResponse* response) {
+    auto cf = response->mutable_cf();
+    cf->set_cfid(p->GetControlFlowColID());
+    return ::grpc::Status::OK;
+}

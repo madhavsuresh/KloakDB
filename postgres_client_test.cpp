@@ -30,7 +30,7 @@ TEST_F(postgres_client_test, get_schema) {
     tb.table = &t;
     std::string query_create("create table tz (s INT, floor INT)");
     query(query_create, dbname);
-    std::string select("SELECT * FROM t;");
+    std::string select("SELECT * FROM tz;");
     pqxx::result res = query(select, dbname);
     tb.expected_tuples = res.capacity();
     tb.num_columns = res.columns();

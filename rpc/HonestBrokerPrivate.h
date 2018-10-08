@@ -19,12 +19,19 @@ public:
     HonestBrokerPrivate(std::string address);
     int RegisterHost(std::string hostName);
     int NumHosts();
-    int DBMSQuery(int host_num, std::string dbname, std::string query);
+    void Repartition(std::vector<::vaultdb::TableID> tids);
+    std::vector<::vaultdb::TableID> RepartitionStepOne(::vaultdb::TableID id);
+    std::vector<::vaultdb::TableID> RepartitionStepTwo(int host_num, std::vector<::vaultdb::TableID> table_fragments);
+    int GetControlFlowColID();
+    void SetControlFlowColID(int col_ID);
+
+    ::vaultdb::TableID DBMSQuery(int host_num, std::string dbname, std::string query);
 private:
     std::mutex registrationMutex;
     //Expected num hosts is used for the bootstrapping process
     int expected_num_hosts;
     int num_hosts;
+    ::vaultdb::ControlFlowColumn cf;
     std::vector<std::string> remoteHostnames;
     std::map<int, std::string> numToHostMap;
     std::map<int, DataOwnerClient *> do_clients;

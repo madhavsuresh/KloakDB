@@ -4,6 +4,7 @@
 
 #include "DataOwnerImpl.h"
 #include "DataOwnerPrivate.h"
+#include "../Repartition.h"
 
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) {
@@ -15,7 +16,30 @@ GetPeerHosts(::grpc::ServerContext* context, const ::vaultdb::GetPeerHostsReques
     for (int i = 0; i < request->hostnames_size(); i++) {
         auto host = request->hostnames(i);
     }
+    return grpc::Status::OK;
+}
 
+::grpc::Status
+DataOwnerImpl::RepartitionStepTwo(::grpc::ServerContext* context, const ::vaultdb::RepartitionStepTwoRequest* request,
+                   ::vaultdb::RepartitionStepTwoResponse* response) {
+    std::vector<table_t *> table_ptrs;
+    for (int i = 0; i < request->tablefragments_size(); i++) {
+        table_ptrs.push_back(p->GetTable(request->tablefragments(i).tableid()));
+    }
+    repartition_step_two(table_ptrs, p->NumHosts(), p);
+    return grpc::Status::OK;
+}
+
+::grpc::Status
+DataOwnerImpl::RepartitionStepOne(::grpc::ServerContext* context, const ::vaultdb::RepartitionStepOneRequest* request,
+        ::vaultdb::RepartitionStepOneResponse* response) {
+    table_t * t = p->GetTable(request->tableid().tableid());
+    std::vector<std::pair<int32_t, int32_t>> info = repart_step_one(t, p->NumHosts(), p);
+    for (auto i : info) {
+        ::vaultdb::TableID * id = response->add_remoterepartitionids();
+        id->set_hostnum(i.first);
+        id->set_tableid(i.second);
+    }
     return grpc::Status::OK;
 }
 

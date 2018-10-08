@@ -44,9 +44,16 @@ int main(int argc, char** argv) {
         HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address);
         std::thread hb_thread(runHonestBrokerServer, p);
         getchar();
-        p->DBMSQuery(1, "dbname=test",
+        vaultdb::TableID t1 = p->DBMSQuery(1, "dbname=test",
                 "SELECT * from rpc_test;");
-        p->Repartition(1);
+        vaultdb::TableID t2 = p->DBMSQuery(2, "dbname=test",
+                     "SELECT * from rpc_test;");
+        std::vector<::vaultdb::TableID> tids;
+        p->SetControlFlowColID(1);
+        tids.push_back(t1);
+        tids.push_back(t2);
+        p->Repartition(tids);
+        //p->Repartition(t1);
         hb_thread.join();
     } else {
         DataOwnerPrivate * p = new DataOwnerPrivate(FLAGS_address,

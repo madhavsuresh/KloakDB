@@ -15,6 +15,10 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name, std::string hb_host_na
 }
 
 
+table_t * DataOwnerPrivate::GetTable(int table_id) {
+    return table_catalog[table_id];
+}
+
 void DataOwnerPrivate::Register() {
     this->host_num = client->Register(this->HostName());
 }
@@ -25,11 +29,11 @@ int DataOwnerPrivate::HostNum() {
 
 int DataOwnerPrivate::AddTable(table_t *t) {
     int table_id;
-    this->table_catalog_mutex.lock();
-    table_id = this->table_counter;
+    table_catalog_mutex.lock();
+    table_id = table_counter;
     table_catalog[table_id] = t;
-    this->table_counter++;
-    this->table_catalog_mutex.unlock();
+    table_counter++;
+    table_catalog_mutex.unlock();
     return table_id;
 }
 
@@ -37,4 +41,12 @@ int DataOwnerPrivate::SendTable(int worker_host_num, table_t * t) {
     auto worker_client = this->data_owner_clients[worker_host_num];
     int table_id = worker_client->SendTable(t);
     return table_id;
+}
+
+int DataOwnerPrivate::NumHosts() {
+    return num_hosts;
+}
+
+::vaultdb::ControlFlowColumn DataOwnerPrivate::GetControlFlowColID() {
+    return client->GetControlFlowColID();
 }

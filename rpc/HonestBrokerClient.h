@@ -15,6 +15,7 @@ public:
     : stub_(vaultdb::HonestBroker::NewStub(channel)) {}
 
     int GetNumHosts();
+    ::vaultdb::ControlFlowColumn GetControlFlowColID();
     int Register(std::string hostname);
 
 private:

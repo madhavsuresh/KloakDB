@@ -17,10 +17,15 @@ public:
     DataOwnerClient(std::shared_ptr<grpc::Channel> channel)
     :stub_(vaultdb::DataOwner::NewStub(channel)) {}
 
-    int DBMSQuery(std::string dbname, std::string query);
+    ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
 
+    std::vector<::vaultdb::TableID> RepartitionStepOne(::vaultdb::TableID tid);
+    std::vector<::vaultdb::TableID> RepartitionStepTwo(std::vector<::vaultdb::TableID> table_fragments);
+
+    //TODO(madhavsuresh): this needs to be renamed to be consistent
     int SendTable(table_t * t);
 private:
+    int host_num;
     std::unique_ptr<vaultdb::DataOwner::Stub> stub_;
 
 };
