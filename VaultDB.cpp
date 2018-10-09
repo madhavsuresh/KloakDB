@@ -49,11 +49,12 @@ int main(int argc, char** argv) {
                 "SELECT * from rpc_test;");
         vaultdb::TableID t2 = p->DBMSQuery(1, "dbname=test",
                      "SELECT * from rpc_test;");
-        std::vector<const ::vaultdb::TableID *> tids;
+        std::vector<std::reference_wrapper<::vaultdb::TableID>> tids;
         p->SetControlFlowColID(1);
-        tids.push_back(&t1);
-        tids.push_back(&t2);
+        tids.emplace_back(t1);
+        tids.emplace_back(t2);
         p->Repartition(tids);
+        printf("HELLO WORLD\n");
         //p->Repartition(t1);
         hb_thread.join();
     } else {

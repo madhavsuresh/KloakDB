@@ -20,24 +20,26 @@ void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
 
 }
 
-std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(std::vector<::vaultdb::TableID> table_fragments) {
+std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(std::vector<::vaultdb::TableID>* table_fragments) {
 
 }
 
 
- std::vector<::vaultdb::TableID>  DataOwnerClient::RepartitionStepOne(const ::vaultdb::TableID* tid) {
+ std::vector<std::reference_wrapper<const ::vaultdb::TableID>>  DataOwnerClient::RepartitionStepOne(::vaultdb::TableID& tid) {
     vaultdb::RepartitionStepOneRequest req;
     vaultdb::RepartitionStepOneResponse resp;
     grpc::ClientContext context;
 
     auto t = req.mutable_tableid();
-    t->set_hostnum(tid->hostnum());
-    t->set_tableid(tid->tableid());
+    t->set_hostnum(tid.hostnum());
+    t->set_tableid(tid.tableid());
 
     stub_->RepartitionStepOne(&context, req, &resp);
-    std::vector<vaultdb::TableID> vec;
+    std::vector<std::reference_wrapper<const vaultdb::TableID>> vec;
     for (int i = 0; i < resp.remoterepartitionids_size();i++) {
-        vec.push_back(resp.remoterepartitionids(i));
+        ::vaultdb::TableID id;
+        id.CopyFrom(resp.remoterepartitionids(i));
+        vec.emplace_back(id);
     }
     return vec;
 }

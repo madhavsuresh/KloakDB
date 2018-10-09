@@ -19,9 +19,9 @@ public:
     HonestBrokerPrivate(std::string address);
     int RegisterHost(std::string hostName);
     int NumHosts();
-    void Repartition(std::vector<const ::vaultdb::TableID*> tids);
-    std::vector<::vaultdb::TableID> RepartitionStepOne(const ::vaultdb::TableID *id);
-    std::vector<::vaultdb::TableID> RepartitionStepTwo(int host_num, std::vector<::vaultdb::TableID> table_fragments);
+    void Repartition(std::vector<std::reference_wrapper<::vaultdb::TableID>> &ids);
+    std::vector<std::reference_wrapper<const ::vaultdb::TableID>> RepartitionStepOne(std::reference_wrapper<::vaultdb::TableID> id);
+    std::vector<::vaultdb::TableID> RepartitionStepTwo(int host_num, std::vector<int> &table_fragments);
     int GetControlFlowColID();
     void SetControlFlowColID(int col_ID);
     int RegisterPeerHosts();
