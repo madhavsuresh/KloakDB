@@ -21,6 +21,7 @@ public:
     void Register();
     int AddTable(table_t *t);
     int SendTable(int worker_host_num, table_t * t);
+    void SetDataOwnerClient(int host_num, std::string host_name);
     ::vaultdb::ControlFlowColumn GetControlFlowColID();
     table_t * GetTable(int table_id);
 

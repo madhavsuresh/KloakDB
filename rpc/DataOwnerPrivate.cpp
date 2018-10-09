@@ -9,9 +9,15 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name, std::string hb_host_na
 {
 
     this->hb_host_name = hb_host_name;
+    this->num_hosts = 0;
     client = new HonestBrokerClient(grpc::CreateChannel(this->hb_host_name,
             grpc::InsecureChannelCredentials()));
     this->table_counter = 0;
+}
+
+void DataOwnerPrivate::SetDataOwnerClient(int host_num, std::string host_name) {
+    data_owner_clients[host_num] = new DataOwnerClient(grpc::CreateChannel(host_name,
+                                                                   grpc::InsecureChannelCredentials()));
 }
 
 
@@ -44,6 +50,9 @@ int DataOwnerPrivate::SendTable(int worker_host_num, table_t * t) {
 }
 
 int DataOwnerPrivate::NumHosts() {
+    if (num_hosts == 0) {
+        num_hosts = client->GetNumHosts();
+    }
     return num_hosts;
 }
 

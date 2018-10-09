@@ -19,11 +19,12 @@ public:
     HonestBrokerPrivate(std::string address);
     int RegisterHost(std::string hostName);
     int NumHosts();
-    void Repartition(std::vector<::vaultdb::TableID> tids);
-    std::vector<::vaultdb::TableID> RepartitionStepOne(::vaultdb::TableID id);
+    void Repartition(std::vector<const ::vaultdb::TableID*> tids);
+    std::vector<::vaultdb::TableID> RepartitionStepOne(const ::vaultdb::TableID *id);
     std::vector<::vaultdb::TableID> RepartitionStepTwo(int host_num, std::vector<::vaultdb::TableID> table_fragments);
     int GetControlFlowColID();
     void SetControlFlowColID(int col_ID);
+    int RegisterPeerHosts();
 
     ::vaultdb::TableID DBMSQuery(int host_num, std::string dbname, std::string query);
 private:

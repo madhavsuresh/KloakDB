@@ -4,18 +4,35 @@
 
 #include "DataOwnerClient.h"
 
+void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
+    vaultdb::GetPeerHostsRequest req;
+    vaultdb::GetPeerHostsResponse resp;
+    grpc::ClientContext context;
+
+    std::map<int, std::string>::iterator it;
+    for (it = numToHostsMap.begin(); it != numToHostsMap.end(); it++) {
+        vaultdb::PeerHostInfo *p = req.add_hostnames();
+        p->set_hostnum(it->first);
+        p->set_hostname(it->second);
+    }
+
+    stub_->GetPeerHosts(&context, req, &resp);
+
+}
+
 std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(std::vector<::vaultdb::TableID> table_fragments) {
 
 }
 
- std::vector<::vaultdb::TableID>  DataOwnerClient::RepartitionStepOne(::vaultdb::TableID tid) {
+
+ std::vector<::vaultdb::TableID>  DataOwnerClient::RepartitionStepOne(const ::vaultdb::TableID* tid) {
     vaultdb::RepartitionStepOneRequest req;
     vaultdb::RepartitionStepOneResponse resp;
     grpc::ClientContext context;
 
     auto t = req.mutable_tableid();
-    t->set_hostnum(tid.hostnum());
-    t->set_tableid(tid.hostnum());
+    t->set_hostnum(tid->hostnum());
+    t->set_tableid(tid->tableid());
 
     stub_->RepartitionStepOne(&context, req, &resp);
     std::vector<vaultdb::TableID> vec;

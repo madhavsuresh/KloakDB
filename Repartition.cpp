@@ -40,7 +40,12 @@ std::vector<std::pair<int32_t, int32_t>> repart_step_one(table_t * t, int num_ho
         std::vector<int> index_lst = it->second;
         table_t *output_table = copy_table_by_index(t, index_lst);
         //TODO(madhavsuresh): have the argument to this be a function pointer to this function.
-        tableID id = p->SendTable(host, t);
+        tableID id = 0;
+        if (host == p->HostNum()) {
+            id = p->AddTable(output_table);
+        } else {
+            id = p->SendTable(host, output_table);
+        }
         host_and_ID.push_back(std::make_pair(host, id));
         free_table(output_table);
     }

@@ -111,13 +111,16 @@ message GeneralizeResponse {
 
 }
 
-message GetPeerHostsRequest {
-    repeated string hostnames = 1;
+message PeerHostInfo {
+    string hostname = 1;
+    int32 hostnum = 2;
 }
 
-message GetPeerHostsResponse {
-    bool ok = 1;
+message GetPeerHostsRequest {
+    repeated PeerHostInfo hostnames = 1;
 }
+
+message GetPeerHostsResponse {}
 
 
 message DBMSQueryRequest {

@@ -14,6 +14,10 @@ class DataOwnerImpl final : public vaultdb::DataOwner::Service {
 public:
     DataOwnerImpl(DataOwnerPrivate *p);
 
+   ::grpc::Status
+   GetPeerHosts(::grpc::ServerContext* context, const ::vaultdb::GetPeerHostsRequest* request,
+            ::vaultdb::GetPeerHostsResponse* response);
+
     ::grpc::Status
     DBMSQuery(::grpc::ServerContext* context,
             const ::vaultdb::DBMSQueryRequest* request,

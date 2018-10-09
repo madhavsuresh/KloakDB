@@ -14,15 +14,21 @@ HonestBrokerPrivate::HonestBrokerPrivate(std::string honest_broker_address)
     this->expected_num_hosts = FLAGS_expected_num_hosts;
 }
 
+int HonestBrokerPrivate::RegisterPeerHosts() {
+    for (int i = 0; i < num_hosts; i++) {
+        do_clients[i]->GetPeerHosts(numToHostMap);
+    }
+}
+
 int HonestBrokerPrivate::RegisterHost(std::string hostName) {
     this->registrationMutex.lock();
-    this->num_hosts++;
     int host_num = this->num_hosts;
     remoteHostnames.push_back(hostName);
     numToHostMap[host_num] = hostName;
     do_clients[host_num] = new DataOwnerClient(grpc::CreateChannel(hostName,
             grpc::InsecureChannelCredentials()));
     this->registrationMutex.unlock();
+    this->num_hosts++;
     return host_num;
 }
 
@@ -32,9 +38,9 @@ int HonestBrokerPrivate::RegisterHost(std::string hostName) {
 }
 
 
-void HonestBrokerPrivate::Repartition(std::vector<::vaultdb::TableID> ids) {
+void HonestBrokerPrivate::Repartition(std::vector<const ::vaultdb::TableID *> ids) {
     std::map<int, std::vector<::vaultdb::TableID>> table_fragments;
-    for (const auto &i : ids) {
+    for (auto i : ids) {
         auto k = RepartitionStepOne(i);
         for (const ::vaultdb::TableID &j : k) {
             table_fragments[j.hostnum()].push_back(j);
@@ -42,7 +48,7 @@ void HonestBrokerPrivate::Repartition(std::vector<::vaultdb::TableID> ids) {
     }
 
     std::map<int, std::vector<::vaultdb::TableID>>::iterator it;
-    for (it = table_fragments.begin(); it != table_fragments.end(); it++) {
+    for (it = table_fragments.begin(); it != table_fragments.end(); ++it) {
         RepartitionStepTwo(it->first, it->second);
     }
 }
@@ -56,8 +62,8 @@ int HonestBrokerPrivate::GetControlFlowColID() {
 }
 
 
-std::vector<::vaultdb::TableID> HonestBrokerPrivate::RepartitionStepOne(::vaultdb::TableID id) {
-    return do_clients[id.hostnum()]->RepartitionStepOne(id);
+std::vector<::vaultdb::TableID> HonestBrokerPrivate::RepartitionStepOne(const ::vaultdb::TableID* id) {
+    return do_clients[id->hostnum()]->RepartitionStepOne(id);
 }
 
 std::vector<::vaultdb::TableID> HonestBrokerPrivate::RepartitionStepTwo(int host_num, std::vector<::vaultdb::TableID> table_fragments) {

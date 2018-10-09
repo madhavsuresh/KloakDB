@@ -18,8 +18,9 @@ public:
     :stub_(vaultdb::DataOwner::NewStub(channel)) {}
 
     ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
+    void GetPeerHosts(std::map<int, std::string> numToHostsMap);
 
-    std::vector<::vaultdb::TableID> RepartitionStepOne(::vaultdb::TableID tid);
+    std::vector<::vaultdb::TableID> RepartitionStepOne(const ::vaultdb::TableID* tid);
     std::vector<::vaultdb::TableID> RepartitionStepTwo(std::vector<::vaultdb::TableID> table_fragments);
 
     //TODO(madhavsuresh): this needs to be renamed to be consistent

@@ -12,9 +12,10 @@ DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) {
 }
 
 ::grpc::Status
-GetPeerHosts(::grpc::ServerContext* context, const ::vaultdb::GetPeerHostsRequest* request, ::vaultdb::GetPeerHostsResponse* response) {
+DataOwnerImpl::GetPeerHosts(::grpc::ServerContext* context, const ::vaultdb::GetPeerHostsRequest* request, ::vaultdb::GetPeerHostsResponse* response) {
     for (int i = 0; i < request->hostnames_size(); i++) {
         auto host = request->hostnames(i);
+        p->SetDataOwnerClient(host.hostnum(), host.hostname());
     }
     return grpc::Status::OK;
 }

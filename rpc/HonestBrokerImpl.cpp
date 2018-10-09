@@ -21,6 +21,7 @@ HonestBrokerImpl::NumHosts(::grpc::ServerContext* context, const ::vaultdb::NumH
 HonestBrokerImpl::Register(::grpc::ServerContext* context, const ::vaultdb::RegisterRequest* request,
                            ::vaultdb::RegisterResponse* response) {
     int num = this->p->RegisterHost(request->hostname());
+    printf("Registering Host: %d, %s\n", num, request->hostname().c_str());
     response->set_host_num(num);
     return ::grpc::Status::OK;
 }
