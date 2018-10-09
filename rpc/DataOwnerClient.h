@@ -10,12 +10,17 @@
 #include "vaultdb.grpc.pb.h"
 #include "../postgres_client.h"
 #include <grpcpp/grpcpp.h>
+#include "spdlog/spdlog.h"
+#include "spdlog/sinks/stdout_color_sinks.h"
 
 class DataOwnerClient {
 
 public:
     DataOwnerClient(std::shared_ptr<grpc::Channel> channel)
-    :stub_(vaultdb::DataOwner::NewStub(channel)) {}
+    :stub_(vaultdb::DataOwner::NewStub(channel)) {
+        logger_ = spdlog::get("VaultDB");
+
+    }
 
     ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
     void GetPeerHosts(std::map<int, std::string> numToHostsMap);
@@ -28,6 +33,7 @@ public:
 private:
     int host_num;
     std::unique_ptr<vaultdb::DataOwner::Stub> stub_;
+    std::shared_ptr<spdlog::logger> logger_;
 
 };
 

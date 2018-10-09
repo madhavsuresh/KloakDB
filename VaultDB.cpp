@@ -54,8 +54,6 @@ int main(int argc, char** argv) {
         tids.emplace_back(t1);
         tids.emplace_back(t2);
         p->Repartition(tids);
-        printf("HELLO WORLD\n");
-        //p->Repartition(t1);
         hb_thread.join();
     } else {
         DataOwnerPrivate * p = new DataOwnerPrivate(FLAGS_address,

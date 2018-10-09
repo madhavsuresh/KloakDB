@@ -16,7 +16,12 @@ void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
         p->set_hostname(it->second);
     }
 
-    stub_->GetPeerHosts(&context, req, &resp);
+    auto status = stub_->GetPeerHosts(&context, req, &resp);
+    if(status.ok()) {
+        logger_->info("success");
+    }  else {
+        logger_->warn("failure");
+    }
 
 }
 
