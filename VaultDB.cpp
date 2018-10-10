@@ -46,16 +46,16 @@ int main(int argc, char** argv) {
 
 
     if (FLAGS_honest_broker == true) {
-        auto defaultHandler = logworker->addDefaultLogger("HB", ".");
+        auto defaultHandler = logworker->addDefaultLogger("HB", "logs");
         g3::initializeLogging(logworker.get());
         HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address);
         std::thread hb_thread(runHonestBrokerServer, p);
         getchar();
         p->RegisterPeerHosts();
         vaultdb::TableID t1 = p->DBMSQuery(0, "dbname=test",
-                "SELECT * from rpc_test;");
+                "SELECT * from rpc_test_small_5;");
         vaultdb::TableID t2 = p->DBMSQuery(1, "dbname=test",
-                     "SELECT * from rpc_test;");
+                     "SELECT * from rpc_test_small_5;");
         std::vector<std::reference_wrapper<::vaultdb::TableID>> tids;
         p->SetControlFlowColID(1);
         tids.emplace_back(t1);
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
                                                     FLAGS_honest_broker_address);
         std::thread do_thread(runDataOwnerServer, p);
         p->Register();
-        auto defaultHandler = logworker->addDefaultLogger("DO" + std::to_string(p->HostNum()), ".");
+        auto defaultHandler = logworker->addDefaultLogger("DO" + std::to_string(p->HostNum()), "logs");
         g3::initializeLogging(logworker.get());
         do_thread.join();
     }
