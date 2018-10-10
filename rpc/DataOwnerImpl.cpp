@@ -27,9 +27,15 @@ DataOwnerImpl::RepartitionStepTwo(::grpc::ServerContext* context, const ::vaultd
     for (int i = 0; i < request->tablefragments_size(); i++) {
         table_ptrs.push_back(p->GetTable(request->tablefragments(i).tableid()));
     }
-    repartition_step_two(table_ptrs, p->NumHosts(), p);
+    std::vector<std::pair<int32_t, int32_t>> info = repartition_step_two(table_ptrs, p->NumHosts(), p);
+    for (auto i : info) {
+        ::vaultdb::TableID * id = response->add_remoterepartitionids();
+        id->set_hostnum(i.first);
+        id->set_tableid(i.second);
+    }
     return grpc::Status::OK;
 }
+
 
 ::grpc::Status
 DataOwnerImpl::RepartitionStepOne(::grpc::ServerContext* context, const ::vaultdb::RepartitionStepOneRequest* request,
@@ -106,5 +112,22 @@ DataOwnerImpl::DBMSQuery(::grpc::ServerContext* context,
     tid->set_query(request->query());
     tid->set_dbname(request->dbname());
 
+    return grpc::Status::OK;
+}
+
+::grpc::Status
+DataOwnerImpl::CoalesceTables(::grpc::ServerContext* context, const ::vaultdb::CoaleseTablesRequest* request,
+        ::vaultdb::CoaleseTablesResponse* response) {
+
+    std::vector<table_t *> tables;
+    for (int i = 0; i < request->tablefragments_size(); i++) {
+        LOG(INFO) << "Coalescing" << request->tablefragments(i).tableid();
+        tables.push_back(p->GetTable(request->tablefragments(i).tableid()));
+    }
+    table_t * t = coalesce_tables(tables);
+    ::vaultdb::TableID * tid = response->mutable_id();
+    tid->set_tableid(p->AddTable(t));
+    tid->set_hostnum(p->HostNum());
+    LOG(INFO) << "After coalescing: " << p->GetTable(tid->tableid())->num_tuples;
     return grpc::Status::OK;
 }

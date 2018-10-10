@@ -27,21 +27,36 @@ void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
 
 }
 
-std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(
-        std::vector<std::reference_wrapper<const ::vaultdb::TableID>> table_fragments) {
+std::vector<std::shared_ptr<const ::vaultdb::TableID>> DataOwnerClient::RepartitionStepTwo(
+        std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments) {
     vaultdb::RepartitionStepTwoRequest req;
-    vaultdb::RepartitionStepOneResponse resp;
+    vaultdb::RepartitionStepTwoResponse resp;
     grpc::ClientContext context;
 
-    for (auto f: table_fragments) {
+    std::vector<std::shared_ptr<const vaultdb::TableID>> vec;
+    for (const auto &f: table_fragments) {
         ::vaultdb::TableID* tid = req.add_tablefragments();
-        tid->CopyFrom(f.get());
+        tid->CopyFrom(*f.get());
     }
+    auto status = stub_->RepartitionStepTwo(&context, req, &resp);
+    if(status.ok()) {
+        LOG(INFO) << "SUCCESS:->[" << host_num << "], RepartitionStepTwo";
+    }  else {
+        LOG(INFO) << "FAIL:->[" << host_num << "]";
+    }
+    for (int i = 0; i < resp.remoterepartitionids_size(); i++) {
+        //TODO(madhavsuresh): figure out how CPP memory managment works
+        auto tmp = std::make_shared<::vaultdb::TableID>();
+        tmp.get()->CopyFrom(resp.remoterepartitionids(i));
+        vec.emplace_back(tmp);
+    }
+
+    return vec;
 
 }
 
 
- std::vector<std::reference_wrapper<const ::vaultdb::TableID>>  DataOwnerClient::RepartitionStepOne(::vaultdb::TableID& tid) {
+ std::vector<std::shared_ptr<const ::vaultdb::TableID>>  DataOwnerClient::RepartitionStepOne(::vaultdb::TableID& tid) {
     vaultdb::RepartitionStepOneRequest req;
     vaultdb::RepartitionStepOneResponse resp;
     grpc::ClientContext context;
@@ -51,18 +66,17 @@ std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(
     t->set_tableid(tid.tableid());
 
     auto status = stub_->RepartitionStepOne(&context, req, &resp);
-    std::vector<std::reference_wrapper<const vaultdb::TableID>> vec;
-    for (int i = 0; i < resp.remoterepartitionids_size();i++) {
-        ::vaultdb::TableID id;
-        id.CopyFrom(resp.remoterepartitionids(i));
-        vec.emplace_back(id);
-    }
      if(status.ok()) {
          LOG(INFO) << "SUCCESS:->[" << host_num << "], Repartition at tableID: [" << tid.tableid() << "]";
      }  else {
          LOG(INFO) << "FAIL:->[" << host_num << "]";
      }
-
+    std::vector<std::shared_ptr<const vaultdb::TableID>> vec;
+    for (int i = 0; i < resp.remoterepartitionids_size();i++) {
+        auto tmp = std::make_shared<vaultdb::TableID>();
+        tmp.get()->CopyFrom(resp.remoterepartitionids(i));
+        vec.emplace_back(tmp);
+    }
     return vec;
 }
 
@@ -106,6 +120,30 @@ void table_schema_to_proto_schema(table_t * t, vaultdb::Schema *s) {
         }
     }
 }
+
+std::shared_ptr<const ::vaultdb::TableID> DataOwnerClient::CoalesceTables(
+        std::vector<std::shared_ptr<const ::vaultdb::TableID>>& tables) {
+    vaultdb::CoaleseTablesRequest req;
+    vaultdb::CoaleseTablesResponse resp;
+    grpc::ClientContext context;
+
+    for(auto t : tables) {
+        auto tf = req.add_tablefragments();
+        tf->CopyFrom(*t.get());
+    }
+    auto status = stub_->CoalesceTables(&context, req, &resp);
+    if (status.ok()) {
+        LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+        auto ret = std::make_shared<::vaultdb::TableID>();
+        ret.get()->CopyFrom(resp.id());
+        return ret;
+    } else {
+        LOG(INFO) << "FAIL:->[" << host_num << "]";
+        std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
+        throw;
+    }
+}
+
 
     //TODO(madhavsuresh): refactor this to return
 int DataOwnerClient::SendTable(table_t * t) {

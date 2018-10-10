@@ -2,6 +2,7 @@
 #include <glog/logging.h>
 #include <iostream>
 #include <cstring>
+#include <g3log/g3log.hpp>
 
 uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
     return (PAGE_SIZE - sizeof(uint64_t)) /tuple_size;
@@ -194,6 +195,27 @@ void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
     // Initialize first page regardless
     initialize_tuple_page(tb);
 
+}
+
+table_t * coalesce_tables(std::vector<table_t *> tables) {
+    table_builder_t tb;
+    int num_columns = tables[0]->schema.num_fields;
+    int size = 0;
+    for (auto t: tables) {
+        size += t->num_tuples;
+        if (t->schema.num_fields != num_columns) {
+            //LOG(FATAL) << "The number of fields across the schemas is not consistent";
+            throw;
+        }
+    }
+    init_table_builder(size, num_columns, &tables[0]->schema, &tb);
+    for (auto t: tables) {
+        for (int i = 0; i < t->num_tuples; i++) {
+            tuple_t * tup = get_tuple(i, t);
+            append_tuple_table_builder(&tb, tup);
+        }
+    }
+    return tb.table;
 }
 
 void append_tuple_table_builder(table_builder_t * tb, tuple_t * tup) {

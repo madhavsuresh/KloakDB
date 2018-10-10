@@ -98,3 +98,48 @@ void check_int_table(table_t * table) {
         printf("\n");
     }
 }
+
+TEST_F(postgres_client_test, coalesce_tables) {
+    std::string query1("create table coalesce_test (a INT, b INT)");
+    query(query1, dbname);
+    query1 = "INSERT INTO coalesce_test (a,b) VALUES (7,6), (8,3), (9,1)";
+    query(query1, dbname);
+
+    std::vector<table_t *> tables;
+
+    query1 = "SELECT * FROM coalesce_test;";
+    table_t *t = get_table(query1, dbname);
+    ASSERT_EQ(t->num_tuples, 3);
+    tables.push_back(t);
+    t = get_table(query1, dbname);
+    ASSERT_EQ(t->num_tuples, 3);
+    tables.push_back(t);
+
+    t = coalesce_tables(tables);
+    ASSERT_EQ(t->num_tuples, 6);
+    free_table(tables[0]);
+    free_table(tables[1]);
+    std::string query_destroy("DROP TABLE coalesce_test");
+    query(query_destroy, dbname);
+}
+
+TEST_F(postgres_client_test, coalesce_big) {
+    std::string query_create("create table if not exists test_random as select s, floor(random() * 100 +1)::int from generate_series(1,3000) s;");
+    query(query_create, dbname);
+    std::vector<table_t *> tables;
+    std::string query1 = "SELECT * FROM test_random";
+    table_t *t = get_table(query1, dbname);
+    ASSERT_EQ(t->num_tuples, 3000);
+    tables.push_back(t);
+    t = get_table(query1, dbname);
+    ASSERT_EQ(t->num_tuples, 3000);
+    tables.push_back(t);
+    t = coalesce_tables(tables);
+    ASSERT_EQ(t->num_tuples, 6000);
+    free_table(tables[0]);
+    free_table(tables[1]);
+    free_table(t);
+
+    std::string query_destroy("DROP TABLE test_random");
+    query(query_destroy, dbname);
+}

@@ -24,6 +24,15 @@ service DataOwner {
     rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
     rpc RepartitionStepOne (RepartitionStepOneRequest) returns (RepartitionStepOneResponse) {}
     rpc RepartitionStepTwo (RepartitionStepTwoRequest) returns (RepartitionStepTwoResponse) {}
+    rpc CoalesceTables (CoaleseTablesRequest) returns (CoaleseTablesResponse) {}
+}
+
+message CoaleseTablesRequest {
+    repeated TableID tablefragments = 1;
+}
+
+message CoaleseTablesResponse {
+    TableID id = 1;
 }
 
 message GetControlFlowColumnRequest {}

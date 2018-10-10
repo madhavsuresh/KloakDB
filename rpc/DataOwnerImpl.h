@@ -34,6 +34,10 @@ public:
     ::grpc::Status
     RepartitionStepTwo(::grpc::ServerContext* context, const ::vaultdb::RepartitionStepTwoRequest* request,
                        ::vaultdb::RepartitionStepTwoResponse* response);
+
+   ::grpc::Status
+   CoalesceTables(::grpc::ServerContext* context, const ::vaultdb::CoaleseTablesRequest* request,
+                                  ::vaultdb::CoaleseTablesResponse* response);
 private:
     DataOwnerPrivate *p;
 };

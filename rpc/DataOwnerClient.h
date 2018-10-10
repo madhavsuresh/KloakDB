@@ -22,8 +22,10 @@ public:
     ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
     void GetPeerHosts(std::map<int, std::string> numToHostsMap);
 
-    std::vector<std::reference_wrapper<const ::vaultdb::TableID>> RepartitionStepOne(::vaultdb::TableID& tid);
-    std::vector<::vaultdb::TableID> RepartitionStepTwo(std::vector<std::reference_wrapper<const ::vaultdb::TableID>> table_fragments);
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepOne(::vaultdb::TableID& tid);
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepTwo(
+            std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments);
+    std::shared_ptr<const ::vaultdb::TableID> CoalesceTables(std::vector<std::shared_ptr<const ::vaultdb::TableID>>& tables);
 
     //TODO(madhavsuresh): this needs to be renamed to be consistent
     int SendTable(table_t * t);

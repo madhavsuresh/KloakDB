@@ -46,9 +46,9 @@ std::vector<std::pair<int32_t, int32_t>> repart_step_one(table_t * t, int num_ho
             id = p->AddTable(output_table);
         } else {
             id = p->SendTable(host, output_table);
+            free_table(output_table);
         }
         host_and_ID.push_back(std::make_pair(host, id));
-        free_table(output_table);
     }
     return host_and_ID;
 }
@@ -83,7 +83,7 @@ int hash_to_host(::vaultdb::ControlFlowColumn cf, int num_hosts, tuple_t * t) {
     return i % num_hosts;
 }
 
-int repartition_step_two(std::vector<table_t *> tables, int num_hosts, DataOwnerPrivate *p) {
+std::vector<std::pair<int32_t, int32_t>> repartition_step_two(std::vector<table_t *> tables, int num_hosts, DataOwnerPrivate *p) {
     int max_tuples = 0;
     for (auto t : tables) {
         max_tuples += t->num_tuples;
@@ -106,11 +106,21 @@ int repartition_step_two(std::vector<table_t *> tables, int num_hosts, DataOwner
         }
     }
 
-    for (int i = 0; i < num_hosts; i ++) {
+    std::vector<HostIDPair> host_and_ID;
+    for (int i = 0; i < num_hosts; i++) {
         //TODO(madhavsuresh): need to send all of these IDs over to HB after step two so that way tables can be coalesced
-        p->SendTable(i, host_tb[i].table);
-        free_table(host_tb[i].table);
+        LOG(INFO) << "Sending to host [" << i << "]";
+        int id;
+        if (i == p->HostNum()) {
+            id = p->AddTable(host_tb[i].table);
+        } else {
+            id = p->SendTable(i, host_tb[i].table);
+            free_table(host_tb[i].table);
+        }
+
+        host_and_ID.push_back(std::make_pair(i, id));
     }
+    return host_and_ID;
 }
 
 

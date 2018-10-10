@@ -7,6 +7,7 @@
 
 
 DEFINE_int32(expected_num_hosts, 1, "Expected number of hosts");
+using namespace std;
 
 HonestBrokerPrivate::HonestBrokerPrivate(std::string honest_broker_address)
 : InfoPrivate(honest_broker_address){
@@ -39,18 +40,30 @@ int HonestBrokerPrivate::RegisterHost(std::string hostName) {
 }
 
 
-void HonestBrokerPrivate::Repartition(std::vector<std::reference_wrapper<::vaultdb::TableID>> &ids) {
-  std::map<int, std::vector<std::reference_wrapper<const ::vaultdb::TableID>>> table_fragments;
+std::vector<std::shared_ptr<const ::vaultdb::TableID>> HonestBrokerPrivate::Repartition(
+        std::vector<std::reference_wrapper<::vaultdb::TableID>> &ids) {
+  std::map<int, std::vector<std::shared_ptr<const ::vaultdb::TableID>>> table_fragments;
     for (auto id : ids) {
         auto k = RepartitionStepOne(id);
-        for (const ::vaultdb::TableID &j : k) {
-            table_fragments[j.hostnum()].emplace_back(j);
+        for (auto j : k) {
+            table_fragments[j.get()->hostnum()].emplace_back(j);
         }
     }
 
+    std::map<int, std::vector<std::shared_ptr<const ::vaultdb::TableID>>> hashed_table_fragments;
     for (int i = 0; i < num_hosts; i++) {
-        RepartitionStepTwo(i, table_fragments[i]);
+        auto out = RepartitionStepTwo(i, table_fragments[i]);
+        for (auto j : out) {
+            hashed_table_fragments[j.get()->hostnum()].emplace_back(j);
+        }
     }
+
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> coalesced_tables;
+    for (int i = 0; i < num_hosts; i++) {
+        std::shared_ptr<const ::vaultdb::TableID> tmp = Coalesce(i, hashed_table_fragments[i]);
+        coalesced_tables.emplace_back(tmp);
+    }
+    return coalesced_tables;
 }
 
 void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {
@@ -61,13 +74,18 @@ int HonestBrokerPrivate::GetControlFlowColID() {
     return cf.cfid();
 }
 
+std::shared_ptr<const ::vaultdb::TableID> HonestBrokerPrivate::Coalesce(int host_num,
+        std::vector<std::shared_ptr<const ::vaultdb::TableID>> tables) {
+    return do_clients[host_num]->CoalesceTables(tables);
+}
 
-std::vector<std::reference_wrapper<const ::vaultdb::TableID>> HonestBrokerPrivate::RepartitionStepOne(std::reference_wrapper<::vaultdb::TableID> id) {
+
+std::vector<std::shared_ptr<const ::vaultdb::TableID>> HonestBrokerPrivate::RepartitionStepOne(std::reference_wrapper<::vaultdb::TableID> id) {
     return do_clients[id.get().hostnum()]->RepartitionStepOne(id);
 }
 
-std::vector<::vaultdb::TableID> HonestBrokerPrivate::RepartitionStepTwo(int host_num,
-        std::vector<std::reference_wrapper<const ::vaultdb::TableID>> table_fragments) {
+std::vector<std::shared_ptr<const ::vaultdb::TableID>> HonestBrokerPrivate::RepartitionStepTwo(int host_num,
+        std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments) {
     return do_clients[host_num]->RepartitionStepTwo(table_fragments);
 }
 
