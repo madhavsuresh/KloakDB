@@ -80,12 +80,6 @@ TEST_F(postgres_client_test, build_table) {
   res2 = query(query_destroy, dbname);
 }
 
-TEST_F(postgres_client_test, test_size) {
-  printf("tuple_t %d", (int)sizeof(tuple_t));
-  printf("field_t %d", +(int)sizeof(field_t));
-  printf("field_union %d", +(int)sizeof(field_union));
-}
-
 // TODO(madhavsuresh): write tests that pull out all values
 // TODO(madhavsuresh): test different width
 
