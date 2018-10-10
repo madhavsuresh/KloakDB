@@ -54,7 +54,7 @@ message RepartitionStepTwoResponse {
 }
 
 message RepartitionStepOneRequest {
-    TableID tableid = 1;
+    TableID tableid = 1 ;
 }
 
 message TableID {

@@ -5,180 +5,182 @@
 #include "DataOwnerClient.h"
 #include <g3log/g3log.hpp>
 
-
 void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
-    vaultdb::GetPeerHostsRequest req;
-    vaultdb::GetPeerHostsResponse resp;
-    grpc::ClientContext context;
+  vaultdb::GetPeerHostsRequest req;
+  vaultdb::GetPeerHostsResponse resp;
+  grpc::ClientContext context;
 
-    std::map<int, std::string>::iterator it;
-    for (it = numToHostsMap.begin(); it != numToHostsMap.end(); it++) {
-        vaultdb::PeerHostInfo *p = req.add_hostnames();
-        p->set_hostnum(it->first);
-        p->set_hostname(it->second);
-    }
+  std::map<int, std::string>::iterator it;
+  for (it = numToHostsMap.begin(); it != numToHostsMap.end(); it++) {
+    vaultdb::PeerHostInfo *p = req.add_hostnames();
+    p->set_hostnum(it->first);
+    p->set_hostname(it->second);
+  }
 
-    auto status = stub_->GetPeerHosts(&context, req, &resp);
-    if(status.ok()) {
-        LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-    }  else {
-        LOG(INFO) << "FAIL:->[" << host_num << "]";
-    }
-
+  auto status = stub_->GetPeerHosts(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+  }
 }
 
-std::vector<std::shared_ptr<const ::vaultdb::TableID>> DataOwnerClient::RepartitionStepTwo(
-        std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments) {
-    vaultdb::RepartitionStepTwoRequest req;
-    vaultdb::RepartitionStepTwoResponse resp;
-    grpc::ClientContext context;
+std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+DataOwnerClient::RepartitionStepTwo(
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments) {
+  vaultdb::RepartitionStepTwoRequest req;
+  vaultdb::RepartitionStepTwoResponse resp;
+  grpc::ClientContext context;
 
-    std::vector<std::shared_ptr<const vaultdb::TableID>> vec;
-    for (const auto &f: table_fragments) {
-        ::vaultdb::TableID* tid = req.add_tablefragments();
-        tid->CopyFrom(*f.get());
-    }
-    auto status = stub_->RepartitionStepTwo(&context, req, &resp);
-    if(status.ok()) {
-        LOG(INFO) << "SUCCESS:->[" << host_num << "], RepartitionStepTwo";
-    }  else {
-        LOG(INFO) << "FAIL:->[" << host_num << "]";
-    }
-    for (int i = 0; i < resp.remoterepartitionids_size(); i++) {
-        //TODO(madhavsuresh): figure out how CPP memory managment works
-        auto tmp = std::make_shared<::vaultdb::TableID>();
-        tmp.get()->CopyFrom(resp.remoterepartitionids(i));
-        vec.emplace_back(tmp);
-    }
+  std::vector<std::shared_ptr<const vaultdb::TableID>> vec;
+  for (const auto &f : table_fragments) {
+    ::vaultdb::TableID *tid = req.add_tablefragments();
+    tid->CopyFrom(*f.get());
+  }
+  auto status = stub_->RepartitionStepTwo(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "], RepartitionStepTwo";
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+  }
+  for (int i = 0; i < resp.remoterepartitionids_size(); i++) {
+    // TODO(madhavsuresh): figure out how CPP memory managment works
+    auto tmp = std::make_shared<::vaultdb::TableID>();
+    tmp.get()->CopyFrom(resp.remoterepartitionids(i));
+    vec.emplace_back(tmp);
+  }
 
-    return vec;
-
+  return vec;
 }
 
+std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+DataOwnerClient::RepartitionStepOne(::vaultdb::TableID &tid) {
+  vaultdb::RepartitionStepOneRequest req;
+  vaultdb::RepartitionStepOneResponse resp;
+  grpc::ClientContext context;
 
- std::vector<std::shared_ptr<const ::vaultdb::TableID>>  DataOwnerClient::RepartitionStepOne(::vaultdb::TableID& tid) {
-    vaultdb::RepartitionStepOneRequest req;
-    vaultdb::RepartitionStepOneResponse resp;
-    grpc::ClientContext context;
+  auto t = req.mutable_tableid();
+  t->set_hostnum(tid.hostnum());
+  t->set_tableid(tid.tableid());
 
-    auto t = req.mutable_tableid();
-    t->set_hostnum(tid.hostnum());
-    t->set_tableid(tid.tableid());
-
-    auto status = stub_->RepartitionStepOne(&context, req, &resp);
-     if(status.ok()) {
-         LOG(INFO) << "SUCCESS:->[" << host_num << "], Repartition at tableID: [" << tid.tableid() << "]";
-     }  else {
-         LOG(INFO) << "FAIL:->[" << host_num << "]";
-     }
-    std::vector<std::shared_ptr<const vaultdb::TableID>> vec;
-    for (int i = 0; i < resp.remoterepartitionids_size();i++) {
-        auto tmp = std::make_shared<vaultdb::TableID>();
-        tmp.get()->CopyFrom(resp.remoterepartitionids(i));
-        vec.emplace_back(tmp);
-    }
-    return vec;
+  auto status = stub_->RepartitionStepOne(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "], Repartition at tableID: ["
+              << tid.tableid() << "]";
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+  }
+  std::vector<std::shared_ptr<const vaultdb::TableID>> vec;
+  for (int i = 0; i < resp.remoterepartitionids_size(); i++) {
+    auto tmp = std::make_shared<vaultdb::TableID>();
+    tmp.get()->CopyFrom(resp.remoterepartitionids(i));
+    vec.emplace_back(tmp);
+  }
+  return vec;
 }
 
-::vaultdb::TableID DataOwnerClient::DBMSQuery(std::string dbname, std::string query) {
-    vaultdb::DBMSQueryRequest req;
-    vaultdb::DBMSQueryResponse resp;
-    grpc::ClientContext context;
+::vaultdb::TableID DataOwnerClient::DBMSQuery(std::string dbname,
+                                              std::string query) {
+  vaultdb::DBMSQueryRequest req;
+  vaultdb::DBMSQueryResponse resp;
+  grpc::ClientContext context;
 
-    req.set_dbname(dbname);
-    req.set_query(query);
+  req.set_dbname(dbname);
+  req.set_query(query);
 
-    auto status = stub_->DBMSQuery(&context, req, &resp);
-    if (status.ok()) {
-        LOG(INFO) << "SUCCESS:->[" << host_num << "]" << "Query: [" << query << "]";
-        return resp.tableid();
-    } else {
-        LOG(INFO) << "FAIL:->[" << host_num << "]";
-        std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
-        throw;
-    }
+  auto status = stub_->DBMSQuery(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]"
+              << "Query: [" << query << "]";
+    return resp.tableid();
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+    std::cerr << status.error_code() << ": " << status.error_message()
+              << std::endl;
+    throw;
+  }
 }
 
-void table_schema_to_proto_schema(table_t * t, vaultdb::Schema *s) {
-    s->set_num_fields(t->schema.num_fields);
-    for (int i = 0; i < t->schema.num_fields; i++) {
-        vaultdb::FieldDesc *fd = s->add_field();
-        fd->set_field_name(t->schema.fields[i].field_name, FIELD_LEN);
-        fd->set_col_no(t->schema.fields[i].col_no);
-        switch (t->schema.fields[i].type) {
-            case FIXEDCHAR: {
-                fd->set_field_type(vaultdb::FieldDesc_FieldType_FIXEDCHAR);
-                break;
-            }
-            case INT: {
-                fd->set_field_type(vaultdb::FieldDesc_FieldType_INT);
-                break;
-            }
-            default: {
-                throw;
-            }
-        }
+void table_schema_to_proto_schema(table_t *t, vaultdb::Schema *s) {
+  s->set_num_fields(t->schema.num_fields);
+  for (int i = 0; i < t->schema.num_fields; i++) {
+    vaultdb::FieldDesc *fd = s->add_field();
+    fd->set_field_name(t->schema.fields[i].field_name, FIELD_LEN);
+    fd->set_col_no(t->schema.fields[i].col_no);
+    switch (t->schema.fields[i].type) {
+    case FIXEDCHAR: {
+      fd->set_field_type(vaultdb::FieldDesc_FieldType_FIXEDCHAR);
+      break;
     }
+    case INT: {
+      fd->set_field_type(vaultdb::FieldDesc_FieldType_INT);
+      break;
+    }
+    default: { throw; }
+    }
+  }
 }
 
 std::shared_ptr<const ::vaultdb::TableID> DataOwnerClient::CoalesceTables(
-        std::vector<std::shared_ptr<const ::vaultdb::TableID>>& tables) {
-    vaultdb::CoaleseTablesRequest req;
-    vaultdb::CoaleseTablesResponse resp;
-    grpc::ClientContext context;
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> &tables) {
+  vaultdb::CoaleseTablesRequest req;
+  vaultdb::CoaleseTablesResponse resp;
+  grpc::ClientContext context;
 
-    for(auto t : tables) {
-        auto tf = req.add_tablefragments();
-        tf->CopyFrom(*t.get());
-    }
-    auto status = stub_->CoalesceTables(&context, req, &resp);
-    if (status.ok()) {
-        LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-        auto ret = std::make_shared<::vaultdb::TableID>();
-        ret.get()->CopyFrom(resp.id());
-        return ret;
-    } else {
-        LOG(INFO) << "FAIL:->[" << host_num << "]";
-        std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
-        throw;
-    }
+  for (auto t : tables) {
+    auto tf = req.add_tablefragments();
+    tf->CopyFrom(*t.get());
+  }
+  auto status = stub_->CoalesceTables(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+    auto ret = std::make_shared<::vaultdb::TableID>();
+    ret.get()->CopyFrom(resp.id());
+    return ret;
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+    std::cerr << status.error_code() << ": " << status.error_message()
+              << std::endl;
+    throw;
+  }
 }
 
+// TODO(madhavsuresh): refactor this to return
+int DataOwnerClient::SendTable(table_t *t) {
+  ::vaultdb::SendTableResponse resp;
+  ::grpc::ClientContext context;
 
-    //TODO(madhavsuresh): refactor this to return
-int DataOwnerClient::SendTable(table_t * t) {
-    ::vaultdb::SendTableResponse resp;
-    ::grpc::ClientContext context;
+  std::unique_ptr<::grpc::ClientWriter<::vaultdb::SendTableRequest>> writer(
+      stub_->SendTable(&context, &resp));
 
-    std::unique_ptr<::grpc::ClientWriter<::vaultdb::SendTableRequest>> writer(stub_->SendTable(&context, &resp));
+  ::vaultdb::SendTableRequest header;
+  header.set_is_header(true);
+  header.set_num_tuples(t->num_tuples);
+  header.set_num_tuple_pages(t->num_tuple_pages);
+  header.set_size_of_tuple(t->size_of_tuple);
 
-    ::vaultdb::SendTableRequest header;
-    header.set_is_header(true);
-    header.set_num_tuples(t->num_tuples);
-    header.set_num_tuple_pages(t->num_tuple_pages);
-    header.set_size_of_tuple(t->size_of_tuple);
+  ::vaultdb::Schema *s = header.mutable_schema();
+  table_schema_to_proto_schema(t, s);
+  writer->Write(header);
 
-    ::vaultdb::Schema *s = header.mutable_schema();
-    table_schema_to_proto_schema(t, s);
-    writer->Write(header);
+  ::vaultdb::SendTableRequest pages;
+  for (int i = 0; i < t->num_tuple_pages; i++) {
+    pages.set_is_header(false);
+    pages.set_page_no(i);
+    pages.set_page((char *)t->tuple_pages[i], PAGE_SIZE);
+    writer->Write(pages);
+  }
+  writer->WritesDone();
+  ::grpc::Status status = writer->Finish();
 
-    ::vaultdb::SendTableRequest pages;
-    for (int i = 0; i < t->num_tuple_pages; i++) {
-        pages.set_is_header(false) ;
-        pages.set_page_no(i);
-        pages.set_page((char *) t->tuple_pages[i], PAGE_SIZE);
-        writer->Write(pages);
-    }
-    writer->WritesDone();
-    ::grpc::Status status = writer->Finish();
-
-
-    if (status.ok()) {
-        LOG(INFO) << "SUCCESS:->[" << host_num << "], num_tuples:[" << t->num_tuples << "], num_pages: [" << t->num_tuple_pages << "]";
-        return resp.tableid();
-    } else {
-        LOG(INFO) << "FAIL:->[" << host_num << "]";
-        std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
-        throw;
-    }
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "], num_tuples:[" << t->num_tuples
+              << "], num_pages: [" << t->num_tuple_pages << "]";
+    return resp.tableid();
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+    std::cerr << status.error_code() << ": " << status.error_message()
+              << std::endl;
+    throw;
+  }
 }

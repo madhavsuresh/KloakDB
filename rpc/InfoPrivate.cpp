@@ -4,9 +4,5 @@
 
 #include "InfoPrivate.h"
 
-InfoPrivate::InfoPrivate(std::string hostname) {
-    this->hostName = hostname;
-}
-std::string InfoPrivate::HostName() {
-    return this->hostName;
-}
+InfoPrivate::InfoPrivate(std::string hostname) { this->hostName = hostname; }
+std::string InfoPrivate::HostName() { return this->hostName; }
