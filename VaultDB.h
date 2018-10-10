@@ -6,9 +6,8 @@
 #define PROJECT_VAULTDB_H
 
 
-class VaultDB {
-
-};
+#include <string>
+#include <cstdarg>
 
 
 

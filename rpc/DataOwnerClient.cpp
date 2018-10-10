@@ -3,6 +3,8 @@
 //
 
 #include "DataOwnerClient.h"
+#include <g3log/g3log.hpp>
+
 
 void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
     vaultdb::GetPeerHostsRequest req;
@@ -18,14 +20,14 @@ void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
 
     auto status = stub_->GetPeerHosts(&context, req, &resp);
     if(status.ok()) {
-        logger_->info("success");
+        LOG(INFO) << "SUCCESS:->[" << host_num << "]";
     }  else {
-        logger_->warn("failure");
+        LOG(INFO) << "FAIL:->[" << host_num << "]";
     }
 
 }
 
-std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(std::vector<::vaultdb::TableID>* table_fragments) {
+std::vector<::vaultdb::TableID> RepartitionStepTwo(std::vector<std::reference_wrapper<::vaultdb::TableID>> table_fragments) {
 
 }
 
@@ -39,13 +41,19 @@ std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(std::vector<
     t->set_hostnum(tid.hostnum());
     t->set_tableid(tid.tableid());
 
-    stub_->RepartitionStepOne(&context, req, &resp);
+    auto status = stub_->RepartitionStepOne(&context, req, &resp);
     std::vector<std::reference_wrapper<const vaultdb::TableID>> vec;
     for (int i = 0; i < resp.remoterepartitionids_size();i++) {
         ::vaultdb::TableID id;
         id.CopyFrom(resp.remoterepartitionids(i));
         vec.emplace_back(id);
     }
+     if(status.ok()) {
+         LOG(INFO) << "SUCCESS:->[" << host_num << "], Repartition at tableID: [" << tid.tableid() << "]";
+     }  else {
+         LOG(INFO) << "FAIL:->[" << host_num << "]";
+     }
+
     return vec;
 }
 
@@ -59,8 +67,10 @@ std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(std::vector<
 
     auto status = stub_->DBMSQuery(&context, req, &resp);
     if (status.ok()) {
+        LOG(INFO) << "SUCCESS:->[" << host_num << "]" << "Query: [" << query << "]";
         return resp.tableid();
     } else {
+        LOG(INFO) << "FAIL:->[" << host_num << "]";
         std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
         throw;
     }
@@ -115,9 +125,12 @@ int DataOwnerClient::SendTable(table_t * t) {
     writer->WritesDone();
     ::grpc::Status status = writer->Finish();
 
+
     if (status.ok()) {
+        LOG(INFO) << "SUCCESS:->[" << host_num << "], num_tuples:[" << t->num_tuples << "], num_pages: [" << t->num_tuple_pages << "]";
         return resp.tableid();
     } else {
+        LOG(INFO) << "FAIL:->[" << host_num << "]";
         std::cerr << status.error_code() << ": " << status.error_message() << std::endl;
         throw;
     }

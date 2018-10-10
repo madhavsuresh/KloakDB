@@ -10,30 +10,26 @@
 #include "vaultdb.grpc.pb.h"
 #include "../postgres_client.h"
 #include <grpcpp/grpcpp.h>
-#include "spdlog/spdlog.h"
-#include "spdlog/sinks/stdout_color_sinks.h"
+#include <g3log/g3log.hpp>
+#include <g3log/logworker.hpp>
 
 class DataOwnerClient {
 
 public:
-    DataOwnerClient(std::shared_ptr<grpc::Channel> channel)
-    :stub_(vaultdb::DataOwner::NewStub(channel)) {
-        logger_ = spdlog::get("VaultDB");
-
-    }
+    DataOwnerClient(int host_num, std::shared_ptr<grpc::Channel> channel)
+    :stub_(vaultdb::DataOwner::NewStub(channel)), host_num(host_num) {}
 
     ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
     void GetPeerHosts(std::map<int, std::string> numToHostsMap);
 
     std::vector<std::reference_wrapper<const ::vaultdb::TableID>> RepartitionStepOne(::vaultdb::TableID& tid);
-    std::vector<::vaultdb::TableID> RepartitionStepTwo(std::vector<::vaultdb::TableID>* table_fragments);
+    std::vector<::vaultdb::TableID> RepartitionStepTwo(std::vector<std::reference_wrapper<::vaultdb::TableID>> table_fragments);
 
     //TODO(madhavsuresh): this needs to be renamed to be consistent
     int SendTable(table_t * t);
 private:
     int host_num;
     std::unique_ptr<vaultdb::DataOwner::Stub> stub_;
-    std::shared_ptr<spdlog::logger> logger_;
 
 };
 

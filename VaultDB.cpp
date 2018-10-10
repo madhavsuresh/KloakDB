@@ -13,6 +13,8 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/grpcpp.h>
 #include <thread>
+#include <g3log/g3log.hpp>
+#include <g3log/logworker.hpp>
 
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
@@ -39,8 +41,13 @@ void runDataOwnerServer(DataOwnerPrivate *p) {
 
 int main(int argc, char** argv) {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
+    std::unique_ptr<g3::LogWorker> logworker{g3::LogWorker::createLogWorker()};
+
+
 
     if (FLAGS_honest_broker == true) {
+        auto defaultHandler = logworker->addDefaultLogger("HB", ".");
+        g3::initializeLogging(logworker.get());
         HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address);
         std::thread hb_thread(runHonestBrokerServer, p);
         getchar();
@@ -60,6 +67,8 @@ int main(int argc, char** argv) {
                                                     FLAGS_honest_broker_address);
         std::thread do_thread(runDataOwnerServer, p);
         p->Register();
+        auto defaultHandler = logworker->addDefaultLogger("DO" + std::to_string(p->HostNum()), ".");
+        g3::initializeLogging(logworker.get());
         do_thread.join();
     }
 }

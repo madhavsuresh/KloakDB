@@ -42,6 +42,7 @@ std::vector<std::pair<int32_t, int32_t>> repart_step_one(table_t * t, int num_ho
         //TODO(madhavsuresh): have the argument to this be a function pointer to this function.
         tableID id = 0;
         if (host == p->HostNum()) {
+            LOG(INFO) << "Adding self partitioned table from repartition";
             id = p->AddTable(output_table);
         } else {
             id = p->SendTable(host, output_table);

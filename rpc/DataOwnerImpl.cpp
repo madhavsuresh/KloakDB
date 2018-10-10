@@ -86,6 +86,7 @@ DataOwnerImpl::SendTable(::grpc::ServerContext* context, ::grpc::ServerReader< :
             memcpy(t->tuple_pages[req.page_no()], req.page().c_str(), PAGE_SIZE);
         }
     }
+    LOG(INFO) << "Adding table received from ??";
     int table_id = this->p->AddTable(t);
     response->set_tableid(table_id);
     return grpc::Status::OK;
@@ -97,6 +98,7 @@ DataOwnerImpl::DBMSQuery(::grpc::ServerContext* context,
           ::vaultdb::DBMSQueryResponse* response) {
 
     table *t = get_table(request->query(), request->dbname());
+    LOG(INFO) << "Adding Table from Query:" << request->query();
     int table_id = this->p->AddTable(t);
     vaultdb::TableID *tid = response->mutable_tableid();
     tid->set_tableid(table_id);

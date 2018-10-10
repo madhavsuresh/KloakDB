@@ -48,7 +48,6 @@ set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
 #find_library(GLOG glog)
 link_directories(/usr/local/lib /opt/grpc/lib)
 include_directories("/opt/grpc/include")
-include_directories(".")
 #/home/madhav/DB/linux-sgx/sgxsdk/include
 link_directories(/home/madhav/DB/linux-sgx/sgxsdk/lib64)
 find_library(SGXCRYPTO sgx_tcrypto)
@@ -72,6 +71,6 @@ set(REPART_SRCS
 
 add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h Repartition.cpp)
 
-target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl pthread asan)
+target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl pthread asan g3logger)
 
 add_subdirectory(rpc)
