@@ -107,6 +107,7 @@ int repartition_step_two(std::vector<table_t *> tables, int num_hosts, DataOwner
     }
 
     for (int i = 0; i < num_hosts; i ++) {
+        //TODO(madhavsuresh): need to send all of these IDs over to HB after step two so that way tables can be coalesced
         p->SendTable(i, host_tb[i].table);
         free_table(host_tb[i].table);
     }

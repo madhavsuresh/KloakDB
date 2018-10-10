@@ -27,7 +27,16 @@ void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
 
 }
 
-std::vector<::vaultdb::TableID> RepartitionStepTwo(std::vector<std::reference_wrapper<::vaultdb::TableID>> table_fragments) {
+std::vector<::vaultdb::TableID> DataOwnerClient::RepartitionStepTwo(
+        std::vector<std::reference_wrapper<const ::vaultdb::TableID>> table_fragments) {
+    vaultdb::RepartitionStepTwoRequest req;
+    vaultdb::RepartitionStepOneResponse resp;
+    grpc::ClientContext context;
+
+    for (auto f: table_fragments) {
+        ::vaultdb::TableID* tid = req.add_tablefragments();
+        tid->CopyFrom(f.get());
+    }
 
 }
 

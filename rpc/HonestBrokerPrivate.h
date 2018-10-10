@@ -21,7 +21,8 @@ public:
     int NumHosts();
     void Repartition(std::vector<std::reference_wrapper<::vaultdb::TableID>> &ids);
     std::vector<std::reference_wrapper<const ::vaultdb::TableID>> RepartitionStepOne(std::reference_wrapper<::vaultdb::TableID> id);
-    std::vector<::vaultdb::TableID> RepartitionStepTwo(int host_num, std::vector<int> &table_fragments);
+    std::vector<::vaultdb::TableID> RepartitionStepTwo(int host_num,
+            std::vector<std::reference_wrapper<const ::vaultdb::TableID>> table_fragments);
     int GetControlFlowColID();
     void SetControlFlowColID(int col_ID);
     int RegisterPeerHosts();
