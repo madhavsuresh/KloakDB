@@ -14,4 +14,5 @@ typedef struct sort {
 } sort_t;
 
 table_t *sort(table_t *t, sort_t *s);
+void swap_tuples(int t1, int t2, table_t *t, bool to_swap);
 #endif // PROJECT_SORT_H
