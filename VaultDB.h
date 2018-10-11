@@ -5,11 +5,7 @@
 #ifndef PROJECT_VAULTDB_H
 #define PROJECT_VAULTDB_H
 
+#include <cstdarg>
+#include <string>
 
-class VaultDB {
-
-};
-
-
-
-#endif //PROJECT_VAULTDB_H
+#endif // PROJECT_VAULTDB_H

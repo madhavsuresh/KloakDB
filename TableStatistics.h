@@ -3,27 +3,24 @@
 //
 
 #ifndef PROJECT_TABLESTATISTICS_H
-#define PROJECT_TABLESTATISTICS_H>
-#include <map>
+#define PROJECT_TABLESTATISTICS_H >
 #include "postgres_client.h"
-
+#include <map>
 
 class TableStatistics {
 public:
-    TableStatistics();
+  TableStatistics();
 
-    void IngestAllocatedTable(table_t * t);
-    int GetCount(int colVal);
-    std::map<int,int> GetMap();
+  void IngestAllocatedTable(table_t *t);
+  int GetCount(int colVal);
+  std::map<int, int> GetMap();
 
-    void SetCount(int colVal, int count);
+  void SetCount(int colVal, int count);
 
 private:
-    //TODO(madhavsuresh): for now this only supports int types
-    std::map<int, int> histogram;
-    std::string colName;
-
+  // TODO(madhavsuresh): for now this only supports int types
+  std::map<int, int> histogram;
+  std::string colName;
 };
 
-
-#endif //PROJECT_TABLESTATISTICS_H
+#endif // PROJECT_TABLESTATISTICS_H

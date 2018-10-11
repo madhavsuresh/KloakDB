@@ -5,22 +5,35 @@
 #ifndef PROJECT_DATAOWNERCLIENT_H
 #define PROJECT_DATAOWNERCLIENT_H
 
-
-#include <string>
+#include "../postgres_client.h"
 #include "vaultdb.grpc.pb.h"
+#include <g3log/g3log.hpp>
+#include <g3log/logworker.hpp>
 #include <grpcpp/grpcpp.h>
+#include <string>
 
 class DataOwnerClient {
 
 public:
-    DataOwnerClient(std::shared_ptr<grpc::Channel> channel)
-    :stub_(vaultdb::DataOwner::NewStub(channel)) {}
+  DataOwnerClient(int host_num, std::shared_ptr<grpc::Channel> channel)
+      : stub_(vaultdb::DataOwner::NewStub(channel)), host_num(host_num) {}
 
-    int DBMSQuery(std::string dbname, std::string query);
+  ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
+  void GetPeerHosts(std::map<int, std::string> numToHostsMap);
+
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+  RepartitionStepOne(::vaultdb::TableID &tid);
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepTwo(
+      std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments);
+  std::shared_ptr<const ::vaultdb::TableID> CoalesceTables(
+      std::vector<std::shared_ptr<const ::vaultdb::TableID>> &tables);
+
+  // TODO(madhavsuresh): this needs to be renamed to be consistent
+  int SendTable(table_t *t);
+
 private:
-    std::unique_ptr<vaultdb::DataOwner::Stub> stub_;
-
+  int host_num;
+  std::unique_ptr<vaultdb::DataOwner::Stub> stub_;
 };
 
-
-#endif //PROJECT_DATAOWNERCLIENT_H
+#endif // PROJECT_DATAOWNERCLIENT_H

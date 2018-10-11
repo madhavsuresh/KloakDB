@@ -5,19 +5,14 @@
 #ifndef PROJECT_HBGENERALIZE_H
 #define PROJECT_HBGENERALIZE_H
 
-
 #include "../TableStatistics.h"
 
 class HBGeneralize {
 private:
-    void Generalize(std::vector<TableStatistics> allStats);
-
+  void Generalize(std::vector<TableStatistics> allStats);
 
 public:
-    void generalize();
-
-
+  void generalize();
 };
 
-
-#endif //PROJECT_HBGENERALIZE_H
+#endif // PROJECT_HBGENERALIZE_H

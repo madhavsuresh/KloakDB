@@ -39,8 +39,8 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
 	)
 ENDIF()
 set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
-#set(CMAKE_CXX_FLAGS "-g")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
+set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 
@@ -50,14 +50,8 @@ link_directories(/usr/local/lib /root/DB/grpc/libs/opt/)
 include_directories("/root/DB/linux-sgx/sgxsdk/include")
 link_directories(/root/DB/linux-sgx/sgxsdk/lib64)
 find_library(SGXCRYPTO sgx_tcrypto)
-set(RUNNER_SRCS
-	postgres_client.cpp
-	runner.cpp
-	Expressions.cpp
-	Repartition.cpp
-	vaultdb_generated.h Aggregate.cpp Aggregate.h rpc/DOServer.cpp rpc/DOClient.cpp )
 
-add_executable(runner ${RUNNER_SRCS})
+
 
 add_executable(postgres_test postgres_client_test.cpp postgres_client.cpp)
 target_link_libraries(postgres_test gtest_main pqxx glog profiler tcmalloc)
@@ -77,10 +71,13 @@ add_test(NAME sort_test COMMAND sort_test)
 
 set(REPART_SRCS
     Repartition.cpp)
+<<<<<<< HEAD
 target_link_libraries(runner pqxx sgx_tcrypto profiler tcmalloc)
+=======
+>>>>>>> 80e9fac3932385f23a607a6ad09acc3c1ef30d59
 
-add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h)
+add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h Repartition.cpp)
 
-target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl)
+target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl pthread asan g3logger)
 
 add_subdirectory(rpc)
