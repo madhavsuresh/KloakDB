@@ -39,6 +39,17 @@ int power_of_two_less_than(int n) {
 void swap_tuples(int t1, int t2, table_t *t, bool to_swap) {
   tuple_t *tup1 = get_tuple(t1, t);
   tuple_t *tup2 = get_tuple(t2, t);
+
+  bool d1 = tup1->is_dummy;
+  bool d2 = tup2->is_dummy;
+  if (to_swap) {
+    tup1->is_dummy = d2;
+    tup2->is_dummy = d1;
+  } else {
+    tup1->is_dummy = d1;
+    tup2->is_dummy = d2;
+  }
+
   for (int i = 0; i < t->schema.num_fields; i++) {
     switch (t->schema.fields[i].type) {
     case UNSUPPORTED: {
