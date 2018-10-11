@@ -19,9 +19,9 @@ public:
   int RegisterHost(std::string hostName);
   int NumHosts();
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Repartition(std::vector<std::reference_wrapper<::vaultdb::TableID>> &ids);
+  Repartition(std::vector<std::shared_ptr<::vaultdb::TableID>> &ids);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  RepartitionStepOne(std::reference_wrapper<::vaultdb::TableID> id);
+  RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> id);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepTwo(
       int host_num,
       std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments);

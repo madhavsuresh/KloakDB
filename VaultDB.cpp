@@ -55,11 +55,11 @@ int main(int argc, char **argv) {
         p->DBMSQuery(0, "dbname=test", "SELECT * from rpc_test_small_5;");
     vaultdb::TableID t2 =
         p->DBMSQuery(1, "dbname=test", "SELECT * from rpc_test_small_5;");
-    std::vector<std::reference_wrapper<::vaultdb::TableID>> tids;
+    std::vector<std::shared_ptr<::vaultdb::TableID>> tids;
     p->SetControlFlowColID(1);
-    tids.emplace_back(t1);
-    tids.emplace_back(t2);
-    p->Repartition(tids);
+    tids.emplace_back(std::make_shared<::vaultdb::TableID>(t1));
+    tids.emplace_back(std::make_shared<::vaultdb::TableID>(t2));
+    auto repartition_ids = p->Repartition(tids);
     hb_thread.join();
   } else {
     DataOwnerPrivate *p =

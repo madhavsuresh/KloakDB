@@ -43,7 +43,7 @@ int HonestBrokerPrivate::RegisterHost(std::string hostName) {
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
 HonestBrokerPrivate::Repartition(
-    std::vector<std::reference_wrapper<::vaultdb::TableID>> &ids) {
+    std::vector<std::shared_ptr<::vaultdb::TableID>> &ids) {
   std::map<int, std::vector<std::shared_ptr<const ::vaultdb::TableID>>>
       table_fragments;
   for (auto id : ids) {
@@ -85,8 +85,8 @@ std::shared_ptr<const ::vaultdb::TableID> HonestBrokerPrivate::Coalesce(
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
 HonestBrokerPrivate::RepartitionStepOne(
-    std::reference_wrapper<::vaultdb::TableID> id) {
-  return do_clients[id.get().hostnum()]->RepartitionStepOne(id);
+    std::shared_ptr<::vaultdb::TableID> id) {
+  return do_clients[id.get()->hostnum()]->RepartitionStepOne(id);
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>

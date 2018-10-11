@@ -54,19 +54,19 @@ DataOwnerClient::RepartitionStepTwo(
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-DataOwnerClient::RepartitionStepOne(::vaultdb::TableID &tid) {
+DataOwnerClient::RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> tid) {
   vaultdb::RepartitionStepOneRequest req;
   vaultdb::RepartitionStepOneResponse resp;
   grpc::ClientContext context;
 
   auto t = req.mutable_tableid();
-  t->set_hostnum(tid.hostnum());
-  t->set_tableid(tid.tableid());
+  t->set_hostnum(tid.get()->hostnum());
+  t->set_tableid(tid.get()->tableid());
 
   auto status = stub_->RepartitionStepOne(&context, req, &resp);
   if (status.ok()) {
     LOG(INFO) << "SUCCESS:->[" << host_num << "], Repartition at tableID: ["
-              << tid.tableid() << "]";
+              << tid.get()->tableid() << "]";
   } else {
     LOG(INFO) << "FAIL:->[" << host_num << "]";
   }
