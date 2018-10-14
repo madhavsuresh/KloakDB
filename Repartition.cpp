@@ -105,7 +105,7 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   for (auto t : tables) {
     for (int i = 0; i < t->num_tuples; i++) {
       int host = hash_to_host(control_flow_col, num_hosts, get_tuple(i, t));
-      append_tuple_table_builder(&host_tb[host], get_tuple(i, t));
+      append_tuple(&host_tb[host], get_tuple(i, t));
     }
   }
 

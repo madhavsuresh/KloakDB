@@ -40,8 +40,12 @@ public:
                                 const ::vaultdb::CoaleseTablesRequest *request,
                                 ::vaultdb::CoaleseTablesResponse *response);
 
-private:
-  DataOwnerPrivate *p;
-};
+  ::grpc::Status KFilter(::grpc::ServerContext *context,
+                         const ::vaultdb::KFilterRequest *request,
+                         ::vaultdb::KFilterResponse *response);
+
+ private : DataOwnerPrivate *p;
+}
+;
 
 #endif // PROJECT_DATAOWNERIMPL_H
