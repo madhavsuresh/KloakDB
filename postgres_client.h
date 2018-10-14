@@ -35,8 +35,8 @@ typedef struct schema {
 } schema_t;
 
 typedef struct field_int {
-  uint64_t val;
-  uint64_t genval;
+  int64_t val;
+  int64_t genval;
 } field_int_t;
 
 typedef struct field_fixed_char {

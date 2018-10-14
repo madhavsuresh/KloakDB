@@ -145,6 +145,28 @@ std::shared_ptr<const ::vaultdb::TableID> DataOwnerClient::CoalesceTables(
   }
 }
 
+std::shared_ptr<const ::vaultdb::TableID>
+DataOwnerClient::Filter(::vaultdb::TableID tid, ::vaultdb::Expr expr) {
+  ::vaultdb::KFilterRequest req;
+  ::vaultdb::KFilterResponse resp;
+  ::grpc::ClientContext context;
+
+  req.mutable_expr()->CopyFrom(expr);
+  req.mutable_tid()->CopyFrom(tid);
+  auto status = stub_->KFilter(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+    auto ret = std::make_shared<::vaultdb::TableID>();
+    ret.get()->CopyFrom(resp.tid());
+    return ret;
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+    std::cerr << status.error_code() << ": " << status.error_message()
+              << std::endl;
+    throw;
+  }
+}
+
 // TODO(madhavsuresh): refactor this to return
 int DataOwnerClient::SendTable(table_t *t) {
   ::vaultdb::SendTableResponse resp;

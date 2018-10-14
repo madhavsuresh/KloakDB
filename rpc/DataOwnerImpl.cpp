@@ -3,11 +3,10 @@
 //
 
 #include "DataOwnerImpl.h"
-#include "../Repartition.h"
-#include "DataOwnerPrivate.h"
 #include "../Filter.h"
+#include "../Repartition.h"
 #include "../Sort.h"
-
+#include "DataOwnerPrivate.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
 
@@ -139,9 +138,48 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
   sort_t sortex = {.colno = 1, .type = INT, .ascending = true};
   table_t *o = sort(k, &sortex);
 
-  for (int i = 0; i < t->num_tuples; i++){
+  for (int i = 0; i < t->num_tuples; i++) {
     print_tuple(get_tuple(i, t));
   }
   LOG(INFO) << "After coalescing: " << p->GetTable(tid->tableid())->num_tuples;
   return grpc::Status::OK;
+}
+
+expr_t make_expr_t(const ::vaultdb::Expr &expr) {
+  expr_t ex;
+  ex.colno = expr.colno();
+  switch (expr.type()) {
+  case vaultdb::Expr_ExprType_EQ_EXPR: {
+    ex.expr_type = EQ_EXPR;
+    break;
+  }
+  default: { throw; }
+  }
+  switch (expr.desc().field_type()) {
+  case ::vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
+    ex.field_val.type = FIXEDCHAR;
+    memcpy(ex.field_val.f.fixed_char_field.val, expr.charfield().c_str(),
+           FIXEDCHAR_LEN);
+    break;
+  }
+  case ::vaultdb::FieldDesc_FieldType_INT: {
+    ex.field_val.type = INT;
+    ex.field_val.f.int_field.val = (int64_t)expr.intfield();
+    break;
+  }
+  default:
+    throw;
+  }
+  return ex;
+}
+
+::grpc::Status DataOwnerImpl::KFilter(::grpc::ServerContext *context,
+                                      const ::vaultdb::KFilterRequest *request,
+                                      ::vaultdb::KFilterResponse *response) {
+  expr_t ex = make_expr_t(request->expr());
+  table_t * f = filter(p->GetTable(request->tid().tableid()), &ex);
+  auto tid = response->mutable_tid();
+  tid->set_hostnum(p->HostNum());
+  tid->set_tableid(p->AddTable(f));
+  return ::grpc::Status::OK;
 }
