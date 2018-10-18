@@ -1,0 +1,22 @@
+{
+	"HB":{
+		"user": "root",
+ 	   "address":"0.0.0.0",
+    	"port":"50000"    
+	},
+	"Hosts":[
+		{
+			"label": "label can be optional?",
+            "user": "root",
+			"address":"0.0.0.0",
+			"port":"50001"
+		},
+		{
+			"user": "root",
+		 	"address":"0.0.0.0",
+			"port":"50002"
+		}
+	]
+}
+
+    
