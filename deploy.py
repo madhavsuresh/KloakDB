@@ -10,7 +10,7 @@ import json
 # TODO: Have this use ssh keys not just passwords 
 # TODO: stop using root
 # TODO: confirm that text file busy is because using localhost... ?
-
+# custom sink for teh logger write back rpc calls to honest broker.
 
 def copy_vaultdb(user,address):
     print("Copying vaultdb executable over to host address %s" %(address))
@@ -22,11 +22,10 @@ def start_vaultdb_host(user,address, port, hb_info):
 
     print("Connecting to %s to start vault db"% (address))
     ssh = paramiko.SSHClient()
-    #ssh.get_host_keys().add('0.0.0.0', 'ssh-rsa',key) 
-    #print(ssh.get_host_keys().check('0.0.0.0',key))
-
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(address, username=user, password='password') # ideally get keys working
+    ssh.load_system_host_keys()
+    ssh.set_missing_host_key_policy(paramiko.WarningPolicy)
+    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname = address, username=user, key_filename='/root/.ssh/id_rsa', password='') # ideally get keys working
     addr_port = address + ":" + port
     command = "./vaultdb " + "-honest_broker_address=" + hb_info +  " -address=" + addr_port
     ssh_stdin,ssh_stdout,ssh_stderr = ssh.exec_command(command)
@@ -35,13 +34,14 @@ def start_vaultdb_host(user,address, port, hb_info):
 
 
 def start_vaultdb_hb(user,address, port):
-    print("Connecting to %s to start vault db"% (address))
+    print("Connecting to %s with user %s to start vault db"% (address, user))
+    
     ssh = paramiko.SSHClient()
-    #ssh.get_host_keys().add('0.0.0.0', 'ssh-rsa',key) 
-    #print(ssh.get_host_keys().check('0.0.0.0',key))
-
-    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
-    ssh.connect(address, username=user, password='password') # ideally get keys working
+    ssh.load_system_host_keys()
+    ssh.set_missing_host_key_policy(paramiko.WarningPolicy)
+    # ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(hostname = address, username=user, key_filename='/root/.ssh/id_rsa', password='') # ideally get keys working
+    
     addr_port = address + ":" + port
     command = "./vaultdb " + "-honest_broker=true " + "-address=" + addr_port
 
@@ -58,8 +58,8 @@ except:
     print("dir structure is wrong, cmake-build-debug isn't rhere")
     raise Exception("where is cmake")
 
-#call(['make','clean'])
-#call(['make', 'vaultdb'])
+call(['make','clean'])
+call(['make', 'vaultdb'])
 
 call(['cp', 'vaultdb', '..'])
 os.chdir('..')
@@ -74,12 +74,9 @@ with open('deploy.json') as json_data:
 
 
     host_list = data["Hosts"]
-    for host in host_list:
+    for host in host_list:                                         
+        
         copy_vaultdb(host["user"], host["address"])
         start_vaultdb_host(host["user"], host["address"], host["port"], hb_addr_port)
                 
 
-    
-        
-        
-        
