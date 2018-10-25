@@ -1,7 +1,7 @@
 //
 // Created by madhav on 9/17/18.
 //
-#include "../postgres_client.h"
+#include "../postgres_client/postgres_client.h"
 #include "vaultdb.grpc.pb.h"
 #include <grpcpp/grpcpp.h>
 
@@ -110,7 +110,7 @@ void RunServer() {
   builder.RegisterService(&service);
   // std::unique_ptr<Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << std::endl;
-  server->Wait();
+  //server->Wait();
 }
 
 int main() { RunServer(); }

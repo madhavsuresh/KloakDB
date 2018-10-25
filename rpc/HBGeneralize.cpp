@@ -3,10 +3,9 @@
 //
 
 #include "HBGeneralize.h"
-#include "../TableStatistics.h"
-#include "DOClient.h"
 #include <grpcpp/create_channel.h>
 #include <grpcpp/security/credentials.h>
+#include "DataOwnerClient.h"
 
 void HBGeneralize::Generalize(std::vector<TableStatistics> allStats) {
   int num_hosts = allStats.size();
@@ -31,7 +30,7 @@ void HBGeneralize::Generalize(std::vector<TableStatistics> allStats) {
 
 void HBGeneralize::generalize() {
   std::vector<TableStatistics> allStats;
-  VaultDBClient client(
+  DataOwnerClient client(
       grpc::CreateChannel("0.0.0.0:50051", grpc::InsecureChannelCredentials()));
   std::string db1 = "dbname=test";
   std::string q1 = "SELECT floor, COUNT(*) from rpc_test group by floor;";

@@ -1,0 +1,11 @@
+cc_library(
+    name = "operators",
+    srcs = glob(["*.cpp"]),
+    hdrs = glob(["*.h"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//picosha2",
+        "//postgres_client",
+        "//rpc:rpc_lib",
+    ],
+)

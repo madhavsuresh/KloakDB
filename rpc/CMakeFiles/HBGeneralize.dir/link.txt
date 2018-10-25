@@ -1,0 +1,2 @@
+/usr/bin/ar qc libHBGeneralize.a  CMakeFiles/HBGeneralize.dir/HBGeneralize.cpp.o CMakeFiles/HBGeneralize.dir/DOClient.cpp.o CMakeFiles/HBGeneralize.dir/__/postgres_client.cpp.o CMakeFiles/HBGeneralize.dir/vaultdb.grpc.pb.cc.o CMakeFiles/HBGeneralize.dir/vaultdb.pb.cc.o CMakeFiles/HBGeneralize.dir/__/TableStatistics.cpp.o
+/usr/bin/ranlib libHBGeneralize.a

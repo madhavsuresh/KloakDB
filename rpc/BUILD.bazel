@@ -1,0 +1,13 @@
+cc_library(
+    name = "rpc_lib",
+    srcs = glob(["*.cpp"]),  # all cpp files
+    hdrs = glob(["*.h"]),  # all .h files
+    visibility = [
+        "//visibility:public",
+    ],
+    deps = [
+        "//picosha2",
+        "//postgres_client",
+        "//table_statistics",
+    ],
+)

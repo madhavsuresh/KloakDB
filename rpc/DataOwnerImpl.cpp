@@ -3,7 +3,7 @@
 //
 
 #include "DataOwnerImpl.h"
-#include "../Repartition.h"
+#include "Repartition.h"
 #include "DataOwnerPrivate.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }

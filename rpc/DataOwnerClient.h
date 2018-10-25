@@ -5,7 +5,7 @@
 #ifndef PROJECT_DATAOWNERCLIENT_H
 #define PROJECT_DATAOWNERCLIENT_H
 
-#include "../postgres_client.h"
+#include "../postgres_client/postgres_client.h"
 #include "vaultdb.grpc.pb.h"
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>

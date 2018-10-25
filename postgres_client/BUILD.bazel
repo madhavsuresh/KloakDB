@@ -1,0 +1,6 @@
+cc_library(
+    name = "postgres_client",
+    srcs = ["postgres_client.cpp"],
+    hdrs = ["postgres_client.h"],
+    visibility = ["//visibility:public"],
+)

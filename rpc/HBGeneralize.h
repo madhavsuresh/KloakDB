@@ -5,7 +5,7 @@
 #ifndef PROJECT_HBGENERALIZE_H
 #define PROJECT_HBGENERALIZE_H
 
-#include "../TableStatistics.h"
+#include "../table_statistics/TableStatistics.h"
 
 class HBGeneralize {
 private:
