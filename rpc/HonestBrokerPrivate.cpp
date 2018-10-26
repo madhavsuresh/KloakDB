@@ -71,6 +71,16 @@ HonestBrokerPrivate::Repartition(
   return coalesced_tables;
 }
 
+std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+HonestBrokerPrivate::Filter(
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
+    ::vaultdb::Expr &expr) {
+
+  for (auto &i : ids) {
+    do_clients[i.get()->hostnum()]->Filter(i, expr);
+  }
+}
+
 void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {
   cf.set_cfid(col_ID);
 }

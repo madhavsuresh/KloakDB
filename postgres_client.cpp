@@ -9,21 +9,24 @@ uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
 }
 
 void print_tuple(tuple_t *t) {
+  if (t->is_dummy) {
+    return;
+  }
   for (int i = 0; i < t->num_fields; i++) {
     switch (t->field_list[i].type) {
     case FIXEDCHAR: {
-      printf("%s", t->field_list[i].f.fixed_char_field.val);
+      LOGF(INFO, "%s", t->field_list[i].f.fixed_char_field.val);
       break;
     }
     case INT: {
-      printf("%d", t->field_list[i].f.int_field.val);
+      LOGF(INFO,"%d", t->field_list[i].f.int_field.val);
       break;
     }
     case UNSUPPORTED: {
       throw;
     }
     }
-    printf("| ");
+    LOGF(INFO, "| ");
   }
 }
 
@@ -220,13 +223,13 @@ table_t *coalesce_tables(std::vector<table_t *> tables) {
   for (auto t : tables) {
     for (int i = 0; i < t->num_tuples; i++) {
       tuple_t *tup = get_tuple(i, t);
-      append_tuple_table_builder(&tb, tup);
+      append_tuple(&tb, tup);
     }
   }
   return tb.table;
 }
 
-void append_tuple_table_builder(table_builder_t *tb, tuple_t *tup) {
+void append_tuple(table_builder_t *tb, tuple_t *tup) {
   if (check_add_tuple_page(tb)) {
     add_tuple_page(tb);
   }
@@ -244,7 +247,7 @@ table_t *copy_table_by_index(table_t *t, std::vector<int> index_list) {
 
   for (auto i : index_list) {
     tuple_t *tup = get_tuple(i, t);
-    append_tuple_table_builder(&tb, tup);
+    append_tuple(&tb, tup);
   }
   return tb.table;
 }

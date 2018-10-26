@@ -21,6 +21,8 @@ public:
   ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
   void GetPeerHosts(std::map<int, std::string> numToHostsMap);
 
+  std::shared_ptr<const ::vaultdb::TableID>
+      Filter(std::shared_ptr<const ::vaultdb::TableID>, ::vaultdb::Expr);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
   RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> tid);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepTwo(
