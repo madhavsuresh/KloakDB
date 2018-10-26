@@ -52,40 +52,55 @@ link_directories(/root/DB/linux-sgx/sgxsdk/lib64)
 find_library(SGXCRYPTO sgx_tcrypto)
 
 
-add_executable(postgres_test postgres_client_test.cpp postgres_client.cpp)
+add_executable(postgres_test postgres_client/postgres_client_test.cpp postgres_client/postgres_client.cpp)
 target_link_libraries(postgres_test gtest_main pqxx glog profiler tcmalloc)
 add_test(NAME postgres_test COMMAND postgres_test)
 
-add_executable(filter_test filter_test.cpp Filter.cpp postgres_client.cpp Expressions.cpp)
+add_executable(filter_test operators/filter_test.cpp operators/Filter.cpp postgres_client/postgres_client.cpp operators/Expressions.cpp)
 target_link_libraries(filter_test gtest_main  pqxx glog profiler tcmalloc)
 add_test(NAME filter_test COMMAND filter_test)
 
-add_executable(join_test join_test.cpp HashJoin.cpp postgres_client.cpp Expressions.cpp)
+add_executable(join_test operators/join_test.cpp operators/HashJoin.cpp postgres_client/postgres_client.cpp operators/Expressions.cpp)
 target_link_libraries(join_test gtest_main pqxx glog profiler tcmalloc)
 add_test(NAME join_test COMMAND join_test)
 
-add_executable(sort_test sort_test.cpp Sort.cpp postgres_client.cpp Expressions.cpp)
+add_executable(sort_test operators/sort_test.cpp operators/Sort.cpp postgres_client/postgres_client.cpp operators/Expressions.cpp)
 target_link_libraries(sort_test gtest_main pqxx glog profiler tcmalloc)
 add_test(NAME sort_test COMMAND sort_test)
 
 set(REPART_SRCS
-    Repartition.cpp)
+        rpc/Repartition.cpp)
 
-add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h Repartition.cpp)
+add_executable(vaultdb VaultDB.cpp postgres_client/postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h rpc/Repartition.cpp)
 
+set(CMAKE_LIBRARY_PATH ${CMAKE_LIBRARY_PATH}
+        /lib
+        /usr/lib
+        /usr/lib64
+        /usr/local/lib
+        /usr/local/lib64
+        /usr/lib/x86_64-linux-gnu
+        /usr/lib/gcc/x86_64-redhat-linux/7/32)
 
+set(CMAKE_FIND_LIBRARY_SUFFIXES .a ${CMAKE_FIND_LIBRARY_SUFFIXES})
 
-find_library(GRPC_LIB grpc)
-find_library(GRPCxx_LIB grpc++)
-find_library(GFLAGS_LIB gflags)
-find_library(PROTOBUF_LIB protobuf)
-find_library(PQXX_LIB pqxx)
-find_library(DL_LIB dl)
+find_library(GRPC_LIB NAMES libgrpc.a)
+message(STATUS ${GRPC_LIB})
+find_library(GRPCxx_LIB NAMES libgrpc++.a)
+find_library(GFLAGS_LIB NAMES libgflags.a)
+message(STATUS ${GFLAGS_LIB})
+
+find_library(STD_LIB NAMES /usr/lib/gcc/x86_64-redhat-linux/7/32/libstdc++.a)
+message(STATUS ${STD_LIB})
+
+find_library(PROTOBUF_LIB NAMES libprotobuf.a)
+find_library(PQXX_LIB NAMES libpqxx.a)
+find_library(DL_LIB NAMES libdl.a)
 
 find_library(PTHREAD_LIB pthread)
-find_library(G3LOGGER_LIB g3logger)
+find_library(G3LOGGER_LIB NAMES libg3logger.a)
 
 #target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl pthread g3logger "-static")
-target_link_libraries(vaultdb ${GRPC_LIB} ${GRPCxx_LIB} ${GFLAGS_LIB} ${PROTOBUF_LIB} ${PQXX_LIB} ${DL_LIB} ${PTHREAD_LIB} ${G3LOGGER_LIB} "-static")
+target_link_libraries(vaultdb ${GRPC_LIB} ${GFLAGS_LIB} ${PQXX_LIB} ${GRPCxx_LIB} ${PROTOBUF_LIB} ${PTHREAD_LIB} ${G3LOGGER_LIB} -static )
 
 add_subdirectory(rpc)
