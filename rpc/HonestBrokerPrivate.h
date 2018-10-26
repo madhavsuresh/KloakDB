@@ -29,7 +29,8 @@ public:
   Coalesce(int host_num,
            std::vector<std::shared_ptr<const ::vaultdb::TableID>> tables);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Filter(std::vector<std::shared_ptr<::vaultdb::TableID>> &ids);
+  Filter(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
+          ::vaultdb::Expr &expr);
   int GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
   int RegisterPeerHosts();

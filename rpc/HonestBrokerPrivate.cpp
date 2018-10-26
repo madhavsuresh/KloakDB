@@ -73,15 +73,12 @@ HonestBrokerPrivate::Repartition(
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
 HonestBrokerPrivate::Filter(
-    std::vector<std::shared_ptr<::vaultdb::TableID>> &ids, Exp) {
-  for (auto i : ids) {
-    do_clients[i.get()->hostnum()]->Filter(id)
-  }
-          ]
-  for (int i = 0; i < num_hosts; i++) {
-    do_clients[i]->Filter()
-  }
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
+    ::vaultdb::Expr &expr) {
 
+  for (auto &i : ids) {
+    do_clients[i.get()->hostnum()]->Filter(i, expr);
+  }
 }
 
 void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {

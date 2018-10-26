@@ -133,14 +133,6 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
   ::vaultdb::TableID *tid = response->mutable_id();
   tid->set_tableid(p->AddTable(t));
   tid->set_hostnum(p->HostNum());
-  expr_t expr = make_int_expr(EQ_EXPR, 5 /* field_val */, 1 /* colno */);
-  table_t *k = filter(t, &expr);
-  sort_t sortex = {.colno = 1, .type = INT, .ascending = true};
-  table_t *o = sort(k, &sortex);
-
-  for (int i = 0; i < t->num_tuples; i++) {
-    print_tuple(get_tuple(i, t));
-  }
   LOG(INFO) << "After coalescing: " << p->GetTable(tid->tableid())->num_tuples;
   return grpc::Status::OK;
 }
@@ -181,5 +173,9 @@ expr_t make_expr_t(const ::vaultdb::Expr &expr) {
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(f));
+  LOG(INFO) << "Success";
+  for (int i = 0; i < f->num_tuples; i++) {
+    print_tuple(get_tuple(i, f));
+  }
   return ::grpc::Status::OK;
 }
