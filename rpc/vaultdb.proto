@@ -89,11 +89,12 @@ message SendTableResponse {
 }
 
 message KFilterRequest {
-    int32 tableID = 1;
+    TableID tid = 1;
+    Expr expr = 2;
 }
 
 message KFilterResponse {
-
+    TableID tid = 1;
 }
 
 message KJoinRequest {
@@ -181,6 +182,19 @@ message TableStream {
     Table t = 1;
     int32 page_no = 3;
     bytes page = 4;
+}
+
+message Expr {
+    enum ExprType {
+        UNSUPPORTED_EXPR = 0;
+        EQ_EXPR = 1;
+    }
+
+    ExprType type = 1;
+    int32 colno = 2;
+    FieldDesc desc = 3;
+    int32 intfield = 4;
+    string charfield = 5;
 }
 
 //TODO(madhavsuresh): do we need to serialize/unserialize the schema?

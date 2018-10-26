@@ -56,8 +56,12 @@ add_executable(postgres_test postgres_client/postgres_client_test.cpp postgres_c
 target_link_libraries(postgres_test gtest_main pqxx glog profiler tcmalloc)
 add_test(NAME postgres_test COMMAND postgres_test)
 
-add_executable(filter_test operators/filter_test.cpp operators/Filter.cpp postgres_client/postgres_client.cpp operators/Expressions.cpp)
-target_link_libraries(filter_test gtest_main  pqxx glog profiler tcmalloc)
+add_executable(aggregate_test aggregate_test.cpp Aggregate.cpp postgres_client.cpp)
+target_link_libraries(aggregate_test gtest_main pq pqxx glog profiler tcmalloc g3logger)
+add_test(NAME aggregate_test COMMAND aggregate_test)
+
+add_executable(filter_test filter_test.cpp Filter.cpp postgres_client.cpp Expressions.cpp)
+target_link_libraries(filter_test gtest_main pq pqxx glog profiler tcmalloc)
 add_test(NAME filter_test COMMAND filter_test)
 
 add_executable(join_test operators/join_test.cpp operators/HashJoin.cpp postgres_client/postgres_client.cpp operators/Expressions.cpp)
@@ -99,6 +103,7 @@ find_library(DL_LIB NAMES libdl.a)
 
 find_library(PTHREAD_LIB pthread)
 find_library(G3LOGGER_LIB NAMES libg3logger.a)
+add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h Repartition.cpp Sort.cpp Filter.cpp Expressions.cpp Aggregate.cpp)
 
 #target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl pthread g3logger "-static")
 target_link_libraries(vaultdb ${GRPC_LIB} ${GFLAGS_LIB} ${PQXX_LIB} ${GRPCxx_LIB} ${PROTOBUF_LIB} ${PTHREAD_LIB} ${G3LOGGER_LIB} -static )
