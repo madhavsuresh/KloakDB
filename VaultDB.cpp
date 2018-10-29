@@ -60,12 +60,16 @@ int main(int argc, char **argv) {
     tids.emplace_back(std::make_shared<::vaultdb::TableID>(t1));
     tids.emplace_back(std::make_shared<::vaultdb::TableID>(t2));
     auto repartition_ids = p->Repartition(tids);
+    ::vaultdb::SortDef sort;
+    sort.set_colno(0);
+    sort.set_ascending(true);
+    auto sorted_ids = p->Sort(repartition_ids, sort);
     ::vaultdb::Expr exp;
     exp.set_colno(1);
     exp.set_type(::vaultdb::Expr_ExprType_EQ_EXPR);
     exp.mutable_desc()->set_field_type(::vaultdb::FieldDesc_FieldType_INT);
     exp.set_intfield(5);
-    p->Filter(repartition_ids, exp);
+    p->Filter(sorted_ids, exp);
     hb_thread.join();
   } else {
     DataOwnerPrivate *p =
