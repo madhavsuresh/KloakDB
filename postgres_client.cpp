@@ -8,25 +8,48 @@ uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
   return (PAGE_SIZE - sizeof(uint64_t)) / tuple_size;
 }
 
-void print_tuple(tuple_t *t) {
+void print_tuple_log(int ii, tuple_t *t) {
+  std::string output;
   if (t->is_dummy) {
     return;
   }
+  output+= std::to_string(ii) + "{";
   for (int i = 0; i < t->num_fields; i++) {
     switch (t->field_list[i].type) {
     case FIXEDCHAR: {
-      LOGF(INFO, "%s", t->field_list[i].f.fixed_char_field.val);
+      output += std::to_string(i) + ":|" + std::string(t->field_list[i].f.fixed_char_field.val) + "|";
       break;
     }
     case INT: {
-      LOGF(INFO,"%d", t->field_list[i].f.int_field.val);
+      output += std::to_string(i) + ":|" + std::to_string(t->field_list[i].f.int_field.val) + "|";
+      //snprintf(output+offset, 8, "%d:|%d|",i, t->field_list[i].f.int_field.val);
+      //offset+=8;
       break;
     }
     case UNSUPPORTED: {
       throw;
     }
     }
-    LOGF(INFO, "| ");
+  }
+  LOGF(INFO, "%s}", output.c_str());
+}
+
+void print_tuple(tuple_t * t) {
+  for (int i = 0; i < t->num_fields; i++) {
+    switch (t->field_list[i].type) {
+      case FIXEDCHAR: {
+        printf("%s", t->field_list[i].f.fixed_char_field.val);
+        break;
+      }
+      case INT : {
+        printf("%d", t->field_list[i].f.int_field.val);
+        break;
+      }
+      case UNSUPPORTED : {
+        throw;
+      }
+    }
+    printf("| ");
   }
 }
 

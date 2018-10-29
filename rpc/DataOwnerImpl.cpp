@@ -175,7 +175,34 @@ expr_t make_expr_t(const ::vaultdb::Expr &expr) {
   tid->set_tableid(p->AddTable(f));
   LOG(INFO) << "Success";
   for (int i = 0; i < f->num_tuples; i++) {
-    print_tuple(get_tuple(i, f));
+    print_tuple_log(i, get_tuple(i, f));
   }
   return ::grpc::Status::OK;
+}
+
+sort_t make_sort_t(const ::vaultdb::SortDef sort) {
+  sort_t s;
+  s.colno = sort.colno();
+  s.ascending = sort.ascending();
+  return s;
+}
+
+::grpc::Status DataOwnerImpl::KSort(::grpc::ServerContext *context, const ::vaultdb::KSortRequest *request,
+                     ::vaultdb::KSortResponse *response) {
+  sort_t s = make_sort_t(request->sortdef());
+
+  table_t * sorted = sort(p->GetTable(request->tid().tableid()), &s);
+  auto tid = response->mutable_tid();
+  tid->set_hostnum(p->HostNum());
+  tid->set_tableid(p->AddTable(sorted));
+  LOG(INFO) << "Success";
+  for (int i = 0; i < sorted->num_tuples; i++) {
+    print_tuple_log(i, get_tuple(i, sorted));
+  }
+  return ::grpc::Status::OK;
+}
+
+::grpc::Status DataOwnerImpl::KJoin(::grpc::ServerContext *context, const ::vaultdb::KJoinRequest *request,
+                     ::vaultdb::KJoinResponse *response) {
+
 }
