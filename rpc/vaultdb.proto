@@ -106,11 +106,12 @@ message KJoinResponse {
 }
 
 message KSortRequest {
-
+    TableID tid = 1;
+    SortDef sortdef = 2;
 }
 
 message KSortResponse {
-
+    TableID tid = 1;
 }
 
 message GeneralizeRequest {
@@ -227,6 +228,12 @@ message Schema {
     int32 num_fields = 1;
     repeated FieldDesc field = 2;
 }
+
+message SortDef {
+    int32 colno = 1;
+    bool ascending = 2;
+}
+
 
 message TableQueryRequest {
     string dbname = 1;

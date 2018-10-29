@@ -66,7 +66,7 @@ target_link_libraries(filter_test gtest_main pq pqxx glog profiler tcmalloc)
 add_test(NAME filter_test COMMAND filter_test)
 
 add_executable(sort_test sort_test.cpp Sort.cpp postgres_client.cpp Expressions.cpp)
-target_link_libraries(sort_test gtest_main pq pqxx glog profiler tcmalloc)
+target_link_libraries(sort_test gtest_main pq pqxx glog profiler tcmalloc g3logger)
 add_test(NAME sort_test COMMAND sort_test)
 
 set(REPART_SRCS

@@ -76,9 +76,20 @@ HonestBrokerPrivate::Filter(
     std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
     ::vaultdb::Expr &expr) {
 
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>> filtered_tables;
   for (auto &i : ids) {
-    do_clients[i.get()->hostnum()]->Filter(i, expr);
+    filtered_tables.emplace_back(do_clients[i.get()->hostnum()]->Filter(i, expr));
   }
+  return filtered_tables;
+}
+
+std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+HonestBrokerPrivate::Sort(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids, ::vaultdb::SortDef &sort) {
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>> sorted_tables;
+  for (auto &i : ids) {
+    sorted_tables.emplace_back(do_clients[i.get()->hostnum()]->Sort(i, sort));
+  }
+  return sorted_tables;
 }
 
 void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {

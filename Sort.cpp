@@ -20,6 +20,7 @@
 #include "Sort.h"
 #include "postgres_client.h"
 #include <math.h>
+#include <g3log/g3log.hpp>
 
 #define ASCENDING 1
 #define DESCENDING 0
@@ -53,8 +54,7 @@ void swap_tuples(int t1, int t2, table_t *t, bool to_swap) {
   for (int i = 0; i < t->schema.num_fields; i++) {
     switch (t->schema.fields[i].type) {
     case UNSUPPORTED: {
-      printf("UNSUPPORTED\n");
-      break;
+      throw;
     }
     case FIXEDCHAR: {
       // TODO(madhavsuresh): This is an "oblivious swap". may need to use
@@ -88,12 +88,13 @@ void swap_tuples(int t1, int t2, table_t *t, bool to_swap) {
 }
 
 void compare(int i, int j, bool dir, table_t *t, sort_t *s) {
-  switch (s->type) {
+  switch (t->schema.fields[s->colno].type) {
   case UNSUPPORTED:
-    break;
+    throw;
   case FIXEDCHAR: {
-    printf("UNSUPPORTED\n");
-  } break;
+    throw;
+    //printf("UNSUPPORTED\n");
+  }
   case INT: {
     uint64_t i_val = get_tuple(i, t)->field_list[s->colno].f.int_field.val;
     uint64_t j_val = get_tuple(j, t)->field_list[s->colno].f.int_field.val;

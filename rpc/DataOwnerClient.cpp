@@ -164,6 +164,7 @@ DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb
   } else {
     LOG(INFO) << "FAIL:->[" << host_num << "]";
     std::cerr << status.error_code() << ": " << status.error_message()
+
               << std::endl;
     throw;
   }
@@ -201,6 +202,29 @@ int DataOwnerClient::SendTable(table_t *t) {
     LOG(INFO) << "SUCCESS:->[" << host_num << "], num_tuples:[" << t->num_tuples
               << "], num_pages: [" << t->num_tuple_pages << "]";
     return resp.tableid();
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+    std::cerr << status.error_code() << ": " << status.error_message()
+              << std::endl;
+    throw;
+  }
+}
+
+std::shared_ptr<const ::vaultdb::TableID>
+DataOwnerClient::Sort(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::SortDef sort) {
+  ::vaultdb::KSortRequest req;
+  ::vaultdb::KSortResponse resp;
+  ::grpc::ClientContext context;
+  req.mutable_sortdef()->CopyFrom(sort);
+  auto t = req.mutable_tid();
+  t->set_hostnum(tid.get()->hostnum());
+  t->set_tableid(tid.get()->tableid());
+  auto status = stub_->KSort(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+    auto ret = std::make_shared<::vaultdb::TableID>();
+    ret.get()->CopyFrom(resp.tid());
+    return ret;
   } else {
     LOG(INFO) << "FAIL:->[" << host_num << "]";
     std::cerr << status.error_code() << ": " << status.error_message()

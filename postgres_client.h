@@ -121,4 +121,5 @@ table_t *allocate_table(int num_tuple_pages);
 void init_table_builder_from_pq(pqxx::result res, table_builder_t *tb);
 void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
+void print_tuple_log(int i, tuple_t *t);
 #endif // PROJECT_POSTGRES_CLIENT_H
