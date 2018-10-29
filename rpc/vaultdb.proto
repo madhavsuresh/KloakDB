@@ -106,11 +106,12 @@ message KJoinResponse {
 }
 
 message KSortRequest {
-
+    TableID tid = 1;
+    Sort sortinfo = 2;
 }
 
 message KSortResponse {
-
+    TableID tid = 1;
 }
 
 message GeneralizeRequest {
@@ -184,6 +185,12 @@ message TableStream {
     bytes page = 4;
 }
 
+message Sort {
+    int32 colno = 1;
+    bool ascending = 2;
+    FieldDesc type = 3; // TODO(madhavsuresh): this is bad, but done so there aren't multiple types of the enum.
+}
+
 message Expr {
     enum ExprType {
         UNSUPPORTED_EXPR = 0;
@@ -209,6 +216,7 @@ message TuplePage {
     int32 page_no = 1;
     bytes page = 2;
 }
+
 
 
 message FieldDesc {

@@ -29,6 +29,8 @@ public:
       std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments);
   std::shared_ptr<const ::vaultdb::TableID> CoalesceTables(
       std::vector<std::shared_ptr<const ::vaultdb::TableID>> &tables);
+std::shared_ptr<const ::vaultdb::TableID>
+Sort(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::Sort sort) {
 
   // TODO(madhavsuresh): this needs to be renamed to be consistent
   int SendTable(table_t *t);

@@ -179,3 +179,38 @@ expr_t make_expr_t(const ::vaultdb::Expr &expr) {
   }
   return ::grpc::Status::OK;
 }
+
+sort_t make_sort_t(const ::vaultdb::Sort sort) {
+    sort_t s;
+    switch (sort.type().field_type()) {
+        case ::vaultdb::FieldDesc_FieldType_INT: {
+            s.type = INT;
+            break;
+        }
+        case ::vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
+            s.type = FIXEDCHAR;
+            break;
+        }
+        default:
+            throw;
+    }
+    s.ascending = sort.ascending();
+    s.colno = sort.colno();
+    return s;
+}
+::grpc::Status DataOwnerImpl::KSort(::grpc::ServerContext *context, const ::vaultdb::KSortRequest *request,
+                                    ::vaultdb::KSortResponse *response) {
+    sort_t s = make_sort_t(request->sortinfo());
+    table_t * sorted = sort(p->GetTable(request->tid().tableid()), &s);
+    auto tid = response->mutable_tid();
+    tid->set_hostnum(p->HostNum());
+    tid->set_tableid(p->AddTable(sorted));
+    LOG(INFO) << "Success";
+    return ::grpc::Status::OK;
+}
+
+
+::grpc::Status DataOwnerImpl::KJoin(::grpc::ServerContext *context, const ::vaultdb::KJoinRequest *request,
+                                    ::vaultdb::KJoinResponse *response) {
+
+}

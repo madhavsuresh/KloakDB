@@ -44,6 +44,11 @@ public:
                          const ::vaultdb::KFilterRequest *request,
                          ::vaultdb::KFilterResponse *response);
 
+  ::grpc::Status KSort(::grpc::ServerContext *context, const ::vaultdb::KSortRequest *request,
+                                        ::vaultdb::KSortResponse *response);
+
+  ::grpc::Status KJoin(::grpc::ServerContext *context, const ::vaultdb::KJoinRequest *request,
+                                        ::vaultdb::KJoinResponse *response);
  private : DataOwnerPrivate *p;
 }
 ;

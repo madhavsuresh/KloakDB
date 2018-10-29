@@ -8,7 +8,7 @@
 #include <cstdint>
 
 typedef struct sort {
-  uint32_t colno;
+  int32_t colno;
   FIELD_TYPE type;
   bool ascending;
 } sort_t;
