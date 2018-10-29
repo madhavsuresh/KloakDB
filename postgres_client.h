@@ -35,6 +35,18 @@ typedef struct schema {
   field_desc_t fields[MAX_FIELDS];
 } schema_t;
 
+typedef struct join_col_ID {
+    int32_t side; //Either 0, or 1. 0-> left table, 1-> right table
+    int32_t col_no;
+} join_colID_t;
+
+typedef struct join_def {
+    int32_t l_col; // Column to join on in left relation.
+    int32_t r_col; // Column to join on in right relation.
+    join_colID_t project_list[MAX_FIELDS]; // ordered list of columns to project after join.
+    int32_t project_len; // Number of fields in project list
+} join_def_t;
+
 typedef struct field_int {
   int64_t val;
   int64_t genval;
