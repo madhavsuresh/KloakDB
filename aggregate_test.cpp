@@ -3,6 +3,7 @@
 //
 #include <gtest/gtest.h>
 #include "postgres_client.h"
+#include "pqxx_compat.h"
 #include "Aggregate.h"
 
 class aggregate_test : public ::testing::Test {

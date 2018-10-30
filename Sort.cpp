@@ -20,7 +20,6 @@
 #include "Sort.h"
 #include "postgres_client.h"
 #include <math.h>
-#include <g3log/g3log.hpp>
 
 #define ASCENDING 1
 #define DESCENDING 0

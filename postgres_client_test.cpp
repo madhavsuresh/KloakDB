@@ -3,7 +3,8 @@
 //
 #include "postgres_client_test.h"
 #include "postgres_client.h"
-#include <glog/logging.h>
+#include "pqxx_compat.h"
+#include "Logger.h"
 #include <gtest/gtest.h>
 #include <malloc.h>
 
@@ -70,7 +71,7 @@ TEST_F(postgres_client_test, build_table) {
   res2 = query(query_create, dbname);
   std::string query_string = "SELECT * FROM test_random";
   pqxx::result t_random = query(query_string, dbname);
-  table_builder_t *tb = table_builder(query_string, dbname);
+  table_builder_t *tb = table_builder_init(query_string, dbname);
   printf("\n num tuples per page: %d", tb->num_tuples_per_page);
   check_int_table(tb->table);
   free_table(tb->table);

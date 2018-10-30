@@ -1,43 +1,12 @@
 #include "postgres_client.h"
 #include <cstring>
-#include <g3log/g3log.hpp>
-#include <glog/logging.h>
+//#include <g3log/g3log.hpp>
+//#include <glog/logging.h>
 #include <iostream>
 
-uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
+uint64_t tuples_per_page(uint64_t tuple_size) {
   return (PAGE_SIZE - sizeof(uint64_t)) / tuple_size;
 }
-
-void print_tuple_log(int ii, tuple_t *t) {
-  std::string output;
-  if (t->is_dummy) {
-    LOGF(INFO, "tuple is dummy");
-    return;
-  }
-  output+= std::to_string(ii) + "{";
-  if (t->num_fields == 0) {
-    LOGF(INFO, "NUM _FIELDS IS ZERO!!");
-  }
-  for (int i = 0; i < t->num_fields; i++) {
-    switch (t->field_list[i].type) {
-    case FIXEDCHAR: {
-      output += std::to_string(i) + ":|" + std::string(t->field_list[i].f.fixed_char_field.val) + "|";
-      break;
-    }
-    case INT: {
-      output += std::to_string(i) + ":|" + std::to_string(t->field_list[i].f.int_field.val) + "|";
-      //snprintf(output+offset, 8, "%d:|%d|",i, t->field_list[i].f.int_field.val);
-      //offset+=8;
-      break;
-    }
-    case UNSUPPORTED: {
-      throw;
-    }
-    }
-  }
-  LOGF(INFO, "%s}", output.c_str());
-}
-
 
 std::string tuple_string(tuple_t * t) {
   std::string output = "";
@@ -45,7 +14,6 @@ std::string tuple_string(tuple_t * t) {
     switch (t->field_list[i].type) {
       case FIXEDCHAR: {
         output += std::string(t->field_list[i].f.fixed_char_field.val);
-        printf("%s", t->field_list[i].f.fixed_char_field.val);
         break;
       }
       case INT : {
@@ -61,10 +29,6 @@ std::string tuple_string(tuple_t * t) {
   return output;
 }
 
-void print_tuple(tuple_t * t) {
-  std::cout << tuple_string(t);
-}
-
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno) {
   expr_t expr;
   expr.field_val.type = INT;
@@ -74,38 +38,6 @@ expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno) {
   return expr;
 }
 
-pqxx::result query(std::string query_string, std::string dbname) {
-  try {
-    pqxx::connection c(dbname);
-  } catch (const std::exception &e) {
-    std::cerr << e.what() << std::endl;
-  }
-  pqxx::connection c(dbname);
-  pqxx::work txn(c);
-  pqxx::result res;
-  try {
-    res = txn.exec(query_string);
-  } catch (const std::exception &e) {
-    std::cerr << e.what() << std::endl;
-  }
-
-  txn.commit();
-  txn.commit();
-  return res;
-}
-
-FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
-  switch (oid) {
-  case VARCHAROID:
-    return FIXEDCHAR;
-  case INT4OID:
-  case INT8OID:
-    return INT;
-  default:
-    throw;
-    // return UNSUPPORTED;
-  }
-}
 
 void free_table(table_t *t) {
   // TODO(madhavsuresh): there is a memory leak here!
@@ -124,12 +56,12 @@ tuple_page_t *allocate_tuple_page(table_builder_t *tb) {
   return tb->table->tuple_pages[tb->curr_page];
 }
 
-tuple_page_t *initialize_tuple_page(table_builder_t *tb) {
+void initialize_tuple_page(table_builder_t *tb) {
   tb->curr_page = 0;
   allocate_tuple_page(tb);
 }
 
-tuple_page_t *add_tuple_page(table_builder_t *tb) {
+void add_tuple_page(table_builder_t *tb) {
   tb->curr_page++;
   allocate_tuple_page(tb);
 }
@@ -140,15 +72,19 @@ tuple_t *get_tuple_from_page(int page_tuple_num, tuple_page_t *tp,
                      (table->size_of_tuple * page_tuple_num));
 }
 
-int get_int_field(tuple_t *tup, int field_no) {
+int64_t get_int_field(tuple_t *tup, int field_no) {
   return tup->field_list[field_no].f.int_field.val;
+}
+
+tuple_page_t *get_page(int page_num, table_t *table) {
+    return table->tuple_pages[page_num];
 }
 
 tuple_t *get_tuple(int tuple_number, table_t *table) {
   int num_tuples_per_page =
-      (int)tuples_per_page(PAGE_SIZE, table->size_of_tuple);
+      (int)tuples_per_page(table->size_of_tuple);
   int page_num = (tuple_number) / (num_tuples_per_page);
-  tuple_page_t *tp = table->tuple_pages[page_num];
+  tuple_page_t *tp = get_page(page_num, table);
   int page_tuple_num = tuple_number % num_tuples_per_page;
   return (tuple_t *)(((char *)tp->tuple_list) +
                      (table->size_of_tuple * page_tuple_num));
@@ -160,27 +96,6 @@ void copy_tuple_to_position(table_t *t, int pos, tuple_t *tup) {
   memcpy(curr_tup, tup, t->size_of_tuple);
 }
 
-void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
-  int field_counter = 0;
-  tuple->num_fields = s->num_fields;
-  for (auto field : tup) {
-    switch (s->fields[field_counter].type) {
-    case FIXEDCHAR:
-      strncpy(tuple->field_list[field_counter].f.fixed_char_field.val,
-              field.c_str(), FIXEDCHAR_LEN);
-      tuple->field_list[field_counter].type = FIXEDCHAR;
-      break;
-    case INT:
-      tuple->field_list[field_counter].f.int_field.val = field.as<int>();
-      tuple->field_list[field_counter].type = INT;
-      break;
-    case UNSUPPORTED:
-      throw;
-    }
-    field_counter++;
-  }
-}
-
 bool check_add_tuple_page(table_builder_t *tb) {
 
   if (0 == tb->curr_tuple % tb->num_tuples_per_page && tb->curr_tuple > 0) {
@@ -189,21 +104,6 @@ bool check_add_tuple_page(table_builder_t *tb) {
   return false;
 }
 
-void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
-  // TODO(madhavsuresh): would prefer this to be on the stack
-  for (auto psql_row : res) {
-    // Don't want to jump on the first tuple
-    if (check_add_tuple_page(tb)) {
-      add_tuple_page(tb);
-    }
-    tb->table->num_tuples++;
-    // build_tuple_from_pq adds the tuple to the
-    build_tuple_from_pq(psql_row, get_tuple(tb->curr_tuple, tb->table),
-                        &tb->table->schema);
-    tb->curr_tuple++;
-    fflush(stdin);
-  }
-}
 
 table_t *allocate_table(int num_tuple_pages) {
   return (table_t *)malloc(sizeof(table_t) +
@@ -221,7 +121,7 @@ void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
 
   uint64_t total_size = tb->expected_tuples * tb->size_of_tuple;
   tb->expected_pages =
-      tb->expected_tuples / tuples_per_page(PAGE_SIZE, tb->size_of_tuple) + 1;
+      tb->expected_tuples / tuples_per_page(tb->size_of_tuple) + 1;
   // total_size / PAGE_SIZE + 2;
   // TODO(madhavsuresh): this needs to be abstracted out. this is terrible.
   tb->table = allocate_table(tb->expected_pages); //(table_t *)
@@ -235,7 +135,7 @@ void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
 
   tb->table->size_of_tuple = tb->size_of_tuple;
   tb->num_tuples_per_page =
-      tuples_per_page(PAGE_SIZE, tb->table->size_of_tuple);
+      tuples_per_page(tb->table->size_of_tuple);
   tb->curr_tuple = 0;
   tb->curr_page = 0;
   // Initialize first page regardless
@@ -285,39 +185,4 @@ table_t *copy_table_by_index(table_t *t, std::vector<int> index_list) {
     append_tuple(&tb, tup);
   }
   return tb.table;
-}
-
-void init_table_builder_from_pq(pqxx::result res, table_builder_t *tb) {
-  schema_t schema = get_schema_from_query(tb, res);
-  init_table_builder(res.capacity(), res.columns(), &schema, tb);
-}
-
-table_t *get_table(std::string query_string, std::string dbname) {
-  table_t *t;
-  table_builder_t *tb = table_builder(query_string, dbname);
-  t = tb->table;
-  free(tb);
-  return t;
-}
-
-table_builder_t *table_builder(std::string query_string, std::string dbname) {
-  auto *tb = (table_builder_t *)malloc(sizeof(table_builder_t));
-  memset(tb, '\0', sizeof(table_builder_t));
-  pqxx::result res = query(query_string, dbname);
-  init_table_builder_from_pq(res, tb);
-  write_table_from_postgres(res, tb);
-  // Everything should be zero-indexed
-  return tb;
-}
-
-schema_t get_schema_from_query(table_builder_t *tb, pqxx::result res) {
-  schema_t schema;
-  schema.num_fields = res.columns();
-  for (int i = 0; i < schema.num_fields; i++) {
-    strncpy(schema.fields[i].field_name, res.column_name(i), FIELD_NAME_LEN);
-    schema.fields[i].col_no = (uint32_t)i;
-    schema.fields[i].type = get_OID_field_type(res.column_type(i));
-  }
-  // DLOG(INFO) << "Completed Schema with columns: " << tb->num_columns;
-  return schema;
 }
