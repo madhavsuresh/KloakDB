@@ -34,23 +34,31 @@ void print_tuple_log(int ii, tuple_t *t) {
   LOGF(INFO, "%s}", output.c_str());
 }
 
-void print_tuple(tuple_t * t) {
+
+std::string tuple_string(tuple_t * t) {
+  std::string output = "";
   for (int i = 0; i < t->num_fields; i++) {
     switch (t->field_list[i].type) {
       case FIXEDCHAR: {
+        output += std::string(t->field_list[i].f.fixed_char_field.val);
         printf("%s", t->field_list[i].f.fixed_char_field.val);
         break;
       }
       case INT : {
-        printf("%d", t->field_list[i].f.int_field.val);
+        output += std::to_string(t->field_list[i].f.int_field.val);
         break;
       }
       case UNSUPPORTED : {
         throw;
       }
     }
-    printf("| ");
+    output += "| ";
   }
+  return output;
+}
+
+void print_tuple(tuple_t * t) {
+  std::cout << tuple_string(t);
 }
 
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno) {
