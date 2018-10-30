@@ -20,6 +20,7 @@ service DataOwner {
     rpc KFilter (KFilterRequest) returns (KFilterResponse){}
     rpc KJoin (KJoinRequest) returns (KJoinResponse) {}
     rpc KSort (KSortRequest) returns (KSortResponse) {}
+    rpc KAggregate (KAggregateRequest) returns (KAggregateResponse) {}
     rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
     rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
     rpc RepartitionStepOne (RepartitionStepOneRequest) returns (RepartitionStepOneResponse) {}
@@ -104,6 +105,25 @@ message KJoinRequest {
 }
 
 message KJoinResponse {
+    TableID tid = 1;
+}
+
+message GroupByDef {
+    enum GroupByType {
+        UNSUPPORTED = 0;
+        MINX = 1;
+        COUNT = 2;
+    }
+    GroupByType type = 1;
+    int32 col_no = 2;
+}
+
+message KAggregateRequest {
+    TableID tid = 1;
+    GroupByDef def = 2;
+}
+
+message KAggregateResponse {
     TableID tid = 1;
 }
 

@@ -50,6 +50,9 @@ public:
   ::grpc::Status KJoin(::grpc::ServerContext *context, const ::vaultdb::KJoinRequest *request,
                          ::vaultdb::KJoinResponse *response);
 
+  ::grpc::Status KAggregate(::grpc::ServerContext* context, const ::vaultdb::KAggregateRequest* request,
+          ::vaultdb::KAggregateResponse* response);
+
  private : DataOwnerPrivate *p;
 }
 ;

@@ -74,15 +74,20 @@ int main(int argc, char **argv) {
     pl1->set_side(::vaultdb::JoinColID_RelationSide_RIGHT);
     pl1->set_col_no(1);
     auto pl2 = join.add_project_list();
-    pl1->set_side(::vaultdb::JoinColID_RelationSide_LEFT);
-    pl1->set_col_no(0);
+    pl2->set_side(::vaultdb::JoinColID_RelationSide_LEFT);
+    pl2->set_col_no(0);
     auto j_output = p->Join(joinTables, join);
+
+    ::vaultdb::GroupByDef gbd;
+    gbd.set_col_no(0);
+    gbd.set_type(::vaultdb::GroupByDef_GroupByType_COUNT);
+    auto agg_output = p->Aggregate(j_output, gbd);
 
 
     ::vaultdb::SortDef sort;
     sort.set_colno(0);
     sort.set_ascending(true);
-    auto sorted_ids = p->Sort(j_output, sort);
+    auto sorted_ids = p->Sort(agg_output, sort);
     ::vaultdb::Expr exp;
     exp.set_colno(1);
     exp.set_type(::vaultdb::Expr_ExprType_EQ_EXPR);

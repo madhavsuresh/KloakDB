@@ -1,7 +1,6 @@
 //
 // Created by root on 10/4/18.
 //
-#include "vaultdb_generated.h"
 #include "postgres_client.h"
 
 

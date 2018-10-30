@@ -260,3 +260,26 @@ DataOwnerClient::Join(std::shared_ptr<const ::vaultdb::TableID> left_tid,
         throw;
     }
 }
+
+std::shared_ptr<const ::vaultdb::TableID>
+DataOwnerClient::Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::GroupByDef groupby) {
+    ::vaultdb::KAggregateRequest req;
+    ::vaultdb::KAggregateResponse resp;
+    ::grpc::ClientContext context;
+    req.mutable_def()->CopyFrom(groupby);
+    auto t = req.mutable_tid();
+    t->set_hostnum(tid.get()->hostnum());
+    t->set_tableid(tid.get()->tableid());
+    auto status = stub_->KAggregate(&context, req, &resp);
+    if (status.ok()) {
+        LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+        auto ret = std::make_shared<::vaultdb::TableID>();
+        ret.get()->CopyFrom(resp.tid());
+        return ret;
+    } else {
+        LOG(INFO) << "FAIL:->[" << host_num << "]";
+        std::cerr << status.error_code() << ": " << status.error_message()
+                  << std::endl;
+        throw;
+    }
+}

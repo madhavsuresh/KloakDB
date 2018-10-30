@@ -32,6 +32,9 @@ public:
 
     std::shared_ptr<const ::vaultdb::TableID>
     Sort(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::SortDef sort);
+
+    std::shared_ptr<const ::vaultdb::TableID>
+    Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::GroupByDef groupby);
     std::shared_ptr<const ::vaultdb::TableID>
     Join(std::shared_ptr<const ::vaultdb::TableID> left_tid,
                           std::shared_ptr<const ::vaultdb::TableID> right_tid, ::vaultdb::JoinDef join);
