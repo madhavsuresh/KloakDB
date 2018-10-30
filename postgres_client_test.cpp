@@ -3,6 +3,7 @@
 //
 #include "postgres_client_test.h"
 #include "postgres_client.h"
+#include "pqxx_compat.h"
 #include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <malloc.h>

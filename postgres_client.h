@@ -1,8 +1,11 @@
 #ifndef PROJECT_POSTGRES_CLIENT_H
 #define PROJECT_POSTGRES_CLIENT_H
-#include <pqxx/pqxx>
 // OID constants taken from postgres/catalog/pg_type.h, not included in
 // Ubuntu 16.04 postgres package. These are global constants set in postgres
+#include <cstdint>
+#include <vector>
+#include <string>
+
 #define VARCHAROID 1043
 #define INT8OID 20
 #define INT4OID 23
@@ -115,20 +118,15 @@ typedef struct table_builder {
   uint32_t size_of_tuple;
   uint32_t num_columns;
   table_t *table;
-  pqxx::result res;
 } table_builder_t;
 
 // TODO(madhavsuresh): might need to worry about blocks
 
-pqxx::result query(std::string query_string, std::string dbname);
 
-schema_t get_schema_from_query(table_builder_t *tb, pqxx::result res);
-table_builder_t *table_builder(std::string query_string, std::string dbname);
 tuple_t *get_tuple_from_page(int tuple_number, tuple_page_t *tp,
                              table_t *table);
 tuple_t *get_tuple(int tuple_number, table_t *table);
 int get_int_field(tuple_t *tup, int field_no);
-table_t *get_table(std::string query_string, std::string dbname);
 void free_table(table_t *table);
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno);
 void print_tuple(tuple_t *t);
@@ -139,7 +137,6 @@ void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
 void copy_tuple_to_position(table_t *t, int pos, tuple_t *tup);
 table_t *copy_table_by_index(table_t *t, std::vector<int> index_list);
 table_t *allocate_table(int num_tuple_pages);
-void init_table_builder_from_pq(pqxx::result res, table_builder_t *tb);
 void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
 void print_tuple_log(int i, tuple_t *t);

@@ -3,6 +3,7 @@
 //
 
 #include "DataOwnerImpl.h"
+#include "../pqxx_compat.h"
 #include "../Filter.h"
 #include "../Repartition.h"
 #include "../Sort.h"

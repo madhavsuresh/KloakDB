@@ -7,6 +7,7 @@
 #include "filter_test.h"
 #include "postgres_client.h"
 #include "postgres_client_test.h"
+#include "pqxx_compat.h"
 
 class sort_test : public ::testing::Test {
 public:

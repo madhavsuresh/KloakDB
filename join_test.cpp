@@ -7,6 +7,7 @@
 #include "join_test.h"
 #include "postgres_client.h"
 #include "HashJoin.h"
+#include "pqxx_compat.h"
 
 class join_test : public ::testing::Test {
 public:

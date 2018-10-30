@@ -8,6 +8,7 @@
 #include "Filter.h"
 #include "filter_test.h"
 #include "postgres_client.h"
+#include "pqxx_compat.h"
 
 class filter_test : public ::testing::Test {
 public:
