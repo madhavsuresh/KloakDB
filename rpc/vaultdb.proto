@@ -98,11 +98,29 @@ message KFilterResponse {
 }
 
 message KJoinRequest {
-
+    TableID left_tid = 1;
+    TableID right_tid = 2;
+    JoinDef def = 3;
 }
 
 message KJoinResponse {
+    TableID tid = 1;
+}
 
+message JoinColID {
+    enum RelationSide {
+        LEFT = 0;
+        RIGHT = 1;
+    }
+    RelationSide side = 1;
+    int32 col_no = 2;
+}
+
+message JoinDef {
+    int32 l_col = 1;
+    int32 r_col = 2;
+    int32 project_len = 3;
+    repeated JoinColID project_list = 4;
 }
 
 message KSortRequest {

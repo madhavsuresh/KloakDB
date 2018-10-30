@@ -14,6 +14,9 @@ void print_tuple_log(int ii, tuple_t *t) {
     return;
   }
   output+= std::to_string(ii) + "{";
+  if (t->num_fields == 0) {
+    LOGF(INFO, "NUM _FIELDS IS ZERO!!");
+  }
   for (int i = 0; i < t->num_fields; i++) {
     switch (t->field_list[i].type) {
     case FIXEDCHAR: {

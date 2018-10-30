@@ -13,6 +13,8 @@
 #define FIXEDCHAR_LEN 16
 #define MAX_FIELDS 10
 #define PAGE_SIZE 32768 // 32k sized pages. This could be much bigger.
+#define LEFT_RELATION 0
+#define RIGHT_RELATION 1
 
 // invariant that every table has the same size tuple
 

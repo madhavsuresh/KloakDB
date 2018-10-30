@@ -7,6 +7,7 @@
 #include "../Repartition.h"
 #include "../Sort.h"
 #include "DataOwnerPrivate.h"
+#include "../HashJoin.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
 
@@ -202,7 +203,44 @@ sort_t make_sort_t(const ::vaultdb::SortDef sort) {
   return ::grpc::Status::OK;
 }
 
+join_def_t make_join_def_t(::vaultdb::JoinDef def) {
+    join_def_t def_t;
+    def_t.l_col = def.l_col();
+    def_t.r_col = def.r_col();
+    def_t.project_len = def.project_len();
+
+    for (int i = 0; i < def.project_list_size(); i++) {
+        auto &project = def.project_list(i);
+        def_t.project_list[i].col_no = project.col_no();
+        switch (project.side()) {
+            case ::vaultdb::JoinColID_RelationSide_LEFT : {
+              def_t.project_list[i].side = LEFT_RELATION;
+              break;
+            }
+            case ::vaultdb::JoinColID_RelationSide_RIGHT : {
+              def_t.project_list[i].side = RIGHT_RELATION;
+              break;
+            }
+            default: {
+              throw;
+            }
+        }
+    }
+    return def_t;
+}
+
 ::grpc::Status DataOwnerImpl::KJoin(::grpc::ServerContext *context, const ::vaultdb::KJoinRequest *request,
                      ::vaultdb::KJoinResponse *response) {
-
+    join_def_t def = make_join_def_t(request->def());
+    table_t * out_join = hash_join(p->GetTable(request->left_tid().tableid()),
+                                   p->GetTable(request->right_tid().tableid()), def);
+    auto tid = response->mutable_tid();
+    tid->set_hostnum(p->HostNum());
+    tid->set_tableid(p->AddTable(out_join));
+    LOG(INFO) << "Success";
+    for (int i = 0; i < out_join->num_tuples; i++) {
+        print_tuple_log(i, get_tuple(i, out_join));
+    }
+    LOG(INFO) << out_join->num_tuples;
+    return ::grpc::Status::OK;
 }
