@@ -11,6 +11,7 @@ uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
 void print_tuple_log(int ii, tuple_t *t) {
   std::string output;
   if (t->is_dummy) {
+    LOGF(INFO, "tuple is dummy");
     return;
   }
   output+= std::to_string(ii) + "{";

@@ -1,7 +1,6 @@
 #include "Filter.h"
 #include "Expressions.h"
 #include "postgres_client.h"
-#include "vaultdb_generated.h"
 #include <iostream>
 
 // filter mutates the table in place.

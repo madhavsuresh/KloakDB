@@ -3,7 +3,6 @@
 //
 #include "HashJoin.h"
 #include "Expressions.h"
-#include "vaultdb_generated.h"
 #include "postgres_client.h"
 #include <iostream>
 #include <unordered_map>
