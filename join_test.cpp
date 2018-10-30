@@ -14,31 +14,195 @@ public:
 protected:
     void SetUp() override {
         dbname = "dbname=test";
+        std::string query1("create table simple_join (a INT, b INT)");
+        query(query1, dbname);
+        query1 = "INSERT INTO simple_join (a,b) VALUES (1,7), (2,7), (3,4)";
+        query(query1, dbname);
     };
     void TearDown() override{
+        std::string query1("DROP table simple_join");
+        query(query1, dbname);
     };
 };
 
+TEST_F(join_test, merge_tuple_simple) {
+    std::string query1 = "SELECT * FROM simple_join";
+    table_t *t = get_table(query1, dbname);
+    tuple_t * to_fill = (tuple_t*) malloc(sizeof(tuple_t) + 3*sizeof(field_desc_t));
+    join_def_t jd;
+    jd.l_col = 1;
+    jd.r_col = 1;
+    jd.project_len = 2;
+    jd.project_list[0].side = 0;
+    jd.project_list[0].col_no = 0;
+    jd.project_list[1].side = 1;
+    jd.project_list[1].col_no = 0;
+    merge_tuple(to_fill, get_tuple(1,t), get_tuple(0,t), jd);
+    ASSERT_EQ(2, to_fill->field_list[0].f.int_field.val);
+    ASSERT_EQ(1, to_fill->field_list[1].f.int_field.val);
+    free_table(t);
+    free(to_fill);
+}
+
+TEST_F(join_test, merge_tuple_simple_2) {
+    std::string query1 = "SELECT * FROM simple_join";
+    table_t *t = get_table(query1, dbname);
+    tuple_t * to_fill = (tuple_t*) malloc(sizeof(tuple_t) + 3*sizeof(field_desc_t));
+    join_def_t jd;
+    jd.l_col = 1;
+    jd.r_col = 0;
+    jd.project_len = 2;
+    jd.project_list[0].side = 0;
+    jd.project_list[0].col_no = 0;
+    jd.project_list[1].side = 1;
+    jd.project_list[1].col_no = 1;
+    merge_tuple(to_fill, get_tuple(1,t), get_tuple(2,t), jd);
+    ASSERT_EQ(2, to_fill->field_list[0].f.int_field.val);
+    ASSERT_EQ(4, to_fill->field_list[1].f.int_field.val);
+    free_table(t);
+    free(to_fill);
+}
+
+TEST_F(join_test, build_merged_schema) {
+    std::string query1 = "SELECT * FROM simple_join";
+    table_t *t = get_table(query1, dbname);
+    join_def_t jd;
+    jd.l_col = 1;
+    jd.r_col = 0;
+    jd.project_len = 2;
+    jd.project_list[0].side = 0;
+    jd.project_list[0].col_no = 0;
+    jd.project_list[1].side = 1;
+    jd.project_list[1].col_no = 1;
+    schema_t s = build_join_schema(t,t,jd);
+    ASSERT_STREQ(s.fields[0].field_name, "a");
+    ASSERT_STREQ(s.fields[1].field_name, "b");
+    ASSERT_EQ(s.fields[0].type, INT);
+    ASSERT_EQ(s.fields[1].type, INT);
+    free_table(t);
+}
+
 TEST_F(join_test, first_join_test){
     // std::string create_table("create table join_test (a INT, b INT)");
-    std::string create_left_table("create table if not exists join_test_left as select a, floor(random()*10 + 1)::int from generate_series(1,20) a");
-    pqxx::result res_l;
-    res_l = query(create_left_table, dbname);
+    std::string query1("create table full_join_simple (a INT, b INT)");
+    query(query1, dbname);
+    query1 = "INSERT INTO full_join_simple (a,b) VALUES (1,7), (7,8), (3,4)";
+    query(query1, dbname);
+    query1 = "SELECT * FROM full_join_simple";
+    table_t *t = get_table(query1, dbname);
 
-    std::string create_right_table("create table if not exists join_test_right as select a, floor(random()*10 + 1)::int from generate_series(1,20) a");
-    pqxx::result res_r;
-    res_r = query(create_right_table, dbname);
+    join_def_t jd;
+    jd.l_col = 1;
+    jd.r_col = 0;
+    jd.project_len = 2;
+    jd.project_list[0].side = LEFT_RELATION;
+    jd.project_list[0].col_no = 0;
+    jd.project_list[1].side = RIGHT_RELATION;
+    jd.project_list[1].col_no = 1;
+    table_t * output = hash_join(t,t,jd);
+    ASSERT_EQ(output->num_tuples, 1);
+    ASSERT_EQ(get_tuple(0,output)->field_list[0].f.int_field.val, 1);
+    ASSERT_EQ(get_tuple(0,output)->field_list[1].f.int_field.val, 8);
+    query1 = "DROP table full_join_simple";
+    query(query1, dbname);
+    free_table(t);
+    free_table(output);
+}
 
-    std::string get_table_left("SELECT * FROM join_test_left;");
+TEST_F(join_test, second_join_test){
+    // std::string create_table("create table join_test (a INT, b INT)");
+    std::string query1("create table full_join_simple (a INT, b INT)");
+    query(query1, dbname);
+    query1 = "INSERT INTO full_join_simple (a,b) VALUES (1,7), (7,8), (3,4), (7,9)";
+    query(query1, dbname);
+    query1 = "SELECT * FROM full_join_simple";
+    table_t *t = get_table(query1, dbname);
 
-    std::string get_table_right("SELECT * FROM join_test_right;");
+    join_def_t jd;
+    jd.l_col = 1;
+    jd.r_col = 0;
+    jd.project_len = 2;
+    jd.project_list[0].side = LEFT_RELATION;
+    jd.project_list[0].col_no = 0;
+    jd.project_list[1].side = RIGHT_RELATION;
+    jd.project_list[1].col_no = 1;
+    table_t * output = hash_join(t,t,jd);
+    ASSERT_EQ(output->num_tuples, 2);
+    ASSERT_EQ(get_tuple(0,output)->field_list[0].f.int_field.val, 1);
+    ASSERT_EQ(get_tuple(0,output)->field_list[1].f.int_field.val, 8);
+    ASSERT_EQ(get_tuple(1,output)->field_list[0].f.int_field.val, 1);
+    ASSERT_EQ(get_tuple(1,output)->field_list[1].f.int_field.val, 9);
+    query1 = "DROP table full_join_simple";
+    query(query1, dbname);
+    free_table(t);
+    free_table(output);
+}
 
-    table_builder_t *tbl = table_builder(get_table_left, dbname);
-    table_builder_t *tbr = table_builder(get_table_right, dbname);
+TEST_F(join_test, third_join_test){
+    // std::string create_table("create table join_test (a INT, b INT)");
+    std::string query1("create table full_join_simple (a INT, b INT)");
+    query(query1, dbname);
+    query1 = "INSERT INTO full_join_simple (a,b) VALUES (1,7), (7,8), (3,4), (7,9), (4,5)";
+    query(query1, dbname);
+    query1 = "SELECT * FROM full_join_simple";
+    table_t *t = get_table(query1, dbname);
 
-    // TODO: this isn't right!!! need to figure out how to make a better expression!
-    expr_t expr = make_int_expr(EQ_EXPR, 1 /* field_val */, 0 /* colno */);
-    table_t * t = HashJoin(tbl->table,tbr->table,0,1);
+    join_def_t jd;
+    jd.l_col = 1;
+    jd.r_col = 0;
+    jd.project_len = 2;
+    jd.project_list[0].side = LEFT_RELATION;
+    jd.project_list[0].col_no = 0;
+    jd.project_list[1].side = RIGHT_RELATION;
+    jd.project_list[1].col_no = 1;
+    table_t * output = hash_join(t,t,jd);
+    ASSERT_EQ(output->num_tuples, 3);
+    ASSERT_EQ(get_tuple(0,output)->field_list[0].f.int_field.val, 1);
+    ASSERT_EQ(get_tuple(0,output)->field_list[1].f.int_field.val, 8);
+    ASSERT_EQ(get_tuple(1,output)->field_list[0].f.int_field.val, 1);
+    ASSERT_EQ(get_tuple(1,output)->field_list[1].f.int_field.val, 9);
+    ASSERT_EQ(get_tuple(2,output)->field_list[0].f.int_field.val, 3);
+    ASSERT_EQ(get_tuple(2,output)->field_list[1].f.int_field.val, 5);
+    query1 = "DROP table full_join_simple";
+    query(query1, dbname);
+    free_table(t);
+    free_table(output);
+}
 
+TEST_F(join_test, cross_product){
+    // std::string create_table("create table join_test (a INT, b INT)");
+    std::string query1("create table full_join_simple (a INT, b INT)");
+    query(query1, dbname);
+    query1 = "INSERT INTO full_join_simple (a,b) VALUES (1,2), (1,3), (1,4)";
+    query(query1, dbname);
+    query1 = "SELECT * FROM full_join_simple";
+    table_t *t = get_table(query1, dbname);
 
+    join_def_t jd;
+    jd.l_col = 0;
+    jd.r_col = 0;
+    jd.project_len = 4;
+    jd.project_list[0].side = LEFT_RELATION;
+    jd.project_list[0].col_no = 0;
+    jd.project_list[1].side = LEFT_RELATION;
+    jd.project_list[1].col_no = 1;
+    jd.project_list[2].side = RIGHT_RELATION;
+    jd.project_list[2].col_no = 0;
+    jd.project_list[3].side = RIGHT_RELATION;
+    jd.project_list[3].col_no = 1;
+    table_t * output = hash_join(t,t,jd);
+    ASSERT_EQ(output->num_tuples, 9);
+
+    printf("\n");
+    std::string str_output;
+    for (int i = 0; i < output->num_tuples; i++) {
+        str_output += tuple_string(get_tuple(i, output)) + ",";
+    }
+
+    ASSERT_STREQ(str_output.c_str(),
+        "1| 4| 1| 2| ,1| 3| 1| 2| ,1| 2| 1| 2| ,1| 4| 1| 3| ,1| 3| 1| 3| ,1| 2| 1| 3| ,1| 4| 1| 4| ,1| 3| 1| 4| ,1| 2| 1| 4| ,");
+    query1 = "DROP table full_join_simple";
+    query(query1, dbname);
+    free_table(t);
+    free_table(output);
 }

@@ -69,6 +69,10 @@ add_executable(sort_test sort_test.cpp Sort.cpp postgres_client.cpp Expressions.
 target_link_libraries(sort_test gtest_main pq pqxx glog profiler tcmalloc g3logger)
 add_test(NAME sort_test COMMAND sort_test)
 
+add_executable(join_test join_test.cpp HashJoin.cpp postgres_client.cpp)
+target_link_libraries(join_test gtest_main pq pqxx glog profiler tcmalloc g3logger)
+add_test(NAME join_test COMMAND join_test)
+
 set(REPART_SRCS
     Repartition.cpp)
 
