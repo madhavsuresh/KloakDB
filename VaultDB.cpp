@@ -40,6 +40,7 @@ void runDataOwnerServer(DataOwnerPrivate *p) {
   server->Wait();
 }
 
+
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   std::unique_ptr<g3::LogWorker> logworker{g3::LogWorker::createLogWorker()};
@@ -60,10 +61,28 @@ int main(int argc, char **argv) {
     tids.emplace_back(std::make_shared<::vaultdb::TableID>(t1));
     tids.emplace_back(std::make_shared<::vaultdb::TableID>(t2));
     auto repartition_ids = p->Repartition(tids);
+
+    std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>, std::shared_ptr<const ::vaultdb::TableID>>> joinTables;
+    for (auto &i: repartition_ids) {
+        joinTables.emplace_back(std::make_pair(i,i));
+    }
+    ::vaultdb::JoinDef join;
+    join.set_l_col(1);
+    join.set_r_col(1);
+    join.set_project_len(2);
+    auto pl1 = join.add_project_list();
+    pl1->set_side(::vaultdb::JoinColID_RelationSide_RIGHT);
+    pl1->set_col_no(1);
+    auto pl2 = join.add_project_list();
+    pl1->set_side(::vaultdb::JoinColID_RelationSide_LEFT);
+    pl1->set_col_no(0);
+    auto j_output = p->Join(joinTables, join);
+
+
     ::vaultdb::SortDef sort;
     sort.set_colno(0);
     sort.set_ascending(true);
-    auto sorted_ids = p->Sort(repartition_ids, sort);
+    auto sorted_ids = p->Sort(j_output, sort);
     ::vaultdb::Expr exp;
     exp.set_colno(1);
     exp.set_type(::vaultdb::Expr_ExprType_EQ_EXPR);

@@ -69,10 +69,18 @@ add_executable(sort_test sort_test.cpp Sort.cpp postgres_client.cpp Expressions.
 target_link_libraries(sort_test gtest_main pq pqxx glog profiler tcmalloc g3logger)
 add_test(NAME sort_test COMMAND sort_test)
 
+add_executable(join_test join_test.cpp HashJoin.cpp postgres_client.cpp)
+target_link_libraries(join_test gtest_main pq pqxx glog profiler tcmalloc g3logger)
+add_test(NAME join_test COMMAND join_test)
+
 set(REPART_SRCS
     Repartition.cpp)
 
-add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h Repartition.cpp Sort.cpp Filter.cpp Expressions.cpp Aggregate.cpp)
+add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp
+        rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp
+        rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h
+        rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h Repartition.cpp Sort.cpp Filter.cpp Expressions.cpp Aggregate.cpp
+        HashJoin.cpp)
 
 target_link_libraries(vaultdb grpc grpc++ gflags protobuf pqxx dl pthread asan g3logger)
 
