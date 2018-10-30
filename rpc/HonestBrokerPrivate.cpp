@@ -102,6 +102,15 @@ HonestBrokerPrivate::Sort(std::vector<std::shared_ptr<const ::vaultdb::TableID>>
   return sorted_tables;
 }
 
+std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+HonestBrokerPrivate::Aggregate(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids, ::vaultdb::GroupByDef &groupby) {
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> aggregate_tables;
+    for (auto &i : ids) {
+        aggregate_tables.emplace_back(do_clients[i.get()->hostnum()]->Aggregate(i, groupby));
+    }
+    return aggregate_tables;
+}
+
 void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {
   cf.set_cfid(col_ID);
 }

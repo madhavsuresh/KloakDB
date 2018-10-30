@@ -49,6 +49,13 @@ typedef struct join_def {
     int32_t project_len; // Number of fields in project list
 } join_def_t;
 
+enum GROUPBY_TYPE { GROUPBY_UNSUPPORTED, MINX, COUNT };
+
+typedef struct groupby_def {
+    GROUPBY_TYPE type;
+    uint8_t colno;
+} groupby_def_t;
+
 typedef struct field_int {
   int64_t val;
   int64_t genval;

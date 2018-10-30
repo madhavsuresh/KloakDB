@@ -8,6 +8,7 @@
 #include "../Sort.h"
 #include "DataOwnerPrivate.h"
 #include "../HashJoin.h"
+#include "../Aggregate.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
 
@@ -243,4 +244,40 @@ join_def_t make_join_def_t(::vaultdb::JoinDef def) {
     }
     LOG(INFO) << out_join->num_tuples;
     return ::grpc::Status::OK;
+}
+
+groupby_def_t make_groupby_def_t(::vaultdb::GroupByDef def) {
+    groupby_def_t def_t;
+
+    switch (def.type()) {
+        case ::vaultdb::GroupByDef_GroupByType_COUNT : {
+            def_t.type = COUNT;
+            break;
+        }
+        case ::vaultdb::GroupByDef_GroupByType_MINX : {
+            def_t.type = MINX;
+            break;
+        }
+        default: {
+           throw;
+        }
+    }
+    def_t.colno = def.col_no();
+    return def_t;
+}
+
+::grpc::Status DataOwnerImpl::KAggregate(::grpc::ServerContext* context, const ::vaultdb::KAggregateRequest* request, ::vaultdb::KAggregateResponse* response) {
+
+    groupby_def_t gbd = make_groupby_def_t(request->def());
+    table_t * out = aggregate(p->GetTable(request->tid().tableid()), &gbd);
+    auto tid = response->mutable_tid();
+    tid->set_hostnum(p->HostNum());
+    tid->set_tableid(p->AddTable(out));
+    LOG(INFO) << "Success";
+    for (int i = 0; i < out->num_tuples; i++) {
+        print_tuple_log(i, get_tuple(i, out));
+    }
+    LOG(INFO) << out->num_tuples;
+    return ::grpc::Status::OK;
+
 }

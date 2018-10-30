@@ -3,15 +3,14 @@
 //
 #include "Aggregate.h"
 #include "Expressions.h"
-#include "vaultdb_generated.h"
 #include <map>
 #include <cstring>
 #include "postgres_client.h"
 
 
-schema_t agg_schema(FIELD_TYPE type, int size, table_t * t) {
+schema_t agg_schema(FIELD_TYPE type, table_t * t) {
   schema_t agg_schema;
-  agg_schema.num_fields = size;
+  agg_schema.num_fields = 2; // Fixed two width groupby for now
   agg_schema.fields[0].type = type;
   agg_schema.fields[0].col_no = 0;
   strncpy(agg_schema.fields[0].field_name, t->schema.fields[0].field_name,
@@ -53,11 +52,12 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
   }
   agg_map.size();
 
-  schema_t schema = agg_schema(type, agg_map.size(), t);
+  schema_t schema = agg_schema(type, t);
   free_table(t);
   table_builder_t tb;
   init_table_builder(agg_map.size(), 2 /*num_columns*/, &schema, &tb);
   tuple_t * tup = (tuple_t *) malloc(tb.size_of_tuple);
+  tup->is_dummy = false;
   for (const auto &agg_pair : agg_map) {
     tup->field_list[0].type = schema.fields[0].type;
     switch (tup->field_list[0].type) {
@@ -76,6 +76,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
     }
     tup->field_list[1].type = INT;
     tup->field_list[1].f.int_field.val = agg_pair.second;
+    tup->num_fields = 2;
     append_tuple(&tb, tup);
   }
   return tb.table;
