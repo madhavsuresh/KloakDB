@@ -207,7 +207,7 @@ int SGX_CDECL main(int argc, char *argv[])
         return -1; 
     }
 
-    std::string query1 = "SELECT * FROM rpc_test_small;";
+    std::string query1 = "SELECT * FROM sgx_test_biggest;";
     table_t *t = get_table(query1, "dbname=test");
     mytable = t;
     for (int i = 0; i < t->num_tuples; i++) {
