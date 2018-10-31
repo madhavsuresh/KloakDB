@@ -1,41 +1,11 @@
 #include "postgres_client.h"
 #include <cstring>
-#include <g3log/g3log.hpp>
-#include <glog/logging.h>
+//#include <g3log/g3log.hpp>
+//#include <glog/logging.h>
 #include <iostream>
 
-uint64_t tuples_per_page(uint64_t page_size, uint64_t tuple_size) {
+uint64_t tuples_per_page(uint64_t tuple_size) {
   return (PAGE_SIZE - sizeof(uint64_t)) / tuple_size;
-}
-
-void print_tuple_log(int ii, tuple_t *t) {
-  std::string output;
-  if (t->is_dummy) {
-    LOGF(INFO, "tuple is dummy");
-    return;
-  }
-  output+= std::to_string(ii) + "{";
-  if (t->num_fields == 0) {
-    LOGF(INFO, "NUM _FIELDS IS ZERO!!");
-  }
-  for (int i = 0; i < t->num_fields; i++) {
-    switch (t->field_list[i].type) {
-    case FIXEDCHAR: {
-      output += std::to_string(i) + ":|" + std::string(t->field_list[i].f.fixed_char_field.val) + "|";
-      break;
-    }
-    case INT: {
-      output += std::to_string(i) + ":|" + std::to_string(t->field_list[i].f.int_field.val) + "|";
-      //snprintf(output+offset, 8, "%d:|%d|",i, t->field_list[i].f.int_field.val);
-      //offset+=8;
-      break;
-    }
-    case UNSUPPORTED: {
-      throw;
-    }
-    }
-  }
-  LOGF(INFO, "%s}", output.c_str());
 }
 
 std::string tuple_string(tuple_t * t) {
@@ -44,7 +14,6 @@ std::string tuple_string(tuple_t * t) {
     switch (t->field_list[i].type) {
       case FIXEDCHAR: {
         output += std::string(t->field_list[i].f.fixed_char_field.val);
-        printf("%s", t->field_list[i].f.fixed_char_field.val);
         break;
       }
       case INT : {
@@ -58,10 +27,6 @@ std::string tuple_string(tuple_t * t) {
     output += "| ";
   }
   return output;
-}
-
-void print_tuple(tuple_t * t) {
-  std::cout << tuple_string(t);
 }
 
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno) {
@@ -91,12 +56,12 @@ tuple_page_t *allocate_tuple_page(table_builder_t *tb) {
   return tb->table->tuple_pages[tb->curr_page];
 }
 
-tuple_page_t *initialize_tuple_page(table_builder_t *tb) {
+void initialize_tuple_page(table_builder_t *tb) {
   tb->curr_page = 0;
   allocate_tuple_page(tb);
 }
 
-tuple_page_t *add_tuple_page(table_builder_t *tb) {
+void add_tuple_page(table_builder_t *tb) {
   tb->curr_page++;
   allocate_tuple_page(tb);
 }
@@ -107,15 +72,19 @@ tuple_t *get_tuple_from_page(int page_tuple_num, tuple_page_t *tp,
                      (table->size_of_tuple * page_tuple_num));
 }
 
-int get_int_field(tuple_t *tup, int field_no) {
+int64_t get_int_field(tuple_t *tup, int field_no) {
   return tup->field_list[field_no].f.int_field.val;
+}
+
+tuple_page_t *get_page(int page_num, table_t *table) {
+    return table->tuple_pages[page_num];
 }
 
 tuple_t *get_tuple(int tuple_number, table_t *table) {
   int num_tuples_per_page =
-      (int)tuples_per_page(PAGE_SIZE, table->size_of_tuple);
+      (int)tuples_per_page(table->size_of_tuple);
   int page_num = (tuple_number) / (num_tuples_per_page);
-  tuple_page_t *tp = table->tuple_pages[page_num];
+  tuple_page_t *tp = get_page(page_num, table);
   int page_tuple_num = tuple_number % num_tuples_per_page;
   return (tuple_t *)(((char *)tp->tuple_list) +
                      (table->size_of_tuple * page_tuple_num));
@@ -152,7 +121,7 @@ void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
 
   uint64_t total_size = tb->expected_tuples * tb->size_of_tuple;
   tb->expected_pages =
-      tb->expected_tuples / tuples_per_page(PAGE_SIZE, tb->size_of_tuple) + 1;
+      tb->expected_tuples / tuples_per_page(tb->size_of_tuple) + 1;
   // total_size / PAGE_SIZE + 2;
   // TODO(madhavsuresh): this needs to be abstracted out. this is terrible.
   tb->table = allocate_table(tb->expected_pages); //(table_t *)
@@ -166,7 +135,7 @@ void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
 
   tb->table->size_of_tuple = tb->size_of_tuple;
   tb->num_tuples_per_page =
-      tuples_per_page(PAGE_SIZE, tb->table->size_of_tuple);
+      tuples_per_page(tb->table->size_of_tuple);
   tb->curr_tuple = 0;
   tb->curr_page = 0;
   // Initialize first page regardless
@@ -217,6 +186,3 @@ table_t *copy_table_by_index(table_t *t, std::vector<int> index_list) {
   }
   return tb.table;
 }
-
-
-

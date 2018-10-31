@@ -10,6 +10,7 @@
 #include "DataOwnerPrivate.h"
 #include "../HashJoin.h"
 #include "../Aggregate.h"
+#include "../Logger.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
 

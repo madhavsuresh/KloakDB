@@ -215,7 +215,7 @@ TEST_F(join_test, large_join) {
     sprintf(buf,
             "create table if not exists test_large_join as select s, "
             "floor(random() * 100 +1)::int from generate_series(1,%d) s;",
-            2048);
+            10000);
     std::string query_create(buf);
     pqxx::result res2;
     res2 = query(query_create, dbname);
@@ -230,6 +230,8 @@ TEST_F(join_test, large_join) {
     jd.project_list[0].col_no = 0;
     table_t * output = hash_join(t,t,jd);
     printf("Size of output: %d", output->num_tuples);
+    free_table(t);
+    free_table(output);
 
     query_string = "DROP table test_large_join";
     query(query_string, dbname);

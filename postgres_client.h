@@ -126,12 +126,12 @@ typedef struct table_builder {
 tuple_t *get_tuple_from_page(int tuple_number, tuple_page_t *tp,
                              table_t *table);
 tuple_t *get_tuple(int tuple_number, table_t *table);
-int get_int_field(tuple_t *tup, int field_no);
+int64_t get_int_field(tuple_t *tup, int field_no);
 void free_table(table_t *table);
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno);
 void print_tuple(tuple_t *t);
 bool check_add_tuple_page(table_builder_t *tb);
-tuple_page_t *add_tuple_page(table_builder_t *tb);
+void add_tuple_page(table_builder_t *tb);
 void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
                         table_builder_t *tb);
 void copy_tuple_to_position(table_t *t, int pos, tuple_t *tup);
@@ -139,6 +139,5 @@ table_t *copy_table_by_index(table_t *t, std::vector<int> index_list);
 table_t *allocate_table(int num_tuple_pages);
 void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
-void print_tuple_log(int i, tuple_t *t);
-std::string tuple_string(tuple_t * t);;
+std::string tuple_string(tuple_t * t);
 #endif // PROJECT_POSTGRES_CLIENT_H
