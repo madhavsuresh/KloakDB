@@ -3,7 +3,6 @@
 //
 #include "Logger.h"
 #include <g3log/g3log.hpp>
-#include <glog/logging.h>
 #include <iostream>
 
 void print_tuple(tuple_t * t) {
