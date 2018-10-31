@@ -8,6 +8,7 @@
 #include "postgres_client.h"
 #include "postgres_client_test.h"
 #include "pqxx_compat.h"
+#include "Logger.h"
 
 class sort_test : public ::testing::Test {
 public:
@@ -26,7 +27,7 @@ TEST_F(sort_test, simple_sort) {
   query1 = "INSERT INTO sort_test (a,b) VALUES (7,6), (8,3), (9,1)";
   res2 = query(query1, dbname);
   query1 = "SELECT * FROM sort_test;";
-  table_builder_t *tb = table_builder(query1, dbname);
+  table_builder_t *tb = table_builder_init(query1, dbname);
   sort_t sortex = {.colno = 1, .ascending = true};
   for (int i = 0; i < tb->table->num_tuples; i++) {
     auto tup = get_tuple(i, tb->table);
@@ -60,7 +61,7 @@ TEST_F(sort_test, swap_unit){
   query1 = "INSERT INTO swap_test (a,b) VALUES (7,6), (8,3)";
   res2 = query(query1, dbname);
   query1 = "SELECT * FROM swap_test;";
-  table_builder_t *tb = table_builder(query1, dbname);
+  table_builder_t *tb = table_builder_init(query1, dbname);
 
   tuple_t *old_t0_ptr = get_tuple(0,tb->table);
   tuple_t *old_t1_ptr = get_tuple(1,tb->table);
@@ -108,7 +109,7 @@ TEST_F(sort_test, string_type) {
       "INSERT INTO sort_test (a,b) VALUES ('hello',6), ('world',3), ('foo',1)";
   res2 = query(query1, dbname);
   query1 = "SELECT * FROM sort_test;";
-  table_builder_t *tb = table_builder(query1, dbname);
+  table_builder_t *tb = table_builder_init(query1, dbname);
   sort_t sortex = {.colno = 1, .ascending = true};
   for (int i = 0; i < tb->table->num_tuples; i++) {
     auto tup = get_tuple(i, tb->table);
@@ -144,7 +145,7 @@ void large_random_sort(int power_of_two) {
   res2 = query(query_create, dbname);
   std::string query_string = "SELECT * FROM test_random_sort";
   pqxx::result t_random = query(query_string, dbname);
-  table_builder_t *tb = table_builder(query_string, dbname);
+  table_builder_t *tb = table_builder_init(query_string, dbname);
   sort_t sortex = {.colno = 1, .ascending = true};
   uint64_t max_val = 0;
   table_t *t = sort(tb->table, &sortex);
@@ -175,7 +176,7 @@ void sort_swap_dummy_regression(int power_of_two) {
   res2 = query(query_create, dbname);
   std::string query_string = "SELECT * FROM test_random_sort";
   pqxx::result t_random = query(query_string, dbname);
-  table_builder_t *tb = table_builder(query_string, dbname);
+  table_builder_t *tb = table_builder_init(query_string, dbname);
 
   //sort on column 1
   sort_t sortex = {.colno = 1, .ascending = true};

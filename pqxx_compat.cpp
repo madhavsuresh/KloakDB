@@ -21,7 +21,7 @@ FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
 
 table_t *get_table(std::string query_string, std::string dbname) {
     table_t *t;
-    table_builder_t *tb = table_builder(query_string, dbname);
+    table_builder_t *tb = table_builder_init(query_string, dbname);
     t = tb->table;
     free(tb);
     return t;
@@ -63,7 +63,7 @@ void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
     }
 }
 
-table_builder_t *table_builder(std::string query_string, std::string dbname) {
+table_builder_t *table_builder_init(std::string query_string, std::string dbname) {
     auto *tb = (table_builder_t *)malloc(sizeof(table_builder_t));
     memset(tb, '\0', sizeof(table_builder_t));
     pqxx::result res = query(query_string, dbname);
