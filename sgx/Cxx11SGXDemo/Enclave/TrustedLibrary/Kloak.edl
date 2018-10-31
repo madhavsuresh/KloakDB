@@ -1,0 +1,9 @@
+enclave {
+	trusted {
+		public void ecall_load_table_enclave([in,size=len] void *ptr, size_t len);
+	};
+	untrusted {
+		void ocall_copy_page([out, size=len] void *ptr, size_t len, int page_no);
+	};
+};
+
