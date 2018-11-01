@@ -1,7 +1,7 @@
-#include "Filter.h"
-#include "Repartition.h"
+#include "operators/Filter.h"
+#include "rpc/Repartition.h"
 #include "flatbuffers/minireflect.h"
-#include "postgres_client.h"
+#include "postgres_client/postgres_client.h"
 #include <iostream>
 
 int main() {

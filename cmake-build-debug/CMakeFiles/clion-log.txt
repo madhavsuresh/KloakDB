@@ -1,0 +1,23 @@
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /root/DB/vaultdb_operators
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /root/DB/vaultdb_operators/googletest-download
+Scanning dependencies of target googletest
+[ 11%] Creating directories for 'googletest'
+[ 22%] Performing download step (git clone) for 'googletest'
+-- Avoiding repeated git clone, stamp file is up to date: '/root/DB/vaultdb_operators/googletest-download/googletest-prefix/src/googletest-stamp/googletest-gitclone-lastrun.txt'
+[ 33%] No patch step for 'googletest'
+[ 44%] Performing update step for 'googletest'
+Current branch master is up to date.
+[ 55%] No configure step for 'googletest'
+[ 66%] No build step for 'googletest'
+[ 77%] No install step for 'googletest'
+[ 88%] No test step for 'googletest'
+[100%] Completed 'googletest'
+[100%] Built target googletest
+-- /usr/local/lib/libgrpc.so
+-- /usr/lib64/libgflags.so
+-- /lib64/libgflags.a
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /root/DB/vaultdb_operators

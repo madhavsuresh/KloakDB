@@ -1,0 +1,6 @@
+		g3log created log at: Thu Oct 18 14:24:20 2018
+		LOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL FILE->FUNCTION:LINE] messagen
+		(uuu*: microseconds fractions of the seconds value)
+
+2018/10/18 14:24:20 523683	INFO [DataOwnerPrivate.cpp->Register:30]	LOGGER NOT INITIALIZED:
+		Registered, host num:0

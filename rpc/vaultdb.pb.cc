@@ -25,6 +25,7 @@ extern PROTOBUF_INTERNAL_EXPORT_protobuf_vaultdb_2eproto ::google::protobuf::int
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_vaultdb_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_PeerHostInfo;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_vaultdb_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_Table;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_vaultdb_2eproto ::google::protobuf::internal::SCCInfo<0> scc_info_TableID;
+extern PROTOBUF_INTERNAL_EXPORT_protobuf_vaultdb_2eproto ::google::protobuf::internal::SCCInfo<1> scc_info_Expr;
 extern PROTOBUF_INTERNAL_EXPORT_protobuf_vaultdb_2eproto ::google::protobuf::internal::SCCInfo<1> scc_info_Schema;
 }  // namespace protobuf_vaultdb_2eproto
 namespace vaultdb {
@@ -203,6 +204,11 @@ class TableStreamDefaultTypeInternal {
   ::google::protobuf::internal::ExplicitlyConstructed<TableStream>
       _instance;
 } _TableStream_default_instance_;
+class ExprDefaultTypeInternal {
+ public:
+  ::google::protobuf::internal::ExplicitlyConstructed<Expr>
+      _instance;
+} _Expr_default_instance_;
 class TableDefaultTypeInternal {
  public:
   ::google::protobuf::internal::ExplicitlyConstructed<Table>
@@ -422,8 +428,10 @@ static void InitDefaultsKFilterRequest() {
   ::vaultdb::KFilterRequest::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<0> scc_info_KFilterRequest =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsKFilterRequest}, {}};
+::google::protobuf::internal::SCCInfo<2> scc_info_KFilterRequest =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 2, InitDefaultsKFilterRequest}, {
+      &protobuf_vaultdb_2eproto::scc_info_TableID.base,
+      &protobuf_vaultdb_2eproto::scc_info_Expr.base,}};
 
 static void InitDefaultsKFilterResponse() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -436,8 +444,9 @@ static void InitDefaultsKFilterResponse() {
   ::vaultdb::KFilterResponse::InitAsDefaultInstance();
 }
 
-::google::protobuf::internal::SCCInfo<0> scc_info_KFilterResponse =
-    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 0, InitDefaultsKFilterResponse}, {}};
+::google::protobuf::internal::SCCInfo<1> scc_info_KFilterResponse =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsKFilterResponse}, {
+      &protobuf_vaultdb_2eproto::scc_info_TableID.base,}};
 
 static void InitDefaultsKJoinRequest() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
@@ -738,6 +747,21 @@ static void InitDefaultsTableStream() {
     {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsTableStream}, {
       &protobuf_vaultdb_2eproto::scc_info_Table.base,}};
 
+static void InitDefaultsExpr() {
+  GOOGLE_PROTOBUF_VERIFY_VERSION;
+
+  {
+    void* ptr = &::vaultdb::_Expr_default_instance_;
+    new (ptr) ::vaultdb::Expr();
+    ::google::protobuf::internal::OnShutdownDestroyMessage(ptr);
+  }
+  ::vaultdb::Expr::InitAsDefaultInstance();
+}
+
+::google::protobuf::internal::SCCInfo<1> scc_info_Expr =
+    {{ATOMIC_VAR_INIT(::google::protobuf::internal::SCCInfoBase::kUninitialized), 1, InitDefaultsExpr}, {
+      &protobuf_vaultdb_2eproto::scc_info_FieldDesc.base,}};
+
 static void InitDefaultsTable() {
   GOOGLE_PROTOBUF_VERIFY_VERSION;
 
@@ -860,6 +884,7 @@ void InitDefaults() {
   ::google::protobuf::internal::InitSCC(&scc_info_TableResponse.base);
   ::google::protobuf::internal::InitSCC(&scc_info_schema.base);
   ::google::protobuf::internal::InitSCC(&scc_info_TableStream.base);
+  ::google::protobuf::internal::InitSCC(&scc_info_Expr.base);
   ::google::protobuf::internal::InitSCC(&scc_info_Table.base);
   ::google::protobuf::internal::InitSCC(&scc_info_TuplePage.base);
   ::google::protobuf::internal::InitSCC(&scc_info_FieldDesc.base);
@@ -868,8 +893,8 @@ void InitDefaults() {
   ::google::protobuf::internal::InitSCC(&scc_info_TableQueryResponse.base);
 }
 
-::google::protobuf::Metadata file_level_metadata[41];
-const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[1];
+::google::protobuf::Metadata file_level_metadata[42];
+const ::google::protobuf::EnumDescriptor* file_level_enum_descriptors[2];
 
 const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
   ~0u,  // no _has_bits_
@@ -957,12 +982,14 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
-  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::KFilterRequest, tableid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::KFilterRequest, tid_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::KFilterRequest, expr_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::KFilterResponse, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
   ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::KFilterResponse, tid_),
   ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::KJoinRequest, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -1086,6 +1113,16 @@ const ::google::protobuf::uint32 TableStruct::offsets[] GOOGLE_PROTOBUF_ATTRIBUT
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::TableStream, page_no_),
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::TableStream, page_),
   ~0u,  // no _has_bits_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::Expr, _internal_metadata_),
+  ~0u,  // no _extensions_
+  ~0u,  // no _oneof_case_
+  ~0u,  // no _weak_field_map_
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::Expr, type_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::Expr, colno_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::Expr, desc_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::Expr, intfield_),
+  GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::Expr, charfield_),
+  ~0u,  // no _has_bits_
   GOOGLE_PROTOBUF_GENERATED_MESSAGE_FIELD_OFFSET(::vaultdb::Table, _internal_metadata_),
   ~0u,  // no _extensions_
   ~0u,  // no _oneof_case_
@@ -1150,34 +1187,35 @@ static const ::google::protobuf::internal::MigrationSchema schemas[] GOOGLE_PROT
   { 62, -1, sizeof(::vaultdb::SendTableRequest)},
   { 74, -1, sizeof(::vaultdb::SendTableResponse)},
   { 80, -1, sizeof(::vaultdb::KFilterRequest)},
-  { 86, -1, sizeof(::vaultdb::KFilterResponse)},
-  { 91, -1, sizeof(::vaultdb::KJoinRequest)},
-  { 96, -1, sizeof(::vaultdb::KJoinResponse)},
-  { 101, -1, sizeof(::vaultdb::KSortRequest)},
-  { 106, -1, sizeof(::vaultdb::KSortResponse)},
-  { 111, -1, sizeof(::vaultdb::GeneralizeRequest)},
-  { 116, -1, sizeof(::vaultdb::GeneralizeResponse)},
-  { 121, -1, sizeof(::vaultdb::PeerHostInfo)},
-  { 128, -1, sizeof(::vaultdb::GetPeerHostsRequest)},
-  { 134, -1, sizeof(::vaultdb::GetPeerHostsResponse)},
-  { 139, -1, sizeof(::vaultdb::DBMSQueryRequest)},
-  { 146, -1, sizeof(::vaultdb::DBMSQueryResponse)},
-  { 152, -1, sizeof(::vaultdb::RegisterRequest)},
-  { 158, -1, sizeof(::vaultdb::RegisterResponse)},
-  { 164, -1, sizeof(::vaultdb::NumHostsRequest)},
-  { 169, -1, sizeof(::vaultdb::NumHostResp)},
-  { 175, -1, sizeof(::vaultdb::DBQueryRequest)},
-  { 182, -1, sizeof(::vaultdb::DBQueryResponse)},
-  { 188, -1, sizeof(::vaultdb::TableRequest)},
-  { 193, -1, sizeof(::vaultdb::TableResponse)},
-  { 199, -1, sizeof(::vaultdb::schema)},
-  { 205, -1, sizeof(::vaultdb::TableStream)},
-  { 213, -1, sizeof(::vaultdb::Table)},
-  { 222, -1, sizeof(::vaultdb::TuplePage)},
-  { 229, -1, sizeof(::vaultdb::FieldDesc)},
-  { 237, -1, sizeof(::vaultdb::Schema)},
-  { 244, -1, sizeof(::vaultdb::TableQueryRequest)},
-  { 251, -1, sizeof(::vaultdb::TableQueryResponse)},
+  { 87, -1, sizeof(::vaultdb::KFilterResponse)},
+  { 93, -1, sizeof(::vaultdb::KJoinRequest)},
+  { 98, -1, sizeof(::vaultdb::KJoinResponse)},
+  { 103, -1, sizeof(::vaultdb::KSortRequest)},
+  { 108, -1, sizeof(::vaultdb::KSortResponse)},
+  { 113, -1, sizeof(::vaultdb::GeneralizeRequest)},
+  { 118, -1, sizeof(::vaultdb::GeneralizeResponse)},
+  { 123, -1, sizeof(::vaultdb::PeerHostInfo)},
+  { 130, -1, sizeof(::vaultdb::GetPeerHostsRequest)},
+  { 136, -1, sizeof(::vaultdb::GetPeerHostsResponse)},
+  { 141, -1, sizeof(::vaultdb::DBMSQueryRequest)},
+  { 148, -1, sizeof(::vaultdb::DBMSQueryResponse)},
+  { 154, -1, sizeof(::vaultdb::RegisterRequest)},
+  { 160, -1, sizeof(::vaultdb::RegisterResponse)},
+  { 166, -1, sizeof(::vaultdb::NumHostsRequest)},
+  { 171, -1, sizeof(::vaultdb::NumHostResp)},
+  { 177, -1, sizeof(::vaultdb::DBQueryRequest)},
+  { 184, -1, sizeof(::vaultdb::DBQueryResponse)},
+  { 190, -1, sizeof(::vaultdb::TableRequest)},
+  { 195, -1, sizeof(::vaultdb::TableResponse)},
+  { 201, -1, sizeof(::vaultdb::schema)},
+  { 207, -1, sizeof(::vaultdb::TableStream)},
+  { 215, -1, sizeof(::vaultdb::Expr)},
+  { 225, -1, sizeof(::vaultdb::Table)},
+  { 234, -1, sizeof(::vaultdb::TuplePage)},
+  { 241, -1, sizeof(::vaultdb::FieldDesc)},
+  { 249, -1, sizeof(::vaultdb::Schema)},
+  { 256, -1, sizeof(::vaultdb::TableQueryRequest)},
+  { 263, -1, sizeof(::vaultdb::TableQueryResponse)},
 };
 
 static ::google::protobuf::Message const * const file_default_instances[] = {
@@ -1216,6 +1254,7 @@ static ::google::protobuf::Message const * const file_default_instances[] = {
   reinterpret_cast<const ::google::protobuf::Message*>(&::vaultdb::_TableResponse_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::vaultdb::_schema_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::vaultdb::_TableStream_default_instance_),
+  reinterpret_cast<const ::google::protobuf::Message*>(&::vaultdb::_Expr_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::vaultdb::_Table_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::vaultdb::_TuplePage_default_instance_),
   reinterpret_cast<const ::google::protobuf::Message*>(&::vaultdb::_FieldDesc_default_instance_),
@@ -1239,7 +1278,7 @@ void protobuf_AssignDescriptorsOnce() {
 void protobuf_RegisterTypes(const ::std::string&) GOOGLE_PROTOBUF_ATTRIBUTE_COLD;
 void protobuf_RegisterTypes(const ::std::string&) {
   protobuf_AssignDescriptorsOnce();
-  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 41);
+  ::google::protobuf::internal::RegisterAllTypes(file_level_metadata, 42);
 }
 
 void AddDescriptorsImpl() {
@@ -1266,76 +1305,82 @@ void AddDescriptorsImpl() {
       "ema\022\022\n\nnum_tuples\030\004 \001(\005\022\025\n\rsize_of_tuple"
       "\030\005 \001(\005\022\027\n\017num_tuple_pages\030\006 \001(\005\022\017\n\007page_"
       "no\030\007 \001(\005\022\014\n\004page\030\010 \001(\014\"$\n\021SendTableRespo"
-      "nse\022\017\n\007tableID\030\001 \001(\005\"!\n\016KFilterRequest\022\017"
-      "\n\007tableID\030\001 \001(\005\"\021\n\017KFilterResponse\"\016\n\014KJ"
-      "oinRequest\"\017\n\rKJoinResponse\"\016\n\014KSortRequ"
-      "est\"\017\n\rKSortResponse\"\023\n\021GeneralizeReques"
-      "t\"\024\n\022GeneralizeResponse\"1\n\014PeerHostInfo\022"
-      "\020\n\010hostname\030\001 \001(\t\022\017\n\007hostnum\030\002 \001(\005\"\?\n\023Ge"
-      "tPeerHostsRequest\022(\n\thostnames\030\001 \003(\0132\025.v"
-      "aultdb.PeerHostInfo\"\026\n\024GetPeerHostsRespo"
-      "nse\"1\n\020DBMSQueryRequest\022\016\n\006dbname\030\001 \001(\t\022"
-      "\r\n\005query\030\002 \001(\t\"6\n\021DBMSQueryResponse\022!\n\007t"
-      "ableId\030\001 \001(\0132\020.vaultdb.TableID\"#\n\017Regist"
-      "erRequest\022\020\n\010hostname\030\001 \001(\t\"$\n\020RegisterR"
-      "esponse\022\020\n\010host_num\030\001 \001(\005\"\021\n\017NumHostsReq"
-      "uest\" \n\013NumHostResp\022\021\n\tnum_hosts\030\001 \001(\005\"6"
-      "\n\016DBQueryRequest\022\024\n\014query_string\030\001 \001(\t\022\016"
-      "\n\006dbname\030\002 \001(\t\"&\n\017DBQueryResponse\022\023\n\013db_"
-      "response\030\001 \001(\t\"\016\n\014TableRequest\"*\n\rTableR"
-      "esponse\022\031\n\001t\030\001 \001(\0132\016.vaultdb.Table\"#\n\006sc"
-      "hema\022\031\n\001q\030\002 \003(\0132\016.vaultdb.Table\"G\n\013Table"
-      "Stream\022\031\n\001t\030\001 \001(\0132\016.vaultdb.Table\022\017\n\007pag"
-      "e_no\030\003 \001(\005\022\014\n\004page\030\004 \001(\014\"[\n\005Table\022\027\n\017num"
-      "_tuple_pages\030\001 \001(\005\022\022\n\nnum_tuples\030\002 \001(\005\022\025"
-      "\n\rsize_of_tuple\030\003 \001(\005\022\016\n\006schema\030\004 \001(\014\"*\n"
-      "\tTuplePage\022\017\n\007page_no\030\001 \001(\005\022\014\n\004page\030\002 \001("
-      "\014\"\227\001\n\tFieldDesc\022\022\n\nfield_name\030\001 \001(\t\022\016\n\006c"
-      "ol_no\030\002 \001(\005\0220\n\nfield_type\030\003 \001(\0162\034.vaultd"
-      "b.FieldDesc.FieldType\"4\n\tFieldType\022\017\n\013UN"
-      "SUPPORTED\020\000\022\r\n\tFIXEDCHAR\020\001\022\007\n\003INT\020\002\"\?\n\006S"
-      "chema\022\022\n\nnum_fields\030\001 \001(\005\022!\n\005field\030\002 \003(\013"
-      "2\022.vaultdb.FieldDesc\"2\n\021TableQueryReques"
-      "t\022\016\n\006dbname\030\001 \001(\t\022\r\n\005query\030\002 \001(\t\"\253\001\n\022Tab"
-      "leQueryResponse\022\021\n\tis_header\030\002 \001(\010\022\037\n\006sc"
-      "hema\030\003 \001(\0132\017.vaultdb.Schema\022\022\n\nnum_tuple"
-      "s\030\004 \001(\005\022\025\n\rsize_of_tuple\030\005 \001(\005\022\027\n\017num_tu"
-      "ple_pages\030\006 \001(\005\022\017\n\007page_no\030\007 \001(\005\022\014\n\004page"
-      "\030\010 \001(\0142\336\001\n\020VaultDBOperators\022>\n\007DBQuery\022\027"
-      ".vaultdb.DBQueryRequest\032\030.vaultdb.DBQuer"
-      "yResponse\"\000\022A\n\016GetTableStream\022\025.vaultdb."
-      "TableRequest\032\024.vaultdb.TableStream\"\0000\001\022G"
-      "\n\010GetTable\022\032.vaultdb.TableQueryRequest\032\033"
-      ".vaultdb.TableQueryResponse\"\0000\0012\366\001\n\014Hone"
-      "stBroker\022<\n\010NumHosts\022\030.vaultdb.NumHostsR"
-      "equest\032\024.vaultdb.NumHostResp\"\000\022A\n\010Regist"
-      "er\022\030.vaultdb.RegisterRequest\032\031.vaultdb.R"
-      "egisterResponse\"\000\022e\n\024GetControlFlowColum"
-      "n\022$.vaultdb.GetControlFlowColumnRequest\032"
-      "%.vaultdb.GetControlFlowColumnResponse\"\000"
-      "2\372\005\n\tDataOwner\022D\n\tDBMSQuery\022\031.vaultdb.DB"
-      "MSQueryRequest\032\032.vaultdb.DBMSQueryRespon"
-      "se\"\000\022M\n\014GetPeerHosts\022\034.vaultdb.GetPeerHo"
-      "stsRequest\032\035.vaultdb.GetPeerHostsRespons"
-      "e\"\000\022>\n\007KFilter\022\027.vaultdb.KFilterRequest\032"
-      "\030.vaultdb.KFilterResponse\"\000\0228\n\005KJoin\022\025.v"
-      "aultdb.KJoinRequest\032\026.vaultdb.KJoinRespo"
-      "nse\"\000\0228\n\005KSort\022\025.vaultdb.KSortRequest\032\026."
-      "vaultdb.KSortResponse\"\000\022G\n\nGeneralize\022\032."
-      "vaultdb.GeneralizeRequest\032\033.vaultdb.Gene"
-      "ralizeResponse\"\000\022F\n\tSendTable\022\031.vaultdb."
-      "SendTableRequest\032\032.vaultdb.SendTableResp"
-      "onse\"\000(\001\022_\n\022RepartitionStepOne\022\".vaultdb"
-      ".RepartitionStepOneRequest\032#.vaultdb.Rep"
-      "artitionStepOneResponse\"\000\022_\n\022Repartition"
-      "StepTwo\022\".vaultdb.RepartitionStepTwoRequ"
-      "est\032#.vaultdb.RepartitionStepTwoResponse"
-      "\"\000\022Q\n\016CoalesceTables\022\035.vaultdb.CoaleseTa"
-      "blesRequest\032\036.vaultdb.CoaleseTablesRespo"
-      "nse\"\000b\006proto3"
+      "nse\022\017\n\007tableID\030\001 \001(\005\"L\n\016KFilterRequest\022\035"
+      "\n\003tid\030\001 \001(\0132\020.vaultdb.TableID\022\033\n\004expr\030\002 "
+      "\001(\0132\r.vaultdb.Expr\"0\n\017KFilterResponse\022\035\n"
+      "\003tid\030\001 \001(\0132\020.vaultdb.TableID\"\016\n\014KJoinReq"
+      "uest\"\017\n\rKJoinResponse\"\016\n\014KSortRequest\"\017\n"
+      "\rKSortResponse\"\023\n\021GeneralizeRequest\"\024\n\022G"
+      "eneralizeResponse\"1\n\014PeerHostInfo\022\020\n\010hos"
+      "tname\030\001 \001(\t\022\017\n\007hostnum\030\002 \001(\005\"\?\n\023GetPeerH"
+      "ostsRequest\022(\n\thostnames\030\001 \003(\0132\025.vaultdb"
+      ".PeerHostInfo\"\026\n\024GetPeerHostsResponse\"1\n"
+      "\020DBMSQueryRequest\022\016\n\006dbname\030\001 \001(\t\022\r\n\005que"
+      "ry\030\002 \001(\t\"6\n\021DBMSQueryResponse\022!\n\007tableId"
+      "\030\001 \001(\0132\020.vaultdb.TableID\"#\n\017RegisterRequ"
+      "est\022\020\n\010hostname\030\001 \001(\t\"$\n\020RegisterRespons"
+      "e\022\020\n\010host_num\030\001 \001(\005\"\021\n\017NumHostsRequest\" "
+      "\n\013NumHostResp\022\021\n\tnum_hosts\030\001 \001(\005\"6\n\016DBQu"
+      "eryRequest\022\024\n\014query_string\030\001 \001(\t\022\016\n\006dbna"
+      "me\030\002 \001(\t\"&\n\017DBQueryResponse\022\023\n\013db_respon"
+      "se\030\001 \001(\t\"\016\n\014TableRequest\"*\n\rTableRespons"
+      "e\022\031\n\001t\030\001 \001(\0132\016.vaultdb.Table\"#\n\006schema\022\031"
+      "\n\001q\030\002 \003(\0132\016.vaultdb.Table\"G\n\013TableStream"
+      "\022\031\n\001t\030\001 \001(\0132\016.vaultdb.Table\022\017\n\007page_no\030\003"
+      " \001(\005\022\014\n\004page\030\004 \001(\014\"\261\001\n\004Expr\022$\n\004type\030\001 \001("
+      "\0162\026.vaultdb.Expr.ExprType\022\r\n\005colno\030\002 \001(\005"
+      "\022 \n\004desc\030\003 \001(\0132\022.vaultdb.FieldDesc\022\020\n\010in"
+      "tfield\030\004 \001(\005\022\021\n\tcharfield\030\005 \001(\t\"-\n\010ExprT"
+      "ype\022\024\n\020UNSUPPORTED_EXPR\020\000\022\013\n\007EQ_EXPR\020\001\"["
+      "\n\005Table\022\027\n\017num_tuple_pages\030\001 \001(\005\022\022\n\nnum_"
+      "tuples\030\002 \001(\005\022\025\n\rsize_of_tuple\030\003 \001(\005\022\016\n\006s"
+      "chema\030\004 \001(\014\"*\n\tTuplePage\022\017\n\007page_no\030\001 \001("
+      "\005\022\014\n\004page\030\002 \001(\014\"\227\001\n\tFieldDesc\022\022\n\nfield_n"
+      "ame\030\001 \001(\t\022\016\n\006col_no\030\002 \001(\005\0220\n\nfield_type\030"
+      "\003 \001(\0162\034.vaultdb.FieldDesc.FieldType\"4\n\tF"
+      "ieldType\022\017\n\013UNSUPPORTED\020\000\022\r\n\tFIXEDCHAR\020\001"
+      "\022\007\n\003INT\020\002\"\?\n\006Schema\022\022\n\nnum_fields\030\001 \001(\005\022"
+      "!\n\005field\030\002 \003(\0132\022.vaultdb.FieldDesc\"2\n\021Ta"
+      "bleQueryRequest\022\016\n\006dbname\030\001 \001(\t\022\r\n\005query"
+      "\030\002 \001(\t\"\253\001\n\022TableQueryResponse\022\021\n\tis_head"
+      "er\030\002 \001(\010\022\037\n\006schema\030\003 \001(\0132\017.vaultdb.Schem"
+      "a\022\022\n\nnum_tuples\030\004 \001(\005\022\025\n\rsize_of_tuple\030\005"
+      " \001(\005\022\027\n\017num_tuple_pages\030\006 \001(\005\022\017\n\007page_no"
+      "\030\007 \001(\005\022\014\n\004page\030\010 \001(\0142\336\001\n\020VaultDBOperator"
+      "s\022>\n\007DBQuery\022\027.vaultdb.DBQueryRequest\032\030."
+      "vaultdb.DBQueryResponse\"\000\022A\n\016GetTableStr"
+      "eam\022\025.vaultdb.TableRequest\032\024.vaultdb.Tab"
+      "leStream\"\0000\001\022G\n\010GetTable\022\032.vaultdb.Table"
+      "QueryRequest\032\033.vaultdb.TableQueryRespons"
+      "e\"\0000\0012\366\001\n\014HonestBroker\022<\n\010NumHosts\022\030.vau"
+      "ltdb.NumHostsRequest\032\024.vaultdb.NumHostRe"
+      "sp\"\000\022A\n\010Register\022\030.vaultdb.RegisterReque"
+      "st\032\031.vaultdb.RegisterResponse\"\000\022e\n\024GetCo"
+      "ntrolFlowColumn\022$.vaultdb.GetControlFlow"
+      "ColumnRequest\032%.vaultdb.GetControlFlowCo"
+      "lumnResponse\"\0002\372\005\n\tDataOwner\022D\n\tDBMSQuer"
+      "y\022\031.vaultdb.DBMSQueryRequest\032\032.vaultdb.D"
+      "BMSQueryResponse\"\000\022M\n\014GetPeerHosts\022\034.vau"
+      "ltdb.GetPeerHostsRequest\032\035.vaultdb.GetPe"
+      "erHostsResponse\"\000\022>\n\007KFilter\022\027.vaultdb.K"
+      "FilterRequest\032\030.vaultdb.KFilterResponse\""
+      "\000\0228\n\005KJoin\022\025.vaultdb.KJoinRequest\032\026.vaul"
+      "tdb.KJoinResponse\"\000\0228\n\005KSort\022\025.vaultdb.K"
+      "SortRequest\032\026.vaultdb.KSortResponse\"\000\022G\n"
+      "\nGeneralize\022\032.vaultdb.GeneralizeRequest\032"
+      "\033.vaultdb.GeneralizeResponse\"\000\022F\n\tSendTa"
+      "ble\022\031.vaultdb.SendTableRequest\032\032.vaultdb"
+      ".SendTableResponse\"\000(\001\022_\n\022RepartitionSte"
+      "pOne\022\".vaultdb.RepartitionStepOneRequest"
+      "\032#.vaultdb.RepartitionStepOneResponse\"\000\022"
+      "_\n\022RepartitionStepTwo\022\".vaultdb.Repartit"
+      "ionStepTwoRequest\032#.vaultdb.RepartitionS"
+      "tepTwoResponse\"\000\022Q\n\016CoalesceTables\022\035.vau"
+      "ltdb.CoaleseTablesRequest\032\036.vaultdb.Coal"
+      "eseTablesResponse\"\000b\006proto3"
   };
   ::google::protobuf::DescriptorPool::InternalAddGeneratedFile(
-      descriptor, 3493);
+      descriptor, 3747);
   ::google::protobuf::MessageFactory::InternalRegisterGeneratedFile(
     "vaultdb.proto", &protobuf_RegisterTypes);
 }
@@ -1352,9 +1397,30 @@ struct StaticDescriptorInitializer {
 } static_descriptor_initializer;
 }  // namespace protobuf_vaultdb_2eproto
 namespace vaultdb {
-const ::google::protobuf::EnumDescriptor* FieldDesc_FieldType_descriptor() {
+const ::google::protobuf::EnumDescriptor* Expr_ExprType_descriptor() {
   protobuf_vaultdb_2eproto::protobuf_AssignDescriptorsOnce();
   return protobuf_vaultdb_2eproto::file_level_enum_descriptors[0];
+}
+bool Expr_ExprType_IsValid(int value) {
+  switch (value) {
+    case 0:
+    case 1:
+      return true;
+    default:
+      return false;
+  }
+}
+
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const Expr_ExprType Expr::UNSUPPORTED_EXPR;
+const Expr_ExprType Expr::EQ_EXPR;
+const Expr_ExprType Expr::ExprType_MIN;
+const Expr_ExprType Expr::ExprType_MAX;
+const int Expr::ExprType_ARRAYSIZE;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+const ::google::protobuf::EnumDescriptor* FieldDesc_FieldType_descriptor() {
+  protobuf_vaultdb_2eproto::protobuf_AssignDescriptorsOnce();
+  return protobuf_vaultdb_2eproto::file_level_enum_descriptors[1];
 }
 bool FieldDesc_FieldType_IsValid(int value) {
   switch (value) {
@@ -4469,9 +4535,14 @@ void SendTableResponse::InternalSwap(SendTableResponse* other) {
 // ===================================================================
 
 void KFilterRequest::InitAsDefaultInstance() {
+  ::vaultdb::_KFilterRequest_default_instance_._instance.get_mutable()->tid_ = const_cast< ::vaultdb::TableID*>(
+      ::vaultdb::TableID::internal_default_instance());
+  ::vaultdb::_KFilterRequest_default_instance_._instance.get_mutable()->expr_ = const_cast< ::vaultdb::Expr*>(
+      ::vaultdb::Expr::internal_default_instance());
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
-const int KFilterRequest::kTableIDFieldNumber;
+const int KFilterRequest::kTidFieldNumber;
+const int KFilterRequest::kExprFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 KFilterRequest::KFilterRequest()
@@ -4485,12 +4556,23 @@ KFilterRequest::KFilterRequest(const KFilterRequest& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
-  tableid_ = from.tableid_;
+  if (from.has_tid()) {
+    tid_ = new ::vaultdb::TableID(*from.tid_);
+  } else {
+    tid_ = NULL;
+  }
+  if (from.has_expr()) {
+    expr_ = new ::vaultdb::Expr(*from.expr_);
+  } else {
+    expr_ = NULL;
+  }
   // @@protoc_insertion_point(copy_constructor:vaultdb.KFilterRequest)
 }
 
 void KFilterRequest::SharedCtor() {
-  tableid_ = 0;
+  ::memset(&tid_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&expr_) -
+      reinterpret_cast<char*>(&tid_)) + sizeof(expr_));
 }
 
 KFilterRequest::~KFilterRequest() {
@@ -4499,6 +4581,8 @@ KFilterRequest::~KFilterRequest() {
 }
 
 void KFilterRequest::SharedDtor() {
+  if (this != internal_default_instance()) delete tid_;
+  if (this != internal_default_instance()) delete expr_;
 }
 
 void KFilterRequest::SetCachedSize(int size) const {
@@ -4521,7 +4605,14 @@ void KFilterRequest::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
-  tableid_ = 0;
+  if (GetArenaNoVirtual() == NULL && tid_ != NULL) {
+    delete tid_;
+  }
+  tid_ = NULL;
+  if (GetArenaNoVirtual() == NULL && expr_ != NULL) {
+    delete expr_;
+  }
+  expr_ = NULL;
   _internal_metadata_.Clear();
 }
 
@@ -4535,14 +4626,24 @@ bool KFilterRequest::MergePartialFromCodedStream(
     tag = p.first;
     if (!p.second) goto handle_unusual;
     switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
-      // int32 tableID = 1;
+      // .vaultdb.TableID tid = 1;
       case 1: {
         if (static_cast< ::google::protobuf::uint8>(tag) ==
-            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
+            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_tid()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
 
-          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
-                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
-                 input, &tableid_)));
+      // .vaultdb.Expr expr = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(18u /* 18 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_expr()));
         } else {
           goto handle_unusual;
         }
@@ -4575,9 +4676,16 @@ void KFilterRequest::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 tableID = 1;
-  if (this->tableid() != 0) {
-    ::google::protobuf::internal::WireFormatLite::WriteInt32(1, this->tableid(), output);
+  // .vaultdb.TableID tid = 1;
+  if (this->has_tid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->_internal_tid(), output);
+  }
+
+  // .vaultdb.Expr expr = 2;
+  if (this->has_expr()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      2, this->_internal_expr(), output);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -4594,9 +4702,18 @@ void KFilterRequest::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  // int32 tableID = 1;
-  if (this->tableid() != 0) {
-    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(1, this->tableid(), target);
+  // .vaultdb.TableID tid = 1;
+  if (this->has_tid()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        1, this->_internal_tid(), deterministic, target);
+  }
+
+  // .vaultdb.Expr expr = 2;
+  if (this->has_expr()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        2, this->_internal_expr(), deterministic, target);
   }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
@@ -4616,11 +4733,18 @@ size_t KFilterRequest::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
-  // int32 tableID = 1;
-  if (this->tableid() != 0) {
+  // .vaultdb.TableID tid = 1;
+  if (this->has_tid()) {
     total_size += 1 +
-      ::google::protobuf::internal::WireFormatLite::Int32Size(
-        this->tableid());
+      ::google::protobuf::internal::WireFormatLite::MessageSize(
+        *tid_);
+  }
+
+  // .vaultdb.Expr expr = 2;
+  if (this->has_expr()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSize(
+        *expr_);
   }
 
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
@@ -4650,8 +4774,11 @@ void KFilterRequest::MergeFrom(const KFilterRequest& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
-  if (from.tableid() != 0) {
-    set_tableid(from.tableid());
+  if (from.has_tid()) {
+    mutable_tid()->::vaultdb::TableID::MergeFrom(from.tid());
+  }
+  if (from.has_expr()) {
+    mutable_expr()->::vaultdb::Expr::MergeFrom(from.expr());
   }
 }
 
@@ -4679,7 +4806,8 @@ void KFilterRequest::Swap(KFilterRequest* other) {
 }
 void KFilterRequest::InternalSwap(KFilterRequest* other) {
   using std::swap;
-  swap(tableid_, other->tableid_);
+  swap(tid_, other->tid_);
+  swap(expr_, other->expr_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 
@@ -4692,8 +4820,11 @@ void KFilterRequest::InternalSwap(KFilterRequest* other) {
 // ===================================================================
 
 void KFilterResponse::InitAsDefaultInstance() {
+  ::vaultdb::_KFilterResponse_default_instance_._instance.get_mutable()->tid_ = const_cast< ::vaultdb::TableID*>(
+      ::vaultdb::TableID::internal_default_instance());
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int KFilterResponse::kTidFieldNumber;
 #endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
 
 KFilterResponse::KFilterResponse()
@@ -4707,10 +4838,16 @@ KFilterResponse::KFilterResponse(const KFilterResponse& from)
   : ::google::protobuf::Message(),
       _internal_metadata_(NULL) {
   _internal_metadata_.MergeFrom(from._internal_metadata_);
+  if (from.has_tid()) {
+    tid_ = new ::vaultdb::TableID(*from.tid_);
+  } else {
+    tid_ = NULL;
+  }
   // @@protoc_insertion_point(copy_constructor:vaultdb.KFilterResponse)
 }
 
 void KFilterResponse::SharedCtor() {
+  tid_ = NULL;
 }
 
 KFilterResponse::~KFilterResponse() {
@@ -4719,6 +4856,7 @@ KFilterResponse::~KFilterResponse() {
 }
 
 void KFilterResponse::SharedDtor() {
+  if (this != internal_default_instance()) delete tid_;
 }
 
 void KFilterResponse::SetCachedSize(int size) const {
@@ -4741,6 +4879,10 @@ void KFilterResponse::Clear() {
   // Prevent compiler warnings about cached_has_bits being unused
   (void) cached_has_bits;
 
+  if (GetArenaNoVirtual() == NULL && tid_ != NULL) {
+    delete tid_;
+  }
+  tid_ = NULL;
   _internal_metadata_.Clear();
 }
 
@@ -4753,12 +4895,29 @@ bool KFilterResponse::MergePartialFromCodedStream(
     ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
     tag = p.first;
     if (!p.second) goto handle_unusual;
-  handle_unusual:
-    if (tag == 0) {
-      goto success;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // .vaultdb.TableID tid = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(10u /* 10 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_tid()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
+        break;
+      }
     }
-    DO_(::google::protobuf::internal::WireFormat::SkipField(
-          input, tag, _internal_metadata_.mutable_unknown_fields()));
   }
 success:
   // @@protoc_insertion_point(parse_success:vaultdb.KFilterResponse)
@@ -4775,6 +4934,12 @@ void KFilterResponse::SerializeWithCachedSizes(
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  // .vaultdb.TableID tid = 1;
+  if (this->has_tid()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      1, this->_internal_tid(), output);
+  }
+
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
@@ -4788,6 +4953,13 @@ void KFilterResponse::SerializeWithCachedSizes(
   // @@protoc_insertion_point(serialize_to_array_start:vaultdb.KFilterResponse)
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
+
+  // .vaultdb.TableID tid = 1;
+  if (this->has_tid()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        1, this->_internal_tid(), deterministic, target);
+  }
 
   if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
     target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
@@ -4806,6 +4978,13 @@ size_t KFilterResponse::ByteSizeLong() const {
       ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
         (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
   }
+  // .vaultdb.TableID tid = 1;
+  if (this->has_tid()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSize(
+        *tid_);
+  }
+
   int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
   SetCachedSize(cached_size);
   return total_size;
@@ -4833,6 +5012,9 @@ void KFilterResponse::MergeFrom(const KFilterResponse& from) {
   ::google::protobuf::uint32 cached_has_bits = 0;
   (void) cached_has_bits;
 
+  if (from.has_tid()) {
+    mutable_tid()->::vaultdb::TableID::MergeFrom(from.tid());
+  }
 }
 
 void KFilterResponse::CopyFrom(const ::google::protobuf::Message& from) {
@@ -4859,6 +5041,7 @@ void KFilterResponse::Swap(KFilterResponse* other) {
 }
 void KFilterResponse::InternalSwap(KFilterResponse* other) {
   using std::swap;
+  swap(tid_, other->tid_);
   _internal_metadata_.Swap(&other->_internal_metadata_);
 }
 
@@ -9538,6 +9721,416 @@ void TableStream::InternalSwap(TableStream* other) {
 
 // ===================================================================
 
+void Expr::InitAsDefaultInstance() {
+  ::vaultdb::_Expr_default_instance_._instance.get_mutable()->desc_ = const_cast< ::vaultdb::FieldDesc*>(
+      ::vaultdb::FieldDesc::internal_default_instance());
+}
+#if !defined(_MSC_VER) || _MSC_VER >= 1900
+const int Expr::kTypeFieldNumber;
+const int Expr::kColnoFieldNumber;
+const int Expr::kDescFieldNumber;
+const int Expr::kIntfieldFieldNumber;
+const int Expr::kCharfieldFieldNumber;
+#endif  // !defined(_MSC_VER) || _MSC_VER >= 1900
+
+Expr::Expr()
+  : ::google::protobuf::Message(), _internal_metadata_(NULL) {
+  ::google::protobuf::internal::InitSCC(
+      &protobuf_vaultdb_2eproto::scc_info_Expr.base);
+  SharedCtor();
+  // @@protoc_insertion_point(constructor:vaultdb.Expr)
+}
+Expr::Expr(const Expr& from)
+  : ::google::protobuf::Message(),
+      _internal_metadata_(NULL) {
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  charfield_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (from.charfield().size() > 0) {
+    charfield_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.charfield_);
+  }
+  if (from.has_desc()) {
+    desc_ = new ::vaultdb::FieldDesc(*from.desc_);
+  } else {
+    desc_ = NULL;
+  }
+  ::memcpy(&type_, &from.type_,
+    static_cast<size_t>(reinterpret_cast<char*>(&intfield_) -
+    reinterpret_cast<char*>(&type_)) + sizeof(intfield_));
+  // @@protoc_insertion_point(copy_constructor:vaultdb.Expr)
+}
+
+void Expr::SharedCtor() {
+  charfield_.UnsafeSetDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  ::memset(&desc_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&intfield_) -
+      reinterpret_cast<char*>(&desc_)) + sizeof(intfield_));
+}
+
+Expr::~Expr() {
+  // @@protoc_insertion_point(destructor:vaultdb.Expr)
+  SharedDtor();
+}
+
+void Expr::SharedDtor() {
+  charfield_.DestroyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (this != internal_default_instance()) delete desc_;
+}
+
+void Expr::SetCachedSize(int size) const {
+  _cached_size_.Set(size);
+}
+const ::google::protobuf::Descriptor* Expr::descriptor() {
+  ::protobuf_vaultdb_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_vaultdb_2eproto::file_level_metadata[kIndexInFileMessages].descriptor;
+}
+
+const Expr& Expr::default_instance() {
+  ::google::protobuf::internal::InitSCC(&protobuf_vaultdb_2eproto::scc_info_Expr.base);
+  return *internal_default_instance();
+}
+
+
+void Expr::Clear() {
+// @@protoc_insertion_point(message_clear_start:vaultdb.Expr)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
+
+  charfield_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+  if (GetArenaNoVirtual() == NULL && desc_ != NULL) {
+    delete desc_;
+  }
+  desc_ = NULL;
+  ::memset(&type_, 0, static_cast<size_t>(
+      reinterpret_cast<char*>(&intfield_) -
+      reinterpret_cast<char*>(&type_)) + sizeof(intfield_));
+  _internal_metadata_.Clear();
+}
+
+bool Expr::MergePartialFromCodedStream(
+    ::google::protobuf::io::CodedInputStream* input) {
+#define DO_(EXPRESSION) if (!GOOGLE_PREDICT_TRUE(EXPRESSION)) goto failure
+  ::google::protobuf::uint32 tag;
+  // @@protoc_insertion_point(parse_start:vaultdb.Expr)
+  for (;;) {
+    ::std::pair<::google::protobuf::uint32, bool> p = input->ReadTagWithCutoffNoLastTag(127u);
+    tag = p.first;
+    if (!p.second) goto handle_unusual;
+    switch (::google::protobuf::internal::WireFormatLite::GetTagFieldNumber(tag)) {
+      // .vaultdb.Expr.ExprType type = 1;
+      case 1: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(8u /* 8 & 0xFF */)) {
+          int value;
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   int, ::google::protobuf::internal::WireFormatLite::TYPE_ENUM>(
+                 input, &value)));
+          set_type(static_cast< ::vaultdb::Expr_ExprType >(value));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 colno = 2;
+      case 2: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(16u /* 16 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &colno_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // .vaultdb.FieldDesc desc = 3;
+      case 3: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(26u /* 26 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadMessage(
+               input, mutable_desc()));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // int32 intfield = 4;
+      case 4: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(32u /* 32 & 0xFF */)) {
+
+          DO_((::google::protobuf::internal::WireFormatLite::ReadPrimitive<
+                   ::google::protobuf::int32, ::google::protobuf::internal::WireFormatLite::TYPE_INT32>(
+                 input, &intfield_)));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      // string charfield = 5;
+      case 5: {
+        if (static_cast< ::google::protobuf::uint8>(tag) ==
+            static_cast< ::google::protobuf::uint8>(42u /* 42 & 0xFF */)) {
+          DO_(::google::protobuf::internal::WireFormatLite::ReadString(
+                input, this->mutable_charfield()));
+          DO_(::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+            this->charfield().data(), static_cast<int>(this->charfield().length()),
+            ::google::protobuf::internal::WireFormatLite::PARSE,
+            "vaultdb.Expr.charfield"));
+        } else {
+          goto handle_unusual;
+        }
+        break;
+      }
+
+      default: {
+      handle_unusual:
+        if (tag == 0) {
+          goto success;
+        }
+        DO_(::google::protobuf::internal::WireFormat::SkipField(
+              input, tag, _internal_metadata_.mutable_unknown_fields()));
+        break;
+      }
+    }
+  }
+success:
+  // @@protoc_insertion_point(parse_success:vaultdb.Expr)
+  return true;
+failure:
+  // @@protoc_insertion_point(parse_failure:vaultdb.Expr)
+  return false;
+#undef DO_
+}
+
+void Expr::SerializeWithCachedSizes(
+    ::google::protobuf::io::CodedOutputStream* output) const {
+  // @@protoc_insertion_point(serialize_start:vaultdb.Expr)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .vaultdb.Expr.ExprType type = 1;
+  if (this->type() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteEnum(
+      1, this->type(), output);
+  }
+
+  // int32 colno = 2;
+  if (this->colno() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(2, this->colno(), output);
+  }
+
+  // .vaultdb.FieldDesc desc = 3;
+  if (this->has_desc()) {
+    ::google::protobuf::internal::WireFormatLite::WriteMessageMaybeToArray(
+      3, this->_internal_desc(), output);
+  }
+
+  // int32 intfield = 4;
+  if (this->intfield() != 0) {
+    ::google::protobuf::internal::WireFormatLite::WriteInt32(4, this->intfield(), output);
+  }
+
+  // string charfield = 5;
+  if (this->charfield().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->charfield().data(), static_cast<int>(this->charfield().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "vaultdb.Expr.charfield");
+    ::google::protobuf::internal::WireFormatLite::WriteStringMaybeAliased(
+      5, this->charfield(), output);
+  }
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    ::google::protobuf::internal::WireFormat::SerializeUnknownFields(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), output);
+  }
+  // @@protoc_insertion_point(serialize_end:vaultdb.Expr)
+}
+
+::google::protobuf::uint8* Expr::InternalSerializeWithCachedSizesToArray(
+    bool deterministic, ::google::protobuf::uint8* target) const {
+  (void)deterministic; // Unused
+  // @@protoc_insertion_point(serialize_to_array_start:vaultdb.Expr)
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  // .vaultdb.Expr.ExprType type = 1;
+  if (this->type() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteEnumToArray(
+      1, this->type(), target);
+  }
+
+  // int32 colno = 2;
+  if (this->colno() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(2, this->colno(), target);
+  }
+
+  // .vaultdb.FieldDesc desc = 3;
+  if (this->has_desc()) {
+    target = ::google::protobuf::internal::WireFormatLite::
+      InternalWriteMessageToArray(
+        3, this->_internal_desc(), deterministic, target);
+  }
+
+  // int32 intfield = 4;
+  if (this->intfield() != 0) {
+    target = ::google::protobuf::internal::WireFormatLite::WriteInt32ToArray(4, this->intfield(), target);
+  }
+
+  // string charfield = 5;
+  if (this->charfield().size() > 0) {
+    ::google::protobuf::internal::WireFormatLite::VerifyUtf8String(
+      this->charfield().data(), static_cast<int>(this->charfield().length()),
+      ::google::protobuf::internal::WireFormatLite::SERIALIZE,
+      "vaultdb.Expr.charfield");
+    target =
+      ::google::protobuf::internal::WireFormatLite::WriteStringToArray(
+        5, this->charfield(), target);
+  }
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    target = ::google::protobuf::internal::WireFormat::SerializeUnknownFieldsToArray(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()), target);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:vaultdb.Expr)
+  return target;
+}
+
+size_t Expr::ByteSizeLong() const {
+// @@protoc_insertion_point(message_byte_size_start:vaultdb.Expr)
+  size_t total_size = 0;
+
+  if ((_internal_metadata_.have_unknown_fields() &&  ::google::protobuf::internal::GetProto3PreserveUnknownsDefault())) {
+    total_size +=
+      ::google::protobuf::internal::WireFormat::ComputeUnknownFieldsSize(
+        (::google::protobuf::internal::GetProto3PreserveUnknownsDefault()   ? _internal_metadata_.unknown_fields()   : _internal_metadata_.default_instance()));
+  }
+  // string charfield = 5;
+  if (this->charfield().size() > 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::StringSize(
+        this->charfield());
+  }
+
+  // .vaultdb.FieldDesc desc = 3;
+  if (this->has_desc()) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::MessageSize(
+        *desc_);
+  }
+
+  // .vaultdb.Expr.ExprType type = 1;
+  if (this->type() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::EnumSize(this->type());
+  }
+
+  // int32 colno = 2;
+  if (this->colno() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->colno());
+  }
+
+  // int32 intfield = 4;
+  if (this->intfield() != 0) {
+    total_size += 1 +
+      ::google::protobuf::internal::WireFormatLite::Int32Size(
+        this->intfield());
+  }
+
+  int cached_size = ::google::protobuf::internal::ToCachedSize(total_size);
+  SetCachedSize(cached_size);
+  return total_size;
+}
+
+void Expr::MergeFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_merge_from_start:vaultdb.Expr)
+  GOOGLE_DCHECK_NE(&from, this);
+  const Expr* source =
+      ::google::protobuf::internal::DynamicCastToGenerated<const Expr>(
+          &from);
+  if (source == NULL) {
+  // @@protoc_insertion_point(generalized_merge_from_cast_fail:vaultdb.Expr)
+    ::google::protobuf::internal::ReflectionOps::Merge(from, this);
+  } else {
+  // @@protoc_insertion_point(generalized_merge_from_cast_success:vaultdb.Expr)
+    MergeFrom(*source);
+  }
+}
+
+void Expr::MergeFrom(const Expr& from) {
+// @@protoc_insertion_point(class_specific_merge_from_start:vaultdb.Expr)
+  GOOGLE_DCHECK_NE(&from, this);
+  _internal_metadata_.MergeFrom(from._internal_metadata_);
+  ::google::protobuf::uint32 cached_has_bits = 0;
+  (void) cached_has_bits;
+
+  if (from.charfield().size() > 0) {
+
+    charfield_.AssignWithDefault(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), from.charfield_);
+  }
+  if (from.has_desc()) {
+    mutable_desc()->::vaultdb::FieldDesc::MergeFrom(from.desc());
+  }
+  if (from.type() != 0) {
+    set_type(from.type());
+  }
+  if (from.colno() != 0) {
+    set_colno(from.colno());
+  }
+  if (from.intfield() != 0) {
+    set_intfield(from.intfield());
+  }
+}
+
+void Expr::CopyFrom(const ::google::protobuf::Message& from) {
+// @@protoc_insertion_point(generalized_copy_from_start:vaultdb.Expr)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+void Expr::CopyFrom(const Expr& from) {
+// @@protoc_insertion_point(class_specific_copy_from_start:vaultdb.Expr)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+bool Expr::IsInitialized() const {
+  return true;
+}
+
+void Expr::Swap(Expr* other) {
+  if (other == this) return;
+  InternalSwap(other);
+}
+void Expr::InternalSwap(Expr* other) {
+  using std::swap;
+  charfield_.Swap(&other->charfield_, &::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+    GetArenaNoVirtual());
+  swap(desc_, other->desc_);
+  swap(type_, other->type_);
+  swap(colno_, other->colno_);
+  swap(intfield_, other->intfield_);
+  _internal_metadata_.Swap(&other->_internal_metadata_);
+}
+
+::google::protobuf::Metadata Expr::GetMetadata() const {
+  protobuf_vaultdb_2eproto::protobuf_AssignDescriptorsOnce();
+  return ::protobuf_vaultdb_2eproto::file_level_metadata[kIndexInFileMessages];
+}
+
+
+// ===================================================================
+
 void Table::InitAsDefaultInstance() {
 }
 #if !defined(_MSC_VER) || _MSC_VER >= 1900
@@ -11619,6 +12212,9 @@ template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::vaultdb::schema* Arena::CreateMa
 }
 template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::vaultdb::TableStream* Arena::CreateMaybeMessage< ::vaultdb::TableStream >(Arena* arena) {
   return Arena::CreateInternal< ::vaultdb::TableStream >(arena);
+}
+template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::vaultdb::Expr* Arena::CreateMaybeMessage< ::vaultdb::Expr >(Arena* arena) {
+  return Arena::CreateInternal< ::vaultdb::Expr >(arena);
 }
 template<> GOOGLE_PROTOBUF_ATTRIBUTE_NOINLINE ::vaultdb::Table* Arena::CreateMaybeMessage< ::vaultdb::Table >(Arena* arena) {
   return Arena::CreateInternal< ::vaultdb::Table >(arena);

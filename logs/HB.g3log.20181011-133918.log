@@ -1,0 +1,16 @@
+		g3log created log at: Thu Oct 11 13:39:23 2018
+		LOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL FILE->FUNCTION:LINE] messagen
+		(uuu*: microseconds fractions of the seconds value)
+
+2018/10/11 13:39:23 608077	INFO [HonestBrokerPrivate.cpp->RegisterHost:33]	registered host: [0.0.0.0:5001] at hostnum : [0]
+2018/10/11 13:39:28 182607	INFO [HonestBrokerPrivate.cpp->RegisterHost:33]	registered host: [0.0.0.0:5002] at hostnum : [1]
+2018/10/11 13:39:30 142560	INFO [DataOwnerClient.cpp->GetPeerHosts:22]	SUCCESS:->[0]
+2018/10/11 13:39:30 144419	INFO [DataOwnerClient.cpp->GetPeerHosts:22]	SUCCESS:->[1]
+2018/10/11 13:39:30 158352	INFO [DataOwnerClient.cpp->DBMSQuery:93]	SUCCESS:->[0]Query: [SELECT * from rpc_test_small_5;]
+2018/10/11 13:39:30 182271	INFO [DataOwnerClient.cpp->DBMSQuery:93]	SUCCESS:->[1]Query: [SELECT * from rpc_test_small_5;]
+2018/10/11 13:39:30 189075	INFO [DataOwnerClient.cpp->RepartitionStepOne:68]	SUCCESS:->[0], Repartition at tableID: [0]
+2018/10/11 13:39:30 194912	INFO [DataOwnerClient.cpp->RepartitionStepOne:68]	SUCCESS:->[1], Repartition at tableID: [0]
+2018/10/11 13:39:30 200125	INFO [DataOwnerClient.cpp->RepartitionStepTwo:42]	SUCCESS:->[0], RepartitionStepTwo
+2018/10/11 13:39:30 205317	INFO [DataOwnerClient.cpp->RepartitionStepTwo:42]	SUCCESS:->[1], RepartitionStepTwo
+2018/10/11 13:39:30 206586	INFO [DataOwnerClient.cpp->CoalesceTables:136]	SUCCESS:->[0]
+2018/10/11 13:39:30 207920	INFO [DataOwnerClient.cpp->CoalesceTables:136]	SUCCESS:->[1]

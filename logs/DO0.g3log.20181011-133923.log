@@ -1,0 +1,25 @@
+		g3log created log at: Thu Oct 11 13:39:23 2018
+		LOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL FILE->FUNCTION:LINE] messagen
+		(uuu*: microseconds fractions of the seconds value)
+
+2018/10/11 13:39:23 608456	INFO [DataOwnerPrivate.cpp->Register:30]	LOGGER NOT INITIALIZED:
+		Registered, host num:0
+2018/10/11 13:39:30 157620	INFO [DataOwnerImpl.cpp->DBMSQuery:109]	Adding Table from Query:SELECT * from rpc_test_small_5;
+2018/10/11 13:39:30 157709	INFO [DataOwnerPrivate.cpp->AddTable:42]	Added Table [0]
+2018/10/11 13:39:30 184472	INFO [Repartition.cpp->repart_step_one:44]	Adding self partitioned table from repartition
+2018/10/11 13:39:30 184538	INFO [DataOwnerPrivate.cpp->AddTable:42]	Added Table [1]
+2018/10/11 13:39:30 188254	INFO [DataOwnerClient.cpp->SendTable:177]	SUCCESS:->[1], num_tuples:[9], num_pages: [1]
+2018/10/11 13:39:30 188473	INFO [DataOwnerPrivate.cpp->SendTable:49]	sent table to: [1],received at:[1]
+2018/10/11 13:39:30 193406	INFO [DataOwnerImpl.cpp->SendTable:97]	Adding table received from ??
+2018/10/11 13:39:30 193473	INFO [DataOwnerPrivate.cpp->AddTable:42]	Added Table [2]
+2018/10/11 13:39:30 197551	INFO [Repartition.cpp->repartition_step_two:116]	Sending to host [0]
+2018/10/11 13:39:30 197607	INFO [DataOwnerPrivate.cpp->AddTable:42]	Added Table [3]
+2018/10/11 13:39:30 197638	INFO [Repartition.cpp->repartition_step_two:116]	Sending to host [1]
+2018/10/11 13:39:30 199431	INFO [DataOwnerClient.cpp->SendTable:177]	SUCCESS:->[1], num_tuples:[18], num_pages: [1]
+2018/10/11 13:39:30 199606	INFO [DataOwnerPrivate.cpp->SendTable:49]	sent table to: [1],received at:[3]
+2018/10/11 13:39:30 204069	INFO [DataOwnerImpl.cpp->SendTable:97]	Adding table received from ??
+2018/10/11 13:39:30 204128	INFO [DataOwnerPrivate.cpp->AddTable:42]	Added Table [4]
+2018/10/11 13:39:30 205955	INFO [DataOwnerImpl.cpp->CoalesceTables:127]	Coalescing3
+2018/10/11 13:39:30 206027	INFO [DataOwnerImpl.cpp->CoalesceTables:127]	Coalescing4
+2018/10/11 13:39:30 206210	INFO [DataOwnerPrivate.cpp->AddTable:42]	Added Table [5]
+2018/10/11 13:39:30 206263	INFO [DataOwnerImpl.cpp->CoalesceTables:134]	After coalescing: 8

@@ -11,6 +11,7 @@
 #include <mutex>
 #include <string>
 #include <vector>
+#include "vaultdb.grpc.pb.h"
 
 class HonestBrokerPrivate : public InfoPrivate {
 
@@ -35,7 +36,7 @@ public:
   void SetControlFlowColID(int col_ID);
   int RegisterPeerHosts();
 
-  ::vaultdb::TableID DBMSQuery(int host_num, std::string dbname,
+  vaultdb::TableID DBMSQuery(int host_num, std::string dbname,
                                std::string query);
 
 private:

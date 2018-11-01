@@ -39,7 +39,7 @@ namespace protobuf_vaultdb_2eproto {
 struct TableStruct {
   static const ::google::protobuf::internal::ParseTableField entries[];
   static const ::google::protobuf::internal::AuxillaryParseTableField aux[];
-  static const ::google::protobuf::internal::ParseTable schema[41];
+  static const ::google::protobuf::internal::ParseTable schema[42];
   static const ::google::protobuf::internal::FieldMetadata field_metadata[];
   static const ::google::protobuf::internal::SerializationTable serialization_table[];
   static const ::google::protobuf::uint32 offsets[];
@@ -68,6 +68,9 @@ extern DBQueryRequestDefaultTypeInternal _DBQueryRequest_default_instance_;
 class DBQueryResponse;
 class DBQueryResponseDefaultTypeInternal;
 extern DBQueryResponseDefaultTypeInternal _DBQueryResponse_default_instance_;
+class Expr;
+class ExprDefaultTypeInternal;
+extern ExprDefaultTypeInternal _Expr_default_instance_;
 class FieldDesc;
 class FieldDescDefaultTypeInternal;
 extern FieldDescDefaultTypeInternal _FieldDesc_default_instance_;
@@ -180,6 +183,7 @@ template<> ::vaultdb::DBMSQueryRequest* Arena::CreateMaybeMessage<::vaultdb::DBM
 template<> ::vaultdb::DBMSQueryResponse* Arena::CreateMaybeMessage<::vaultdb::DBMSQueryResponse>(Arena*);
 template<> ::vaultdb::DBQueryRequest* Arena::CreateMaybeMessage<::vaultdb::DBQueryRequest>(Arena*);
 template<> ::vaultdb::DBQueryResponse* Arena::CreateMaybeMessage<::vaultdb::DBQueryResponse>(Arena*);
+template<> ::vaultdb::Expr* Arena::CreateMaybeMessage<::vaultdb::Expr>(Arena*);
 template<> ::vaultdb::FieldDesc* Arena::CreateMaybeMessage<::vaultdb::FieldDesc>(Arena*);
 template<> ::vaultdb::GeneralizeRequest* Arena::CreateMaybeMessage<::vaultdb::GeneralizeRequest>(Arena*);
 template<> ::vaultdb::GeneralizeResponse* Arena::CreateMaybeMessage<::vaultdb::GeneralizeResponse>(Arena*);
@@ -218,6 +222,27 @@ template<> ::vaultdb::schema* Arena::CreateMaybeMessage<::vaultdb::schema>(Arena
 }  // namespace google
 namespace vaultdb {
 
+enum Expr_ExprType {
+  Expr_ExprType_UNSUPPORTED_EXPR = 0,
+  Expr_ExprType_EQ_EXPR = 1,
+  Expr_ExprType_Expr_ExprType_INT_MIN_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32min,
+  Expr_ExprType_Expr_ExprType_INT_MAX_SENTINEL_DO_NOT_USE_ = ::google::protobuf::kint32max
+};
+bool Expr_ExprType_IsValid(int value);
+const Expr_ExprType Expr_ExprType_ExprType_MIN = Expr_ExprType_UNSUPPORTED_EXPR;
+const Expr_ExprType Expr_ExprType_ExprType_MAX = Expr_ExprType_EQ_EXPR;
+const int Expr_ExprType_ExprType_ARRAYSIZE = Expr_ExprType_ExprType_MAX + 1;
+
+const ::google::protobuf::EnumDescriptor* Expr_ExprType_descriptor();
+inline const ::std::string& Expr_ExprType_Name(Expr_ExprType value) {
+  return ::google::protobuf::internal::NameOfEnum(
+    Expr_ExprType_descriptor(), value);
+}
+inline bool Expr_ExprType_Parse(
+    const ::std::string& name, Expr_ExprType* value) {
+  return ::google::protobuf::internal::ParseNamedEnum<Expr_ExprType>(
+    Expr_ExprType_descriptor(), name, value);
+}
 enum FieldDesc_FieldType {
   FieldDesc_FieldType_UNSUPPORTED = 0,
   FieldDesc_FieldType_FIXEDCHAR = 1,
@@ -1693,17 +1718,36 @@ class KFilterRequest : public ::google::protobuf::Message /* @@protoc_insertion_
 
   // accessors -------------------------------------------------------
 
-  // int32 tableID = 1;
-  void clear_tableid();
-  static const int kTableIDFieldNumber = 1;
-  ::google::protobuf::int32 tableid() const;
-  void set_tableid(::google::protobuf::int32 value);
+  // .vaultdb.TableID tid = 1;
+  bool has_tid() const;
+  void clear_tid();
+  static const int kTidFieldNumber = 1;
+  private:
+  const ::vaultdb::TableID& _internal_tid() const;
+  public:
+  const ::vaultdb::TableID& tid() const;
+  ::vaultdb::TableID* release_tid();
+  ::vaultdb::TableID* mutable_tid();
+  void set_allocated_tid(::vaultdb::TableID* tid);
+
+  // .vaultdb.Expr expr = 2;
+  bool has_expr() const;
+  void clear_expr();
+  static const int kExprFieldNumber = 2;
+  private:
+  const ::vaultdb::Expr& _internal_expr() const;
+  public:
+  const ::vaultdb::Expr& expr() const;
+  ::vaultdb::Expr* release_expr();
+  ::vaultdb::Expr* mutable_expr();
+  void set_allocated_expr(::vaultdb::Expr* expr);
 
   // @@protoc_insertion_point(class_scope:vaultdb.KFilterRequest)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
-  ::google::protobuf::int32 tableid_;
+  ::vaultdb::TableID* tid_;
+  ::vaultdb::Expr* expr_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_vaultdb_2eproto::TableStruct;
 };
@@ -1796,10 +1840,23 @@ class KFilterResponse : public ::google::protobuf::Message /* @@protoc_insertion
 
   // accessors -------------------------------------------------------
 
+  // .vaultdb.TableID tid = 1;
+  bool has_tid() const;
+  void clear_tid();
+  static const int kTidFieldNumber = 1;
+  private:
+  const ::vaultdb::TableID& _internal_tid() const;
+  public:
+  const ::vaultdb::TableID& tid() const;
+  ::vaultdb::TableID* release_tid();
+  ::vaultdb::TableID* mutable_tid();
+  void set_allocated_tid(::vaultdb::TableID* tid);
+
   // @@protoc_insertion_point(class_scope:vaultdb.KFilterResponse)
  private:
 
   ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::vaultdb::TableID* tid_;
   mutable ::google::protobuf::internal::CachedSize _cached_size_;
   friend struct ::protobuf_vaultdb_2eproto::TableStruct;
 };
@@ -4034,6 +4091,177 @@ class TableStream : public ::google::protobuf::Message /* @@protoc_insertion_poi
 };
 // -------------------------------------------------------------------
 
+class Expr : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:vaultdb.Expr) */ {
+ public:
+  Expr();
+  virtual ~Expr();
+
+  Expr(const Expr& from);
+
+  inline Expr& operator=(const Expr& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  #if LANG_CXX11
+  Expr(Expr&& from) noexcept
+    : Expr() {
+    *this = ::std::move(from);
+  }
+
+  inline Expr& operator=(Expr&& from) noexcept {
+    if (GetArenaNoVirtual() == from.GetArenaNoVirtual()) {
+      if (this != &from) InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+  #endif
+  static const ::google::protobuf::Descriptor* descriptor();
+  static const Expr& default_instance();
+
+  static void InitAsDefaultInstance();  // FOR INTERNAL USE ONLY
+  static inline const Expr* internal_default_instance() {
+    return reinterpret_cast<const Expr*>(
+               &_Expr_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    35;
+
+  void Swap(Expr* other);
+  friend void swap(Expr& a, Expr& b) {
+    a.Swap(&b);
+  }
+
+  // implements Message ----------------------------------------------
+
+  inline Expr* New() const final {
+    return CreateMaybeMessage<Expr>(NULL);
+  }
+
+  Expr* New(::google::protobuf::Arena* arena) const final {
+    return CreateMaybeMessage<Expr>(arena);
+  }
+  void CopyFrom(const ::google::protobuf::Message& from) final;
+  void MergeFrom(const ::google::protobuf::Message& from) final;
+  void CopyFrom(const Expr& from);
+  void MergeFrom(const Expr& from);
+  void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  bool MergePartialFromCodedStream(
+      ::google::protobuf::io::CodedInputStream* input) final;
+  void SerializeWithCachedSizes(
+      ::google::protobuf::io::CodedOutputStream* output) const final;
+  ::google::protobuf::uint8* InternalSerializeWithCachedSizesToArray(
+      bool deterministic, ::google::protobuf::uint8* target) const final;
+  int GetCachedSize() const final { return _cached_size_.Get(); }
+
+  private:
+  void SharedCtor();
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Expr* other);
+  private:
+  inline ::google::protobuf::Arena* GetArenaNoVirtual() const {
+    return NULL;
+  }
+  inline void* MaybeArenaPtr() const {
+    return NULL;
+  }
+  public:
+
+  ::google::protobuf::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  typedef Expr_ExprType ExprType;
+  static const ExprType UNSUPPORTED_EXPR =
+    Expr_ExprType_UNSUPPORTED_EXPR;
+  static const ExprType EQ_EXPR =
+    Expr_ExprType_EQ_EXPR;
+  static inline bool ExprType_IsValid(int value) {
+    return Expr_ExprType_IsValid(value);
+  }
+  static const ExprType ExprType_MIN =
+    Expr_ExprType_ExprType_MIN;
+  static const ExprType ExprType_MAX =
+    Expr_ExprType_ExprType_MAX;
+  static const int ExprType_ARRAYSIZE =
+    Expr_ExprType_ExprType_ARRAYSIZE;
+  static inline const ::google::protobuf::EnumDescriptor*
+  ExprType_descriptor() {
+    return Expr_ExprType_descriptor();
+  }
+  static inline const ::std::string& ExprType_Name(ExprType value) {
+    return Expr_ExprType_Name(value);
+  }
+  static inline bool ExprType_Parse(const ::std::string& name,
+      ExprType* value) {
+    return Expr_ExprType_Parse(name, value);
+  }
+
+  // accessors -------------------------------------------------------
+
+  // string charfield = 5;
+  void clear_charfield();
+  static const int kCharfieldFieldNumber = 5;
+  const ::std::string& charfield() const;
+  void set_charfield(const ::std::string& value);
+  #if LANG_CXX11
+  void set_charfield(::std::string&& value);
+  #endif
+  void set_charfield(const char* value);
+  void set_charfield(const char* value, size_t size);
+  ::std::string* mutable_charfield();
+  ::std::string* release_charfield();
+  void set_allocated_charfield(::std::string* charfield);
+
+  // .vaultdb.FieldDesc desc = 3;
+  bool has_desc() const;
+  void clear_desc();
+  static const int kDescFieldNumber = 3;
+  private:
+  const ::vaultdb::FieldDesc& _internal_desc() const;
+  public:
+  const ::vaultdb::FieldDesc& desc() const;
+  ::vaultdb::FieldDesc* release_desc();
+  ::vaultdb::FieldDesc* mutable_desc();
+  void set_allocated_desc(::vaultdb::FieldDesc* desc);
+
+  // .vaultdb.Expr.ExprType type = 1;
+  void clear_type();
+  static const int kTypeFieldNumber = 1;
+  ::vaultdb::Expr_ExprType type() const;
+  void set_type(::vaultdb::Expr_ExprType value);
+
+  // int32 colno = 2;
+  void clear_colno();
+  static const int kColnoFieldNumber = 2;
+  ::google::protobuf::int32 colno() const;
+  void set_colno(::google::protobuf::int32 value);
+
+  // int32 intfield = 4;
+  void clear_intfield();
+  static const int kIntfieldFieldNumber = 4;
+  ::google::protobuf::int32 intfield() const;
+  void set_intfield(::google::protobuf::int32 value);
+
+  // @@protoc_insertion_point(class_scope:vaultdb.Expr)
+ private:
+
+  ::google::protobuf::internal::InternalMetadataWithArena _internal_metadata_;
+  ::google::protobuf::internal::ArenaStringPtr charfield_;
+  ::vaultdb::FieldDesc* desc_;
+  int type_;
+  ::google::protobuf::int32 colno_;
+  ::google::protobuf::int32 intfield_;
+  mutable ::google::protobuf::internal::CachedSize _cached_size_;
+  friend struct ::protobuf_vaultdb_2eproto::TableStruct;
+};
+// -------------------------------------------------------------------
+
 class Table : public ::google::protobuf::Message /* @@protoc_insertion_point(class_definition:vaultdb.Table) */ {
  public:
   Table();
@@ -4069,7 +4297,7 @@ class Table : public ::google::protobuf::Message /* @@protoc_insertion_point(cla
                &_Table_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    35;
+    36;
 
   void Swap(Table* other);
   friend void swap(Table& a, Table& b) {
@@ -4201,7 +4429,7 @@ class TuplePage : public ::google::protobuf::Message /* @@protoc_insertion_point
                &_TuplePage_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    36;
+    37;
 
   void Swap(TuplePage* other);
   friend void swap(TuplePage& a, TuplePage& b) {
@@ -4319,7 +4547,7 @@ class FieldDesc : public ::google::protobuf::Message /* @@protoc_insertion_point
                &_FieldDesc_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    37;
+    38;
 
   void Swap(FieldDesc* other);
   friend void swap(FieldDesc& a, FieldDesc& b) {
@@ -4472,7 +4700,7 @@ class Schema : public ::google::protobuf::Message /* @@protoc_insertion_point(cl
                &_Schema_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    38;
+    39;
 
   void Swap(Schema* other);
   friend void swap(Schema& a, Schema& b) {
@@ -4588,7 +4816,7 @@ class TableQueryRequest : public ::google::protobuf::Message /* @@protoc_inserti
                &_TableQueryRequest_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    39;
+    40;
 
   void Swap(TableQueryRequest* other);
   friend void swap(TableQueryRequest& a, TableQueryRequest& b) {
@@ -4714,7 +4942,7 @@ class TableQueryResponse : public ::google::protobuf::Message /* @@protoc_insert
                &_TableQueryResponse_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    40;
+    41;
 
   void Swap(TableQueryResponse* other);
   friend void swap(TableQueryResponse& a, TableQueryResponse& b) {
@@ -5516,23 +5744,171 @@ inline void SendTableResponse::set_tableid(::google::protobuf::int32 value) {
 
 // KFilterRequest
 
-// int32 tableID = 1;
-inline void KFilterRequest::clear_tableid() {
-  tableid_ = 0;
+// .vaultdb.TableID tid = 1;
+inline bool KFilterRequest::has_tid() const {
+  return this != internal_default_instance() && tid_ != NULL;
 }
-inline ::google::protobuf::int32 KFilterRequest::tableid() const {
-  // @@protoc_insertion_point(field_get:vaultdb.KFilterRequest.tableID)
-  return tableid_;
+inline void KFilterRequest::clear_tid() {
+  if (GetArenaNoVirtual() == NULL && tid_ != NULL) {
+    delete tid_;
+  }
+  tid_ = NULL;
 }
-inline void KFilterRequest::set_tableid(::google::protobuf::int32 value) {
+inline const ::vaultdb::TableID& KFilterRequest::_internal_tid() const {
+  return *tid_;
+}
+inline const ::vaultdb::TableID& KFilterRequest::tid() const {
+  const ::vaultdb::TableID* p = tid_;
+  // @@protoc_insertion_point(field_get:vaultdb.KFilterRequest.tid)
+  return p != NULL ? *p : *reinterpret_cast<const ::vaultdb::TableID*>(
+      &::vaultdb::_TableID_default_instance_);
+}
+inline ::vaultdb::TableID* KFilterRequest::release_tid() {
+  // @@protoc_insertion_point(field_release:vaultdb.KFilterRequest.tid)
   
-  tableid_ = value;
-  // @@protoc_insertion_point(field_set:vaultdb.KFilterRequest.tableID)
+  ::vaultdb::TableID* temp = tid_;
+  tid_ = NULL;
+  return temp;
+}
+inline ::vaultdb::TableID* KFilterRequest::mutable_tid() {
+  
+  if (tid_ == NULL) {
+    auto* p = CreateMaybeMessage<::vaultdb::TableID>(GetArenaNoVirtual());
+    tid_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:vaultdb.KFilterRequest.tid)
+  return tid_;
+}
+inline void KFilterRequest::set_allocated_tid(::vaultdb::TableID* tid) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete tid_;
+  }
+  if (tid) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      tid = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, tid, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  tid_ = tid;
+  // @@protoc_insertion_point(field_set_allocated:vaultdb.KFilterRequest.tid)
+}
+
+// .vaultdb.Expr expr = 2;
+inline bool KFilterRequest::has_expr() const {
+  return this != internal_default_instance() && expr_ != NULL;
+}
+inline void KFilterRequest::clear_expr() {
+  if (GetArenaNoVirtual() == NULL && expr_ != NULL) {
+    delete expr_;
+  }
+  expr_ = NULL;
+}
+inline const ::vaultdb::Expr& KFilterRequest::_internal_expr() const {
+  return *expr_;
+}
+inline const ::vaultdb::Expr& KFilterRequest::expr() const {
+  const ::vaultdb::Expr* p = expr_;
+  // @@protoc_insertion_point(field_get:vaultdb.KFilterRequest.expr)
+  return p != NULL ? *p : *reinterpret_cast<const ::vaultdb::Expr*>(
+      &::vaultdb::_Expr_default_instance_);
+}
+inline ::vaultdb::Expr* KFilterRequest::release_expr() {
+  // @@protoc_insertion_point(field_release:vaultdb.KFilterRequest.expr)
+  
+  ::vaultdb::Expr* temp = expr_;
+  expr_ = NULL;
+  return temp;
+}
+inline ::vaultdb::Expr* KFilterRequest::mutable_expr() {
+  
+  if (expr_ == NULL) {
+    auto* p = CreateMaybeMessage<::vaultdb::Expr>(GetArenaNoVirtual());
+    expr_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:vaultdb.KFilterRequest.expr)
+  return expr_;
+}
+inline void KFilterRequest::set_allocated_expr(::vaultdb::Expr* expr) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete expr_;
+  }
+  if (expr) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      expr = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, expr, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  expr_ = expr;
+  // @@protoc_insertion_point(field_set_allocated:vaultdb.KFilterRequest.expr)
 }
 
 // -------------------------------------------------------------------
 
 // KFilterResponse
+
+// .vaultdb.TableID tid = 1;
+inline bool KFilterResponse::has_tid() const {
+  return this != internal_default_instance() && tid_ != NULL;
+}
+inline void KFilterResponse::clear_tid() {
+  if (GetArenaNoVirtual() == NULL && tid_ != NULL) {
+    delete tid_;
+  }
+  tid_ = NULL;
+}
+inline const ::vaultdb::TableID& KFilterResponse::_internal_tid() const {
+  return *tid_;
+}
+inline const ::vaultdb::TableID& KFilterResponse::tid() const {
+  const ::vaultdb::TableID* p = tid_;
+  // @@protoc_insertion_point(field_get:vaultdb.KFilterResponse.tid)
+  return p != NULL ? *p : *reinterpret_cast<const ::vaultdb::TableID*>(
+      &::vaultdb::_TableID_default_instance_);
+}
+inline ::vaultdb::TableID* KFilterResponse::release_tid() {
+  // @@protoc_insertion_point(field_release:vaultdb.KFilterResponse.tid)
+  
+  ::vaultdb::TableID* temp = tid_;
+  tid_ = NULL;
+  return temp;
+}
+inline ::vaultdb::TableID* KFilterResponse::mutable_tid() {
+  
+  if (tid_ == NULL) {
+    auto* p = CreateMaybeMessage<::vaultdb::TableID>(GetArenaNoVirtual());
+    tid_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:vaultdb.KFilterResponse.tid)
+  return tid_;
+}
+inline void KFilterResponse::set_allocated_tid(::vaultdb::TableID* tid) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete tid_;
+  }
+  if (tid) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      tid = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, tid, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  tid_ = tid;
+  // @@protoc_insertion_point(field_set_allocated:vaultdb.KFilterResponse.tid)
+}
 
 // -------------------------------------------------------------------
 
@@ -6322,6 +6698,159 @@ inline void TableStream::set_allocated_page(::std::string* page) {
 
 // -------------------------------------------------------------------
 
+// Expr
+
+// .vaultdb.Expr.ExprType type = 1;
+inline void Expr::clear_type() {
+  type_ = 0;
+}
+inline ::vaultdb::Expr_ExprType Expr::type() const {
+  // @@protoc_insertion_point(field_get:vaultdb.Expr.type)
+  return static_cast< ::vaultdb::Expr_ExprType >(type_);
+}
+inline void Expr::set_type(::vaultdb::Expr_ExprType value) {
+  
+  type_ = value;
+  // @@protoc_insertion_point(field_set:vaultdb.Expr.type)
+}
+
+// int32 colno = 2;
+inline void Expr::clear_colno() {
+  colno_ = 0;
+}
+inline ::google::protobuf::int32 Expr::colno() const {
+  // @@protoc_insertion_point(field_get:vaultdb.Expr.colno)
+  return colno_;
+}
+inline void Expr::set_colno(::google::protobuf::int32 value) {
+  
+  colno_ = value;
+  // @@protoc_insertion_point(field_set:vaultdb.Expr.colno)
+}
+
+// .vaultdb.FieldDesc desc = 3;
+inline bool Expr::has_desc() const {
+  return this != internal_default_instance() && desc_ != NULL;
+}
+inline void Expr::clear_desc() {
+  if (GetArenaNoVirtual() == NULL && desc_ != NULL) {
+    delete desc_;
+  }
+  desc_ = NULL;
+}
+inline const ::vaultdb::FieldDesc& Expr::_internal_desc() const {
+  return *desc_;
+}
+inline const ::vaultdb::FieldDesc& Expr::desc() const {
+  const ::vaultdb::FieldDesc* p = desc_;
+  // @@protoc_insertion_point(field_get:vaultdb.Expr.desc)
+  return p != NULL ? *p : *reinterpret_cast<const ::vaultdb::FieldDesc*>(
+      &::vaultdb::_FieldDesc_default_instance_);
+}
+inline ::vaultdb::FieldDesc* Expr::release_desc() {
+  // @@protoc_insertion_point(field_release:vaultdb.Expr.desc)
+  
+  ::vaultdb::FieldDesc* temp = desc_;
+  desc_ = NULL;
+  return temp;
+}
+inline ::vaultdb::FieldDesc* Expr::mutable_desc() {
+  
+  if (desc_ == NULL) {
+    auto* p = CreateMaybeMessage<::vaultdb::FieldDesc>(GetArenaNoVirtual());
+    desc_ = p;
+  }
+  // @@protoc_insertion_point(field_mutable:vaultdb.Expr.desc)
+  return desc_;
+}
+inline void Expr::set_allocated_desc(::vaultdb::FieldDesc* desc) {
+  ::google::protobuf::Arena* message_arena = GetArenaNoVirtual();
+  if (message_arena == NULL) {
+    delete desc_;
+  }
+  if (desc) {
+    ::google::protobuf::Arena* submessage_arena = NULL;
+    if (message_arena != submessage_arena) {
+      desc = ::google::protobuf::internal::GetOwnedMessage(
+          message_arena, desc, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  desc_ = desc;
+  // @@protoc_insertion_point(field_set_allocated:vaultdb.Expr.desc)
+}
+
+// int32 intfield = 4;
+inline void Expr::clear_intfield() {
+  intfield_ = 0;
+}
+inline ::google::protobuf::int32 Expr::intfield() const {
+  // @@protoc_insertion_point(field_get:vaultdb.Expr.intfield)
+  return intfield_;
+}
+inline void Expr::set_intfield(::google::protobuf::int32 value) {
+  
+  intfield_ = value;
+  // @@protoc_insertion_point(field_set:vaultdb.Expr.intfield)
+}
+
+// string charfield = 5;
+inline void Expr::clear_charfield() {
+  charfield_.ClearToEmptyNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline const ::std::string& Expr::charfield() const {
+  // @@protoc_insertion_point(field_get:vaultdb.Expr.charfield)
+  return charfield_.GetNoArena();
+}
+inline void Expr::set_charfield(const ::std::string& value) {
+  
+  charfield_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), value);
+  // @@protoc_insertion_point(field_set:vaultdb.Expr.charfield)
+}
+#if LANG_CXX11
+inline void Expr::set_charfield(::std::string&& value) {
+  
+  charfield_.SetNoArena(
+    &::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::move(value));
+  // @@protoc_insertion_point(field_set_rvalue:vaultdb.Expr.charfield)
+}
+#endif
+inline void Expr::set_charfield(const char* value) {
+  GOOGLE_DCHECK(value != NULL);
+  
+  charfield_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), ::std::string(value));
+  // @@protoc_insertion_point(field_set_char:vaultdb.Expr.charfield)
+}
+inline void Expr::set_charfield(const char* value, size_t size) {
+  
+  charfield_.SetNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(),
+      ::std::string(reinterpret_cast<const char*>(value), size));
+  // @@protoc_insertion_point(field_set_pointer:vaultdb.Expr.charfield)
+}
+inline ::std::string* Expr::mutable_charfield() {
+  
+  // @@protoc_insertion_point(field_mutable:vaultdb.Expr.charfield)
+  return charfield_.MutableNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline ::std::string* Expr::release_charfield() {
+  // @@protoc_insertion_point(field_release:vaultdb.Expr.charfield)
+  
+  return charfield_.ReleaseNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited());
+}
+inline void Expr::set_allocated_charfield(::std::string* charfield) {
+  if (charfield != NULL) {
+    
+  } else {
+    
+  }
+  charfield_.SetAllocatedNoArena(&::google::protobuf::internal::GetEmptyStringAlreadyInited(), charfield);
+  // @@protoc_insertion_point(field_set_allocated:vaultdb.Expr.charfield)
+}
+
+// -------------------------------------------------------------------
+
 // Table
 
 // int32 num_tuple_pages = 1;
@@ -6997,6 +7526,8 @@ inline void TableQueryResponse::set_allocated_page(::std::string* page) {
 
 // -------------------------------------------------------------------
 
+// -------------------------------------------------------------------
+
 
 // @@protoc_insertion_point(namespace_scope)
 
@@ -7005,6 +7536,11 @@ inline void TableQueryResponse::set_allocated_page(::std::string* page) {
 namespace google {
 namespace protobuf {
 
+template <> struct is_proto_enum< ::vaultdb::Expr_ExprType> : ::std::true_type {};
+template <>
+inline const EnumDescriptor* GetEnumDescriptor< ::vaultdb::Expr_ExprType>() {
+  return ::vaultdb::Expr_ExprType_descriptor();
+}
 template <> struct is_proto_enum< ::vaultdb::FieldDesc_FieldType> : ::std::true_type {};
 template <>
 inline const EnumDescriptor* GetEnumDescriptor< ::vaultdb::FieldDesc_FieldType>() {

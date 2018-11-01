@@ -2,19 +2,23 @@
 // Created by madhav on 9/25/18.
 //
 
-#include "VaultDB.h"
 #include "rpc/DataOwnerImpl.h"
 #include "rpc/DataOwnerPrivate.h"
 #include "rpc/HonestBrokerClient.h"
 #include "rpc/HonestBrokerImpl.h"
-#include <g3log/g3log.hpp>
-#include <g3log/logworker.hpp>
+//#include <g3log/g3log.hpp>
+//#include <g3log/logworker.hpp>
+
+#include <glog/logging.h>
+#include <glog/stl_logging.h>
 #include <gflags/gflags.h>
 #include <grpcpp/grpcpp.h>
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
 #include <thread>
+#include <cstdarg>
+#include <string>
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
 DEFINE_string(address, "", "IPV4 Address for current instance");
@@ -42,11 +46,11 @@ void runDataOwnerServer(DataOwnerPrivate *p) {
 
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  std::unique_ptr<g3::LogWorker> logworker{g3::LogWorker::createLogWorker()};
+  std::unique_ptr<glog::LogWorker> logworker{glog::LogWorker::createLogWorker()};
 
   if (FLAGS_honest_broker == true) {
     auto defaultHandler = logworker->addDefaultLogger("HB", "logs");
-    g3::initializeLogging(logworker.get());
+    glog::initializeLogging(logworker.get());
     HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address);
     std::thread hb_thread(runHonestBrokerServer, p);
     getchar();
@@ -74,7 +78,7 @@ int main(int argc, char **argv) {
     p->Register();
     auto defaultHandler = logworker->addDefaultLogger(
         "DO" + std::to_string(p->HostNum()), "logs");
-    g3::initializeLogging(logworker.get());
+    glog::initializeLogging(logworker.get());
     do_thread.join();
   }
 }

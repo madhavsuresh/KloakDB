@@ -1,0 +1,19 @@
+#load("/", "glog_library")
+
+cc_binary(
+    name = "vaultdb",
+    srcs = [
+        "VaultDB.cpp",
+    ],
+    deps = [
+        "//operators",
+        "//rpc:rpc_lib",
+        "@com_github_glog_glog//:glog",
+    ],
+)
+
+cc_library(
+    name = "foo",
+    srcs = ["foo.cpp"],
+    deps = ["@com_github_glog_glog//:glog"],
+)

@@ -1,0 +1,217 @@
+[
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/join_test.dir/join_test.cpp.o -c /root/DB/vaultdb_operators/join_test.cpp",
+  "file": "/root/DB/vaultdb_operators/join_test.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/join_test.dir/HashJoin.cpp.o -c /root/DB/vaultdb_operators/HashJoin.cpp",
+  "file": "/root/DB/vaultdb_operators/HashJoin.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/join_test.dir/postgres_client.cpp.o -c /root/DB/vaultdb_operators/postgres_client.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/join_test.dir/Expressions.cpp.o -c /root/DB/vaultdb_operators/Expressions.cpp",
+  "file": "/root/DB/vaultdb_operators/Expressions.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/sort_test.dir/sort_test.cpp.o -c /root/DB/vaultdb_operators/sort_test.cpp",
+  "file": "/root/DB/vaultdb_operators/sort_test.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/sort_test.dir/Sort.cpp.o -c /root/DB/vaultdb_operators/Sort.cpp",
+  "file": "/root/DB/vaultdb_operators/Sort.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/sort_test.dir/postgres_client.cpp.o -c /root/DB/vaultdb_operators/postgres_client.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/sort_test.dir/Expressions.cpp.o -c /root/DB/vaultdb_operators/Expressions.cpp",
+  "file": "/root/DB/vaultdb_operators/Expressions.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/filter_test.dir/filter_test.cpp.o -c /root/DB/vaultdb_operators/filter_test.cpp",
+  "file": "/root/DB/vaultdb_operators/filter_test.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/filter_test.dir/Filter.cpp.o -c /root/DB/vaultdb_operators/Filter.cpp",
+  "file": "/root/DB/vaultdb_operators/Filter.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/filter_test.dir/postgres_client.cpp.o -c /root/DB/vaultdb_operators/postgres_client.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/filter_test.dir/Expressions.cpp.o -c /root/DB/vaultdb_operators/Expressions.cpp",
+  "file": "/root/DB/vaultdb_operators/Expressions.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/postgres_test.dir/postgres_client_test.cpp.o -c /root/DB/vaultdb_operators/postgres_client_test.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client_test.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest/include -isystem /root/DB/vaultdb_operators/cmake-build-debug/googletest-src/googletest  -fno-omit-frame-pointer -g   -pthread -std=gnu++14 -o CMakeFiles/postgres_test.dir/postgres_client.cpp.o -c /root/DB/vaultdb_operators/postgres_client.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/VaultDB.cpp.o -c /root/DB/vaultdb_operators/VaultDB.cpp",
+  "file": "/root/DB/vaultdb_operators/VaultDB.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/postgres_client.cpp.o -c /root/DB/vaultdb_operators/postgres_client.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/vaultdb.pb.cc.o -c /root/DB/vaultdb_operators/rpc/vaultdb.pb.cc",
+  "file": "/root/DB/vaultdb_operators/rpc/vaultdb.pb.cc"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/vaultdb.grpc.pb.cc.o -c /root/DB/vaultdb_operators/rpc/vaultdb.grpc.pb.cc",
+  "file": "/root/DB/vaultdb_operators/rpc/vaultdb.grpc.pb.cc"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/HonestBrokerImpl.cpp.o -c /root/DB/vaultdb_operators/rpc/HonestBrokerImpl.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/HonestBrokerImpl.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/HonestBrokerPrivate.cpp.o -c /root/DB/vaultdb_operators/rpc/HonestBrokerPrivate.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/HonestBrokerPrivate.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/HonestBrokerClient.cpp.o -c /root/DB/vaultdb_operators/rpc/HonestBrokerClient.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/HonestBrokerClient.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/DataOwnerPrivate.cpp.o -c /root/DB/vaultdb_operators/rpc/DataOwnerPrivate.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/DataOwnerPrivate.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/DataOwnerImpl.cpp.o -c /root/DB/vaultdb_operators/rpc/DataOwnerImpl.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/DataOwnerImpl.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/InfoPrivate.cpp.o -c /root/DB/vaultdb_operators/rpc/InfoPrivate.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/InfoPrivate.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/rpc/DataOwnerClient.cpp.o -c /root/DB/vaultdb_operators/rpc/DataOwnerClient.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/DataOwnerClient.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g   -std=gnu++14 -o CMakeFiles/vaultdb.dir/Repartition.cpp.o -c /root/DB/vaultdb_operators/Repartition.cpp",
+  "file": "/root/DB/vaultdb_operators/Repartition.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/HBGeneralize.dir/HBGeneralize.cpp.o -c /root/DB/vaultdb_operators/rpc/HBGeneralize.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/HBGeneralize.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/HBGeneralize.dir/DOClient.cpp.o -c /root/DB/vaultdb_operators/rpc/DOClient.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/DOClient.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/HBGeneralize.dir/__/postgres_client.cpp.o -c /root/DB/vaultdb_operators/postgres_client.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/HBGeneralize.dir/vaultdb.grpc.pb.cc.o -c /root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.grpc.pb.cc",
+  "file": "/root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.grpc.pb.cc"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/HBGeneralize.dir/vaultdb.pb.cc.o -c /root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.pb.cc",
+  "file": "/root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.pb.cc"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/HBGeneralize.dir/__/TableStatistics.cpp.o -c /root/DB/vaultdb_operators/TableStatistics.cpp",
+  "file": "/root/DB/vaultdb_operators/TableStatistics.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOClient.dir/DOClient.cpp.o -c /root/DB/vaultdb_operators/rpc/DOClient.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/DOClient.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOClient.dir/__/postgres_client.cpp.o -c /root/DB/vaultdb_operators/postgres_client.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOClient.dir/vaultdb.grpc.pb.cc.o -c /root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.grpc.pb.cc",
+  "file": "/root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.grpc.pb.cc"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOClient.dir/vaultdb.pb.cc.o -c /root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.pb.cc",
+  "file": "/root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.pb.cc"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOClient.dir/__/TableStatistics.cpp.o -c /root/DB/vaultdb_operators/TableStatistics.cpp",
+  "file": "/root/DB/vaultdb_operators/TableStatistics.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOClient.dir/HonestBrokerImpl.cpp.o -c /root/DB/vaultdb_operators/rpc/HonestBrokerImpl.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/HonestBrokerImpl.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOClient.dir/HonestBrokerPrivate.cpp.o -c /root/DB/vaultdb_operators/rpc/HonestBrokerPrivate.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/HonestBrokerPrivate.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOServer.dir/DOServer.cpp.o -c /root/DB/vaultdb_operators/rpc/DOServer.cpp",
+  "file": "/root/DB/vaultdb_operators/rpc/DOServer.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOServer.dir/__/postgres_client.cpp.o -c /root/DB/vaultdb_operators/postgres_client.cpp",
+  "file": "/root/DB/vaultdb_operators/postgres_client.cpp"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOServer.dir/vaultdb.grpc.pb.cc.o -c /root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.grpc.pb.cc",
+  "file": "/root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.grpc.pb.cc"
+},
+{
+  "directory": "/root/DB/vaultdb_operators/cmake-build-debug/rpc",
+  "command": "/usr/bin/c++   -I/root/DB/linux-sgx/sgxsdk/include  -fno-omit-frame-pointer -g -g   -std=gnu++14 -o CMakeFiles/DOServer.dir/vaultdb.pb.cc.o -c /root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.pb.cc",
+  "file": "/root/DB/vaultdb_operators/cmake-build-debug/rpc/vaultdb.pb.cc"
+}
+]

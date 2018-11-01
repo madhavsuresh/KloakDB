@@ -3,10 +3,11 @@
 //
 
 #include "DataOwnerImpl.h"
-#include "../Filter.h"
-#include "../Repartition.h"
-#include "../Sort.h"
+#include "../operators/Filter.h"
+#include "Repartition.h"
+#include "../operators/Sort.h"
 #include "DataOwnerPrivate.h"
+#include "vaultdb.grpc.pb.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
 

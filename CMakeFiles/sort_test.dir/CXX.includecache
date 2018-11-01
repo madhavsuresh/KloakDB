@@ -1,0 +1,36 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/root/DB/vaultdb_operators/Sort.cpp
+raw.h
+-
+stdio.h
+-
+stdlib.h
+-
+string.h
+-
+unistd.h
+-
+Sort.h
+/root/DB/vaultdb_operators/Sort.h
+postgres_client.h
+/root/DB/vaultdb_operators/postgres_client.h
+math.h
+-
+
+/root/DB/vaultdb_operators/Sort.h
+postgres_client.h
+/root/DB/vaultdb_operators/postgres_client.h
+cstdint
+-
+
+/root/DB/vaultdb_operators/postgres_client.h
+pqxx/pqxx
+-
+

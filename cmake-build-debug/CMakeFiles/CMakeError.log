@@ -1,0 +1,488 @@
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_b1249/fast"
+/usr/bin/gmake -f CMakeFiles/cmTC_b1249.dir/build.make CMakeFiles/cmTC_b1249.dir/build
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_b1249.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_b1249.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_b1249
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_b1249.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_b1249.dir/CheckSymbolExists.c.o  -o cmTC_b1249 
+CMakeFiles/cmTC_b1249.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[1]: *** [CMakeFiles/cmTC_b1249.dir/build.make:87: cmTC_b1249] Error 1
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake: *** [Makefile:121: cmTC_b1249/fast] Error 2
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_63394/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_63394.dir/build.make CMakeFiles/cmTC_63394.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_63394.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_63394.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_63394
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_63394.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_63394.dir/CheckSymbolExists.c.o  -o cmTC_63394 
+CMakeFiles/cmTC_63394.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_63394.dir/build.make:87: cmTC_63394] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_63394/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_f463a/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_f463a.dir/build.make CMakeFiles/cmTC_f463a.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f463a.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_f463a.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_f463a
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f463a.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_f463a.dir/CheckSymbolExists.c.o  -o cmTC_f463a 
+CMakeFiles/cmTC_f463a.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_f463a.dir/build.make:87: cmTC_f463a] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_f463a/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_66f2a/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_66f2a.dir/build.make CMakeFiles/cmTC_66f2a.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_66f2a.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_66f2a.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_66f2a
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_66f2a.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_66f2a.dir/CheckSymbolExists.c.o  -o cmTC_66f2a 
+CMakeFiles/cmTC_66f2a.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_66f2a.dir/build.make:87: cmTC_66f2a] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_66f2a/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_47298/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_47298.dir/build.make CMakeFiles/cmTC_47298.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_47298.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_47298.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_47298
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_47298.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_47298.dir/CheckSymbolExists.c.o  -o cmTC_47298 
+CMakeFiles/cmTC_47298.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_47298.dir/build.make:87: cmTC_47298] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_47298/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_28433/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_28433.dir/build.make CMakeFiles/cmTC_28433.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_28433.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_28433.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_28433
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_28433.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_28433.dir/CheckSymbolExists.c.o  -o cmTC_28433 
+CMakeFiles/cmTC_28433.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_28433.dir/build.make:87: cmTC_28433] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_28433/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_e82ef/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_e82ef.dir/build.make CMakeFiles/cmTC_e82ef.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e82ef.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_e82ef.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_e82ef
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e82ef.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_e82ef.dir/CheckSymbolExists.c.o  -o cmTC_e82ef 
+CMakeFiles/cmTC_e82ef.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_e82ef.dir/build.make:87: cmTC_e82ef] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_e82ef/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_49701/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_49701.dir/build.make CMakeFiles/cmTC_49701.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_49701.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_49701.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_49701
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_49701.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_49701.dir/CheckSymbolExists.c.o  -o cmTC_49701 
+CMakeFiles/cmTC_49701.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_49701.dir/build.make:87: cmTC_49701] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_49701/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_e5d5d/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_e5d5d.dir/build.make CMakeFiles/cmTC_e5d5d.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e5d5d.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_e5d5d.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_e5d5d
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e5d5d.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_e5d5d.dir/CheckSymbolExists.c.o  -o cmTC_e5d5d 
+CMakeFiles/cmTC_e5d5d.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_e5d5d.dir/build.make:87: cmTC_e5d5d] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_e5d5d/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_f8b0a/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_f8b0a.dir/build.make CMakeFiles/cmTC_f8b0a.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_f8b0a.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_f8b0a.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_f8b0a
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f8b0a.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_f8b0a.dir/CheckSymbolExists.c.o  -o cmTC_f8b0a 
+CMakeFiles/cmTC_f8b0a.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_f8b0a.dir/build.make:87: cmTC_f8b0a] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_f8b0a/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_94b87/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_94b87.dir/build.make CMakeFiles/cmTC_94b87.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_94b87.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_94b87.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_94b87
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_94b87.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_94b87.dir/CheckSymbolExists.c.o  -o cmTC_94b87 
+CMakeFiles/cmTC_94b87.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_94b87.dir/build.make:87: cmTC_94b87] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_94b87/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_7fc4f/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_7fc4f.dir/build.make CMakeFiles/cmTC_7fc4f.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_7fc4f.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_7fc4f.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_7fc4f
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_7fc4f.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_7fc4f.dir/CheckSymbolExists.c.o  -o cmTC_7fc4f 
+CMakeFiles/cmTC_7fc4f.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_7fc4f.dir/build.make:87: cmTC_7fc4f] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_7fc4f/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_8655d/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_8655d.dir/build.make CMakeFiles/cmTC_8655d.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_8655d.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_8655d.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_8655d
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_8655d.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_8655d.dir/CheckSymbolExists.c.o  -o cmTC_8655d 
+CMakeFiles/cmTC_8655d.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_8655d.dir/build.make:87: cmTC_8655d] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_8655d/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+
+Determining if the pthread_create exist failed with the following output:
+Change Dir: /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp
+
+Run Build Command:"/usr/bin/gmake" "cmTC_69263/fast"
+gmake[1]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+/usr/bin/gmake -f CMakeFiles/cmTC_69263.dir/build.make CMakeFiles/cmTC_69263.dir/build
+gmake[2]: Entering directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_69263.dir/CheckSymbolExists.c.o
+/usr/bin/cc    -o CMakeFiles/cmTC_69263.dir/CheckSymbolExists.c.o   -c /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c
+Linking C executable cmTC_69263
+/root/Downloads/CLion-2018.2.4/clion-2018.2.4/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_69263.dir/link.txt --verbose=1
+/usr/bin/cc      -rdynamic CMakeFiles/cmTC_69263.dir/CheckSymbolExists.c.o  -o cmTC_69263 
+CMakeFiles/cmTC_69263.dir/CheckSymbolExists.c.o: In function `main':
+CheckSymbolExists.c:(.text+0x16): undefined reference to `pthread_create'
+collect2: error: ld returned 1 exit status
+gmake[2]: *** [CMakeFiles/cmTC_69263.dir/build.make:87: cmTC_69263] Error 1
+gmake[2]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+gmake[1]: *** [Makefile:121: cmTC_69263/fast] Error 2
+gmake[1]: Leaving directory '/root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp'
+
+File /root/DB/vaultdb_operators/cmake-build-debug/CMakeFiles/CMakeTmp/CheckSymbolExists.c:
+/* */
+#include <pthread.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef pthread_create
+  return ((int*)(&pthread_create))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+

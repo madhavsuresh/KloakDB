@@ -1,0 +1,5 @@
+		g3log created log at: Thu Oct 18 14:24:20 2018
+		LOG format: [YYYY/MM/DD hh:mm:ss uuu* LEVEL FILE->FUNCTION:LINE] messagen
+		(uuu*: microseconds fractions of the seconds value)
+
+2018/10/18 14:24:20 523330	INFO [HonestBrokerPrivate.cpp->RegisterHost:33]	registered host: [0.0.0.0:5001] at hostnum : [0]
