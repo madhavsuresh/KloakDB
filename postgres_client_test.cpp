@@ -5,7 +5,6 @@
 #include "postgres_client.h"
 #include "pqxx_compat.h"
 #include "Logger.h"
-#include <glog/logging.h>
 #include <gtest/gtest.h>
 #include <malloc.h>
 
