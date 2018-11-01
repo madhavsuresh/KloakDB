@@ -44,6 +44,8 @@
 #include "TrustedLibrary/postgres_client.h"
 #include "TrustedLibrary/pqxx_compat.h"
 #include "TrustedLibrary/Logger.h"
+#include <chrono>
+#include <iostream>
 
 /* Global EID shared by multiple threads */
 sgx_enclave_id_t global_eid = 0;
@@ -207,13 +209,16 @@ int SGX_CDECL main(int argc, char *argv[])
         return -1; 
     }
 
-    std::string query1 = "SELECT * FROM sgx_test_biggest;";
+    std::string query1 = "SELECT * FROM sgx_cross;";
     table_t *t = get_table(query1, "dbname=test");
     mytable = t;
-    for (int i = 0; i < t->num_tuples; i++) {
-      print_tuple(get_tuple(i, t));
-    }
+
+
+    auto start = std::chrono::high_resolution_clock::now();
     ecall_load_table_enclave(global_eid, t, sizeof(table_t));
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    std::cout << "Elapsed time: " << elapsed.count() << " s\n";
 
 
     /* Utilize trusted libraries */
