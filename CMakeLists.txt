@@ -73,6 +73,10 @@ add_executable(join_test join_test.cpp HashJoin.cpp postgres_client.cpp pqxx_com
 target_link_libraries(join_test gtest_main pq pqxx profiler tcmalloc g3logger)
 add_test(NAME join_test COMMAND join_test)
 
+add_executable(health_lnk_schema_test health_lnk_schema_test.cpp postgres_client.cpp pqxx_compat.cpp Logger.cpp)
+target_link_libraries(health_lnk_schema_test gtest_main pq pqxx profiler tcmalloc g3logger)
+add_test(NAME health_lnk_schema_test COMMAND health_lnk_schema_test)
+
 set(REPART_SRCS
     Repartition.cpp)
 

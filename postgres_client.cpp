@@ -20,7 +20,14 @@ std::string tuple_string(tuple_t * t) {
         output += std::to_string(t->field_list[i].f.int_field.val);
         break;
       }
-      case UNSUPPORTED : {
+      case TIMESTAMP : {
+        time_t time = t->field_list[i].f.int_field.val;
+        char *timetext = asctime(gmtime(&time));
+        timetext[24] = '\0';
+        output += std::string(timetext);
+        break;
+      }
+      default: {
         throw;
       }
     }

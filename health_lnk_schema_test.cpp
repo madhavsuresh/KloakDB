@@ -1,0 +1,186 @@
+//
+// Created by madhav on 7/27/18.
+//
+#include "postgres_client_test.h"
+#include "postgres_client.h"
+#include "pqxx_compat.h"
+#include "Logger.h"
+#include <gtest/gtest.h>
+#include <malloc.h>
+
+class health_lnk_schema_test : public ::testing::Test {
+public:
+  std::string dbname;
+
+protected:
+  void SetUp() override {
+    // This test assumes query works... also existence of "t_random_500"
+    // This test can just create the database we want
+    // TODO(madhavsuresh): should create new database every time
+    // TODO(madhavsuresh): these test are very brittle.
+    dbname = "dbname=test";
+  }
+
+  void TearDown() override{};
+};
+
+TEST_F(health_lnk_schema_test, demographics) {
+  std::string query_create("CREATE TABLE demographics (\n"
+                           "       patient_id integer,\n"
+                           "       birth_year integer,\n"
+                           "       gender integer,\n"
+                           "       race integer,\n"
+                           "       ethnicity integer,\n"
+                           "       insurance integer,\n"
+                           "       zip integer);");
+  query(query_create, dbname);
+  table_t *t = get_table("SELECT * FROM demographics", dbname);
+  ASSERT_EQ(t->schema.num_fields, 7);
+  ASSERT_EQ(t->schema.fields[0].type, INT);
+  ASSERT_STREQ(t->schema.fields[0].field_name, "patient_id");
+  ASSERT_EQ(t->schema.fields[1].type, INT);
+  ASSERT_STREQ(t->schema.fields[1].field_name, "birth_year");
+  ASSERT_EQ(t->schema.fields[2].type, INT);
+  ASSERT_STREQ(t->schema.fields[2].field_name, "gender");
+  ASSERT_EQ(t->schema.fields[3].type, INT);
+  ASSERT_STREQ(t->schema.fields[3].field_name, "race");
+  ASSERT_EQ(t->schema.fields[4].type, INT);
+  ASSERT_STREQ(t->schema.fields[4].field_name, "ethnicity");
+  ASSERT_EQ(t->schema.fields[5].type, INT);
+  ASSERT_STREQ(t->schema.fields[5].field_name, "insurance");
+  ASSERT_EQ(t->schema.fields[6].type, INT);
+  ASSERT_STREQ(t->schema.fields[6].field_name, "zip");
+  std::string query_destroy("DROP TABLE demographics");
+  query(query_destroy, dbname);
+}
+
+TEST_F(health_lnk_schema_test, remote_diagnoses) {
+  std::string query_create("CREATE TABLE remote_diagnoses (\n"
+                           "        patient_id integer NOT NULL,\n"
+                           "    site integer NOT NULL,\n"
+                           "    year integer NOT NULL,\n"
+                           "    month integer NOT NULL,\n"
+                           "    visit_no integer NOT NULL,\n"
+                           "    type_ integer NOT NULL,\n"
+                           "    encounter_id integer NOT NULL,\n"
+                           "    diag_src character varying NOT NULL,\n"
+                           "    icd9 character varying NOT NULL,\n"
+                           "    primary_ integer NOT NULL,\n"
+                           "    timestamp_ timestamp without time zone,\n"
+                           "    clean_icd9 character varying,\n"
+                           "    major_icd9 character varying\n"
+                           ");");
+  query(query_create, dbname);
+  table_t *t = get_table("SELECT * FROM remote_diagnoses", dbname);
+  ASSERT_EQ(t->schema.num_fields,13);
+  ASSERT_EQ(t->schema.fields[0].type, INT);
+  ASSERT_STREQ(t->schema.fields[0].field_name, "patient_id");
+  ASSERT_EQ(t->schema.fields[1].type, INT);
+  ASSERT_STREQ(t->schema.fields[1].field_name, "site");
+  ASSERT_EQ(t->schema.fields[2].type, INT);
+  ASSERT_STREQ(t->schema.fields[2].field_name, "year");
+  ASSERT_EQ(t->schema.fields[3].type, INT);
+  ASSERT_STREQ(t->schema.fields[3].field_name, "month");
+  ASSERT_EQ(t->schema.fields[4].type, INT);
+  ASSERT_STREQ(t->schema.fields[4].field_name, "visit_no");
+  ASSERT_EQ(t->schema.fields[5].type, INT);
+  ASSERT_STREQ(t->schema.fields[5].field_name, "type_");
+  ASSERT_EQ(t->schema.fields[6].type, INT);
+  ASSERT_STREQ(t->schema.fields[6].field_name, "encounter_id");
+  ASSERT_EQ(t->schema.fields[7].type, FIXEDCHAR);
+  ASSERT_STREQ(t->schema.fields[7].field_name, "diag_src");
+  ASSERT_EQ(t->schema.fields[8].type, FIXEDCHAR);
+  ASSERT_STREQ(t->schema.fields[8].field_name, "icd9");
+  ASSERT_EQ(t->schema.fields[9].type, INT);
+  ASSERT_STREQ(t->schema.fields[9].field_name, "primary_");
+  ASSERT_EQ(t->schema.fields[10].type, TIMESTAMP);
+  ASSERT_STREQ(t->schema.fields[10].field_name, "timestamp_");
+  ASSERT_EQ(t->schema.fields[11].type, FIXEDCHAR);
+  ASSERT_STREQ(t->schema.fields[11].field_name, "clean_icd9");
+  ASSERT_EQ(t->schema.fields[12].type, FIXEDCHAR);
+  ASSERT_STREQ(t->schema.fields[12].field_name, "major_icd9");
+
+  std::string query_destroy("DROP TABLE remote_diagnoses");
+  query(query_destroy, dbname);
+}
+
+
+TEST_F(health_lnk_schema_test, diagnoses) {
+  std::string query_create("CREATE TABLE diagnoses (\n"
+                           "    patient_id integer NOT NULL,\n"
+                           "    site integer NOT NULL,\n"
+                           "    year integer NOT NULL,\n"
+                           "    month integer NOT NULL,\n"
+                           "    visit_no integer NOT NULL,\n"
+                           "    type_ integer NOT NULL,\n"
+                           "    encounter_id integer NOT NULL,\n"
+                           "    diag_src character varying NOT NULL,\n"
+                           "    icd9 character varying NOT NULL,\n"
+                           "    primary_ integer NOT NULL,\n"
+                           "    timestamp_ timestamp without time zone,  \n"
+                           "    clean_icd9 character varying,\n"
+                           "    major_icd9 character varying\n"
+                           ");");
+  query(query_create, dbname);
+  table_t *t = get_table("SELECT * FROM diagnoses", dbname);
+  ASSERT_EQ(t->schema.num_fields,13);
+  ASSERT_EQ(t->schema.fields[0].type, INT);
+  ASSERT_STREQ(t->schema.fields[0].field_name, "patient_id");
+  ASSERT_EQ(t->schema.fields[1].type, INT);
+  ASSERT_STREQ(t->schema.fields[1].field_name, "site");
+  ASSERT_EQ(t->schema.fields[2].type, INT);
+  ASSERT_STREQ(t->schema.fields[2].field_name, "year");
+  ASSERT_EQ(t->schema.fields[3].type, INT);
+  ASSERT_STREQ(t->schema.fields[3].field_name, "month");
+  ASSERT_EQ(t->schema.fields[4].type, INT);
+  ASSERT_STREQ(t->schema.fields[4].field_name, "visit_no");
+  ASSERT_EQ(t->schema.fields[5].type, INT);
+  ASSERT_STREQ(t->schema.fields[5].field_name, "type_");
+  ASSERT_EQ(t->schema.fields[6].type, INT);
+  ASSERT_STREQ(t->schema.fields[6].field_name, "encounter_id");
+  ASSERT_EQ(t->schema.fields[7].type, FIXEDCHAR);
+  ASSERT_STREQ(t->schema.fields[7].field_name, "diag_src");
+  ASSERT_EQ(t->schema.fields[8].type, FIXEDCHAR);
+  ASSERT_STREQ(t->schema.fields[8].field_name, "icd9");
+  ASSERT_EQ(t->schema.fields[9].type, INT);
+  ASSERT_STREQ(t->schema.fields[9].field_name, "primary_");
+  ASSERT_EQ(t->schema.fields[10].type, TIMESTAMP);
+  ASSERT_STREQ(t->schema.fields[10].field_name, "timestamp_");
+  ASSERT_EQ(t->schema.fields[11].type, FIXEDCHAR);
+  ASSERT_STREQ(t->schema.fields[11].field_name, "clean_icd9");
+  ASSERT_EQ(t->schema.fields[12].type, FIXEDCHAR);
+  ASSERT_STREQ(t->schema.fields[12].field_name, "major_icd9");
+
+  std::string query_destroy("DROP TABLE diagnoses");
+  query(query_destroy, dbname);
+}
+
+TEST_F(health_lnk_schema_test, vitals) {
+  std::string qr( "CREATE TABLE vitals (\n"
+                 "        patient_id integer,\n"
+                 "        height_timestamp timestamp,\n"
+                 "        height_visit_no integer,\n"
+                 "        height real,\n"
+                 "        height_units character varying,\n"
+                 "        weight_timestamp timestamp,\n"
+                 "        weight_visit_no integer,\n"
+                 "        weight real,\n"
+                 "        weight_units character varying,\n"
+                 "        bmi_timestamp timestamp,\n"
+                 "        bmi_visit_no integer,\n"
+                 "        bmi real,\n"
+                 "        bmi_units character varying,\n"
+                 "        pulse integer,\n"
+                 "        systolic integer,\n"
+                 "        diastolic integer ,\n"
+                 "        bp_method character varying);");
+  query(qr, dbname);
+  table_t *t = get_table("SELECT * FROM vitals", dbname);
+  ASSERT_STREQ(t->schema.fields[0].field_name,"patient_id");
+  ASSERT_EQ(t->schema.fields[0].type, INT);
+  ASSERT_STREQ(t->schema.fields[1].field_name,"height_timestamp");
+  ASSERT_EQ(t->schema.fields[1].type, TIMESTAMP);
+  ASSERT_STREQ(t->schema.fields[2].field_name,"height_visit_no");
+  ASSERT_EQ(t->schema.fields[2].type, INT);
+  query("DROP TABLE vitals;", dbname);
+}

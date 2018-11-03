@@ -140,3 +140,43 @@ TEST_F(postgres_client_test, coalesce_big) {
   std::string query_destroy("DROP TABLE test_random");
   query(query_destroy, dbname);
 }
+
+TEST_F(postgres_client_test, column_too_large) {
+  std::string query_create("create table big_column (a INT, b VARCHAR)");
+  query(query_create, dbname);
+
+  query_create = "INSERT INTO big_column (a,b) VALUES (1, '1234567890123456');";
+  query(query_create, dbname);
+
+  try {
+    table_t * t = get_table("SELECT * FROM big_column", dbname);
+  } catch (std::invalid_argument const &err) {
+    ASSERT_STREQ(err.what(), "Unsupported length column");
+  } catch (...) {
+    FAIL() << "Expected unsupported length column";
+  }
+
+  std::string query_destroy("DROP TABLE big_column");
+  query(query_destroy, dbname);
+}
+
+TEST_F(postgres_client_test, timestamp) {
+  query("CREATE TABLE timestamp (a INT, b TIMESTAMP);", dbname);
+  query("INSERT INTO timestamp (a,b) VALUES (1,'01/01/06');", dbname);
+  table_t * t = get_table("SELECT * FROM timestamp;", dbname);
+  ASSERT_EQ(t->schema.fields[0].type, INT);
+  ASSERT_EQ(t->schema.fields[1].type, TIMESTAMP);
+  ASSERT_STREQ(tuple_string(get_tuple(0,t)).c_str(),"1| Sun Jan  1 00:00:00 2006| ");
+  query("DROP TABLE timestamp", dbname);
+}
+
+TEST_F(postgres_client_test, real) {
+  query("CREATE TABLE real (a REAL, b REAL);", dbname);
+  query("INSERT INTO real (a,b) VALUES (1,1.1);", dbname);
+  table_t * t = get_table("SELECT * FROM real;", dbname);
+  ASSERT_EQ(t->schema.fields[0].type, DOUBLE);
+  ASSERT_EQ(t->schema.fields[1].type, DOUBLE);
+  ASSERT_EQ(get_tuple(0,t)->field_list[0].f.double_field.val, 1);
+  ASSERT_EQ(get_tuple(0,t)->field_list[1].f.double_field.val, 1.1);
+  query("DROP TABLE real", dbname);
+}
