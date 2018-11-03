@@ -105,7 +105,7 @@ void table_schema_to_proto_schema(table_t *t, vaultdb::Schema *s) {
   s->set_num_fields(t->schema.num_fields);
   for (int i = 0; i < t->schema.num_fields; i++) {
     vaultdb::FieldDesc *fd = s->add_field();
-    fd->set_field_name(t->schema.fields[i].field_name, FIELD_LEN);
+    fd->set_field_name(t->schema.fields[i].field_name, FIELD_NAME_LEN);
     fd->set_col_no(t->schema.fields[i].col_no);
     switch (t->schema.fields[i].type) {
     case FIXEDCHAR: {

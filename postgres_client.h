@@ -10,11 +10,13 @@
 #define INT8OID 20
 #define INT4OID 23
 #define TIMESTAMPOID 1114
+#define FLOAT4OID 700
+#define FLOAT8OID 701
 
-#define FIELD_LEN 16
+#define FIELD_LEN 20
 #define FIELD_NAME_LEN FIELD_LEN
 #define FIXEDCHAR_LEN 16
-#define MAX_FIELDS 10
+#define MAX_FIELDS 20
 #define PAGE_SIZE 32768 // 32k sized pages. This could be much bigger.
 #define LEFT_RELATION 0
 #define RIGHT_RELATION 1
@@ -22,9 +24,9 @@
 // invariant that every table has the same size tuple
 
 //TODO(madhavsuresh): change to intfield
-enum FIELD_TYPE { UNSUPPORTED, FIXEDCHAR, INT };
+enum FIELD_TYPE { UNSUPPORTED, FIXEDCHAR, INT, TIMESTAMP, DOUBLE};
 
-enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR };
+enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR, LIKE_EXPR };
 
 typedef struct field_desc {
   char field_name[FIELD_NAME_LEN];
@@ -64,6 +66,16 @@ typedef struct field_int {
   int64_t genval;
 } field_int_t;
 
+typedef struct field_double {
+    double val;
+    double genval;
+} field_double_t;
+
+typedef struct field_ts {
+    time_t val;
+    time_t genval;
+} field_ts_t;
+
 typedef struct field_fixed_char {
   char val[FIXEDCHAR_LEN];
 } field_fixed_char_t;
@@ -71,6 +83,8 @@ typedef struct field_fixed_char {
 union field_union {
   field_int_t int_field;
   field_fixed_char_t fixed_char_field;
+  field_ts_t ts_field;
+  field_double_t double_field;
 };
 
 // FIXME(madhav): if this causes performance problems
@@ -139,4 +153,5 @@ table_t *allocate_table(int num_tuple_pages);
 void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
 std::string tuple_string(tuple_t * t);
+int colno_from_name(table_t *t, std::string colname);
 #endif // PROJECT_POSTGRES_CLIENT_H
