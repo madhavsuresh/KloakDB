@@ -182,5 +182,125 @@ TEST_F(health_lnk_schema_test, vitals) {
   ASSERT_EQ(t->schema.fields[1].type, TIMESTAMP);
   ASSERT_STREQ(t->schema.fields[2].field_name,"height_visit_no");
   ASSERT_EQ(t->schema.fields[2].type, INT);
+ASSERT_STREQ(t->schema.fields[3].field_name,"height");
+ASSERT_EQ(t->schema.fields[3].type, DOUBLE);
+    ASSERT_STREQ(t->schema.fields[4].field_name,"height_units");
+    ASSERT_EQ(t->schema.fields[4].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[5].field_name,"weight_timestamp");
+    ASSERT_EQ(t->schema.fields[5].type, TIMESTAMP);
+    ASSERT_STREQ(t->schema.fields[6].field_name,"weight_visit_no");
+    ASSERT_EQ(t->schema.fields[6].type, INT);
+    ASSERT_STREQ(t->schema.fields[7].field_name,"weight");
+    ASSERT_EQ(t->schema.fields[7].type, DOUBLE);
+    ASSERT_STREQ(t->schema.fields[8].field_name,"weight_units");
+    ASSERT_EQ(t->schema.fields[8].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[9].field_name,"bmi_timestamp");
+    ASSERT_EQ(t->schema.fields[9].type, TIMESTAMP);
+    ASSERT_STREQ(t->schema.fields[10].field_name,"bmi_visit_no");
+    ASSERT_EQ(t->schema.fields[10].type, INT);
+    ASSERT_STREQ(t->schema.fields[11].field_name,"bmi");
+    ASSERT_EQ(t->schema.fields[11].type, DOUBLE);
+    ASSERT_STREQ(t->schema.fields[12].field_name,"bmi_units");
+    ASSERT_EQ(t->schema.fields[12].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[13].field_name,"pulse");
+    ASSERT_EQ(t->schema.fields[13].type, INT);
+    ASSERT_STREQ(t->schema.fields[14].field_name,"systolic");
+    ASSERT_EQ(t->schema.fields[14].type, INT);
+    ASSERT_STREQ(t->schema.fields[15].field_name,"diastolic");
+    ASSERT_EQ(t->schema.fields[16].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[16].field_name,"bp_method");
   query("DROP TABLE vitals;", dbname);
+}
+
+TEST_F(health_lnk_schema_test, labs) {
+    std::string query_create("CREATE TABLE labs (\n"
+                             "        patient_id integer,\n"
+                             "        timestamp_ timestamp,\n"
+                             "        test_name character varying,\n"
+                             "        value_ character varying,\n"
+                             "        unit character varying,\n"
+                             "        value_low real,\n"
+                             "        value_high real);");
+    query(query_create, dbname);
+    table_t *t = get_table("SELECT * FROM labs", dbname);
+    ASSERT_STREQ(t->schema.fields[0].field_name,"patient_id");
+    ASSERT_EQ(t->schema.fields[0].type, INT);
+    ASSERT_STREQ(t->schema.fields[1].field_name,"timestamp_");
+    ASSERT_EQ(t->schema.fields[1].type, TIMESTAMP);
+    ASSERT_STREQ(t->schema.fields[2].field_name,"test_name");
+    ASSERT_EQ(t->schema.fields[2].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[3].field_name,"value_");
+    ASSERT_EQ(t->schema.fields[3].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[4].field_name,"unit");
+    ASSERT_EQ(t->schema.fields[4].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[5].field_name,"value_low");
+    ASSERT_EQ(t->schema.fields[5].type, DOUBLE);
+    ASSERT_STREQ(t->schema.fields[6].field_name,"value_high");
+    ASSERT_EQ(t->schema.fields[6].type, DOUBLE);
+    query("DROP TABLE labs;", dbname);
+}
+
+TEST_F(health_lnk_schema_test, medications) {
+    std::string query_create("CREATE TABLE medications (\n"
+                             "    patient_id integer NOT NULL,\n"
+                             "    site integer NOT NULL,\n"
+                             "    year integer NOT NULL,\n"
+                             "    month integer NOT NULL,\n"
+                             "    medication character varying NOT NULL,\n"
+                             "    dosage character varying NOT NULL,\n"
+                             "    route character varying,\n"
+                             "    timestamp_ timestamp without time zone);");
+    query(query_create, dbname);
+    table_t *t = get_table("SELECT * FROM medications", dbname);
+    ASSERT_STREQ(t->schema.fields[0].field_name,"patient_id");
+    ASSERT_EQ(t->schema.fields[0].type, INT);
+    ASSERT_STREQ(t->schema.fields[1].field_name,"site");
+    ASSERT_EQ(t->schema.fields[1].type, INT);
+    ASSERT_STREQ(t->schema.fields[2].field_name,"year");
+    ASSERT_EQ(t->schema.fields[2].type, INT);
+    ASSERT_STREQ(t->schema.fields[3].field_name,"month");
+    ASSERT_EQ(t->schema.fields[3].type, INT);
+    ASSERT_STREQ(t->schema.fields[4].field_name,"medication");
+    ASSERT_EQ(t->schema.fields[4].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[5].field_name,"dosage");
+    ASSERT_EQ(t->schema.fields[5].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[6].field_name,"route");
+    ASSERT_EQ(t->schema.fields[6].type, FIXEDCHAR);
+    ASSERT_STREQ(t->schema.fields[7].field_name,"timestamp_");
+    ASSERT_EQ(t->schema.fields[7].type, TIMESTAMP);
+    query("DROP TABLE medications;", dbname);
+}
+
+TEST_F(health_lnk_schema_test, site) {
+    std::string query_create("CREATE TABLE site (id integer);");
+    query(query_create, dbname);
+    table_t *t = get_table("SELECT * FROM site", dbname);
+    ASSERT_STREQ(t->schema.fields[0].field_name,"id");
+    ASSERT_EQ(t->schema.fields[0].type, INT);
+    query("DROP TABLE site;", dbname);
+}
+
+TEST_F(health_lnk_schema_test, cdiff_cohort) {
+
+    query("DROP table IF EXISTS diagnoses", dbname);
+    std::string query_create("CREATE TABLE diagnoses (\n"
+                             "    patient_id integer NOT NULL,\n"
+                             "    site integer NOT NULL,\n"
+                             "    year integer NOT NULL,\n"
+                             "    month integer NOT NULL,\n"
+                             "    visit_no integer NOT NULL,\n"
+                             "    type_ integer NOT NULL,\n"
+                             "    encounter_id integer NOT NULL,\n"
+                             "    diag_src character varying NOT NULL,\n"
+                             "    icd9 character varying NOT NULL,\n"
+                             "    primary_ integer NOT NULL,\n"
+                             "    timestamp_ timestamp without time zone,  \n"
+                             "    clean_icd9 character varying,\n"
+                             "    major_icd9 character varying\n"
+                             ");");
+    query(query_create, dbname);
+    query("DROP TABLE IF EXISTS cdiff_cohort", dbname);
+    query("CREATE TABLE cdiff_cohort AS (SELECT DISTINCT patient_id FROM diagnoses "
+          "WHERE icd9 = '008.45' AND year = :test_year AND "
+          "(site=:site1 OR site=:site2));", dbname);
 }

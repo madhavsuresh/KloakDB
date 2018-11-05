@@ -208,6 +208,37 @@ TEST_F(join_test, cross_product){
     free_table(output);
 }
 
+TEST_F(join_test, join_on_string) {
+    std::string query1("DROP table IF EXISTS full_join_simple");
+    query(query1, dbname);
+    query1 = "create table full_join_simple (a INT, b VARCHAR)";
+
+    query(query1, dbname);
+    query1 = "INSERT INTO full_join_simple (a,b) VALUES (1,'2'), (1,'3'), (1,'4')";
+    query(query1, dbname);
+    query1 = "SELECT * FROM full_join_simple";
+    table_t *t = get_table(query1, dbname);
+
+    join_def_t jd;
+    jd.l_col = 1;
+    jd.r_col = 1;
+    jd.project_len = 4;
+    jd.project_list[0].side = LEFT_RELATION;
+    jd.project_list[0].col_no = 0;
+    jd.project_list[1].side = LEFT_RELATION;
+    jd.project_list[1].col_no = 1;
+    jd.project_list[2].side = RIGHT_RELATION;
+    jd.project_list[2].col_no = 0;
+    jd.project_list[3].side = RIGHT_RELATION;
+    jd.project_list[3].col_no = 1;
+    table_t * output = hash_join(t,t,jd);
+    ASSERT_EQ(output->num_tuples, 3);
+    query1 = "DROP table full_join_simple";
+    query(query1, dbname);
+    free_table(t);
+    free_table(output);
+}
+
 TEST_F(join_test, large_join) {
     std::string dbname;
     dbname = "dbname=test";
