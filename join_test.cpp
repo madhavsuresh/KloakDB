@@ -15,6 +15,7 @@ public:
 protected:
     void SetUp() override {
         dbname = "dbname=test";
+        query("DROP TABLE IF EXISTS simple_join", dbname);
         std::string query1("create table simple_join (a INT, b INT)");
         query(query1, dbname);
         query1 = "INSERT INTO simple_join (a,b) VALUES (1,7), (2,7), (3,4)";
@@ -85,6 +86,7 @@ TEST_F(join_test, build_merged_schema) {
 
 TEST_F(join_test, first_join_test){
     // std::string create_table("create table join_test (a INT, b INT)");
+    query("DROP TABLE IF EXISTS full_join_simple", dbname);
     std::string query1("create table full_join_simple (a INT, b INT)");
     query(query1, dbname);
     query1 = "INSERT INTO full_join_simple (a,b) VALUES (1,7), (7,8), (3,4)";
@@ -111,6 +113,7 @@ TEST_F(join_test, first_join_test){
 }
 
 TEST_F(join_test, second_join_test){
+    query("DROP TABLE IF EXISTS join_test", dbname);
     // std::string create_table("create table join_test (a INT, b INT)");
     std::string query1("create table full_join_simple (a INT, b INT)");
     query(query1, dbname);
@@ -140,6 +143,7 @@ TEST_F(join_test, second_join_test){
 }
 
 TEST_F(join_test, third_join_test){
+    query("DROP TABLE IF EXISTS join_test", dbname);
     // std::string create_table("create table join_test (a INT, b INT)");
     std::string query1("create table full_join_simple (a INT, b INT)");
     query(query1, dbname);
@@ -172,6 +176,7 @@ TEST_F(join_test, third_join_test){
 
 TEST_F(join_test, cross_product){
     // std::string create_table("create table join_test (a INT, b INT)");
+    query("DROP TABLE IF EXISTS full_join_simple", dbname);
     std::string query1("create table full_join_simple (a INT, b INT)");
     query(query1, dbname);
     query1 = "INSERT INTO full_join_simple (a,b) VALUES (1,2), (1,3), (1,4)";
@@ -209,6 +214,7 @@ TEST_F(join_test, cross_product){
 }
 
 TEST_F(join_test, join_on_string) {
+    query("DROP TABLE IF EXISTS full_join_simple", dbname);
     std::string query1("DROP table IF EXISTS full_join_simple");
     query(query1, dbname);
     query1 = "create table full_join_simple (a INT, b VARCHAR)";
@@ -240,6 +246,7 @@ TEST_F(join_test, join_on_string) {
 }
 
 TEST_F(join_test, large_join) {
+  query("DROP TABLE IF EXISTS test_large_join", dbname);
     std::string dbname;
     dbname = "dbname=test";
     char buf[128];

@@ -299,6 +299,8 @@ TEST_F(health_lnk_schema_test, cdiff_cohort) {
                              "    major_icd9 character varying\n"
                              ");");
     query(query_create, dbname);
+    std::string test_year = "2006";
+  std::string site1 = "2006";
     query("DROP TABLE IF EXISTS cdiff_cohort", dbname);
     query("CREATE TABLE cdiff_cohort AS (SELECT DISTINCT patient_id FROM diagnoses "
           "WHERE icd9 = '008.45' AND year = :test_year AND "
