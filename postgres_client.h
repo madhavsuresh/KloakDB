@@ -26,7 +26,7 @@
 //TODO(madhavsuresh): change to intfield
 enum FIELD_TYPE { UNSUPPORTED, FIXEDCHAR, INT, TIMESTAMP, DOUBLE};
 
-enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR };
+enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR, LIKE_EXPR };
 
 typedef struct field_desc {
   char field_name[FIELD_NAME_LEN];
@@ -153,4 +153,5 @@ table_t *allocate_table(int num_tuple_pages);
 void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
 std::string tuple_string(tuple_t * t);
+int colno_from_name(table_t *t, std::string colname);
 #endif // PROJECT_POSTGRES_CLIENT_H

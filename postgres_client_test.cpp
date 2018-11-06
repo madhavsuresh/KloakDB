@@ -188,3 +188,13 @@ TEST_F(postgres_client_test, real) {
   ASSERT_EQ(get_tuple(0,t)->field_list[1].f.double_field.val, 1.1);
   query("DROP TABLE real", dbname);
 }
+
+TEST_F(postgres_client_test, colname) {
+  query("DROP table if EXISTS real", dbname);
+  query("CREATE TABLE real (a REAL, b REAL);", dbname);
+  query("INSERT INTO real (a,b) VALUES (1,1.1);", dbname);
+  table_t * t = get_table("SELECT * FROM real;", dbname);
+  ASSERT_EQ(colno_from_name(t, "a"), 0);
+  ASSERT_EQ(colno_from_name(t, "b"), 1);
+  query("DROP TABLE real", dbname);
+}

@@ -8,6 +8,15 @@ uint64_t tuples_per_page(uint64_t tuple_size) {
   return (PAGE_SIZE - sizeof(uint64_t)) / tuple_size;
 }
 
+int colno_from_name(table_t *t, std::string colname) {
+  for (int i = 0; i < t->schema.num_fields; i++) {
+    if (strncmp(colname.c_str(), t->schema.fields[i].field_name, FIELD_NAME_LEN) == 0) {
+      return i;
+    }
+  }
+  throw std::invalid_argument("Column does not exist");
+}
+
 std::string tuple_string(tuple_t * t) {
   std::string output = "";
   for (int i = 0; i < t->num_fields; i++) {

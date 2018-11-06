@@ -263,6 +263,7 @@ TEST_F(health_lnk_schema_test, medications) {
     table_t *t = get_table("SELECT * FROM medications", dbname);
     ASSERT_STREQ(t->schema.fields[0].field_name,"patient_id");
     ASSERT_EQ(t->schema.fields[0].type, INT);
+  ASSERT_EQ(colno_from_name(t, "patient_id"), 0);
     ASSERT_STREQ(t->schema.fields[1].field_name,"site");
     ASSERT_EQ(t->schema.fields[1].type, INT);
     ASSERT_STREQ(t->schema.fields[2].field_name,"year");
@@ -275,8 +276,10 @@ TEST_F(health_lnk_schema_test, medications) {
     ASSERT_EQ(t->schema.fields[5].type, FIXEDCHAR);
     ASSERT_STREQ(t->schema.fields[6].field_name,"route");
     ASSERT_EQ(t->schema.fields[6].type, FIXEDCHAR);
+  ASSERT_EQ(colno_from_name(t, "route"), 6);
     ASSERT_STREQ(t->schema.fields[7].field_name,"timestamp_");
     ASSERT_EQ(t->schema.fields[7].type, TIMESTAMP);
+  ASSERT_EQ(colno_from_name(t, "timestamp_"), 7);
     query("DROP TABLE medications;", dbname);
 }
 

@@ -22,6 +22,7 @@ schema_t agg_schema(FIELD_TYPE type, table_t * t) {
 }
 
 table_t *aggregate_count(table_t *t, uint32_t colno) {
+  //TODO(madhavsuresh): add unconditional writes
   std::map<std::string, int> agg_map;
   // This will always be the same.
   if (t->num_tuples == 0) {
