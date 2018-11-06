@@ -11,6 +11,9 @@
 class health_lnk_schema_test : public ::testing::Test {
 public:
   std::string dbname;
+    std::string test_year;
+    std::string site1;
+    std::string site2;
 
 protected:
   void SetUp() override {
@@ -19,12 +22,16 @@ protected:
     // TODO(madhavsuresh): should create new database every time
     // TODO(madhavsuresh): these test are very brittle.
     dbname = "dbname=test";
+      test_year = "2006";
+      site1 = "4";
+      site2 = "7";
   }
 
   void TearDown() override{};
 };
 
 TEST_F(health_lnk_schema_test, demographics) {
+    query("DROP TABLE IF EXISTS demographics", dbname);
   std::string query_create("CREATE TABLE demographics (\n"
                            "       patient_id integer,\n"
                            "       birth_year integer,\n"
@@ -106,6 +113,7 @@ TEST_F(health_lnk_schema_test, remote_diagnoses) {
 
 
 TEST_F(health_lnk_schema_test, diagnoses) {
+    query("DROP table IF EXISTS diagnoses", dbname);
   std::string query_create("CREATE TABLE diagnoses (\n"
                            "    patient_id integer NOT NULL,\n"
                            "    site integer NOT NULL,\n"
@@ -241,6 +249,7 @@ TEST_F(health_lnk_schema_test, labs) {
 }
 
 TEST_F(health_lnk_schema_test, medications) {
+    query("DROP table IF EXISTS medications", dbname);
     std::string query_create("CREATE TABLE medications (\n"
                              "    patient_id integer NOT NULL,\n"
                              "    site integer NOT NULL,\n"
@@ -283,6 +292,7 @@ TEST_F(health_lnk_schema_test, site) {
 TEST_F(health_lnk_schema_test, cdiff_cohort) {
 
     query("DROP table IF EXISTS diagnoses", dbname);
+    query("DROP TABLE IF EXISTS cdiff_cohort", dbname);
     std::string query_create("CREATE TABLE diagnoses (\n"
                              "    patient_id integer NOT NULL,\n"
                              "    site integer NOT NULL,\n"
@@ -299,10 +309,139 @@ TEST_F(health_lnk_schema_test, cdiff_cohort) {
                              "    major_icd9 character varying\n"
                              ");");
     query(query_create, dbname);
-    std::string test_year = "2006";
-  std::string site1 = "2006";
-    query("DROP TABLE IF EXISTS cdiff_cohort", dbname);
     query("CREATE TABLE cdiff_cohort AS (SELECT DISTINCT patient_id FROM diagnoses "
-          "WHERE icd9 = '008.45' AND year = :test_year AND "
-          "(site=:site1 OR site=:site2));", dbname);
+          "WHERE icd9 = '008.45' AND year =" + test_year + " AND "
+           "(site=" + site1 + " OR site=" + site2 + "));", dbname);
+    query("SELECT * from cdiff_cohort", dbname);
+}
+
+TEST_F(health_lnk_schema_test, mi_cohort) {
+    query("DROP table IF EXISTS diagnoses", dbname);
+    query("DROP TABLE IF EXISTS mi_cohort", dbname);
+    std::string query_create("CREATE TABLE diagnoses (\n"
+                             "    patient_id integer NOT NULL,\n"
+                             "    site integer NOT NULL,\n"
+                             "    year integer NOT NULL,\n"
+                             "    month integer NOT NULL,\n"
+                             "    visit_no integer NOT NULL,\n"
+                             "    type_ integer NOT NULL,\n"
+                             "    encounter_id integer NOT NULL,\n"
+                             "    diag_src character varying NOT NULL,\n"
+                             "    icd9 character varying NOT NULL,\n"
+                             "    primary_ integer NOT NULL,\n"
+                             "    timestamp_ timestamp without time zone,  \n"
+                             "    clean_icd9 character varying,\n"
+                             "    major_icd9 character varying\n"
+                             ");");
+    query(query_create, dbname);
+    query("CREATE TABLE mi_cohort AS (\n"
+          "       SELECT DISTINCT patient_id FROM diagnoses WHERE icd9 LIKE '410%'  "
+          "AND year = " + test_year + "AND (site=" + site1 + "OR site=" + site2 + "));",
+          dbname);
+    query("SELECT * from mi_cohort", dbname);
+}
+
+TEST_F(health_lnk_schema_test, cdiff_cohort_diagnosis) {
+    query("DROP table IF EXISTS diagnoses", dbname);
+    query("DROP TABLE IF EXISTS cdiff_cohort", dbname);
+    query("DROP TABLE IF EXISTS cdiff_cohort_diagnoses", dbname);
+
+    std::string query_create("CREATE TABLE diagnoses (\n"
+                             "    patient_id integer NOT NULL,\n"
+                             "    site integer NOT NULL,\n"
+                             "    year integer NOT NULL,\n"
+                             "    month integer NOT NULL,\n"
+                             "    visit_no integer NOT NULL,\n"
+                             "    type_ integer NOT NULL,\n"
+                             "    encounter_id integer NOT NULL,\n"
+                             "    diag_src character varying NOT NULL,\n"
+                             "    icd9 character varying NOT NULL,\n"
+                             "    primary_ integer NOT NULL,\n"
+                             "    timestamp_ timestamp without time zone,  \n"
+                             "    clean_icd9 character varying,\n"
+                             "    major_icd9 character varying\n"
+                             ");");
+    query(query_create, dbname);
+    query("CREATE TABLE cdiff_cohort AS (SELECT DISTINCT patient_id FROM diagnoses "
+          "WHERE icd9 = '008.45' AND year =" + test_year + " AND "
+                                                           "(site=" + site1 + " OR site=" + site2 + "));", dbname);
+    query("CREATE TABLE cdiff_cohort_diagnoses AS SELECT * FROM diagnoses "
+          "WHERE year = " + test_year  + "AND (site=" + site1 +"  OR site=" + site2+ ") AND "
+          "patient_id IN (SELECT * FROM cdiff_cohort);", dbname);
+    query("SELECT * from cdiff_cohort_diagnoses", dbname);
+}
+
+TEST_F(health_lnk_schema_test, mi_cohort_diagnosis) {
+    query("DROP table IF EXISTS diagnoses", dbname);
+    query("DROP TABLE IF EXISTS mi_cohort", dbname);
+    query("DROP TABLE IF EXISTS mi_cohort_diagnoses", dbname);
+
+    std::string query_create("CREATE TABLE diagnoses (\n"
+                             "    patient_id integer NOT NULL,\n"
+                             "    site integer NOT NULL,\n"
+                             "    year integer NOT NULL,\n"
+                             "    month integer NOT NULL,\n"
+                             "    visit_no integer NOT NULL,\n"
+                             "    type_ integer NOT NULL,\n"
+                             "    encounter_id integer NOT NULL,\n"
+                             "    diag_src character varying NOT NULL,\n"
+                             "    icd9 character varying NOT NULL,\n"
+                             "    primary_ integer NOT NULL,\n"
+                             "    timestamp_ timestamp without time zone,  \n"
+                             "    clean_icd9 character varying,\n"
+                             "    major_icd9 character varying\n"
+                             ");");
+    query(query_create, dbname);
+    query("CREATE TABLE mi_cohort AS (\n"
+          "       SELECT DISTINCT patient_id FROM diagnoses WHERE icd9 LIKE '410%'  "
+          "AND year = " + test_year + "AND (site=" + site1 + "OR site=" + site2 + "));",
+          dbname);
+    query("CREATE TABLE mi_cohort_diagnoses AS SELECT * FROM diagnoses  WHERE year = " + test_year+
+    "AND (site=" + site1 + "OR site=" + site2 +") "
+    "AND patient_id IN (SELECT * FROM mi_cohort);", dbname);
+
+    query("SELECT * from mi_cohort_diagnoses", dbname);
+}
+
+TEST_F(health_lnk_schema_test, mi_cohort_medications) {
+    query("DROP table IF EXISTS medications", dbname);
+    query("DROP table IF EXISTS diagnoses", dbname);
+    query("DROP TABLE IF EXISTS mi_cohort", dbname);
+    query("DROP TABLE IF EXISTS mi_cohort_medications", dbname);
+
+    std::string query_create("CREATE TABLE medications (\n"
+                             "    patient_id integer NOT NULL,\n"
+                             "    site integer NOT NULL,\n"
+                             "    year integer NOT NULL,\n"
+                             "    month integer NOT NULL,\n"
+                             "    medication character varying NOT NULL,\n"
+                             "    dosage character varying NOT NULL,\n"
+                             "    route character varying,\n"
+                             "    timestamp_ timestamp without time zone);");
+    query(query_create, dbname);
+
+    query_create = "CREATE TABLE diagnoses (\n"
+                             "    patient_id integer NOT NULL,\n"
+                             "    site integer NOT NULL,\n"
+                             "    year integer NOT NULL,\n"
+                             "    month integer NOT NULL,\n"
+                             "    visit_no integer NOT NULL,\n"
+                             "    type_ integer NOT NULL,\n"
+                             "    encounter_id integer NOT NULL,\n"
+                             "    diag_src character varying NOT NULL,\n"
+                             "    icd9 character varying NOT NULL,\n"
+                             "    primary_ integer NOT NULL,\n"
+                             "    timestamp_ timestamp without time zone,  \n"
+                             "    clean_icd9 character varying,\n"
+                             "    major_icd9 character varying\n"
+                             ");";
+    query(query_create, dbname);
+    query("CREATE TABLE mi_cohort AS (\n"
+          "       SELECT DISTINCT patient_id FROM diagnoses WHERE icd9 LIKE '410%'  "
+          "AND year = " + test_year + "AND (site=" + site1 + "OR site=" + site2 + "));",
+          dbname);
+    query("CREATE TABLE mi_cohort_medications AS SELECT * FROM medications  "
+          "WHERE year =" +  test_year  + "AND (site=" + site1 + "OR site=" + site2 + ") "
+                                                                                     "AND patient_id IN (SELECT * FROM mi_cohort); \n", dbname);
+    query("SELECT * from mi_cohort_medications", dbname);
 }
