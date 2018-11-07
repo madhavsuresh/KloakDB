@@ -45,6 +45,8 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
     }
     case UNSUPPORTED:
       throw;
+    default:
+      throw std::invalid_argument("Aggregate types not supported");
     }
     if (agg_map[key] == 0) {
       agg_map[key] = 1;
