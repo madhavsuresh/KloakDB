@@ -258,13 +258,22 @@ groupby_def_t make_groupby_def_t(::vaultdb::GroupByDef def) {
         }
         case ::vaultdb::GroupByDef_GroupByType_MINX : {
             def_t.type = MINX;
+            def_t.colno = def.col_no();
             break;
+        }
+        case ::vaultdb::GroupByDef_GroupByType_AVG : {
+          def_t.type = AVG;
+          def_t.colno = def.col_no();
+          for (int i = 0; i < def.gb_col_nos_size(); i ++) {
+            def_t.gb_colnos[i] = static_cast<uint8_t>(def.gb_col_nos(i));
+          }
+          def_t.num_cols = def.gb_col_nos_size();
+          break;
         }
         default: {
            throw;
         }
     }
-    def_t.colno = def.col_no();
     return def_t;
 }
 

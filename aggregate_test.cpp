@@ -5,6 +5,7 @@
 #include "postgres_client.h"
 #include "pqxx_compat.h"
 #include "Aggregate.h"
+#include "Logger.h"
 
 class aggregate_test : public ::testing::Test {
 public:
@@ -12,6 +13,7 @@ public:
 protected:
     void SetUp() override {
       dbname = "dbname=test";
+      query("DROP TABLE IF EXISTS simple_agg", dbname);
       std::string query1("create table simple_agg (a INT, b INT)");
       query(query1, dbname);
     };
@@ -45,6 +47,25 @@ TEST_F(aggregate_test, simple_aggregate) {
   tup = get_tuple(1, t2);
   ASSERT_EQ(tup->field_list[0].f.int_field.val, 7);
   ASSERT_EQ(tup->field_list[1].f.int_field.val, 2);
+  ASSERT_STREQ(t2->schema.fields[0].field_name, "b");
+  ASSERT_STREQ(t2->schema.fields[1].field_name, "count");
   ASSERT_FALSE(tup->is_dummy);
   ASSERT_EQ(tup->num_fields, 2);
+  query("DELETE FROM simple_agg", dbname);
+}
+
+TEST_F(aggregate_test, avg_aggregate) {
+  std::string query1 = "INSERT INTO simple_agg (a,b) VALUES (1,7), (2,7), (3,4)";
+  query(query1, dbname);
+  query1 = "SELECT * FROM simple_agg";
+  table_t *t = get_table(query1, dbname);
+  groupby_def_t gbd;
+  gbd.type = AVG;
+  gbd.colno = 0;
+  gbd.num_cols = 1;
+  gbd.gb_colnos[0] = 1;
+  table_t *t2 = aggregate(t, &gbd);
+  for (int i = 0; i < t2->num_tuples; i++) {
+    std::cout << tuple_string(get_tuple(i, t2)) << std::endl;
+  }
 }
