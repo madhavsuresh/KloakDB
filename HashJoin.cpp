@@ -49,60 +49,63 @@ void merge_tuple(tuple_t * to_fill, tuple_t * left_tup, tuple_t * right_tup, joi
   }
 }
 
-
 table_t *hash_join(table_t *left_table, table_t *right_table, join_def_t def) {
 
   schema_t schema = build_join_schema(left_table, right_table, def);
-    std::unordered_multimap<std::string, int> hashmap;
-    for (int i = 0; i < left_table->num_tuples; i++) {
-        // get the i'th tuple
-        tuple_t *tuple = get_tuple(i, left_table);
+  std::unordered_multimap<std::string, int> hashmap;
+  for (int i = 0; i < left_table->num_tuples; i++) {
+    // get the i'th tuple
+    tuple_t *tuple = get_tuple(i, left_table);
 
-        // hash row # -> store value at specified column
-        // hashmap[tup1->field_list[l_col]] = i;
-        switch (tuple->field_list[def.l_col].type) {
-            case FIXEDCHAR:
-                //TODO(madhavsuresh): this needs to be the generalized value.
-                hashmap.insert(std::make_pair(tuple->field_list[def.l_col].f.fixed_char_field.val, i));
-                break;
-                case INT:
-                    // cast int to string to store in hashmap
-                    hashmap.insert(std::make_pair(std::to_string(tuple->field_list[def.l_col].f.int_field.val), i));
-                    break;
-                    case UNSUPPORTED:
-                        throw;
-        }
-
+    // hash row # -> store value at specified column
+    // hashmap[tup1->field_list[l_col]] = i;
+    switch (tuple->field_list[def.l_col].type) {
+    case FIXEDCHAR:
+      // TODO(madhavsuresh): this needs to be the generalized value.
+      hashmap.insert(std::make_pair(
+          tuple->field_list[def.l_col].f.fixed_char_field.val, i));
+      break;
+    case INT:
+      // cast int to string to store in hashmap
+      hashmap.insert(std::make_pair(
+          std::to_string(tuple->field_list[def.l_col].f.int_field.val), i));
+      break;
+    case UNSUPPORTED:
+      throw;
     }
+  }
 
-    // hash map should be built
-    table_builder_t tb;
+  // hash map should be built
+  table_builder_t tb;
 
-    init_table_builder(left_table->num_tuples * right_table->num_tuples, def.project_len, &schema, &tb);
-    tuple_t * to_fill = (tuple_t *) malloc(tb.size_of_tuple);
-    //iterate over other table checking hash map
-    for (int i = 0; i < right_table->num_tuples; i++) {
-        tuple_t *tup2 = get_tuple(i, right_table);
+  init_table_builder(left_table->num_tuples * right_table->num_tuples,
+                     def.project_len, &schema, &tb);
+  tuple_t *to_fill = (tuple_t *)malloc(tb.size_of_tuple);
+  // iterate over other table checking hash map
+  for (int i = 0; i < right_table->num_tuples; i++) {
+    tuple_t *tup2 = get_tuple(i, right_table);
 
-        switch (tup2->field_list[def.r_col].type) {
-          case FIXEDCHAR: {
-            auto range = hashmap.equal_range(std::string(tup2->field_list[def.r_col].f.fixed_char_field.val));
-            for (auto it = range.first; it != range.second; it++) {
-                merge_tuple(to_fill, get_tuple(it->second, left_table), tup2, def);
-                append_tuple(&tb, to_fill);
-            }
-            break;
-          }
-          case INT : {
-            auto range = hashmap.equal_range(std::to_string(tup2->field_list[def.r_col].f.int_field.val));
-              for (auto it = range.first; it != range.second; it++) {
-                  merge_tuple(to_fill, get_tuple(it->second, left_table), tup2, def);
-                  append_tuple(&tb, to_fill);
-              }
-            break;
-          }
-        }
+    switch (tup2->field_list[def.r_col].type) {
+    case FIXEDCHAR: {
+      auto range = hashmap.equal_range(
+          std::string(tup2->field_list[def.r_col].f.fixed_char_field.val));
+      for (auto it = range.first; it != range.second; it++) {
+        merge_tuple(to_fill, get_tuple(it->second, left_table), tup2, def);
+        append_tuple(&tb, to_fill);
+      }
+      break;
     }
-    free(to_fill);
-    return tb.table;
+    case INT: {
+      auto range = hashmap.equal_range(
+          std::to_string(tup2->field_list[def.r_col].f.int_field.val));
+      for (auto it = range.first; it != range.second; it++) {
+        merge_tuple(to_fill, get_tuple(it->second, left_table), tup2, def);
+        append_tuple(&tb, to_fill);
+      }
+      break;
+    }
+    }
+  }
+  free(to_fill);
+  return tb.table;
 }
