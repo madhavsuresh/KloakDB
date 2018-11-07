@@ -4,6 +4,7 @@
 #include <gtest/gtest.h>
 #include "pqxx_compat.h"
 #include "HashJoin.h"
+#include "Aggregate.h"
 
 class aspirin_profile_test :public ::testing::Test {
 public:
@@ -45,6 +46,8 @@ protected:
       table_t * vitals_diagnosis_join = hash_join(vitals_scan, diagnoses_scan, vd_join);
 
       join_def_t vdijm_join;
+      vdijm_join.l_col = colno_from_name(vitals_diagnosis_join, "patient_id");
+      vdijm_join.r_col = colno_from_name(medications_scan, "patient_id");
       vdijm_join.project_len = 2;
       vdijm_join.project_list[0].side = LEFT_RELATION;
       vdijm_join.project_list[0].col_no = colno_from_name(vitals_diagnosis_join, "patient_id");
@@ -53,6 +56,8 @@ protected:
       table_t * vitals_diagnosis_join_medication_join = hash_join(vitals_diagnosis_join, medications_scan, vdijm_join);
 
       join_def_t vdijmjde_join;
+      vdijm_join.l_col = colno_from_name(vitals_diagnosis_join_medication_join, "patient_id");
+      vdijm_join.r_col = colno_from_name(demographics_scan, "patient_id");
       vdijmjde_join.project_len = 4;
       vdijmjde_join.project_list[0].side  = LEFT_RELATION;
       vdijmjde_join.project_list[0].col_no = colno_from_name(vitals_diagnosis_join_medication_join, "patient_id");
@@ -60,9 +65,17 @@ protected:
       vdijmjde_join.project_list[1].col_no = colno_from_name(vitals_diagnosis_join_medication_join, "pulse");
       vdijmjde_join.project_list[2].side  = RIGHT_RELATION;
       vdijmjde_join.project_list[2].col_no = colno_from_name(demographics_scan, "gender");
-      vdijmjde_join.project_list[2].side  = RIGHT_RELATION;
-      vdijmjde_join.project_list[2].col_no = colno_from_name(demographics_scan, "race");
+      vdijmjde_join.project_list[3].side  = RIGHT_RELATION;
+      vdijmjde_join.project_list[3].col_no = colno_from_name(demographics_scan, "race");
       table_t * vitals_diagnosis_join_medication_join_demographics_join = hash_join(vitals_diagnosis_join_medication_join, demographics_scan, vdijmjde_join);
+
+      groupby_def_t gbd;
+      gbd.type = AVG;
+      gbd.num_cols = 2;
+      gbd.colno = colno_from_name(vitals_diagnosis_join_medication_join_demographics_join, "pulse");
+      gbd.gb_colnos[0] = colno_from_name(vitals_diagnosis_join_medication_join_demographics_join, "gender");
+      gbd.gb_colnos[1] = colno_from_name(vitals_diagnosis_join_medication_join_demographics_join, "race");
+      table_t * final_avg = aggregate(vitals_diagnosis_join_medication_join_demographics_join,&gbd);
     }
 
 
