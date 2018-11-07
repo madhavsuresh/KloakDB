@@ -36,8 +36,13 @@ std::string tuple_string(tuple_t * t) {
         output += std::string(timetext);
         break;
       }
+      case DOUBLE : {
+        output += std::to_string(t->field_list[i].f.double_field.val);
+        break;
+      }
       default: {
-        throw;
+        printf("type: %d\n", t->field_list[i].type);
+        throw std::invalid_argument("Cannot print this tuple");
       }
     }
     output += "| ";
@@ -201,4 +206,24 @@ table_t *copy_table_by_index(table_t *t, std::vector<int> index_list) {
     append_tuple(&tb, tup);
   }
   return tb.table;
+}
+
+double get_num_field(table_t * t, int tuple_no, int colno) {
+  switch (t->schema.fields[colno].type) {
+    case UNSUPPORTED: {
+      throw std::invalid_argument("Cannot convert unsupported column");
+    }
+    case FIXEDCHAR: {
+      throw std::invalid_argument("Cannot convert fixedchar column");
+    }
+    case INT: {
+      return (double)get_tuple(tuple_no, t)->field_list[colno].f.int_field.val;
+    }
+    case TIMESTAMP: {
+      return (double)get_tuple(tuple_no, t)->field_list[colno].f.ts_field.val;
+    }
+    case DOUBLE: {
+      return (double)get_tuple(tuple_no, t)->field_list[colno].f.double_field.val;
+    }
+  }
 }

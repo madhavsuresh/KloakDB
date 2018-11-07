@@ -30,14 +30,14 @@ enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR, LIKE_EXPR };
 
 typedef struct field_desc {
   char field_name[FIELD_NAME_LEN];
-  uint32_t col_no;
+  int32_t col_no;
   FIELD_TYPE type;
   char unused[8];
 } field_desc_t;
 
 // schema is a fixed size of 328 bytes
 typedef struct schema {
-  uint32_t num_fields;
+  int32_t num_fields;
   uint32_t unused;
   field_desc_t fields[MAX_FIELDS];
 } schema_t;
@@ -54,11 +54,13 @@ typedef struct join_def {
     int32_t project_len; // Number of fields in project list
 } join_def_t;
 
-enum GROUPBY_TYPE { GROUPBY_UNSUPPORTED, MINX, COUNT };
+enum GROUPBY_TYPE { GROUPBY_UNSUPPORTED, MINX, COUNT, AVG };
 
 typedef struct groupby_def {
     GROUPBY_TYPE type;
     uint8_t colno;
+    int32_t num_cols;
+    uint8_t gb_colnos[MAX_FIELDS];
 } groupby_def_t;
 
 typedef struct field_int {
@@ -154,4 +156,5 @@ void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
 std::string tuple_string(tuple_t * t);
 int colno_from_name(table_t *t, std::string colname);
+double get_num_field(table_t * t, int tuple_no, int colno);
 #endif // PROJECT_POSTGRES_CLIENT_H
