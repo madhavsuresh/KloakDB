@@ -187,6 +187,7 @@ table_t  *aggregate_avg(table_t * t, groupby_def_t *def) {
     tup->num_fields = s.num_fields;
     append_tuple(&tb, tup);
   }
+  free(tup);
   return tb.table;
 }
 

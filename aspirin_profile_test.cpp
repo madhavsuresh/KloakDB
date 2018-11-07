@@ -5,6 +5,7 @@
 #include "pqxx_compat.h"
 #include "HashJoin.h"
 #include "Aggregate.h"
+#include "Logger.h"
 
 class aspirin_profile_test :public ::testing::Test {
 public:
@@ -76,6 +77,20 @@ protected:
       gbd.gb_colnos[0] = colno_from_name(vitals_diagnosis_join_medication_join_demographics_join, "gender");
       gbd.gb_colnos[1] = colno_from_name(vitals_diagnosis_join_medication_join_demographics_join, "race");
       table_t * final_avg = aggregate(vitals_diagnosis_join_medication_join_demographics_join,&gbd);
+
+      printf("\n");
+      for (int i = 0; i < final_avg->num_tuples; i++) {
+          print_tuple(get_tuple(i, final_avg));
+        printf("\n");
+      }
+        free_table(medications_scan);
+        free_table(demographics_scan);
+        free_table(diagnoses_scan);
+        free_table(vitals_scan);
+        free_table(vitals_diagnosis_join);
+        free_table(vitals_diagnosis_join_medication_join);
+        free_table(vitals_diagnosis_join_medication_join_demographics_join) ;
+        free_table(final_avg);
     }
 
 
