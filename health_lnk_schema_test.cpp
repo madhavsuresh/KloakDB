@@ -328,7 +328,7 @@ TEST_F(health_lnk_schema_test, mi_cohort) {
                              "    month integer NOT NULL,\n"
                              "    visit_no integer NOT NULL,\n"
                              "    type_ integer NOT NULL,\n"
-                             "    encounter_id integer NOT NULL,\n"
+                             "    encounter_id integer NOT NULL,\   n"
                              "    diag_src character varying NOT NULL,\n"
                              "    icd9 character varying NOT NULL,\n"
                              "    primary_ integer NOT NULL,\n"

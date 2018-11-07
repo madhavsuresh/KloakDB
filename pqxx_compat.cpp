@@ -38,6 +38,13 @@ void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
   int field_counter = 0;
   tuple->num_fields = s->num_fields;
   for (auto field : tup) {
+    //TODO(madhavsuresh): do better than this!
+    //TODO(madhavsuresh): field length is not correct
+      if (field.is_null()) {
+        field_counter++;
+        continue;
+      }
+
     switch (s->fields[field_counter].type) {
     case FIXEDCHAR:
       if (field.size() > FIXEDCHAR_LEN) {
@@ -59,6 +66,7 @@ void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
             std::mktime(&t) - timezone;
         tuple->field_list[field_counter].type = TIMESTAMP;
       } else {
+        printf("\n**\n%s\n**\n", field.c_str());
         throw std::invalid_argument("Parsing timezone failed");
       }
       break;
