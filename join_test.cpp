@@ -272,7 +272,12 @@ TEST_F(join_test, large_join) {
   jd.project_list[0].side = LEFT_RELATION;
   jd.project_list[0].col_no = 0;
   table_t *output = hash_join(t, t, jd);
-  printf("Size of output: %d", output->num_tuples);
+  table_t *real_output = get_table("SELECT count(*) from test_large_join a, "
+                                   "test_large_join b where a.floor=b.floor",
+                                   dbname);
+  ASSERT_EQ(output->num_tuples,
+            get_tuple(0, real_output)->field_list[0].f.int_field.val);
+  free_table(real_output);
   free_table(t);
   free_table(output);
 
@@ -280,4 +285,32 @@ TEST_F(join_test, large_join) {
   query(query_string, dbname);
 }
 
-TEST_F(join_test, generalized_join) {}
+TEST_F(join_test, generalized_join) {
+  query("DROP TABLE IF EXISTS full_join_simple", dbname);
+  std::string query1("create table full_join_simple (a INT, b INT)");
+  query(query1, dbname);
+  query1 = "INSERT INTO full_join_simple (a,b) VALUES (1,2), (1,3), (1,4)";
+  query(query1, dbname);
+  query1 = "SELECT * FROM full_join_simple";
+  table_t *t = get_table(query1, dbname);
+
+  for (int i = 0; i < t->num_tuples; i++) {
+    get_tuple(i, t)->field_list[1].f.int_field.genval = 0;
+  }
+
+  join_def_t jd;
+  jd.l_col = 1;
+  jd.r_col = 1;
+  jd.project_len = 1;
+  jd.project_list[0].side = LEFT_RELATION;
+  jd.project_list[0].col_no = 0;
+  table_t *output = hash_join(t, t, jd);
+  int num_non_dummy_tuples = 0;
+  ASSERT_EQ(output->num_tuples, 9);
+  for (int i = 0; i < output->num_tuples; i++) {
+    if (!get_tuple(i, output)->is_dummy) {
+      num_non_dummy_tuples++;
+    }
+  }
+  ASSERT_EQ(num_non_dummy_tuples, 3);
+}
