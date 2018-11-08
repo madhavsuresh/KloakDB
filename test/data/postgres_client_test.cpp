@@ -62,6 +62,15 @@ TEST_F(postgres_client_test, get_tuple) {
   tuple_t *t = get_tuple(0, tb->table);
   char *b = (char *)tb->table->tuple_pages[0];
   ASSERT_EQ((char *)t, b + sizeof(uint64_t));
+  free_table(tb->table);
+  free(tb);
+}
+
+void check_int_table(table_t *table) {
+  uint32_t num_tuples = table->num_tuples;
+  for (int i = 0; i < num_tuples; i++) {
+    tuple_t *t = get_tuple(i, table);
+  }
 }
 
 TEST_F(postgres_client_test, build_table) {
@@ -69,14 +78,14 @@ TEST_F(postgres_client_test, build_table) {
   query("DROP table if EXISTS test_random", dbname);
   std::string query_create("create table if not exists test_random as select "
                            "s, floor(random() * 100 +1)::int from "
-                           "generate_series(1,30000) s;");
+                           "generate_series(1,20000) s;");
   pqxx::result res2;
   res2 = query(query_create, dbname);
   std::string query_string = "SELECT * FROM test_random";
   pqxx::result t_random = query(query_string, dbname);
   table_builder_t *tb = table_builder_init(query_string, dbname);
-  printf("\n num tuples per page: %d", tb->num_tuples_per_page);
-  check_int_table(tb->table);
+  ASSERT_EQ(511, tb->num_tuples_per_page);
+  //check_int_table(tb->table);
   free_table(tb->table);
   free(tb);
 
@@ -87,12 +96,6 @@ TEST_F(postgres_client_test, build_table) {
 // TODO(madhavsuresh): write tests that pull out all values
 // TODO(madhavsuresh): test different width
 
-void check_int_table(table_t *table) {
-  uint32_t num_tuples = table->num_tuples;
-  for (int i = 0; i < num_tuples; i++) {
-    tuple_t *t = get_tuple(i, table);
-  }
-}
 
 TEST_F(postgres_client_test, coalesce_tables) {
   query("DROP table if EXISTS coalesce_test", dbname);
@@ -117,6 +120,7 @@ TEST_F(postgres_client_test, coalesce_tables) {
   free_table(tables[1]);
   std::string query_destroy("DROP TABLE coalesce_test");
   query(query_destroy, dbname);
+  free_table(t);
 }
 
 TEST_F(postgres_client_test, coalesce_big) {
@@ -148,19 +152,20 @@ TEST_F(postgres_client_test, column_too_large) {
   std::string query_create("create table big_column (a INT, b VARCHAR)");
   query(query_create, dbname);
 
-  query_create = "INSERT INTO big_column (a,b) VALUES (1, '1234567890123456');";
+  query_create = "INSERT INTO big_column (a,b) VALUES (1, '12345678901234567');";
   query(query_create, dbname);
 
+  table_t *t;
   try {
-    table_t *t = get_table("SELECT * FROM big_column", dbname);
+    t = get_table("SELECT * FROM big_column", dbname);
+    FAIL() << "Expected Unsupported length column";
   } catch (std::invalid_argument const &err) {
     ASSERT_STREQ(err.what(), "Unsupported length column");
+    std::string query_destroy("DROP TABLE big_column");
+    query(query_destroy, dbname);
   } catch (...) {
     FAIL() << "Expected unsupported length column";
   }
-
-  std::string query_destroy("DROP TABLE big_column");
-  query(query_destroy, dbname);
 }
 
 TEST_F(postgres_client_test, timestamp) {
@@ -173,6 +178,7 @@ TEST_F(postgres_client_test, timestamp) {
   ASSERT_STREQ(tuple_string(get_tuple(0, t)).c_str(),
                "1| Sun Jan  1 00:00:00 2006| ");
   query("DROP TABLE timestamp", dbname);
+  free_table(t);
 }
 
 TEST_F(postgres_client_test, real) {
@@ -185,6 +191,7 @@ TEST_F(postgres_client_test, real) {
   ASSERT_EQ(get_tuple(0, t)->field_list[0].f.double_field.val, 1);
   ASSERT_EQ(get_tuple(0, t)->field_list[1].f.double_field.val, 1.1);
   query("DROP TABLE real", dbname);
+  free_table(t);
 }
 
 TEST_F(postgres_client_test, colname) {
@@ -195,4 +202,5 @@ TEST_F(postgres_client_test, colname) {
   ASSERT_EQ(colno_from_name(t, "a"), 0);
   ASSERT_EQ(colno_from_name(t, "b"), 1);
   query("DROP TABLE real", dbname);
+  free_table(t);
 }

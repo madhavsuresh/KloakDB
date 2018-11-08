@@ -33,4 +33,6 @@ TEST_F(filter_test, simple_filter) {
   table_t *t = filter(tb->table, &expr);
   std::string query_destroy("DROP TABLE filter_test");
   res2 = query(query_destroy, dbname);
+  free_table(t);
+  free(tb);
 }

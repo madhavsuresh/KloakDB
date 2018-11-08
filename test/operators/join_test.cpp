@@ -312,4 +312,6 @@ TEST_F(join_test, generalized_join) {
     }
   }
   ASSERT_EQ(num_non_dummy_tuples, 3);
+  free_table(t);
+  free_table(output);
 }

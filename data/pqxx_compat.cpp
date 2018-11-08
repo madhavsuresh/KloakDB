@@ -34,7 +34,7 @@ table_t *get_table(std::string query_string, std::string dbname) {
   return t;
 }
 
-void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
+void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s, table_builder_t * tb) {
   int field_counter = 0;
   tuple->num_fields = s->num_fields;
   for (auto field : tup) {
@@ -48,6 +48,8 @@ void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
     switch (s->fields[field_counter].type) {
     case FIXEDCHAR:
       if (field.size() > FIXEDCHAR_LEN) {
+        free_table(tb->table);
+        free(tb);
         throw std::invalid_argument("Unsupported length column");
       }
       strncpy(tuple->field_list[field_counter].f.fixed_char_field.val,
@@ -103,7 +105,7 @@ void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
     tb->table->num_tuples++;
     // build_tuple_from_pq adds the tuple to the
     build_tuple_from_pq(psql_row, get_tuple(tb->curr_tuple, tb->table),
-                        &tb->table->schema);
+                        &tb->table->schema, tb);
     tb->curr_tuple++;
     fflush(stdin);
   }

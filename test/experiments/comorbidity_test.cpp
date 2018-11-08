@@ -54,4 +54,6 @@ TEST_F(comorbidity_test, full_comorbidity_test) {
   std::cout << "Sort Elapsed time: " << elapsed.count() << " s\n";
   elapsed = end_sort - b4_readstart;
   std::cout << "Total Elapsed Time:" << elapsed.count() << "s\n";
+  free_table(cdiff_cohort_scan);
+  free_table(sort_output);
 }

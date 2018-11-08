@@ -76,6 +76,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
     tup->num_fields = 2;
     append_tuple(&tb, tup);
   }
+  free(tup);
   return tb.table;
 }
 

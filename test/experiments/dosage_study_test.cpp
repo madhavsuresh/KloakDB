@@ -48,4 +48,7 @@ TEST_F(dosage_study_test, full_dosage_study_test) {
   auto start = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = start - b4_readstart;
   std::cout << "Read Elapsed time: " << elapsed.count() << " s\n";
+  free_table(medications);
+  free_table(diagnoses);
+  free_table(output);
 }

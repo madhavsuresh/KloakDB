@@ -57,6 +57,7 @@ TEST_F(health_lnk_schema_test, demographics) {
   ASSERT_STREQ(t->schema.fields[6].field_name, "zip");
   std::string query_destroy("DROP TABLE demographics");
   query(query_destroy, dbname);
+  free_table(t);
 }
 
 TEST_F(health_lnk_schema_test, remote_diagnoses) {
@@ -107,6 +108,7 @@ TEST_F(health_lnk_schema_test, remote_diagnoses) {
 
   std::string query_destroy("DROP TABLE remote_diagnoses");
   query(query_destroy, dbname);
+  free_table(t);
 }
 
 TEST_F(health_lnk_schema_test, diagnoses) {
@@ -158,6 +160,7 @@ TEST_F(health_lnk_schema_test, diagnoses) {
 
   std::string query_destroy("DROP TABLE diagnoses");
   query(query_destroy, dbname);
+  free_table(t);
 }
 
 TEST_F(health_lnk_schema_test, vitals) {
@@ -215,6 +218,7 @@ TEST_F(health_lnk_schema_test, vitals) {
   ASSERT_EQ(t->schema.fields[16].type, FIXEDCHAR);
   ASSERT_STREQ(t->schema.fields[16].field_name, "bp_method");
   query("DROP TABLE vitals;", dbname);
+  free_table(t);
 }
 
 TEST_F(health_lnk_schema_test, labs) {
@@ -243,6 +247,7 @@ TEST_F(health_lnk_schema_test, labs) {
   ASSERT_STREQ(t->schema.fields[6].field_name, "value_high");
   ASSERT_EQ(t->schema.fields[6].type, DOUBLE);
   query("DROP TABLE labs;", dbname);
+  free_table(t);
 }
 
 TEST_F(health_lnk_schema_test, medications) {
@@ -278,6 +283,7 @@ TEST_F(health_lnk_schema_test, medications) {
   ASSERT_EQ(t->schema.fields[7].type, TIMESTAMP);
   ASSERT_EQ(colno_from_name(t, "timestamp_"), 7);
   query("DROP TABLE medications;", dbname);
+  free_table(t);
 }
 
 TEST_F(health_lnk_schema_test, site) {
@@ -287,6 +293,7 @@ TEST_F(health_lnk_schema_test, site) {
   ASSERT_STREQ(t->schema.fields[0].field_name, "id");
   ASSERT_EQ(t->schema.fields[0].type, INT);
   query("DROP TABLE site;", dbname);
+  free_table(t);
 }
 
 TEST_F(health_lnk_schema_test, cdiff_cohort) {

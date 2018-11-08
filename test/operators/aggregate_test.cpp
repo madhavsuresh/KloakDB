@@ -53,6 +53,8 @@ TEST_F(aggregate_test, simple_aggregate) {
   ASSERT_FALSE(tup->is_dummy);
   ASSERT_EQ(tup->num_fields, 2);
   query("DELETE FROM simple_agg", dbname);
+  free_table(t);
+  free_table(t2);
 }
 
 TEST_F(aggregate_test, avg_aggregate) {
@@ -70,4 +72,6 @@ TEST_F(aggregate_test, avg_aggregate) {
   for (int i = 0; i < t2->num_tuples; i++) {
     std::cout << tuple_string(get_tuple(i, t2)) << std::endl;
   }
+  free_table(t);
+  free_table(t2);
 }
