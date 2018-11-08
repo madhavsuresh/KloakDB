@@ -118,7 +118,7 @@ typedef struct tuple_page {
 
 typedef struct table {
   uint32_t num_tuple_pages;
-  uint32_t num_tuples;
+  uint64_t num_tuples;
   uint32_t size_of_tuple;
   schema_t schema;
   tuple_page_t *tuple_pages[];
@@ -147,7 +147,7 @@ void free_table(table_t *table);
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno);
 bool check_add_tuple_page(table_builder_t *tb);
 void add_tuple_page(table_builder_t *tb);
-void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
+void init_table_builder(uint64_t expected_tuples, int num_columns, schema_t *schema,
                         table_builder_t *tb);
 void copy_tuple_to_position(table_t *t, int pos, tuple_t *tup);
 table_t *copy_table_by_index(table_t *t, std::vector<int> index_list);
