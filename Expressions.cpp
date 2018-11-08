@@ -16,6 +16,9 @@ bool eq_expr(tuple *t, expr_t *ex) {
       return false;
     }
   }
+    case UNSUPPORTED:throw;
+    case TIMESTAMP: throw;
+    case DOUBLE: throw;
   }
 }
 
@@ -27,5 +30,6 @@ bool expression_eval(tuple_t *t, expr_t *ex) {
   case UNSUPPORTED_EXPR: {
     printf("ERROR UNSUPPORTED");
   }
+    case LIKE_EXPR: throw;
   }
 }

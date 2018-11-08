@@ -40,7 +40,7 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
 ENDIF()
 set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
-set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
+#set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 
@@ -72,6 +72,22 @@ add_test(NAME sort_test COMMAND sort_test)
 add_executable(join_test join_test.cpp HashJoin.cpp postgres_client.cpp pqxx_compat.cpp Logger.cpp)
 target_link_libraries(join_test gtest_main pq pqxx profiler tcmalloc g3logger)
 add_test(NAME join_test COMMAND join_test)
+
+add_executable(health_lnk_schema_test health_lnk_schema_test.cpp postgres_client.cpp pqxx_compat.cpp Logger.cpp)
+target_link_libraries(health_lnk_schema_test gtest_main pq pqxx profiler tcmalloc g3logger)
+add_test(NAME health_lnk_schema_test COMMAND health_lnk_schema_test)
+
+add_executable(aspirin_profile_test aspirin_profile_test.cpp postgres_client.cpp pqxx_compat.cpp Logger.cpp HashJoin.cpp Aggregate.cpp)
+target_link_libraries(aspirin_profile_test gtest_main pq pqxx profiler g3logger)
+add_test(NAME aspirin_profile_test COMMAND aspirin_profile_test)
+
+add_executable(comorbidity_test comorbidity_test.cpp postgres_client.cpp pqxx_compat.cpp Logger.cpp HashJoin.cpp Aggregate.cpp Sort.cpp)
+target_link_libraries(comorbidity_test gtest_main pq pqxx profiler g3logger)
+add_test(NAME comorbidity_test COMMAND comorbidity_test)
+
+add_executable(dosage_study_test dosage_study_test.cpp postgres_client.cpp pqxx_compat.cpp Logger.cpp HashJoin.cpp Aggregate.cpp Sort.cpp)
+target_link_libraries(dosage_study_test gtest_main pq pqxx profiler g3logger)
+add_test(NAME dosage_study_test COMMAND dosage_study_test)
 
 set(REPART_SRCS
     Repartition.cpp)

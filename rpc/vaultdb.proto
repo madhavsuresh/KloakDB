@@ -113,9 +113,11 @@ message GroupByDef {
         UNSUPPORTED = 0;
         MINX = 1;
         COUNT = 2;
+        AVG = 3;
     }
     GroupByType type = 1;
     int32 col_no = 2;
+    repeated int32 gb_col_nos = 3;
 }
 
 message KAggregateRequest {

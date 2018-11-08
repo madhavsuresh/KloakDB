@@ -1,0 +1,28 @@
+Normal:
+Run 1:
+Elapsed time: 0.0110324 s
+Run 2:
+Elapsed time: 0.0107782 s
+Run 3:
+Elapsed time: 0.0117767 s
+Run 4:
+Elapsed time: 0.0119041 s
+Run 5:
+Elapsed time: 0.0105203 s
+
+
+
+Oblivious:
+Run 1:
+Elapsed time: 0.0127883 s
+Run 2:
+Elapsed time: 0.0112642 s
+Run 3:
+Elapsed time: 0.0130554 s
+Run 4:
+Elapsed time: 0.0137224 s
+Run 5:
+Elapsed time: 0.0177946 s
+
+
+

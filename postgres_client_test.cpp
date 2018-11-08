@@ -26,6 +26,7 @@ TEST_F(postgres_client_test, get_schema) {
   table_t t;
   table_builder_t tb;
   tb.table = &t;
+  query("DROP TABLE if EXISTS tz;", dbname);
   std::string query_create("create table tz (s INT, floor INT)");
   query(query_create, dbname);
   std::string select("SELECT * FROM tz;");
@@ -47,6 +48,7 @@ TEST_F(postgres_client_test, get_schema) {
 }
 
 TEST_F(postgres_client_test, get_tuple) {
+  query("DROP table if EXISTS test_random_get_tuple", dbname);
   std::string query_create("create table if not exists test_random_get_tuple "
                            "as select s, floor(random() * 100 +1)::int from "
                            "generate_series(1,30000) s;");
@@ -64,6 +66,7 @@ TEST_F(postgres_client_test, get_tuple) {
 }
 
 TEST_F(postgres_client_test, build_table) {
+  query("DROP table if EXISTS test_random", dbname);
   std::string query_create("create table if not exists test_random as select "
                            "s, floor(random() * 100 +1)::int from "
                            "generate_series(1,30000) s;");
@@ -95,6 +98,7 @@ void check_int_table(table_t *table) {
 }
 
 TEST_F(postgres_client_test, coalesce_tables) {
+  query("DROP table if EXISTS coalesce_test", dbname);
   std::string query1("create table coalesce_test (a INT, b INT)");
   query(query1, dbname);
   query1 = "INSERT INTO coalesce_test (a,b) VALUES (7,6), (8,3), (9,1)";
@@ -119,6 +123,7 @@ TEST_F(postgres_client_test, coalesce_tables) {
 }
 
 TEST_F(postgres_client_test, coalesce_big) {
+  query("DROP table if EXISTS test_random", dbname);
   std::string query_create("create table if not exists test_random as select "
                            "s, floor(random() * 100 +1)::int from "
                            "generate_series(1,3000) s;");
@@ -139,4 +144,57 @@ TEST_F(postgres_client_test, coalesce_big) {
 
   std::string query_destroy("DROP TABLE test_random");
   query(query_destroy, dbname);
+}
+
+TEST_F(postgres_client_test, column_too_large) {
+  query("DROP table if EXISTS big_column", dbname);
+  std::string query_create("create table big_column (a INT, b VARCHAR)");
+  query(query_create, dbname);
+
+  query_create = "INSERT INTO big_column (a,b) VALUES (1, '1234567890123456');";
+  query(query_create, dbname);
+
+  try {
+    table_t * t = get_table("SELECT * FROM big_column", dbname);
+  } catch (std::invalid_argument const &err) {
+    ASSERT_STREQ(err.what(), "Unsupported length column");
+  } catch (...) {
+    FAIL() << "Expected unsupported length column";
+  }
+
+  std::string query_destroy("DROP TABLE big_column");
+  query(query_destroy, dbname);
+}
+
+TEST_F(postgres_client_test, timestamp) {
+  query("DROP table if EXISTS timestamp", dbname);
+  query("CREATE TABLE timestamp (a INT, b TIMESTAMP);", dbname);
+  query("INSERT INTO timestamp (a,b) VALUES (1,'01/01/06');", dbname);
+  table_t * t = get_table("SELECT * FROM timestamp;", dbname);
+  ASSERT_EQ(t->schema.fields[0].type, INT);
+  ASSERT_EQ(t->schema.fields[1].type, TIMESTAMP);
+  ASSERT_STREQ(tuple_string(get_tuple(0,t)).c_str(),"1| Sun Jan  1 00:00:00 2006| ");
+  query("DROP TABLE timestamp", dbname);
+}
+
+TEST_F(postgres_client_test, real) {
+  query("DROP table if EXISTS real", dbname);
+  query("CREATE TABLE real (a REAL, b REAL);", dbname);
+  query("INSERT INTO real (a,b) VALUES (1,1.1);", dbname);
+  table_t * t = get_table("SELECT * FROM real;", dbname);
+  ASSERT_EQ(t->schema.fields[0].type, DOUBLE);
+  ASSERT_EQ(t->schema.fields[1].type, DOUBLE);
+  ASSERT_EQ(get_tuple(0,t)->field_list[0].f.double_field.val, 1);
+  ASSERT_EQ(get_tuple(0,t)->field_list[1].f.double_field.val, 1.1);
+  query("DROP TABLE real", dbname);
+}
+
+TEST_F(postgres_client_test, colname) {
+  query("DROP table if EXISTS real", dbname);
+  query("CREATE TABLE real (a REAL, b REAL);", dbname);
+  query("INSERT INTO real (a,b) VALUES (1,1.1);", dbname);
+  table_t * t = get_table("SELECT * FROM real;", dbname);
+  ASSERT_EQ(colno_from_name(t, "a"), 0);
+  ASSERT_EQ(colno_from_name(t, "b"), 1);
+  query("DROP TABLE real", dbname);
 }

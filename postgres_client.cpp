@@ -8,6 +8,15 @@ uint64_t tuples_per_page(uint64_t tuple_size) {
   return (PAGE_SIZE - sizeof(uint64_t)) / tuple_size;
 }
 
+int colno_from_name(table_t *t, std::string colname) {
+  for (int i = 0; i < t->schema.num_fields; i++) {
+    if (strncmp(colname.c_str(), t->schema.fields[i].field_name, FIELD_NAME_LEN) == 0) {
+      return i;
+    }
+  }
+  throw std::invalid_argument("Column does not exist");
+}
+
 std::string tuple_string(tuple_t * t) {
   std::string output = "";
   for (int i = 0; i < t->num_fields; i++) {
@@ -20,8 +29,20 @@ std::string tuple_string(tuple_t * t) {
         output += std::to_string(t->field_list[i].f.int_field.val);
         break;
       }
-      case UNSUPPORTED : {
-        throw;
+      case TIMESTAMP : {
+        time_t time = t->field_list[i].f.int_field.val;
+        char *timetext = asctime(gmtime(&time));
+        timetext[24] = '\0';
+        output += std::string(timetext);
+        break;
+      }
+      case DOUBLE : {
+        output += std::to_string(t->field_list[i].f.double_field.val);
+        break;
+      }
+      default: {
+        printf("type: %d\n", t->field_list[i].type);
+        throw std::invalid_argument("Cannot print this tuple");
       }
     }
     output += "| ";
@@ -106,11 +127,14 @@ bool check_add_tuple_page(table_builder_t *tb) {
 
 
 table_t *allocate_table(int num_tuple_pages) {
-  return (table_t *)malloc(sizeof(table_t) +
+  table_t * ret  = (table_t *)malloc(sizeof(table_t) +
                            num_tuple_pages * sizeof(tuple_page_t *));
+  if (ret == 0) {
+    throw std::invalid_argument("Malloc failed");
+  }
 }
 
-void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
+void init_table_builder(uint64_t expected_tuples, int num_columns, schema_t *schema,
                         table_builder_t *tb) {
 
   tb->expected_tuples = expected_tuples;
@@ -185,4 +209,24 @@ table_t *copy_table_by_index(table_t *t, std::vector<int> index_list) {
     append_tuple(&tb, tup);
   }
   return tb.table;
+}
+
+double get_num_field(table_t * t, int tuple_no, int colno) {
+  switch (t->schema.fields[colno].type) {
+    case UNSUPPORTED: {
+      throw std::invalid_argument("Cannot convert unsupported column");
+    }
+    case FIXEDCHAR: {
+      throw std::invalid_argument("Cannot convert fixedchar column");
+    }
+    case INT: {
+      return (double)get_tuple(tuple_no, t)->field_list[colno].f.int_field.val;
+    }
+    case TIMESTAMP: {
+      return (double)get_tuple(tuple_no, t)->field_list[colno].f.ts_field.val;
+    }
+    case DOUBLE: {
+      return (double)get_tuple(tuple_no, t)->field_list[colno].f.double_field.val;
+    }
+  }
 }
