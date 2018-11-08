@@ -157,4 +157,5 @@ table_t *coalesce_tables(std::vector<table_t *> tables);
 std::string tuple_string(tuple_t * t);
 int colno_from_name(table_t *t, std::string colname);
 double get_num_field(table_t * t, int tuple_no, int colno);
+bool compare_tuple_cols_val(tuple_t *t1, tuple_t *t2, int t1_col, int t2_col);
 #endif // PROJECT_POSTGRES_CLIENT_H

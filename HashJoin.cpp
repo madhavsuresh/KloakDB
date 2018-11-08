@@ -31,6 +31,7 @@ void merge_tuple(tuple_t * to_fill, tuple_t * left_tup, tuple_t * right_tup, joi
   tuple_t * tuples[2] = {left_tup, right_tup};
   memset(to_fill, '\0', def.project_len*sizeof(field_t) + sizeof(tuple_t));
   to_fill->num_fields = def.project_len;
+  to_fill->is_dummy = !compare_tuple_cols_val(left_tup, right_tup, def.l_col, def.r_col);
 
   for (int i = 0; i < def.project_len; i ++) {
     tuple_t * copyFromTup = tuples[def.project_list[i].side];
@@ -44,6 +45,17 @@ void merge_tuple(tuple_t * to_fill, tuple_t * left_tup, tuple_t * right_tup, joi
         to_fill->field_list[i].f.int_field.val = copyFromTup->field_list[def.project_list[i].col_no].f.int_field.val;
         to_fill->field_list[i].f.int_field.genval = copyFromTup->field_list[def.project_list[i].col_no].f.int_field.genval;
         break;
+      }
+      case TIMESTAMP: {
+        to_fill->field_list[i].f.ts_field.val = copyFromTup->field_list[def.project_list[i].col_no].f.ts_field.val;
+        to_fill->field_list[i].f.ts_field.genval = copyFromTup->field_list[def.project_list[i].col_no].f.ts_field.genval;
+      }
+      case DOUBLE: {
+        to_fill->field_list[i].f.double_field.val = copyFromTup->field_list[def.project_list[i].col_no].f.double_field.val;
+        to_fill->field_list[i].f.double_field.genval = copyFromTup->field_list[def.project_list[i].col_no].f.double_field.genval;
+      }
+      case UNSUPPORTED: {
+        throw;
       }
     }
   }
@@ -68,7 +80,7 @@ table_t *hash_join(table_t *left_table, table_t *right_table, join_def_t def) {
     case INT:
       // cast int to string to store in hashmap
       hashmap.insert(std::make_pair(
-          std::to_string(tuple->field_list[def.l_col].f.int_field.val), i));
+          std::to_string(tuple->field_list[def.l_col].f.int_field.genval), i));
       break;
     case UNSUPPORTED:
       throw;
@@ -97,7 +109,7 @@ table_t *hash_join(table_t *left_table, table_t *right_table, join_def_t def) {
     }
     case INT: {
       auto range = hashmap.equal_range(
-          std::to_string(tup2->field_list[def.r_col].f.int_field.val));
+          std::to_string(tup2->field_list[def.r_col].f.int_field.genval));
       for (auto it = range.first; it != range.second; it++) {
         merge_tuple(to_fill, get_tuple(it->second, left_table), tup2, def);
         append_tuple(&tb, to_fill);

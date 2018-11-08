@@ -134,6 +134,45 @@ table_t *allocate_table(int num_tuple_pages) {
   }
 }
 
+bool compare_tuple_cols_val(tuple_t *t1, tuple_t *t2, int t1_col, int t2_col) {
+  if (t1->field_list[t1_col].type != t2->field_list[t2_col].type) {
+    throw;
+  }
+  switch (t1->field_list[t1_col].type) {
+    case UNSUPPORTED: {
+      throw;
+    }
+    case FIXEDCHAR: {
+      if (strncmp(t1->field_list[t1_col].f.fixed_char_field.val, t2->field_list[t2_col].f.fixed_char_field.val,FIXEDCHAR_LEN) == 0) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    case INT: {
+      if (t1->field_list[t1_col].f.int_field.val == t2->field_list[t2_col].f.int_field.val) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    case TIMESTAMP: {
+      if (t1->field_list[t1_col].f.ts_field.val == t2->field_list[t2_col].f.ts_field.val) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    case DOUBLE: {
+      if (t1->field_list[t1_col].f.double_field.val == t2->field_list[t2_col].f.double_field.val) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+}
+
 void init_table_builder(uint64_t expected_tuples, int num_columns, schema_t *schema,
                         table_builder_t *tb) {
 
