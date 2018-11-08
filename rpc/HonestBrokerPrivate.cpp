@@ -78,23 +78,30 @@ HonestBrokerPrivate::Filter(
 
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> filtered_tables;
   for (auto &i : ids) {
-    filtered_tables.emplace_back(do_clients[i.get()->hostnum()]->Filter(i, expr));
+    filtered_tables.emplace_back(
+        do_clients[i.get()->hostnum()]->Filter(i, expr));
   }
   return filtered_tables;
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::Join(std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>, std::shared_ptr<const ::vaultdb::TableID>>> &ids, ::vaultdb::JoinDef &join) {
+HonestBrokerPrivate::Join(
+    std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>,
+                          std::shared_ptr<const ::vaultdb::TableID>>> &ids,
+    ::vaultdb::JoinDef &join) {
 
-    std::vector<std::shared_ptr<const ::vaultdb::TableID>> joined_tables;
-    for (auto &i : ids) {
-        joined_tables.emplace_back(do_clients[i.first.get()->hostnum()]->Join(i.first, i.second, join));
-    }
-    return joined_tables;
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>> joined_tables;
+  for (auto &i : ids) {
+    joined_tables.emplace_back(
+        do_clients[i.first.get()->hostnum()]->Join(i.first, i.second, join));
+  }
+  return joined_tables;
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::Sort(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids, ::vaultdb::SortDef &sort) {
+HonestBrokerPrivate::Sort(
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
+    ::vaultdb::SortDef &sort) {
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> sorted_tables;
   for (auto &i : ids) {
     sorted_tables.emplace_back(do_clients[i.get()->hostnum()]->Sort(i, sort));
@@ -103,12 +110,15 @@ HonestBrokerPrivate::Sort(std::vector<std::shared_ptr<const ::vaultdb::TableID>>
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::Aggregate(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids, ::vaultdb::GroupByDef &groupby) {
-    std::vector<std::shared_ptr<const ::vaultdb::TableID>> aggregate_tables;
-    for (auto &i : ids) {
-        aggregate_tables.emplace_back(do_clients[i.get()->hostnum()]->Aggregate(i, groupby));
-    }
-    return aggregate_tables;
+HonestBrokerPrivate::Aggregate(
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
+    ::vaultdb::GroupByDef &groupby) {
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>> aggregate_tables;
+  for (auto &i : ids) {
+    aggregate_tables.emplace_back(
+        do_clients[i.get()->hostnum()]->Aggregate(i, groupby));
+  }
+  return aggregate_tables;
 }
 
 void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {

@@ -146,7 +146,8 @@ std::shared_ptr<const ::vaultdb::TableID> DataOwnerClient::CoalesceTables(
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
-DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::Expr expr) {
+DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid,
+                        ::vaultdb::Expr expr) {
   ::vaultdb::KFilterRequest req;
   ::vaultdb::KFilterResponse resp;
   ::grpc::ClientContext context;
@@ -211,7 +212,8 @@ int DataOwnerClient::SendTable(table_t *t) {
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
-DataOwnerClient::Sort(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::SortDef sort) {
+DataOwnerClient::Sort(std::shared_ptr<const ::vaultdb::TableID> tid,
+                      ::vaultdb::SortDef sort) {
   ::vaultdb::KSortRequest req;
   ::vaultdb::KSortResponse resp;
   ::grpc::ClientContext context;
@@ -235,51 +237,53 @@ DataOwnerClient::Sort(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::
 
 std::shared_ptr<const ::vaultdb::TableID>
 DataOwnerClient::Join(std::shared_ptr<const ::vaultdb::TableID> left_tid,
-        std::shared_ptr<const ::vaultdb::TableID> right_tid, ::vaultdb::JoinDef join) {
-    ::vaultdb::KJoinRequest req;
-    ::vaultdb::KJoinResponse resp;
-    ::grpc::ClientContext context;
-    req.mutable_def()->CopyFrom(join);
-    auto l = req.mutable_left_tid();
-    l->set_hostnum(left_tid.get()->hostnum());
-    l->set_tableid(left_tid.get()->tableid());
+                      std::shared_ptr<const ::vaultdb::TableID> right_tid,
+                      ::vaultdb::JoinDef join) {
+  ::vaultdb::KJoinRequest req;
+  ::vaultdb::KJoinResponse resp;
+  ::grpc::ClientContext context;
+  req.mutable_def()->CopyFrom(join);
+  auto l = req.mutable_left_tid();
+  l->set_hostnum(left_tid.get()->hostnum());
+  l->set_tableid(left_tid.get()->tableid());
 
-    auto r = req.mutable_right_tid();
-    r->set_hostnum(right_tid.get()->hostnum());
-    r->set_tableid(right_tid.get()->tableid());
-    auto status = stub_->KJoin(&context, req, &resp);
-    if (status.ok()) {
-        LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-        auto ret = std::make_shared<::vaultdb::TableID>();
-        ret.get()->CopyFrom(resp.tid());
-        return ret;
-    } else {
-        LOG(INFO) << "FAIL:->[" << host_num << "]";
-        std::cerr << status.error_code() << ": " << status.error_message()
-                  << std::endl;
-        throw;
-    }
+  auto r = req.mutable_right_tid();
+  r->set_hostnum(right_tid.get()->hostnum());
+  r->set_tableid(right_tid.get()->tableid());
+  auto status = stub_->KJoin(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+    auto ret = std::make_shared<::vaultdb::TableID>();
+    ret.get()->CopyFrom(resp.tid());
+    return ret;
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+    std::cerr << status.error_code() << ": " << status.error_message()
+              << std::endl;
+    throw;
+  }
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
-DataOwnerClient::Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::GroupByDef groupby) {
-    ::vaultdb::KAggregateRequest req;
-    ::vaultdb::KAggregateResponse resp;
-    ::grpc::ClientContext context;
-    req.mutable_def()->CopyFrom(groupby);
-    auto t = req.mutable_tid();
-    t->set_hostnum(tid.get()->hostnum());
-    t->set_tableid(tid.get()->tableid());
-    auto status = stub_->KAggregate(&context, req, &resp);
-    if (status.ok()) {
-        LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-        auto ret = std::make_shared<::vaultdb::TableID>();
-        ret.get()->CopyFrom(resp.tid());
-        return ret;
-    } else {
-        LOG(INFO) << "FAIL:->[" << host_num << "]";
-        std::cerr << status.error_code() << ": " << status.error_message()
-                  << std::endl;
-        throw;
-    }
+DataOwnerClient::Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid,
+                           ::vaultdb::GroupByDef groupby) {
+  ::vaultdb::KAggregateRequest req;
+  ::vaultdb::KAggregateResponse resp;
+  ::grpc::ClientContext context;
+  req.mutable_def()->CopyFrom(groupby);
+  auto t = req.mutable_tid();
+  t->set_hostnum(tid.get()->hostnum());
+  t->set_tableid(tid.get()->tableid());
+  auto status = stub_->KAggregate(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+    auto ret = std::make_shared<::vaultdb::TableID>();
+    ret.get()->CopyFrom(resp.tid());
+    return ret;
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+    std::cerr << status.error_code() << ": " << status.error_message()
+              << std::endl;
+    throw;
+  }
 }

@@ -4,8 +4,8 @@
 #include "Aggregate.h"
 #include "HashJoin.h"
 #include "Logger.h"
-#include "pqxx_compat.h"
 #include "Sort.h"
+#include "pqxx_compat.h"
 #include <chrono>
 #include <gtest/gtest.h>
 
@@ -33,25 +33,25 @@ protected:
 TEST_F(comorbidity_test, full_comorbidity_test) {
 
   auto b4_readstart = std::chrono::high_resolution_clock::now();
-  table_t *cdiff_cohort_scan = get_table(
-      "SELECT * from cdiff_cohort_diagnoses", dbname);
+  table_t *cdiff_cohort_scan =
+      get_table("SELECT * from cdiff_cohort_diagnoses", dbname);
   auto start = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = start - b4_readstart;
   std::cout << "Read Elapsed time: " << elapsed.count() << " s\n";
   groupby_def_t gbd;
-  gbd.type =  COUNT;
+  gbd.type = COUNT;
   gbd.colno = colno_from_name(cdiff_cohort_scan, "major_icd9");
   table_t *agg_output = aggregate(cdiff_cohort_scan, &gbd);
   auto end_aggregate = std::chrono::high_resolution_clock::now();
   printf("\n");
-   elapsed = end_aggregate - start;
+  elapsed = end_aggregate - start;
   std::cout << "Aggregate Elapsed time: " << elapsed.count() << " s\n";
   sort_t sort_def;
   sort_def.colno = colno_from_name(agg_output, "count");
   sort_def.ascending = false;
   table_t *sort_output = sort(agg_output, &sort_def);
   auto end_sort = std::chrono::high_resolution_clock::now();
-   elapsed = end_sort - end_aggregate;
+  elapsed = end_sort - end_aggregate;
   std::cout << "Sort Elapsed time: " << elapsed.count() << " s\n";
   elapsed = end_sort - b4_readstart;
   std::cout << "Total Elapsed Time:" << elapsed.count() << "s\n";

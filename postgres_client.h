@@ -3,8 +3,8 @@
 // OID constants taken from postgres/catalog/pg_type.h, not included in
 // Ubuntu 16.04 postgres package. These are global constants set in postgres
 #include <cstdint>
-#include <vector>
 #include <string>
+#include <vector>
 
 #define VARCHAROID 1043
 #define INT8OID 20
@@ -23,8 +23,8 @@
 
 // invariant that every table has the same size tuple
 
-//TODO(madhavsuresh): change to intfield
-enum FIELD_TYPE { UNSUPPORTED, FIXEDCHAR, INT, TIMESTAMP, DOUBLE};
+// TODO(madhavsuresh): change to intfield
+enum FIELD_TYPE { UNSUPPORTED, FIXEDCHAR, INT, TIMESTAMP, DOUBLE };
 
 enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR, LIKE_EXPR };
 
@@ -43,24 +43,25 @@ typedef struct schema {
 } schema_t;
 
 typedef struct join_col_ID {
-    int32_t side; //Either 0, or 1. 0-> left table, 1-> right table
-    int32_t col_no;
+  int32_t side; // Either 0, or 1. 0-> left table, 1-> right table
+  int32_t col_no;
 } join_colID_t;
 
 typedef struct join_def {
-    int32_t l_col; // Column to join on in left relation.
-    int32_t r_col; // Column to join on in right relation.
-    join_colID_t project_list[MAX_FIELDS]; // ordered list of columns to project after join.
-    int32_t project_len; // Number of fields in project list
+  int32_t l_col;                         // Column to join on in left relation.
+  int32_t r_col;                         // Column to join on in right relation.
+  join_colID_t project_list[MAX_FIELDS]; // ordered list of columns to project
+                                         // after join.
+  int32_t project_len;                   // Number of fields in project list
 } join_def_t;
 
 enum GROUPBY_TYPE { GROUPBY_UNSUPPORTED, MINX, COUNT, AVG };
 
 typedef struct groupby_def {
-    GROUPBY_TYPE type;
-    uint8_t colno;
-    int32_t num_cols;
-    uint8_t gb_colnos[MAX_FIELDS];
+  GROUPBY_TYPE type;
+  uint8_t colno;
+  int32_t num_cols;
+  uint8_t gb_colnos[MAX_FIELDS];
 } groupby_def_t;
 
 typedef struct field_int {
@@ -69,13 +70,13 @@ typedef struct field_int {
 } field_int_t;
 
 typedef struct field_double {
-    double val;
-    double genval;
+  double val;
+  double genval;
 } field_double_t;
 
 typedef struct field_ts {
-    time_t val;
-    time_t genval;
+  time_t val;
+  time_t genval;
 } field_ts_t;
 
 typedef struct field_fixed_char {
@@ -138,7 +139,6 @@ typedef struct table_builder {
 
 // TODO(madhavsuresh): might need to worry about blocks
 
-
 tuple_t *get_tuple_from_page(int tuple_number, tuple_page_t *tp,
                              table_t *table);
 tuple_t *get_tuple(int tuple_number, table_t *table);
@@ -147,15 +147,15 @@ void free_table(table_t *table);
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno);
 bool check_add_tuple_page(table_builder_t *tb);
 void add_tuple_page(table_builder_t *tb);
-void init_table_builder(uint64_t expected_tuples, int num_columns, schema_t *schema,
-                        table_builder_t *tb);
+void init_table_builder(uint64_t expected_tuples, int num_columns,
+                        schema_t *schema, table_builder_t *tb);
 void copy_tuple_to_position(table_t *t, int pos, tuple_t *tup);
 table_t *copy_table_by_index(table_t *t, std::vector<int> index_list);
 table_t *allocate_table(int num_tuple_pages);
 void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
-std::string tuple_string(tuple_t * t);
+std::string tuple_string(tuple_t *t);
 int colno_from_name(table_t *t, std::string colname);
-double get_num_field(table_t * t, int tuple_no, int colno);
+double get_num_field(table_t *t, int tuple_no, int colno);
 bool compare_tuple_cols_val(tuple_t *t1, tuple_t *t2, int t1_col, int t2_col);
 #endif // PROJECT_POSTGRES_CLIENT_H

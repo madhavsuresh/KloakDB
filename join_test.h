@@ -5,4 +5,4 @@
 #ifndef PROJECT_JOIN_TEST_H
 #define PROJECT_JOIN_TEST_H
 
-#endif //PROJECT_JOIN_TEST_H
+#endif // PROJECT_JOIN_TEST_H

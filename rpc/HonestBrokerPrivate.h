@@ -35,9 +35,12 @@ public:
   Sort(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
        ::vaultdb::SortDef &sort);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Join(std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>, std::shared_ptr<const ::vaultdb::TableID>>> &ids, ::vaultdb::JoinDef &join);
+  Join(std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>,
+                             std::shared_ptr<const ::vaultdb::TableID>>> &ids,
+       ::vaultdb::JoinDef &join);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Aggregate(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids, ::vaultdb::GroupByDef &groupby);
+  Aggregate(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
+            ::vaultdb::GroupByDef &groupby);
   int GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
   int RegisterPeerHosts();

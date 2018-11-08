@@ -40,7 +40,6 @@ void runDataOwnerServer(DataOwnerPrivate *p) {
   server->Wait();
 }
 
-
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   std::unique_ptr<g3::LogWorker> logworker{g3::LogWorker::createLogWorker()};
@@ -62,9 +61,11 @@ int main(int argc, char **argv) {
     tids.emplace_back(std::make_shared<::vaultdb::TableID>(t2));
     auto repartition_ids = p->Repartition(tids);
 
-    std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>, std::shared_ptr<const ::vaultdb::TableID>>> joinTables;
-    for (auto &i: repartition_ids) {
-        joinTables.emplace_back(std::make_pair(i,i));
+    std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>,
+                          std::shared_ptr<const ::vaultdb::TableID>>>
+        joinTables;
+    for (auto &i : repartition_ids) {
+      joinTables.emplace_back(std::make_pair(i, i));
     }
     ::vaultdb::JoinDef join;
     join.set_l_col(1);
@@ -82,7 +83,6 @@ int main(int argc, char **argv) {
     gbd.set_col_no(0);
     gbd.set_type(::vaultdb::GroupByDef_GroupByType_COUNT);
     auto agg_output = p->Aggregate(j_output, gbd);
-
 
     ::vaultdb::SortDef sort;
     sort.set_colno(0);

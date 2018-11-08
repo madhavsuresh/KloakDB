@@ -3,14 +3,14 @@
 //
 
 #include "DataOwnerImpl.h"
-#include "../pqxx_compat.h"
+#include "../Aggregate.h"
 #include "../Filter.h"
+#include "../HashJoin.h"
+#include "../Logger.h"
 #include "../Repartition.h"
 #include "../Sort.h"
+#include "../pqxx_compat.h"
 #include "DataOwnerPrivate.h"
-#include "../HashJoin.h"
-#include "../Aggregate.h"
-#include "../Logger.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
 
@@ -173,7 +173,7 @@ expr_t make_expr_t(const ::vaultdb::Expr &expr) {
                                       const ::vaultdb::KFilterRequest *request,
                                       ::vaultdb::KFilterResponse *response) {
   expr_t ex = make_expr_t(request->expr());
-  table_t * f = filter(p->GetTable(request->tid().tableid()), &ex);
+  table_t *f = filter(p->GetTable(request->tid().tableid()), &ex);
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(f));
@@ -191,11 +191,12 @@ sort_t make_sort_t(const ::vaultdb::SortDef sort) {
   return s;
 }
 
-::grpc::Status DataOwnerImpl::KSort(::grpc::ServerContext *context, const ::vaultdb::KSortRequest *request,
-                     ::vaultdb::KSortResponse *response) {
+::grpc::Status DataOwnerImpl::KSort(::grpc::ServerContext *context,
+                                    const ::vaultdb::KSortRequest *request,
+                                    ::vaultdb::KSortResponse *response) {
   sort_t s = make_sort_t(request->sortdef());
 
-  table_t * sorted = sort(p->GetTable(request->tid().tableid()), &s);
+  table_t *sorted = sort(p->GetTable(request->tid().tableid()), &s);
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(sorted));
@@ -207,88 +208,88 @@ sort_t make_sort_t(const ::vaultdb::SortDef sort) {
 }
 
 join_def_t make_join_def_t(::vaultdb::JoinDef def) {
-    join_def_t def_t;
-    def_t.l_col = def.l_col();
-    def_t.r_col = def.r_col();
-    def_t.project_len = def.project_len();
+  join_def_t def_t;
+  def_t.l_col = def.l_col();
+  def_t.r_col = def.r_col();
+  def_t.project_len = def.project_len();
 
-    for (int i = 0; i < def.project_list_size(); i++) {
-        auto &project = def.project_list(i);
-        def_t.project_list[i].col_no = project.col_no();
-        switch (project.side()) {
-            case ::vaultdb::JoinColID_RelationSide_LEFT : {
-              def_t.project_list[i].side = LEFT_RELATION;
-              break;
-            }
-            case ::vaultdb::JoinColID_RelationSide_RIGHT : {
-              def_t.project_list[i].side = RIGHT_RELATION;
-              break;
-            }
-            default: {
-              throw;
-            }
-        }
+  for (int i = 0; i < def.project_list_size(); i++) {
+    auto &project = def.project_list(i);
+    def_t.project_list[i].col_no = project.col_no();
+    switch (project.side()) {
+    case ::vaultdb::JoinColID_RelationSide_LEFT: {
+      def_t.project_list[i].side = LEFT_RELATION;
+      break;
     }
-    return def_t;
+    case ::vaultdb::JoinColID_RelationSide_RIGHT: {
+      def_t.project_list[i].side = RIGHT_RELATION;
+      break;
+    }
+    default: { throw; }
+    }
+  }
+  return def_t;
 }
 
-::grpc::Status DataOwnerImpl::KJoin(::grpc::ServerContext *context, const ::vaultdb::KJoinRequest *request,
-                     ::vaultdb::KJoinResponse *response) {
-    join_def_t def = make_join_def_t(request->def());
-    table_t * out_join = hash_join(p->GetTable(request->left_tid().tableid()),
-                                   p->GetTable(request->right_tid().tableid()), def);
-    auto tid = response->mutable_tid();
-    tid->set_hostnum(p->HostNum());
-    tid->set_tableid(p->AddTable(out_join));
-    LOG(INFO) << "Success";
-    for (int i = 0; i < out_join->num_tuples; i++) {
-        print_tuple_log(i, get_tuple(i, out_join));
-    }
-    LOG(INFO) << out_join->num_tuples;
-    return ::grpc::Status::OK;
+::grpc::Status DataOwnerImpl::KJoin(::grpc::ServerContext *context,
+                                    const ::vaultdb::KJoinRequest *request,
+                                    ::vaultdb::KJoinResponse *response) {
+  join_def_t def = make_join_def_t(request->def());
+  table_t *out_join =
+      hash_join(p->GetTable(request->left_tid().tableid()),
+                p->GetTable(request->right_tid().tableid()), def);
+  auto tid = response->mutable_tid();
+  tid->set_hostnum(p->HostNum());
+  tid->set_tableid(p->AddTable(out_join));
+  LOG(INFO) << "Success";
+  for (int i = 0; i < out_join->num_tuples; i++) {
+    print_tuple_log(i, get_tuple(i, out_join));
+  }
+  LOG(INFO) << out_join->num_tuples;
+  return ::grpc::Status::OK;
 }
 
 groupby_def_t make_groupby_def_t(::vaultdb::GroupByDef def) {
-    groupby_def_t def_t;
+  groupby_def_t def_t;
 
-    switch (def.type()) {
-        case ::vaultdb::GroupByDef_GroupByType_COUNT : {
-            def_t.type = COUNT;
-            break;
-        }
-        case ::vaultdb::GroupByDef_GroupByType_MINX : {
-            def_t.type = MINX;
-            def_t.colno = def.col_no();
-            break;
-        }
-        case ::vaultdb::GroupByDef_GroupByType_AVG : {
-          def_t.type = AVG;
-          def_t.colno = def.col_no();
-          for (int i = 0; i < def.gb_col_nos_size(); i ++) {
-            def_t.gb_colnos[i] = static_cast<uint8_t>(def.gb_col_nos(i));
-          }
-          def_t.num_cols = def.gb_col_nos_size();
-          break;
-        }
-        default: {
-           throw;
-        }
+  switch (def.type()) {
+  case ::vaultdb::GroupByDef_GroupByType_COUNT: {
+    def_t.type = COUNT;
+    break;
+  }
+  case ::vaultdb::GroupByDef_GroupByType_MINX: {
+    def_t.type = MINX;
+    def_t.colno = def.col_no();
+    break;
+  }
+  case ::vaultdb::GroupByDef_GroupByType_AVG: {
+    def_t.type = AVG;
+    def_t.colno = def.col_no();
+    for (int i = 0; i < def.gb_col_nos_size(); i++) {
+      def_t.gb_colnos[i] = static_cast<uint8_t>(def.gb_col_nos(i));
     }
-    return def_t;
+    def_t.num_cols = def.gb_col_nos_size();
+    break;
+  }
+  default: { throw; }
+  }
+  return def_t;
 }
 
-::grpc::Status DataOwnerImpl::KAggregate(::grpc::ServerContext* context, const ::vaultdb::KAggregateRequest* request, ::vaultdb::KAggregateResponse* response) {
+::grpc::Status
+DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
+                          const ::vaultdb::KAggregateRequest *request,
+                          ::vaultdb::KAggregateResponse *response) {
 
-    groupby_def_t gbd = make_groupby_def_t(request->def());
-    table_t * out = aggregate(p->GetTable(request->tid().tableid()), &gbd);
-    auto tid = response->mutable_tid();
-    tid->set_hostnum(p->HostNum());
-    tid->set_tableid(p->AddTable(out));
-    LOG(INFO) << "Success";
-    for (int i = 0; i < out->num_tuples; i++) {
-        print_tuple_log(i, get_tuple(i, out));
-    }
-    LOG(INFO) << out->num_tuples;
-    return ::grpc::Status::OK;
-
+  groupby_def_t gbd = make_groupby_def_t(request->def());
+  table_t *out = aggregate(p->GetTable(request->tid().tableid()), &gbd);
+  auto tid = response->mutable_tid();
+  tid->set_hostnum(p->HostNum());
+  tid->set_tableid(p->AddTable(out));
+  LOG(INFO) << "Success";
+  for (int i = 0; i < out->num_tuples; i++) {
+    print_tuple_log(i, get_tuple(i, out));
+  }
+  LOG(INFO) << out->num_tuples;
+  return ::grpc::Status::OK;
 }

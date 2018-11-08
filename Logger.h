@@ -7,5 +7,5 @@
 
 #include "postgres_client.h"
 void print_tuple_log(int ii, tuple_t *t);
-void print_tuple(tuple_t * t);
-#endif //PROJECT_LOGGER_H
+void print_tuple(tuple_t *t);
+#endif // PROJECT_LOGGER_H

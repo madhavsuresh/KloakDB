@@ -38,12 +38,12 @@ void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
   int field_counter = 0;
   tuple->num_fields = s->num_fields;
   for (auto field : tup) {
-    //TODO(madhavsuresh): do better than this!
-    //TODO(madhavsuresh): field length is not correct
-      if (field.is_null()) {
-        field_counter++;
-        continue;
-      }
+    // TODO(madhavsuresh): do better than this!
+    // TODO(madhavsuresh): field length is not correct
+    if (field.is_null()) {
+      field_counter++;
+      continue;
+    }
 
     switch (s->fields[field_counter].type) {
     case FIXEDCHAR:
@@ -56,7 +56,8 @@ void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
       break;
     case INT:
       tuple->field_list[field_counter].f.int_field.val = field.as<int>();
-      tuple->field_list[field_counter].f.int_field.genval = tuple->field_list[field_counter].f.int_field.val;
+      tuple->field_list[field_counter].f.int_field.genval =
+          tuple->field_list[field_counter].f.int_field.val;
       tuple->field_list[field_counter].type = INT;
       break;
     case TIMESTAMP: {
@@ -65,7 +66,8 @@ void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
       if (ss >> std::get_time(&t, "%Y-%m-%d %H:%M:%S")) {
         tuple->field_list[field_counter].f.ts_field.val =
             std::mktime(&t) - timezone;
-        tuple->field_list[field_counter].f.ts_field.genval = tuple->field_list[field_counter].f.ts_field.val;
+        tuple->field_list[field_counter].f.ts_field.genval =
+            tuple->field_list[field_counter].f.ts_field.val;
         tuple->field_list[field_counter].type = TIMESTAMP;
       } else {
         printf("\n**\n%s\n**\n", field.c_str());
@@ -73,9 +75,10 @@ void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s) {
       }
       break;
     }
-    case DOUBLE : {
+    case DOUBLE: {
       tuple->field_list[field_counter].f.double_field.val = field.as<double>();
-      tuple->field_list[field_counter].f.double_field.genval = tuple->field_list[field_counter].f.double_field.val;
+      tuple->field_list[field_counter].f.double_field.genval =
+          tuple->field_list[field_counter].f.double_field.val;
       tuple->field_list[field_counter].type = DOUBLE;
       break;
     }

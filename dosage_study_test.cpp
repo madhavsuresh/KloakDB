@@ -4,8 +4,8 @@
 #include "Aggregate.h"
 #include "HashJoin.h"
 #include "Logger.h"
-#include "pqxx_compat.h"
 #include "Sort.h"
+#include "pqxx_compat.h"
 #include <chrono>
 #include <gtest/gtest.h>
 
@@ -44,8 +44,8 @@ TEST_F(dosage_study_test, full_dosage_study_test) {
   join_def.r_col = colno_from_name(medications, "patient_id");
   join_def.project_len = 1;
   join_def.project_list[0].side = LEFT_RELATION;
-  join_def.project_list[0].col_no =colno_from_name(diagnoses, "patient_id");
-  table_t * output = hash_join(diagnoses, medications, join_def);
+  join_def.project_list[0].col_no = colno_from_name(diagnoses, "patient_id");
+  table_t *output = hash_join(diagnoses, medications, join_def);
   auto start = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = start - b4_readstart;
   std::cout << "Read Elapsed time: " << elapsed.count() << " s\n";

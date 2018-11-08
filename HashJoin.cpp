@@ -4,12 +4,13 @@
 #include "HashJoin.h"
 #include "Expressions.h"
 #include "postgres_client.h"
+#include <cstring>
 #include <iostream>
 #include <unordered_map>
-#include <cstring>
 
-schema_t build_join_schema(table_t *left_table, table_t *right_table, join_def_t def) {
-  table_t * tables[2];
+schema_t build_join_schema(table_t *left_table, table_t *right_table,
+                           join_def_t def) {
+  table_t *tables[2];
   tables[0] = left_table;
   tables[1] = right_table;
   schema_t s;
@@ -26,37 +27,52 @@ schema_t build_join_schema(table_t *left_table, table_t *right_table, join_def_t
   return s;
 }
 
-void merge_tuple(tuple_t * to_fill, tuple_t * left_tup, tuple_t * right_tup, join_def_t def) {
+void merge_tuple(tuple_t *to_fill, tuple_t *left_tup, tuple_t *right_tup,
+                 join_def_t def) {
   // Reusing allocated tuple for copying
-  tuple_t * tuples[2] = {left_tup, right_tup};
-  memset(to_fill, '\0', def.project_len*sizeof(field_t) + sizeof(tuple_t));
+  tuple_t *tuples[2] = {left_tup, right_tup};
+  memset(to_fill, '\0', def.project_len * sizeof(field_t) + sizeof(tuple_t));
   to_fill->num_fields = def.project_len;
-  to_fill->is_dummy = !compare_tuple_cols_val(left_tup, right_tup, def.l_col, def.r_col);
+  to_fill->is_dummy =
+      !compare_tuple_cols_val(left_tup, right_tup, def.l_col, def.r_col);
 
-  for (int i = 0; i < def.project_len; i ++) {
-    tuple_t * copyFromTup = tuples[def.project_list[i].side];
-    to_fill->field_list[i].type = copyFromTup->field_list[def.project_list[i].col_no].type;
+  for (int i = 0; i < def.project_len; i++) {
+    tuple_t *copyFromTup = tuples[def.project_list[i].side];
+    to_fill->field_list[i].type =
+        copyFromTup->field_list[def.project_list[i].col_no].type;
     switch (to_fill->field_list[i].type) {
-      case FIXEDCHAR : {
-        memcpy(to_fill->field_list[i].f.fixed_char_field.val, copyFromTup->field_list[def.project_list[i].col_no].f.fixed_char_field.val, FIXEDCHAR_LEN);
-        break;
-      }
-      case INT : {
-        to_fill->field_list[i].f.int_field.val = copyFromTup->field_list[def.project_list[i].col_no].f.int_field.val;
-        to_fill->field_list[i].f.int_field.genval = copyFromTup->field_list[def.project_list[i].col_no].f.int_field.genval;
-        break;
-      }
-      case TIMESTAMP: {
-        to_fill->field_list[i].f.ts_field.val = copyFromTup->field_list[def.project_list[i].col_no].f.ts_field.val;
-        to_fill->field_list[i].f.ts_field.genval = copyFromTup->field_list[def.project_list[i].col_no].f.ts_field.genval;
-      }
-      case DOUBLE: {
-        to_fill->field_list[i].f.double_field.val = copyFromTup->field_list[def.project_list[i].col_no].f.double_field.val;
-        to_fill->field_list[i].f.double_field.genval = copyFromTup->field_list[def.project_list[i].col_no].f.double_field.genval;
-      }
-      case UNSUPPORTED: {
-        throw;
-      }
+    case FIXEDCHAR: {
+      memcpy(to_fill->field_list[i].f.fixed_char_field.val,
+             copyFromTup->field_list[def.project_list[i].col_no]
+                 .f.fixed_char_field.val,
+             FIXEDCHAR_LEN);
+      break;
+    }
+    case INT: {
+      to_fill->field_list[i].f.int_field.val =
+          copyFromTup->field_list[def.project_list[i].col_no].f.int_field.val;
+      to_fill->field_list[i].f.int_field.genval =
+          copyFromTup->field_list[def.project_list[i].col_no]
+              .f.int_field.genval;
+      break;
+    }
+    case TIMESTAMP: {
+      to_fill->field_list[i].f.ts_field.val =
+          copyFromTup->field_list[def.project_list[i].col_no].f.ts_field.val;
+      to_fill->field_list[i].f.ts_field.genval =
+          copyFromTup->field_list[def.project_list[i].col_no].f.ts_field.genval;
+    }
+    case DOUBLE: {
+      to_fill->field_list[i].f.double_field.val =
+          copyFromTup->field_list[def.project_list[i].col_no]
+              .f.double_field.val;
+      to_fill->field_list[i].f.double_field.genval =
+          copyFromTup->field_list[def.project_list[i].col_no]
+              .f.double_field.genval;
+    }
+    case UNSUPPORTED: {
+      throw;
+    }
     }
   }
 }

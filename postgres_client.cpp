@@ -10,40 +10,41 @@ uint64_t tuples_per_page(uint64_t tuple_size) {
 
 int colno_from_name(table_t *t, std::string colname) {
   for (int i = 0; i < t->schema.num_fields; i++) {
-    if (strncmp(colname.c_str(), t->schema.fields[i].field_name, FIELD_NAME_LEN) == 0) {
+    if (strncmp(colname.c_str(), t->schema.fields[i].field_name,
+                FIELD_NAME_LEN) == 0) {
       return i;
     }
   }
   throw std::invalid_argument("Column does not exist");
 }
 
-std::string tuple_string(tuple_t * t) {
+std::string tuple_string(tuple_t *t) {
   std::string output = "";
   for (int i = 0; i < t->num_fields; i++) {
     switch (t->field_list[i].type) {
-      case FIXEDCHAR: {
-        output += std::string(t->field_list[i].f.fixed_char_field.val);
-        break;
-      }
-      case INT : {
-        output += std::to_string(t->field_list[i].f.int_field.val);
-        break;
-      }
-      case TIMESTAMP : {
-        time_t time = t->field_list[i].f.int_field.val;
-        char *timetext = asctime(gmtime(&time));
-        timetext[24] = '\0';
-        output += std::string(timetext);
-        break;
-      }
-      case DOUBLE : {
-        output += std::to_string(t->field_list[i].f.double_field.val);
-        break;
-      }
-      default: {
-        printf("type: %d\n", t->field_list[i].type);
-        throw std::invalid_argument("Cannot print this tuple");
-      }
+    case FIXEDCHAR: {
+      output += std::string(t->field_list[i].f.fixed_char_field.val);
+      break;
+    }
+    case INT: {
+      output += std::to_string(t->field_list[i].f.int_field.val);
+      break;
+    }
+    case TIMESTAMP: {
+      time_t time = t->field_list[i].f.int_field.val;
+      char *timetext = asctime(gmtime(&time));
+      timetext[24] = '\0';
+      output += std::string(timetext);
+      break;
+    }
+    case DOUBLE: {
+      output += std::to_string(t->field_list[i].f.double_field.val);
+      break;
+    }
+    default: {
+      printf("type: %d\n", t->field_list[i].type);
+      throw std::invalid_argument("Cannot print this tuple");
+    }
     }
     output += "| ";
   }
@@ -58,7 +59,6 @@ expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno) {
   expr.expr_type = type;
   return expr;
 }
-
 
 void free_table(table_t *t) {
   // TODO(madhavsuresh): there is a memory leak here!
@@ -98,12 +98,11 @@ int64_t get_int_field(tuple_t *tup, int field_no) {
 }
 
 tuple_page_t *get_page(int page_num, table_t *table) {
-    return table->tuple_pages[page_num];
+  return table->tuple_pages[page_num];
 }
 
 tuple_t *get_tuple(int tuple_number, table_t *table) {
-  int num_tuples_per_page =
-      (int)tuples_per_page(table->size_of_tuple);
+  int num_tuples_per_page = (int)tuples_per_page(table->size_of_tuple);
   int page_num = (tuple_number) / (num_tuples_per_page);
   tuple_page_t *tp = get_page(page_num, table);
   int page_tuple_num = tuple_number % num_tuples_per_page;
@@ -125,10 +124,9 @@ bool check_add_tuple_page(table_builder_t *tb) {
   return false;
 }
 
-
 table_t *allocate_table(int num_tuple_pages) {
-  table_t * ret  = (table_t *)malloc(sizeof(table_t) +
-                           num_tuple_pages * sizeof(tuple_page_t *));
+  table_t *ret = (table_t *)malloc(sizeof(table_t) +
+                                   num_tuple_pages * sizeof(tuple_page_t *));
   if (ret == 0) {
     throw std::invalid_argument("Malloc failed");
   }
@@ -139,42 +137,47 @@ bool compare_tuple_cols_val(tuple_t *t1, tuple_t *t2, int t1_col, int t2_col) {
     throw;
   }
   switch (t1->field_list[t1_col].type) {
-    case UNSUPPORTED: {
-      throw;
+  case UNSUPPORTED: {
+    throw;
+  }
+  case FIXEDCHAR: {
+    if (strncmp(t1->field_list[t1_col].f.fixed_char_field.val,
+                t2->field_list[t2_col].f.fixed_char_field.val,
+                FIXEDCHAR_LEN) == 0) {
+      return true;
+    } else {
+      return false;
     }
-    case FIXEDCHAR: {
-      if (strncmp(t1->field_list[t1_col].f.fixed_char_field.val, t2->field_list[t2_col].f.fixed_char_field.val,FIXEDCHAR_LEN) == 0) {
-        return true;
-      } else {
-        return false;
-      }
+  }
+  case INT: {
+    if (t1->field_list[t1_col].f.int_field.val ==
+        t2->field_list[t2_col].f.int_field.val) {
+      return true;
+    } else {
+      return false;
     }
-    case INT: {
-      if (t1->field_list[t1_col].f.int_field.val == t2->field_list[t2_col].f.int_field.val) {
-        return true;
-      } else {
-        return false;
-      }
+  }
+  case TIMESTAMP: {
+    if (t1->field_list[t1_col].f.ts_field.val ==
+        t2->field_list[t2_col].f.ts_field.val) {
+      return true;
+    } else {
+      return false;
     }
-    case TIMESTAMP: {
-      if (t1->field_list[t1_col].f.ts_field.val == t2->field_list[t2_col].f.ts_field.val) {
-        return true;
-      } else {
-        return false;
-      }
+  }
+  case DOUBLE: {
+    if (t1->field_list[t1_col].f.double_field.val ==
+        t2->field_list[t2_col].f.double_field.val) {
+      return true;
+    } else {
+      return false;
     }
-    case DOUBLE: {
-      if (t1->field_list[t1_col].f.double_field.val == t2->field_list[t2_col].f.double_field.val) {
-        return true;
-      } else {
-        return false;
-      }
-    }
+  }
   }
 }
 
-void init_table_builder(uint64_t expected_tuples, int num_columns, schema_t *schema,
-                        table_builder_t *tb) {
+void init_table_builder(uint64_t expected_tuples, int num_columns,
+                        schema_t *schema, table_builder_t *tb) {
 
   tb->expected_tuples = expected_tuples;
   tb->num_columns = num_columns;
@@ -188,17 +191,16 @@ void init_table_builder(uint64_t expected_tuples, int num_columns, schema_t *sch
   // total_size / PAGE_SIZE + 2;
   // TODO(madhavsuresh): this needs to be abstracted out. this is terrible.
   tb->table = allocate_table(tb->expected_pages); //(table_t *)
-                                                  //malloc(sizeof(table_t) +
-                                                  //sizeof(tuple_page_t *) *
-                                                  //tb->expected_pages);
+                                                  // malloc(sizeof(table_t) +
+                                                  // sizeof(tuple_page_t *) *
+                                                  // tb->expected_pages);
   memset(tb->table, '\0',
          sizeof(table_t) + sizeof(tuple_page_t *) * tb->expected_pages);
   // Copy schema to new table
   memcpy(&tb->table->schema, schema, sizeof(schema_t));
 
   tb->table->size_of_tuple = tb->size_of_tuple;
-  tb->num_tuples_per_page =
-      tuples_per_page(tb->table->size_of_tuple);
+  tb->num_tuples_per_page = tuples_per_page(tb->table->size_of_tuple);
   tb->curr_tuple = 0;
   tb->curr_page = 0;
   // Initialize first page regardless
@@ -250,22 +252,22 @@ table_t *copy_table_by_index(table_t *t, std::vector<int> index_list) {
   return tb.table;
 }
 
-double get_num_field(table_t * t, int tuple_no, int colno) {
+double get_num_field(table_t *t, int tuple_no, int colno) {
   switch (t->schema.fields[colno].type) {
-    case UNSUPPORTED: {
-      throw std::invalid_argument("Cannot convert unsupported column");
-    }
-    case FIXEDCHAR: {
-      throw std::invalid_argument("Cannot convert fixedchar column");
-    }
-    case INT: {
-      return (double)get_tuple(tuple_no, t)->field_list[colno].f.int_field.val;
-    }
-    case TIMESTAMP: {
-      return (double)get_tuple(tuple_no, t)->field_list[colno].f.ts_field.val;
-    }
-    case DOUBLE: {
-      return (double)get_tuple(tuple_no, t)->field_list[colno].f.double_field.val;
-    }
+  case UNSUPPORTED: {
+    throw std::invalid_argument("Cannot convert unsupported column");
+  }
+  case FIXEDCHAR: {
+    throw std::invalid_argument("Cannot convert fixedchar column");
+  }
+  case INT: {
+    return (double)get_tuple(tuple_no, t)->field_list[colno].f.int_field.val;
+  }
+  case TIMESTAMP: {
+    return (double)get_tuple(tuple_no, t)->field_list[colno].f.ts_field.val;
+  }
+  case DOUBLE: {
+    return (double)get_tuple(tuple_no, t)->field_list[colno].f.double_field.val;
+  }
   }
 }

@@ -3,12 +3,12 @@
 #include <pqxx/result>
 
 #include "Filter.h"
+#include "Logger.h"
 #include "Sort.h"
 #include "filter_test.h"
 #include "postgres_client.h"
 #include "postgres_client_test.h"
 #include "pqxx_compat.h"
-#include "Logger.h"
 
 class sort_test : public ::testing::Test {
 public:
@@ -50,9 +50,9 @@ TEST_F(sort_test, simple_sort) {
   free(tb);
 }
 
-
-// Unit test to ensure swapping two tuples is correct and doesn't loose information
-TEST_F(sort_test, swap_unit){
+// Unit test to ensure swapping two tuples is correct and doesn't loose
+// information
+TEST_F(sort_test, swap_unit) {
   std::string query1("DROP TABLE if exists swap_test ");
   pqxx::result res2;
   res2 = query(query1, dbname);
@@ -63,8 +63,8 @@ TEST_F(sort_test, swap_unit){
   query1 = "SELECT * FROM swap_test;";
   table_builder_t *tb = table_builder_init(query1, dbname);
 
-  tuple_t *old_t0_ptr = get_tuple(0,tb->table);
-  tuple_t *old_t1_ptr = get_tuple(1,tb->table);
+  tuple_t *old_t0_ptr = get_tuple(0, tb->table);
+  tuple_t *old_t1_ptr = get_tuple(1, tb->table);
 
   // important step to set one to be true, default is false
   old_t1_ptr->is_dummy = true;
@@ -74,19 +74,23 @@ TEST_F(sort_test, swap_unit){
   tuple_t *old_t1 = (tuple_t *)malloc(tb->table->size_of_tuple);
   memcpy(old_t1, old_t1_ptr, tb->table->size_of_tuple);
 
-  swap_tuples(0,1,tb->table,true);
+  swap_tuples(0, 1, tb->table, true);
 
-  tuple_t *new_t0 = get_tuple(0,tb->table);
-  tuple_t *new_t1 = get_tuple(1,tb->table);
+  tuple_t *new_t0 = get_tuple(0, tb->table);
+  tuple_t *new_t1 = get_tuple(1, tb->table);
 
-  for (int i = 0; i < tb->num_columns; i++)
-  {
-    EXPECT_EQ(new_t0->field_list[i].f.int_field.val, old_t1->field_list[i].f.int_field.val);
-    EXPECT_EQ(new_t1->field_list[i].f.int_field.val, old_t0->field_list[i].f.int_field.val); // make sure all swapped values in all cols are same
+  for (int i = 0; i < tb->num_columns; i++) {
+    EXPECT_EQ(new_t0->field_list[i].f.int_field.val,
+              old_t1->field_list[i].f.int_field.val);
+    EXPECT_EQ(new_t1->field_list[i].f.int_field.val,
+              old_t0->field_list[i].f.int_field.val); // make sure all swapped
+                                                      // values in all cols are
+                                                      // same
   }
 
   EXPECT_EQ(new_t0->num_fields, old_t1->num_fields);
-  EXPECT_EQ(new_t1->num_fields, old_t0->num_fields); // make sure num_fields isn't changed
+  EXPECT_EQ(new_t1->num_fields,
+            old_t0->num_fields); // make sure num_fields isn't changed
 
   EXPECT_EQ(new_t0->is_dummy, old_t1->is_dummy);
   EXPECT_EQ(new_t1->is_dummy, old_t0->is_dummy);
@@ -98,8 +102,6 @@ TEST_F(sort_test, swap_unit){
   free_table(tb->table);
   free(tb);
 }
-
-
 
 TEST_F(sort_test, string_type) {
   std::string query1("create table sort_test (a varchar(16), b INT)");
@@ -178,7 +180,7 @@ void sort_swap_dummy_regression(int power_of_two) {
   pqxx::result t_random = query(query_string, dbname);
   table_builder_t *tb = table_builder_init(query_string, dbname);
 
-  //sort on column 1
+  // sort on column 1
   sort_t sortex = {.colno = 1, .ascending = true};
 
   uint64_t max_val = 0;
@@ -196,7 +198,6 @@ void sort_swap_dummy_regression(int power_of_two) {
   std::string query_destroy("DROP TABLE test_random_sort");
   res2 = query(query_destroy, dbname);
 }
-
 
 TEST_F(sort_test, large_random_sort_512) { large_random_sort(512); }
 /*

@@ -22,7 +22,7 @@ public:
   void GetPeerHosts(std::map<int, std::string> numToHostsMap);
 
   std::shared_ptr<const ::vaultdb::TableID>
-      Filter(std::shared_ptr<const ::vaultdb::TableID>, ::vaultdb::Expr);
+  Filter(std::shared_ptr<const ::vaultdb::TableID>, ::vaultdb::Expr);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
   RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> tid);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepTwo(
@@ -30,14 +30,16 @@ public:
   std::shared_ptr<const ::vaultdb::TableID> CoalesceTables(
       std::vector<std::shared_ptr<const ::vaultdb::TableID>> &tables);
 
-    std::shared_ptr<const ::vaultdb::TableID>
-    Sort(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::SortDef sort);
+  std::shared_ptr<const ::vaultdb::TableID>
+  Sort(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::SortDef sort);
 
-    std::shared_ptr<const ::vaultdb::TableID>
-    Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid, ::vaultdb::GroupByDef groupby);
-    std::shared_ptr<const ::vaultdb::TableID>
-    Join(std::shared_ptr<const ::vaultdb::TableID> left_tid,
-                          std::shared_ptr<const ::vaultdb::TableID> right_tid, ::vaultdb::JoinDef join);
+  std::shared_ptr<const ::vaultdb::TableID>
+  Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid,
+            ::vaultdb::GroupByDef groupby);
+  std::shared_ptr<const ::vaultdb::TableID>
+  Join(std::shared_ptr<const ::vaultdb::TableID> left_tid,
+       std::shared_ptr<const ::vaultdb::TableID> right_tid,
+       ::vaultdb::JoinDef join);
 
   // TODO(madhavsuresh): this needs to be renamed to be consistent
   int SendTable(table_t *t);

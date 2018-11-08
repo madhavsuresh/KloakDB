@@ -92,7 +92,7 @@ void compare(int i, int j, bool dir, table_t *t, sort_t *s) {
     throw;
   case FIXEDCHAR: {
     throw;
-    //printf("UNSUPPORTED\n");
+    // printf("UNSUPPORTED\n");
   }
   case INT: {
     uint64_t i_val = get_tuple(i, t)->field_list[s->colno].f.int_field.val;
