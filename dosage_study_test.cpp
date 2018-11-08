@@ -33,6 +33,7 @@ protected:
 TEST_F(dosage_study_test, full_dosage_study_test) {
   // ICD9 for internal bleeding: 997.49
 
+  auto b4_readstart = std::chrono::high_resolution_clock::now();
   table_t *diagnoses =
       get_table("SELECT * from diagnoses where icd9='997.49'", dbname);
   table_t *medications = get_table(
@@ -45,7 +46,6 @@ TEST_F(dosage_study_test, full_dosage_study_test) {
   join_def.project_list[0].side = LEFT_RELATION;
   join_def.project_list[0].col_no =colno_from_name(diagnoses, "patient_id");
   table_t * output = hash_join(diagnoses, medications, join_def);
-  auto b4_readstart = std::chrono::high_resolution_clock::now();
   auto start = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = start - b4_readstart;
   std::cout << "Read Elapsed time: " << elapsed.count() << " s\n";
