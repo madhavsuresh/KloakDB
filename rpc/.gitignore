@@ -1,0 +1,4 @@
+vaultdb.pb.h
+vaultdb.pb.cc
+vaultdb.grpc.pb.cc
+vaultdb.grpc.pb.h
