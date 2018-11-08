@@ -1,0 +1,86 @@
+
+
+Normal In Kloak:
+
+Run 1:
+First Join Elapsed time: 0.000263566 s
+Second Join Elapsed time: 0.000404012 s
+before last join
+Third Join Elapsed time: 0.00060521 s
+Aggregate Elapsed time: 0.000748756 s
+Total Join Elapsed time: 0.00202154 s
+
+Run 2:
+First Join Elapsed time: 0.000149359 s
+Second Join Elapsed time: 0.000215835 s
+before last join
+Third Join Elapsed time: 0.000310779 s
+Aggregate Elapsed time: 0.000406571 s
+Total Join Elapsed time: 0.00108254 s
+
+Run 3:
+First Join Elapsed time: 0.000226848 s
+Second Join Elapsed time: 0.000340204 s
+before last join
+Third Join Elapsed time: 0.000490868 s
+Aggregate Elapsed time: 0.000639669 s
+Total Join Elapsed time: 0.00169759 s
+
+Run 4:
+First Join Elapsed time: 0.000222973 s
+Second Join Elapsed time: 0.000298441 s
+before last join
+Third Join Elapsed time: 0.000456273 s
+Aggregate Elapsed time: 0.000566495 s
+Total Join Elapsed time: 0.00154418 s
+
+
+Run 5:
+First Join Elapsed time: 0.000369305 s
+Second Join Elapsed time: 0.000429991 s
+before last join
+Third Join Elapsed time: 0.000713267 s
+Aggregate Elapsed time: 0.000779659 s
+Total Join Elapsed time: 0.00229222 s
+
+
+Oblivious in Kloak:
+
+Run 1:
+First Join Elapsed time: 0.0038082 s
+Second Join Elapsed time: 0.174585 s
+Third Join Elapsed time: 17.3463 s
+Aggregate Elapsed time: 40.7521 s
+Total Elapsed time: 58.2768 s
+
+
+Run 2:
+First Join Elapsed time: 0.00337361 s
+Second Join Elapsed time: 0.167168 s
+Third Join Elapsed time: 17.2754 s
+Aggregate Elapsed time: 40.9115 s
+Total Elapsed time: 58.3574 s
+
+Run 3:
+First Join Elapsed time: 0.00310814 s
+Second Join Elapsed time: 0.166847 s
+Third Join Elapsed time: 17.2977 s
+Aggregate Elapsed time: 40.4286 s
+Total Elapsed time: 57.8963 s
+
+Run 4:
+First Join Elapsed time: 0.00245626 s
+Second Join Elapsed time: 0.154419 s
+Third Join Elapsed time: 17.4958 s
+Aggregate Elapsed time: 41.2893 s
+Total Elapsed time: 58.942 s
+
+Run 5:
+First Join Elapsed time: 0.003823 s
+Second Join Elapsed time: 0.175023 s
+Third Join Elapsed time: 17.7211 s
+Aggregate Elapsed time: 41.4745 s
+Total Elapsed time: 59.3745 s
+
+
+

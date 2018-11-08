@@ -1,0 +1,48 @@
+Comorbidity Postgres Execution Time:
+Should this be execution time minus the table scans?
+Provide both graphs
+
+W/ Table Scans
+- 0.734 ms
+- 0.706 ms
+- 0.865 ms
+- 0.733 ms
+- 0.757 ms
+w/o table scans
+-.079
+-.075
+-.079
+-.069
+-.072
+
+Kloak with oblivious sort:
+Run 1:
+Read Elapsed time: 0.00568027 s
+Aggregate Elapsed time: 0.000242976 s
+Sort Elapsed time: 0.000164024 s
+Total Elapsed Time:0.00608727s
+
+Run 2:
+Read Elapsed time: 0.00573184 s
+Aggregate Elapsed time: 0.000317726 s
+Sort Elapsed time: 0.000184962 s
+Total Elapsed Time:0.00623453s
+
+Run 3:
+Read Elapsed time: 0.00588735 s
+Aggregate Elapsed time: 0.000237052 s
+Sort Elapsed time: 0.000157619 s
+Total Elapsed Time:0.00628202s
+
+Run 4:
+Read Elapsed time: 0.00570142 s
+Aggregate Elapsed time: 0.000247219 s
+Sort Elapsed time: 0.000168336 s
+Total Elapsed Time:0.00611698s
+
+Run 5:
+Read Elapsed time: 0.00592638 s
+Aggregate Elapsed time: 0.000240721 s
+Sort Elapsed time: 0.000164003 s
+Total Elapsed Time:0.0063311s
+
