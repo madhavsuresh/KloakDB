@@ -127,11 +127,14 @@ bool check_add_tuple_page(table_builder_t *tb) {
 
 
 table_t *allocate_table(int num_tuple_pages) {
-  return (table_t *)malloc(sizeof(table_t) +
+  table_t * ret  = (table_t *)malloc(sizeof(table_t) +
                            num_tuple_pages * sizeof(tuple_page_t *));
+  if (ret == 0) {
+    throw std::invalid_argument("Malloc failed");
+  }
 }
 
-void init_table_builder(int expected_tuples, int num_columns, schema_t *schema,
+void init_table_builder(uint64_t expected_tuples, int num_columns, schema_t *schema,
                         table_builder_t *tb) {
 
   tb->expected_tuples = expected_tuples;
