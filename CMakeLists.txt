@@ -49,21 +49,21 @@ set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
 #find_library(GLOG glog)
 link_directories(/usr/local/lib /opt/grpc/lib)
 include_directories("/opt/grpc/include")
+
 include_directories(${CMAKE_SOURCE_DIR})
 #/home/madhav/DB/linux-sgx/sgxsdk/include
 link_directories(/home/madhav/DB/linux-sgx/sgxsdk/lib64)
 find_library(SGXCRYPTO sgx_tcrypto)
 
 
-
-
 set(REPART_SRCS
     Repartition.cpp)
 
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/rpc)
 
 add_executable(vaultdb VaultDB.cpp)
 
-target_link_libraries(vaultdb gflags dl pthread asan g3logger profiler krpc pqxxcompat dataformat operators klogger)
+target_link_libraries(vaultdb gflags dl pthread asan krpc g3logger profiler pqxxcompat dataformat operators klogger)
 
 add_subdirectory(rpc)
 add_subdirectory(data)
