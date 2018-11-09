@@ -2,7 +2,6 @@
 // Created by root on 10/4/18.
 //
 #include <gtest/gtest.h>
-#include <pqxx/result>
 
 #include "operators/HashJoin.h"
 #include "data/postgres_client.h"
@@ -259,8 +258,7 @@ TEST_F(join_test, large_join) {
           "floor(random() * 100 +1)::int from generate_series(1,%d) s;",
           10000);
   std::string query_create(buf);
-  pqxx::result res2;
-  res2 = query(query_create, dbname);
+  query(query_create, dbname);
   std::string query_string = "SELECT * FROM test_large_join";
   table_t *t = get_table(query_string, dbname);
 

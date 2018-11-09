@@ -20,16 +20,15 @@ protected:
 TEST_F(sort_test, simple_sort) {
   //TODO(madhavsuresh): this test doesn't do anything
   std::string query1("create table sort_test (a INT, b INT)");
-  pqxx::result res2;
-  res2 = query(query1, dbname);
+  query(query1, dbname);
   query1 = "INSERT INTO sort_test (a,b) VALUES (7,6), (8,3), (9,1)";
-  res2 = query(query1, dbname);
+  query(query1, dbname);
   query1 = "SELECT * FROM sort_test;";
   table_builder_t *tb = table_builder_init(query1, dbname);
   sort_t sortex = {.colno = 1, .ascending = true};
   table_t *t = sort(tb->table, &sortex);
   std::string query_destroy("DROP TABLE sort_test");
-  res2 = query(query_destroy, dbname);
+  query(query_destroy, dbname);
   free_table(tb->table);
   free(tb);
 }
@@ -38,12 +37,11 @@ TEST_F(sort_test, simple_sort) {
 // information
 TEST_F(sort_test, swap_unit) {
   std::string query1("DROP TABLE if exists swap_test ");
-  pqxx::result res2;
-  res2 = query(query1, dbname);
+  query(query1, dbname);
   query1 = ("create table if not exists swap_test (a INT, b INT)");
-  res2 = query(query1, dbname);
+  query(query1, dbname);
   query1 = "INSERT INTO swap_test (a,b) VALUES (7,6), (8,3)";
-  res2 = query(query1, dbname);
+  query(query1, dbname);
   query1 = "SELECT * FROM swap_test;";
   table_builder_t *tb = table_builder_init(query1, dbname);
 
@@ -82,7 +80,7 @@ TEST_F(sort_test, swap_unit) {
   free(old_t0);
   free(old_t1);
   std::string query_destroy("DROP TABLE swap_test");
-  res2 = query(query_destroy, dbname);
+  query(query_destroy, dbname);
   free_table(tb->table);
   free(tb);
 }
@@ -90,17 +88,17 @@ TEST_F(sort_test, swap_unit) {
 TEST_F(sort_test, string_type) {
   //TODO(madhavsuresh): this test doesn't do anything
   std::string query1("create table sort_test (a varchar(16), b INT)");
-  pqxx::result res2;
-  res2 = query(query1, dbname);
+
+  query(query1, dbname);
   query1 =
       "INSERT INTO sort_test (a,b) VALUES ('hello',6), ('world',3), ('foo',1)";
-  res2 = query(query1, dbname);
+  query(query1, dbname);
   query1 = "SELECT * FROM sort_test;";
   table_builder_t *tb = table_builder_init(query1, dbname);
   sort_t sortex = {.colno = 1, .ascending = true};
   table_t *t = sort(tb->table, &sortex);
   std::string query_destroy("DROP TABLE sort_test");
-  res2 = query(query_destroy, dbname);
+  query(query_destroy, dbname);
   free_table(t);
   free(tb);
 }
@@ -114,8 +112,7 @@ void large_random_sort(int power_of_two) {
           "floor(random() * 100 +1)::int from generate_series(1,%d) s;",
           power_of_two);
   std::string query_create(buf);
-  pqxx::result res2;
-  res2 = query(query_create, dbname);
+  query(query_create, dbname);
   std::string query_string = "SELECT * FROM test_random_sort";
   pqxx::result t_random = query(query_string, dbname);
   table_builder_t *tb = table_builder_init(query_string, dbname);
@@ -133,7 +130,7 @@ void large_random_sort(int power_of_two) {
   free_table(tb->table);
   free(tb);
   std::string query_destroy("DROP TABLE test_random_sort");
-  res2 = query(query_destroy, dbname);
+  query(query_destroy, dbname);
 }
 
 void sort_swap_dummy_regression(int power_of_two) {
@@ -145,8 +142,7 @@ void sort_swap_dummy_regression(int power_of_two) {
           "floor(random() * 100 +1)::int from generate_series(1,%d) s;",
           power_of_two);
   std::string query_create(buf);
-  pqxx::result res2;
-  res2 = query(query_create, dbname);
+  query(query_create, dbname);
   std::string query_string = "SELECT * FROM test_random_sort";
   pqxx::result t_random = query(query_string, dbname);
   table_builder_t *tb = table_builder_init(query_string, dbname);
@@ -167,7 +163,7 @@ void sort_swap_dummy_regression(int power_of_two) {
   free_table(tb->table);
   free(tb);
   std::string query_destroy("DROP TABLE test_random_sort");
-  res2 = query(query_destroy, dbname);
+  query(query_destroy, dbname);
 }
 
 TEST_F(sort_test, large_random_sort_512) { large_random_sort(512); }
