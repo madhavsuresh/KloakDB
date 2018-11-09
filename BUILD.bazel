@@ -1,0 +1,71 @@
+cc_binary(
+    name = "vaultdb",
+    srcs = [
+        "VaultDB.cpp",
+    ],
+    deps = [
+        "//operators",
+        "//rpc:rpc_lib",
+        "@com_github_glog_glog//:glog",
+    ],
+)
+
+cc_library(
+    name = "foo",
+    srcs = ["foo.cpp"],
+    deps = ["@com_github_glog_glog//:glog"],
+)
+
+proto_library(
+    name = "vaultdb_proto",
+    srcs = [
+        "vaultdb.proto",
+    ],
+    visibility =
+        [
+            "//visibility:public",
+        ],
+)
+
+load("@build_stack_rules_proto//cpp:cpp_grpc_library.bzl", "cpp_grpc_library")
+
+cpp_grpc_library(
+    name = "vaultdb_grpc_lib",
+    deps = [":vaultdb_proto"],
+)
+
+#load("@build_stack_rules_proto//cpp:cpp_proto_library.bzl", "cpp_proto_library")
+#
+#cpp_proto_library(
+#    name = "vaultdb_proto_lib",
+#    verbose = 1,
+#    deps = [":vaultdb_proto"],
+#)
+#
+#cc_proto_library(
+#    name = "grpc_libs",
+#    deps = [
+#        ":vaultdb_proto",
+#    ],
+#)
+
+cc_library(
+    name = "rpc_lib",
+    srcs = [
+        "HonestBrokerClient.cpp",
+    ],
+    hdrs = [
+        "HonestBrokerClient.h",
+    ],  # all .h files
+    visibility = [
+        "//visibility:public",
+    ],
+    deps = [
+        ":vaultdb_grpc_lib",
+        "//glog_lib",
+        "//operators",
+        "//picosha2",
+        "//pqxx_lib",
+        "//table_statistics",
+    ],
+)

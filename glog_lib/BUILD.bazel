@@ -1,0 +1,12 @@
+cc_library(
+    name = "glog_lib",
+    srcs = ["Logger.cpp"],
+    hdrs = ["Logger.h"],
+    visibility =
+        [
+            "//visibility:public",
+        ],
+    deps = [
+        "//operators",
+    ],
+)

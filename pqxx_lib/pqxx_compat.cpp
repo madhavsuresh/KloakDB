@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iostream>
 #include "pqxx_compat.h"
-#include "postgres_client.h"
+#include "../operators/postgres_client.h"
 
 FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
     switch (oid) {

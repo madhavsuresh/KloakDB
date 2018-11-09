@@ -15,7 +15,7 @@ add_custom_command(OUTPUT vaultdb.pb.cc
 		PRE_BUILD
 		COMMAND protoc -I ${CMAKE_CURRENT_SOURCE_DIR} --cpp_out=. ${CMAKE_CURRENT_SOURCE_DIR}/vaultdb.proto)
 
-add_executable(DOServer DOServer.cpp ../postgres_client.cpp vaultdb.grpc.pb.cc vaultdb.pb.cc DOClient.h)
+add_executable(DOServer DOServer.cpp ../postgres_client.cpp DOClient.h)
 add_executable(DOClient DOClient.cpp ../postgres_client.cpp vaultdb.grpc.pb.cc vaultdb.pb.cc ../TableStatistics.cpp ../TableStatistics.h HonestBrokerImpl.cpp HonestBrokerImpl.h HonestBrokerPrivate.cpp HonestBrokerPrivate.h)
 add_library(HBGeneralize HBGeneralize.cpp DOClient.cpp ../postgres_client.cpp vaultdb.grpc.pb.cc vaultdb.pb.cc ../TableStatistics.cpp)
 target_link_libraries(DOServer grpc++ grpc gflags protobuf dl pqxx HBGeneralize)

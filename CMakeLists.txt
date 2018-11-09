@@ -76,7 +76,7 @@ add_test(NAME join_test COMMAND join_test)
 set(REPART_SRCS
     Repartition.cpp)
 
-add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/vaultdb.pb.cc rpc/vaultdb.grpc.pb.cc rpc/HonestBrokerImpl.cpp
+add_executable(vaultdb VaultDB.cpp postgres_client.cpp rpc/HonestBrokerImpl.cpp
         rpc/HonestBrokerPrivate.cpp rpc/HonestBrokerClient.cpp rpc/HonestBrokerClient.h rpc/DataOwnerPrivate.cpp
         rpc/DataOwnerPrivate.h rpc/DataOwnerImpl.cpp rpc/DataOwnerImpl.h rpc/InfoPrivate.cpp rpc/InfoPrivate.h
         rpc/DataOwnerClient.cpp rpc/DataOwnerClient.h Repartition.cpp Sort.cpp Filter.cpp Expressions.cpp Aggregate.cpp

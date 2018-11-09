@@ -1,0 +1,10 @@
+proto_library(
+    name = "vaultdb_proto",
+    srcs = [
+        "vaultdb.proto",
+    ],
+    visibility =
+        [
+            "//visibility:public",
+        ],
+)

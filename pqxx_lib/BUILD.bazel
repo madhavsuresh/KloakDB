@@ -1,0 +1,9 @@
+cc_library(
+    name = "pqxx_lib",
+    srcs = ["pqxx_compat.cpp"],
+    hdrs = ["pqxx_compat.h"],
+    visibility = [
+        "//visibility:public",
+    ],
+    deps = ["//operators"],
+)

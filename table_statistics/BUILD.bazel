@@ -1,0 +1,9 @@
+cc_library(
+    name = "table_statistics",
+    srcs = ["TableStatistics.cpp"],
+    hdrs = ["TableStatistics.h"],
+    visibility = [
+        "//visibility:public",
+    ],
+    deps = ["//operators"],
+)

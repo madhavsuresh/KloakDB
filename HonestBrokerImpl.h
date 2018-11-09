@@ -6,7 +6,7 @@
 #define PROJECT_HONESTBROKER_H
 
 #include "HonestBrokerPrivate.h"
-#include "rpc/vaultdb.grpc.pb.h"
+#include "vaultdb.grpc.pb.h"
 
 class HonestBrokerImpl final : public vaultdb::HonestBroker::Service {
 public:

@@ -1,0 +1,55 @@
+load("@build_stack_rules_proto//cpp:cpp_grpc_library.bzl", "cpp_grpc_library")
+
+cpp_grpc_library(
+    name = "vaultdb_grpc_lib",
+    deps = ["//proto:vaultdb_proto"],
+)
+
+load("@build_stack_rules_proto//cpp:cpp_proto_library.bzl", "cpp_proto_library")
+
+cpp_proto_library(
+    name = "vaultdb_proto_lib",
+    deps = ["//proto:vaultdb_proto"],
+)
+
+#cc_proto_library(
+#    name = "grpc_libs",
+#    deps = [
+#        ":vaultdb_proto",
+#    ],
+#)
+
+cc_library(
+    name = "rpc",
+    srcs = [
+        "DataOwnerClient.cpp",
+        "DataOwnerImpl.cpp",
+        "DataOwnerPrivate.cpp",
+        "HonestBrokerClient.cpp",
+        "HonestBrokerImpl.cpp",
+        "HonestBrokerPrivate.cpp",
+        "InfoPrivate.cpp",
+    ],
+    hdrs = [
+        "DataOwnerClient.h",
+        "DataOwnerImpl.h",
+        "DataOwnerPrivate.h",
+        "HonestBrokerClient.h",
+        "HonestBrokerImpl.h",
+        "HonestBrokerPrivate.h",
+        "InfoPrivate.h",
+        "Repartition.h",
+    ],  # all .h files
+    visibility = [
+        "//visibility:public",
+    ],
+    deps = [
+        ":vaultdb_grpc_lib",
+        ":vaultdb_proto_lib",
+        "//glog_lib",
+        "//operators",
+        "//picosha2",
+        "//pqxx_lib",
+        "//table_statistics",
+    ],
+)

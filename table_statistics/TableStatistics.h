@@ -4,7 +4,7 @@
 
 #ifndef PROJECT_TABLESTATISTICS_H
 #define PROJECT_TABLESTATISTICS_H >
-#include "postgres_client.h"
+#include "../operators/postgres_client.h"
 #include <map>
 
 class TableStatistics {

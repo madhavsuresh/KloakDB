@@ -1,0 +1,295 @@
+syntax = "proto3";
+
+package vaultdb;
+
+service VaultDBOperators {
+    rpc DBQuery (DBQueryRequest) returns (DBQueryResponse) {}
+    rpc GetTableStream (TableRequest) returns (stream TableStream){}
+    rpc GetTable (TableQueryRequest) returns (stream TableQueryResponse) {}
+}
+
+service HonestBroker {
+    rpc NumHosts (NumHostsRequest) returns (NumHostResp) {}
+    rpc Register (RegisterRequest) returns (RegisterResponse) {}
+    rpc GetControlFlowColumn (GetControlFlowColumnRequest) returns (GetControlFlowColumnResponse) {}
+}
+
+service DataOwner {
+    rpc DBMSQuery (DBMSQueryRequest) returns (DBMSQueryResponse){}
+    rpc GetPeerHosts (GetPeerHostsRequest) returns (GetPeerHostsResponse){}
+    rpc KFilter (KFilterRequest) returns (KFilterResponse){}
+    rpc KJoin (KJoinRequest) returns (KJoinResponse) {}
+    rpc KSort (KSortRequest) returns (KSortResponse) {}
+    rpc KAggregate (KAggregateRequest) returns (KAggregateResponse) {}
+    rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
+    rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
+    rpc RepartitionStepOne (RepartitionStepOneRequest) returns (RepartitionStepOneResponse) {}
+    rpc RepartitionStepTwo (RepartitionStepTwoRequest) returns (RepartitionStepTwoResponse) {}
+    rpc CoalesceTables (CoaleseTablesRequest) returns (CoaleseTablesResponse) {}
+}
+
+message CoaleseTablesRequest {
+    repeated TableID tablefragments = 1;
+}
+
+message CoaleseTablesResponse {
+    TableID id = 1;
+}
+
+message GetControlFlowColumnRequest {}
+
+message GetControlFlowColumnResponse{
+    ControlFlowColumn cf = 1;
+}
+
+message ControlFlowColumn {
+    int32 cfid = 1;
+}
+
+message RepartitionStepTwoRequest {
+    repeated TableID tablefragments = 1;
+}
+
+message RepartitionStepTwoResponse {
+    repeated TableID remoteRepartitionIDs = 1;
+}
+
+message RepartitionStepOneRequest {
+    TableID tableid = 1 ;
+}
+
+message TableID {
+    string dbname = 1;
+    string query = 2;
+    //TODO(madhavsuresh): this needs to be refactored to be hostID
+    int32 hostnum = 3;
+    int32 tableid = 4;
+}
+
+message RepartitionStepOneResponse {
+    repeated TableID remoteRepartitionIDs = 1;
+}
+
+message SendTableRequest {
+
+    // This message is unforuantely overloaded.
+    // The first message in the stream is the metadata associated with
+    // the query.
+    bool is_header = 2;
+    Schema schema = 3;
+    int32 num_tuples = 4;
+    int32 size_of_tuple = 5;
+    int32 num_tuple_pages = 6;
+
+    int32 page_no = 7;
+    bytes page = 8;
+
+}
+message SendTableResponse {
+    int32 tableID = 1;
+}
+
+message KFilterRequest {
+    TableID tid = 1;
+    Expr expr = 2;
+}
+
+message KFilterResponse {
+    TableID tid = 1;
+}
+
+message KJoinRequest {
+    TableID left_tid = 1;
+    TableID right_tid = 2;
+    JoinDef def = 3;
+}
+
+message KJoinResponse {
+    TableID tid = 1;
+}
+
+message GroupByDef {
+    enum GroupByType {
+        UNSUPPORTED = 0;
+        MINX = 1;
+        COUNT = 2;
+    }
+    GroupByType type = 1;
+    int32 col_no = 2;
+}
+
+message KAggregateRequest {
+    TableID tid = 1;
+    GroupByDef def = 2;
+}
+
+message KAggregateResponse {
+    TableID tid = 1;
+}
+
+message JoinColID {
+    enum RelationSide {
+        LEFT = 0;
+        RIGHT = 1;
+    }
+    RelationSide side = 1;
+    int32 col_no = 2;
+}
+
+message JoinDef {
+    int32 l_col = 1;
+    int32 r_col = 2;
+    int32 project_len = 3;
+    repeated JoinColID project_list = 4;
+}
+
+message KSortRequest {
+    TableID tid = 1;
+    SortDef sortdef = 2;
+}
+
+message KSortResponse {
+    TableID tid = 1;
+}
+
+message GeneralizeRequest {
+
+}
+
+message GeneralizeResponse {
+
+}
+
+message PeerHostInfo {
+    string hostname = 1;
+    int32 hostnum = 2;
+}
+
+message GetPeerHostsRequest {
+    repeated PeerHostInfo hostnames = 1;
+}
+
+message GetPeerHostsResponse {}
+
+
+message DBMSQueryRequest {
+    string dbname = 1;
+    string query = 2;
+}
+
+message DBMSQueryResponse {
+    TableID tableId = 1;
+}
+
+message RegisterRequest {
+    string hostname = 1;
+}
+
+message RegisterResponse {
+    int32 host_num = 1;
+}
+
+message NumHostsRequest {
+}
+
+message NumHostResp {
+    int32 num_hosts = 1;
+}
+
+message DBQueryRequest {
+    string query_string = 1;
+    string dbname = 2;
+}
+
+message DBQueryResponse {
+    string db_response = 1;
+}
+
+message TableRequest {
+
+}
+
+message TableResponse {
+    Table t = 1;
+}
+
+message schema {
+    repeated Table q = 2;
+}
+
+message TableStream {
+    Table t = 1;
+    int32 page_no = 3;
+    bytes page = 4;
+}
+
+message Expr {
+    enum ExprType {
+        UNSUPPORTED_EXPR = 0;
+        EQ_EXPR = 1;
+    }
+
+    ExprType type = 1;
+    int32 colno = 2;
+    FieldDesc desc = 3;
+    int32 intfield = 4;
+    string charfield = 5;
+}
+
+//TODO(madhavsuresh): do we need to serialize/unserialize the schema?
+message Table {
+    int32 num_tuple_pages = 1;
+    int32 num_tuples = 2;
+    int32 size_of_tuple = 3;
+    bytes schema = 4;
+}
+
+message TuplePage {
+    int32 page_no = 1;
+    bytes page = 2;
+}
+
+
+message FieldDesc {
+    string field_name = 1;
+    int32 col_no = 2;
+
+    enum FieldType {
+        UNSUPPORTED = 0;
+        FIXEDCHAR = 1;
+        INT = 2;
+    }
+    FieldType field_type = 3;
+}
+
+message Schema {
+    int32 num_fields = 1;
+    repeated FieldDesc field = 2;
+}
+
+message SortDef {
+    int32 colno = 1;
+    bool ascending = 2;
+}
+
+
+message TableQueryRequest {
+    string dbname = 1;
+    string query = 2;
+}
+
+message TableQueryResponse {
+    // This message is unforuantely overloaded.
+    // The first message in the stream is the metadata associated with
+    // the query.
+    bool is_header = 2;
+    Schema schema = 3;
+    int32 num_tuples = 4;
+    int32 size_of_tuple = 5;
+    int32 num_tuple_pages = 6;
+
+    int32 page_no = 7;
+    bytes page = 8;
+}
+
+

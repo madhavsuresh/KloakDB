@@ -3,14 +3,14 @@
 //
 
 #include "DataOwnerImpl.h"
-#include "../pqxx_lib/pqxx_compat.h"
-#include "../operators/Filter.h"
+#include "pqxx_lib/pqxx_compat.h"
+#include "operators/Filter.h"
 #include "Repartition.h"
-#include "../operators/Sort.h"
+#include "operators/Sort.h"
 #include "DataOwnerPrivate.h"
-#include "../operators/HashJoin.h"
-#include "../operators/Aggregate.h"
-#include "../glog_lib/Logger.h"
+#include "operators/HashJoin.h"
+#include "operators/Aggregate.h"
+#include "glog_lib/Logger.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
 

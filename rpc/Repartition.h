@@ -1,5 +1,5 @@
-#include "operators/postgres_client.h"
-#include "DataOwnerPrivate.h"
+#include "../operators/postgres_client.h"
+#include "rpc/DataOwnerPrivate.h"
 #include <cstdint>
 #include <utility>
 

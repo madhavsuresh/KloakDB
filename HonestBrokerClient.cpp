@@ -3,8 +3,8 @@
 //
 
 #include "HonestBrokerClient.h"
-#include "root/DB/vaultdb_operators/bazel-out/k8-fastbuild/genfiles/rpc/vaultdb_grpc_lib_pb/vaultdb.grpc.pb.h"
-#include "root/DB/vaultdb_operators/bazel-out/k8-fastbuild/genfiles/rpc/vaultdb_grpc_lib_pb/vaultdb.pb.h"
+#include "vaultdb.grpc.pb.h"
+#include "vaultdb.pb.h"
 
 ::vaultdb::ControlFlowColumn HonestBrokerClient::GetControlFlowColID() {
   vaultdb::GetControlFlowColumnRequest req;

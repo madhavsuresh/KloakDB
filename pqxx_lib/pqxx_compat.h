@@ -5,7 +5,7 @@
 #ifndef PROJECT_PQXX_COMPAT_H
 #define PROJECT_PQXX_COMPAT_H
 #include <pqxx/pqxx>
-#include "postgres_client.h"
+#include "../operators/postgres_client.h"
 
 table_builder_t *table_builder_init(std::string query_string, std::string dbname);
 table_t *get_table(std::string query_string, std::string dbname);

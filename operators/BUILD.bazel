@@ -1,0 +1,23 @@
+cc_library(
+    name = "operators",
+    srcs = [
+        "Aggregate.cpp",
+        "Expressions.cpp",
+        "Filter.cpp",
+        "HashJoin.cpp",
+        "Sort.cpp",
+        "postgres_client.cpp",
+    ],
+    hdrs = [
+        "Aggregate.h",
+        "Expressions.h",
+        "Filter.h",
+        "HashJoin.h",
+        "Sort.h",
+        "postgres_client.h",
+    ],
+    visibility = ["//visibility:public"],
+    deps = [
+        "//picosha2",
+    ],
+)

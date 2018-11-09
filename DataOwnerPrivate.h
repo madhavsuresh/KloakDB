@@ -5,7 +5,7 @@
 #ifndef PROJECT_DATAOWNERPRIVATE_H
 #define PROJECT_DATAOWNERPRIVATE_H
 
-#include "../operators/postgres_client.h"
+#include "operators/postgres_client.h"
 #include "DataOwnerClient.h"
 #include "HonestBrokerClient.h"
 #include "InfoPrivate.h"
