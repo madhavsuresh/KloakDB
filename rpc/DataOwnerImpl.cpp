@@ -7,7 +7,7 @@
 #include "operators/Filter.h"
 #include "operators/HashJoin.h"
 #include "logger/Logger.h"
-#include "operators/Repartition.h"
+#include "Repartition.h"
 #include "operators/Sort.h"
 #include "data/pqxx_compat.h"
 #include "DataOwnerPrivate.h"
