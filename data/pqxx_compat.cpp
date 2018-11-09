@@ -159,6 +159,5 @@ pqxx::result query(std::string query_string, std::string dbname) {
   }
 
   txn.commit();
-  txn.commit();
   return res;
 }
