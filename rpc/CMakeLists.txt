@@ -10,17 +10,37 @@ find_library(PROTOBUF protobuf)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vaultdb.grpc.pb.cc ${CMAKE_CURRENT_BINARY_DIR}/vaultdb.grpc.pb.h
-		   PRE_BUILD
-		   COMMAND protoc -I ${CMAKE_CURRENT_SOURCE_DIR} --grpc_out=. --plugin=protoc-gen-grpc=/opt/grpc/bin/grpc_cpp_plugin ${CMAKE_CURRENT_SOURCE_DIR}/vaultdb.proto)
+get_filename_component(vdb_proto "protos/vaultdb.proto" ABSOLUTE)
+get_filename_component(vdb_proto_path "${vdb_proto}" PATH)
 
-add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vaultdb.pb.cc ${CMAKE_CURRENT_BINARY_DIR}/vaultdb.pb.h
-		PRE_BUILD
-		COMMAND protoc -I ${CMAKE_CURRENT_SOURCE_DIR} --cpp_out=. ${CMAKE_CURRENT_SOURCE_DIR}/vaultdb.proto)
+set(vdb_proto_srcs "${CMAKE_CURRENT_BINARY_DIR}/vaultdb.pb.cc")
+set(vdb_proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/vaultdb.pb.h")
+set(vdb_grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/vaultdb.grpc.pb.cc")
+set(vdb_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/vaultdb.grpc.pb.h")
+
+
+#add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vaultdb.grpc.pb.cc ${CMAKE_CURRENT_BINARY_DIR}/vaultdb.grpc.pb.h
+#		   PRE_BUILD
+#		   COMMAND protoc -I ${CMAKE_CURRENT_SOURCE_DIR} --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin ${CMAKE_CURRENT_SOURCE_DIR}/vaultdb.proto)
+#
+#add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/vaultdb.pb.cc ${CMAKE_CURRENT_BINARY_DIR}/vaultdb.pb.h
+#		PRE_BUILD
+#		COMMAND protoc -I ${CMAKE_CURRENT_SOURCE_DIR} --cpp_out=. ${CMAKE_CURRENT_SOURCE_DIR}/vaultdb.proto)
 
 #add_library(HBGeneralize HBGeneralize.cpp ../postgres_client.cpp vaultdb.grpc.pb.cc vaultdb.pb.cc ../TableStatistics.cpp)
 
-add_library(krpc vaultdb.pb.cc vaultdb.grpc.pb.cc vaultdb.grpc.pb.h vaultdb.pb.h HonestBrokerImpl.cpp HonestBrokerPrivate.cpp HonestBrokerClient.cpp
+add_custom_command(
+		OUTPUT "${vdb_proto_srcs}" "${vdb_proto_hdrs}" "${vdb_grpc_srcs}" "${vdb_grpc_hdrs}"
+		COMMAND protoc
+		ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
+		--cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
+		-I "${vdb_proto_path}"
+		--plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
+		"${vdb_proto}"
+		DEPENDS "${vdb_proto}")
+
+
+add_library(krpc ${vdb_proto_srcs} ${vdb_grpc_srcs} HonestBrokerImpl.cpp HonestBrokerPrivate.cpp HonestBrokerClient.cpp
 	DataOwnerPrivate.cpp DataOwnerImpl.cpp InfoPrivate.cpp DataOwnerClient.cpp Repartition.cpp)
 
 target_link_libraries(krpc grpc grpc++ protobuf dl klogger)
