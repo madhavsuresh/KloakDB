@@ -15,6 +15,7 @@ service HonestBroker {
 }
 
 service DataOwner {
+    rpc GetTable (GetTableRequest) returns (stream GetTableResponse) {}
     rpc DBMSQuery (DBMSQueryRequest) returns (DBMSQueryResponse){}
     rpc GetPeerHosts (GetPeerHostsRequest) returns (GetPeerHostsResponse){}
     rpc KFilter (KFilterRequest) returns (KFilterResponse){}
@@ -22,10 +23,30 @@ service DataOwner {
     rpc KSort (KSortRequest) returns (KSortResponse) {}
     rpc KAggregate (KAggregateRequest) returns (KAggregateResponse) {}
     rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
+    // SendTable sends a table t to the receiving host
     rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
     rpc RepartitionStepOne (RepartitionStepOneRequest) returns (RepartitionStepOneResponse) {}
     rpc RepartitionStepTwo (RepartitionStepTwoRequest) returns (RepartitionStepTwoResponse) {}
     rpc CoalesceTables (CoaleseTablesRequest) returns (CoaleseTablesResponse) {}
+}
+
+message GetTableRequest {
+    TableID id = 1;
+}
+
+message GetTableResponse {
+    // TODO(madhavsuresh) this is copy paste from SendTable, oops!
+    // This message is unforuantely overloaded.
+    // The first message in the stream is the metadata associated with
+    // the query.
+    bool is_header = 2;
+    Schema schema = 3;
+    int32 num_tuples = 4;
+    int32 size_of_tuple = 5;
+    int32 num_tuple_pages = 6;
+
+    int32 page_no = 7;
+    bytes page = 8;
 }
 
 message CoaleseTablesRequest {
@@ -86,6 +107,7 @@ message SendTableRequest {
 
 }
 message SendTableResponse {
+    //TODO(madhavsuresh) refactor this to be the tableid
     int32 tableID = 1;
 }
 
