@@ -2,6 +2,7 @@
 #include "Expressions.h"
 #include <cstring>
 #include <map>
+#include <unordered_map>
 
 schema_t agg_schema(int32_t colno, table_t *t) {
   schema_t agg_schema;
@@ -19,7 +20,7 @@ schema_t agg_schema(int32_t colno, table_t *t) {
 
 table_t *aggregate_count(table_t *t, uint32_t colno) {
   // TODO(madhavsuresh): add unconditional writes
-  std::map<std::string, int> agg_map;
+  std::unordered_map<std::string, int> agg_map;
   // This will always be the same.
   if (t->num_tuples == 0) {
     throw;
@@ -96,7 +97,7 @@ schema_t agg_schema_avg(groupby_def_t *def, table_t *t) {
 }
 
 table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
-  std::map<std::string, std::vector<int>> agg_map;
+  std::unordered_map<std::string, std::vector<int>> agg_map;
   for (int i = 0; i < t->num_tuples; i++) {
     tuple_t *tup = get_tuple(i, t);
     std::string key = "";
