@@ -2,13 +2,11 @@
 
 echo "Setting up for vaultdb"
 PASSWORD="password"
-apt-get -y install git #git wasn't there on base installation
 
 mkdir build && mkdir lib && cd lib # make build dir and lib dir
 ## IN LIB folder
 echo $(PASSWORD) | sudo -S apt-get update
-echo $(PASSWORD) | sudo -S apt-get install build-essential autoconf libtool pkg-config
-echo $(PASSWORD) | sudo -S apt install cmake
+echo $(PASSWORD) | sudo -S apt-get -y install build-essential autoconf libtool pkg-config cmake git
 
 git clone https://github.com/grpc/grpc.git
     # in grpc
