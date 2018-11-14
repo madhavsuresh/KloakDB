@@ -6,7 +6,7 @@ PASSWORD="password"
 mkdir build && mkdir lib && cd lib # make build dir and lib dir
 ## IN LIB folder
 echo $(PASSWORD) | sudo -S apt-get update
-echo $(PASSWORD) | sudo -S apt-get -y install build-essential autoconf libtool pkg-config cmake git
+echo $(PASSWORD) | sudo -S apt-get -y install build-essential autoconf libtool pkg-config cmake git libprotoc-dev libgflags-dev
 
 git clone https://github.com/grpc/grpc.git
     # in grpc
@@ -27,12 +27,12 @@ mkdir build
 cd build
 cmake ..
 make
-echo password | sudo -S make install
+echo $(PASSWORD) | sudo -S make install
 
 
 cd .. # back to /lib
-echo password | sudo -S apt-get install libpqxx-dev # get libpqxx
-echo $(PASSWORD) | sudo -S apt-get install libgoogle-perftools-dev
+echo password | sudo -S apt-get -y install libpqxx-dev # get libpqxx
+echo $(PASSWORD) | sudo -S apt-get -y install protobuf-compiler-grpc libgoogle-perftools-dev
 
 cd ~/vaultdb_operators # back to root vaultdb
 cd build
