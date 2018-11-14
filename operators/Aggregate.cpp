@@ -55,7 +55,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
   // TODO(madhavsuresh): remove all frees inside of operators
   table_builder_t tb;
   init_table_builder(agg_map.size(), 2 /*num_columns*/, &schema, &tb);
-  tuple_t *tup = (tuple_t *)malloc(tb.size_of_tuple);
+  auto *tup = (tuple_t *)malloc(tb.size_of_tuple);
   tup->is_dummy = false;
   for (const auto &agg_pair : agg_map) {
     tup->field_list[0].type = schema.fields[0].type;
