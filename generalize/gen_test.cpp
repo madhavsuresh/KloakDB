@@ -29,6 +29,7 @@ protected:
 };
 
 typedef int cf_hash;
+typedef int cf_gen;
 typedef int hostnum;
 typedef int count;
 typedef int numhosts;
@@ -68,6 +69,35 @@ void merge(std::unordered_map<cf_hash, std::vector<std::tuple<hostnum, count, cf
 
 bool kscore(std::tuple<int, count> p1, std::tuple<int, count> p2) {
   return std::get<1>(p1) < std::get<1>(p2);
+}
+
+void log_stats(std::unordered_map<cf_hash, std::vector<std::tuple<hostnum, count, cf_hash>>> gen_map, int k) {
+  int max_size = 0;
+  double total_size = 0;
+  double avg_num_blah = 0;
+  for (auto &i : gen_map) {
+    int curr_size = 0;
+    avg_num_blah += i.second.size();
+    for (auto &j : i.second) {
+      curr_size += std::get<1>(j);
+    }
+    if (max_size < curr_size) {
+      max_size = curr_size;
+    }
+    if (curr_size < k) {
+      std::cout << "THIS IS BAD!!" << std::endl;
+    }
+    total_size += curr_size;
+  }
+  std::cout << std::endl << gen_map.size() <<  "max size: " << max_size <<  "average size " << total_size/ gen_map.size() << " num cf_per class" << avg_num_blah / gen_map.size() <<  std::endl;
+
+}
+
+std::map<cf_hash, cf_gen>& generate_genmap(std::unordered_map<cf_hash, std::vector<std::tuple<hostnum, count, cf_hash>>> gen_map) {
+  std::map<cf_hash, cf_gen> output_map;
+  for (auto &g: gen_map) {
+
+  }
 }
 
 /*
@@ -112,6 +142,7 @@ void generalize(std::vector<std::pair<hostnum, table_t *>> host_table_pairs,
         auto m1 = std::get<0>(merges[forward]);
         auto m2 = std::get<0>(merges[backward]);
         merge(gen_map, m1, m2);
+        backward--;
         while (!is_kanon(gen_map[m1], num_hosts, k) && backward > forward) {
           auto m3 = std::get<0>(merges[backward]);
           merge(gen_map, m1, m3);
@@ -121,7 +152,6 @@ void generalize(std::vector<std::pair<hostnum, table_t *>> host_table_pairs,
       }
     }
     merges.clear();
-    //std::cout << gen_map.size() << std::endl;
     for (auto g : gen_map) {
       if (!is_kanon(g.second, num_hosts, k)) {
         int score = 0;
@@ -132,34 +162,17 @@ void generalize(std::vector<std::pair<hostnum, table_t *>> host_table_pairs,
         merges.emplace_back(g.first, score);
       }
     }
-    std::cout << "MERGES SIZE: " << merges.size();
     if (merges.size() > 1) {
       needs_merging = true;
     } else if (merges.size() == 1) {
-
+      merge(gen_map, 0, std::get<0>(merges[0]));
     } else {
       needs_merging = false;
     }
   }
-  int max_size = 0;
-  double total_size = 0;
-  double avg_num_blah = 0;
-  for (auto &i : gen_map) {
-    int curr_size = 0;
-    avg_num_blah += i.second.size();
-    for (auto &j : i.second) {
-      curr_size += std::get<1>(j);
-    }
-    if (max_size < curr_size) {
-      max_size = curr_size;
-    }
-    if (curr_size < k) {
-      std::cout << "THIS IS BAD!!" << std::endl;
-    }
-    total_size += curr_size;
-  }
-  std::cout << std::endl << gen_map.size() <<  "max size: " << max_size <<  "average size " << total_size/ gen_map.size() << " num cf_per class" << avg_num_blah / gen_map.size() <<  std::endl;
+  log_stats(gen_map, k);
 }
+
 
 TEST_F(gen_test, single_host) {
   query("CREATE TABLE gen_test (a INT, b INT)", dbname);
