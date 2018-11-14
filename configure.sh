@@ -1,12 +1,15 @@
 #!/bin/bash
 
+
 echo "Setting up for vaultdb"
-PASSWORD="password"
+echo -n Password:
+read -s PASSWORD
+#PASSWORD="" #password"
 
 mkdir build && mkdir lib && cd lib # make build dir and lib dir
 ## IN LIB folder
-echo $(PASSWORD) | sudo -S apt-get update
-echo $(PASSWORD) | sudo -S apt-get -y install build-essential autoconf libtool pkg-config cmake git libprotoc-dev libgflags-dev libpqxx-dev protobuf-compiler-grpc libgoogle-perftools-dev
+echo $PASSWORD | sudo -S apt-get update
+echo $PASSWORD | sudo -S apt-get -y install build-essential autoconf libtool pkg-config cmake git libprotoc-dev libgflags-dev libpqxx-dev protobuf-compiler-grpc libgoogle-perftools-dev
 
 
 #grpc installation
@@ -14,7 +17,7 @@ git clone https://github.com/grpc/grpc.git
     cd grpc
     git submodule update --init
     make
-    echo password | sudo -S make install
+    echo $PASSWORD | sudo -S make install
 # back in lib
 cd ..
 
@@ -28,7 +31,7 @@ mkdir build
 cd build
 cmake ..
 make
-echo $(PASSWORD) | sudo -S make install
+echo $PASSWORD | sudo -S make install
 
 
 cd ~/vaultdb_operators # back to root vaultdb
