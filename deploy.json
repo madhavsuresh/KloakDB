@@ -1,0 +1,21 @@
+{
+  "HB":{
+    "user": "wdw133",
+    "address":"robin.eecs.northwestern.edu",
+    "port":"50000"
+  },
+  "Hosts":[
+    {
+      "label": "label can be optional?",
+      "user": "wdw133",
+      "address":"batman.eecs.northwestern.edu",
+      "port":"50001"
+    },
+    {
+      "user": "wdw133",
+      "address":"joker.eecs.northwestern.edu",
+      "port":"50002"
+    }
+  ],
+  "Experiments":["1","2","3"]
+}

@@ -17,7 +17,6 @@ if [ ! -d "lib" ]; then
 fi
 
 
-
 #gflags installation
 cd $BASEDIR/external
 if [ ! -d "gflags" ]; then
