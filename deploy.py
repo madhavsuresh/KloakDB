@@ -38,6 +38,10 @@ def run_command(user,address, command,ssh):
 
     return
 
+def kill_vaultdb(user,address,ssh):
+    command = "killall -9 vaultdb"
+    run_command(user,address,command,ssh)
+
 def start_vaultdb_host(user,address, port, hb_info, ssh,experiment_number):
 
     print("Connecting to %s to start vault db"% (address))
@@ -65,19 +69,6 @@ def start_vaultdb_hb(user,address, port, ssh, experiment_number):
 
 BASE_DIR = os.getcwd()
 
-try:
-    os.chdir('cmake-build-debug')
-except:
-    os.mkdir('cmake-build-debug')
-    os.chdir('cmake-build-debug')
-
-call(['cmake','..'])
-call(['make','clean'])
-call(['make', 'vaultdb'])
-
-# call(['cp', 'vaultdb', '..'])
-# os.chdir('..')
-
 ssh = paramiko.SSHClient()
 ssh.load_system_host_keys() # loads current ssh authorized hosts/keys
 ssh.set_missing_host_key_policy(paramiko.WarningPolicy) # if not found add
@@ -89,11 +80,15 @@ with open(BASE_DIR + "/deploy.json") as json_data:
 
     # download and compile vaultdb on every machine
     hb_addr_port = data["HB"]["address"] + ":" + data["HB"]["port"]
-    get_and_build_vaultdb(data["HB"]["user"], data["HB"]["address"])
+ #   get_and_build_vaultdb(data["HB"]["user"], data["HB"]["address"])
 
     host_list = data["Hosts"]
     for host in host_list:
-        get_and_build_vaultdb(host["user"], host["address"],ssh)
+  #      get_and_build_vaultdb(host["user"], host["address"],ssh)
+	command = "LD_LIBRARY_PATH=~/vaultdb_operators/lib/lib"
+	run_command(host["user"],host["address"], command,ssh)
+	command = "export LD_LIBRARY_PATH"
+	run_command(host["user"],host["address"], command,ssh)
 
 
     experiments = data["Experiments"]
