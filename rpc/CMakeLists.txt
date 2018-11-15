@@ -1,6 +1,8 @@
 link_directories(/usr/local/lib /home/madhav/DB/grpc/libs/opt/)
 set(CMAKE_BUILD_TYPE Debug)
-LIST(APPEND CMAKE_PROGRAM_PATH /opt/grpc/bin)
+LIST(APPEND CMAKE_PROGRAM_PATH ${CMAKE_SOURCE_DIR}/lib/bin)
+find_program(PROTOC protoc ${CMAKE_SOURCE_DIR}/lib/bin)
+find_program(GRPC_PROTO_PLUGIN grpc_cpp_plugin ${CMAKE_SOURCE_DIR}/lib/bin)
 
 find_library(GRPC++ grpc++)
 find_library(GRPC grpc)
@@ -31,11 +33,11 @@ set(vdb_grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/vaultdb.grpc.pb.h")
 
 add_custom_command(
 		OUTPUT "${vdb_proto_srcs}" "${vdb_proto_hdrs}" "${vdb_grpc_srcs}" "${vdb_grpc_hdrs}"
-		COMMAND protoc
+		COMMAND ${PROTOC}
 		ARGS --grpc_out "${CMAKE_CURRENT_BINARY_DIR}"
 		--cpp_out "${CMAKE_CURRENT_BINARY_DIR}"
 		-I "${vdb_proto_path}"
-		--plugin=protoc-gen-grpc=`which grpc_cpp_plugin`
+		--plugin=protoc-gen-grpc=${GRPC_PROTO_PLUGIN}
 		"${vdb_proto}"
 		DEPENDS "${vdb_proto}")
 
