@@ -15,8 +15,17 @@ rm -rf external
 mkdir build && mkdir lib && mkdir external && cd external # make build dir and lib dir
 ## IN LIB folder
 echo $PASSWORD | sudo -S apt-get update
-echo $PASSWORD | sudo -S apt-get -y install build-essential autoconf libtool pkg-config cmake git libgflags-dev libgoogle-perftools-dev
+echo $PASSWORD | sudo -S apt-get -y install build-essential autoconf libtool pkg-config cmake git clang libgoogle-perftools-dev
 
+
+#gflags installation
+git clone https://github.com/gflags/gflags.git
+  cd gflags
+  mkdir build && cd build
+  cmake -DCMAKE_INSTALL_PREFIX=$BASE/lib ..
+  make -j10
+  make install
+cd $BASEDIR/external
 
 #grpc installation
 git clone --branch v1.16.1 https://github.com/grpc/grpc.git
