@@ -17,5 +17,7 @@
       "port":"50002"
     }
   ],
-  "Experiments":["1","2","3"]
+  "BASE_DIR": "/home/will/",
+  "Experiments":["1"],
+  "Github": "git@github.com:madhavsuresh/vaultdb_operators.git"
 }
