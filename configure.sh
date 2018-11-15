@@ -22,7 +22,7 @@ echo $PASSWORD | sudo -S apt-get -y install build-essential autoconf libtool pkg
 git clone https://github.com/gflags/gflags.git
   cd gflags
   mkdir build && cd build
-  cmake -DCMAKE_INSTALL_PREFIX=$BASE/lib ..
+  cmake -DCMAKE_INSTALL_PREFIX=$BASEDIR/lib ..
   make -j10
   make install
 cd $BASEDIR/external
