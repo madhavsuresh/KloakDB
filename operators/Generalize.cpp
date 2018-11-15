@@ -23,10 +23,22 @@ typedef double score;
 bool is_kanon(std::vector<std::tuple<hostnum, tup_count, cf_hash>> equiv_class,
               int num_hosts, int k) {
 
+  int curr_host = std::get<0>(equiv_class[0]);
+  bool one_host = true;
+  for (auto &i : equiv_class) {
+    if (std::get<0>(i) != curr_host) {
+      one_host = false;
+      break;
+    }
+  }
   // If there is only one host in an equivalence class,
   // we only need it to be more than k.
-  if (equiv_class.size() == 1) {
-    if (std::get<1>(equiv_class[0]) < k) {
+  if (one_host) {
+    int num_tuples = 0;
+    for (auto &i : equiv_class) {
+      num_tuples += std::get<1>(i);
+    }
+    if (num_tuples < k) {
       return false;
     }
     return true;
@@ -50,6 +62,11 @@ void merge(
     std::unordered_map<
         cf_hash, std::vector<std::tuple<hostnum, tup_count, cf_hash>>> &gen_map,
     cf_hash h1, cf_hash h2) {
+
+
+  if (gen_map.find(h1) == gen_map.end() || gen_map.find(h2) == gen_map.end()) {
+    throw std::invalid_argument("Trying to merge to nonexistant class");
+  }
   for (auto &i : gen_map[h2]) {
     gen_map[h1].push_back(i);
   }
@@ -118,6 +135,39 @@ table_t * generate_genmap_table(
   return tb.table;
 }
 
+template <typename TK, typename TV>
+std::vector<TK> extract_keys(std::unordered_map<TK, TV> const &input_map) {
+  std::vector<TK> retval;
+  for (auto const &element : input_map) {
+    retval.push_back(element.first);
+  }
+  return retval;
+}
+
+cf_hash find_smallest_equiv_not_eq(
+    std::unordered_map<cf_hash,
+                       std::vector<std::tuple<hostnum, tup_count, cf_hash>>>
+        gen_map,
+    cf_hash eq_class) {
+  auto keys = extract_keys(gen_map);
+  uint64_t min_val = INTMAX_MAX;
+  cf_hash cf_hash_key = -1;
+  for (auto k : keys) {
+    if (k == eq_class) {
+      continue;
+    }
+    int num_tuples = 0;
+    for (auto &i : gen_map[k]) {
+      num_tuples += std::get<1>(i);
+    }
+    if (num_tuples < min_val) {
+      min_val = num_tuples;
+      cf_hash_key = k;
+    }
+  }
+  return cf_hash_key;
+}
+
 /*
  * This is a greedy generalization algorithm. As input, it takes a list of
  * tables indexed by host, number of hosts in the cluster, and the k anonymous
@@ -157,13 +207,16 @@ table_t * generalize(std::vector<std::pair<hostnum, table_t *>> host_table_pairs
   bool needs_merging = true;
   std::vector<std::tuple<cf_hash, score>> merges;
 
+  // TODO(madhavsuresh): there is a bug here
   while (needs_merging) {
     std::sort(merges.begin(), merges.end(), kscore);
     if (merges.size() >= 2) {
       int forward = 0;
       int backward = merges.size() - 1;
       while (forward < backward) {
-
+        if (merges.size() <= forward) {
+          throw std::invalid_argument("This is not a valid merge argument");
+        }
         auto m1 = std::get<0>(merges[forward]);
         auto m2 = std::get<0>(merges[backward]);
         merge(gen_map, m1, m2);
@@ -190,12 +243,14 @@ table_t * generalize(std::vector<std::pair<hostnum, table_t *>> host_table_pairs
     if (merges.size() > 1) {
       needs_merging = true;
     } else if (merges.size() == 1) {
-      merge(gen_map, 0, std::get<0>(merges[0]));
+      cf_hash smallest =
+          find_smallest_equiv_not_eq(gen_map, std::get<0>(merges[0]));
+      merge(gen_map, smallest, std::get<0>(merges[0]));
     } else {
       needs_merging = false;
     }
   }
   log_stats(gen_map, k);
-  //return nullptr;
+  // return nullptr;
   return generate_genmap_table(gen_map);
 }
