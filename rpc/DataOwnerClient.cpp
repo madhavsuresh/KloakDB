@@ -221,6 +221,7 @@ table_t * DataOwnerClient::GetTable(::vaultdb::TableID id) {
 }
 
 // TODO(madhavsuresh): refactor this to return
+// tableid
 int DataOwnerClient::SendTable(table_t *t) {
   ::vaultdb::SendTableResponse resp;
   ::grpc::ClientContext context;
