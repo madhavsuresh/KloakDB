@@ -5,3 +5,6 @@ Kloak_*
 todo.txt
 compile_commands.json
 cmake-build-debug/
+build/
+lib/ 
+external/
