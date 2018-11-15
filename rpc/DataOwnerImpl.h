@@ -22,6 +22,11 @@ public:
                            ::vaultdb::DBMSQueryResponse *response);
 
   ::grpc::Status
+  GetTable(::grpc::ServerContext *context,
+           const ::vaultdb::GetTableRequest *request,
+           ::grpc::ServerWriter<::vaultdb::GetTableResponse> *writer);
+
+  ::grpc::Status
   SendTable(::grpc::ServerContext *context,
             ::grpc::ServerReader<::vaultdb::SendTableRequest> *reader,
             ::vaultdb::SendTableResponse *response);

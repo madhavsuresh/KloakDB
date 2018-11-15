@@ -3,6 +3,7 @@
 //
 
 #include "HonestBrokerPrivate.h"
+#include "operators/Generalize.h"
 #include <gflags/gflags.h>
 
 DEFINE_int32(expected_num_hosts, 1, "Expected number of hosts");
@@ -19,6 +20,26 @@ int HonestBrokerPrivate::RegisterPeerHosts() {
     do_clients[i]->GetPeerHosts(numToHostMap);
   }
 }
+
+std::string count_star_query(std::string table_name, std::string column) {
+  return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " + column;
+}
+// TODO(madhavsuresh): support multiple column generalization
+void HonestBrokerPrivate::Generalize(std::string table_name, std::string column, std::string dbname) {
+  std::string query_string = count_star_query(table_name, column);
+
+  std::vector<::vaultdb::TableID> tids;
+  for (int i = 0; i < this->num_hosts; i++) {
+    auto tid = this->DBMSQuery(i, dbname, query_string);
+    tids.push_back(tid);
+  }
+  std::vector<std::pair<hostnum, table_t*>> gen_tables;
+  for (auto &t : tids ) {
+    gen_tables.emplace_back(t.hostnum(), do_clients[t.hostnum()]->GetTable(t));
+  }
+  table_t * gen_map = generalize(gen_tables, this->NumHosts(), 5);
+}
+
 
 int HonestBrokerPrivate::RegisterHost(std::string hostName) {
   this->registrationMutex.lock();
