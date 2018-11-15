@@ -12,6 +12,8 @@
 #include <grpcpp/grpcpp.h>
 #include <string>
 
+void table_schema_to_proto_schema(table_t *t, vaultdb::Schema *s);
+
 class DataOwnerClient {
 
 public:
@@ -20,6 +22,7 @@ public:
 
   ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
   void GetPeerHosts(std::map<int, std::string> numToHostsMap);
+  table_t * GetTable(::vaultdb::TableID);
 
   std::shared_ptr<const ::vaultdb::TableID>
   Filter(std::shared_ptr<const ::vaultdb::TableID>, ::vaultdb::Expr);

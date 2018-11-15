@@ -58,6 +58,30 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   return grpc::Status::OK;
 }
 
+::grpc::Status DataOwnerImpl::GetTable(::grpc::ServerContext* context, const ::vaultdb::GetTableRequest* request,
+        ::grpc::ServerWriter< ::vaultdb::GetTableResponse>* writer) {
+
+  table_t *t = p->GetTable(request->id().tableid());
+
+  ::vaultdb::GetTableResponse header;
+  header.set_is_header(true);
+  header.set_num_tuples(t->num_tuples);
+  header.set_num_tuple_pages(t->num_tuple_pages);
+  header.set_size_of_tuple(t->size_of_tuple);
+  ::vaultdb::Schema *s = header.mutable_schema();
+  table_schema_to_proto_schema(t, s);
+  writer->Write(header);
+
+  ::vaultdb::GetTableResponse pages;
+  for (int i = 0; i < t->num_tuple_pages; i++) {
+    pages.set_is_header(false);
+    pages.set_page_no(i);
+    pages.set_page((char *)t->tuple_pages[i], PAGE_SIZE);
+    writer->Write(pages);
+  }
+  return grpc::Status::OK;
+}
+
 ::grpc::Status DataOwnerImpl::SendTable(
     ::grpc::ServerContext *context,
     ::grpc::ServerReader<::vaultdb::SendTableRequest> *reader,

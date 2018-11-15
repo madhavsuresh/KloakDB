@@ -41,7 +41,7 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
 ENDIF()
 set(CMAKE_CXX_STANDARD 14)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
-set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
+#set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 #set (CMAKE_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
 
@@ -63,10 +63,11 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/rpc)
 
 add_executable(vaultdb VaultDB.cpp)
 
-target_link_libraries(vaultdb gflags dl pthread asan krpc g3logger profiler pqxxcompat dataformat operators klogger)
+target_link_libraries(vaultdb asan gflags dl pthread krpc g3logger profiler pqxxcompat dataformat operators klogger)
 
 add_subdirectory(rpc)
 add_subdirectory(data)
 add_subdirectory(operators)
 add_subdirectory(test)
 add_subdirectory(logger)
+add_subdirectory(generalize)

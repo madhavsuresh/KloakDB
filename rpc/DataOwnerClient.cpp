@@ -171,7 +171,57 @@ DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid,
   }
 }
 
+table_t * DataOwnerClient::GetTable(::vaultdb::TableID id) {
+  // TODO(madhavsuresh): this is copy pasted code, this block should be refactored out.
+  ::vaultdb::GetTableRequest req;
+  ::vaultdb::GetTableResponse resp;
+  ::grpc::ClientContext context;
+  table_t * t;
+
+  req.mutable_id()->CopyFrom(id);
+  std::unique_ptr<::grpc::ClientReader<::vaultdb::GetTableResponse>> reader(stub_->GetTable(&context, req));
+  while (reader->Read(&resp)) {
+    if (resp.is_header()) {
+      t = allocate_table(resp.num_tuple_pages());
+      t->num_tuples = resp.num_tuples();
+      t->size_of_tuple = resp.size_of_tuple();
+      t->num_tuple_pages = resp.num_tuple_pages();
+
+      // TODO(madhavsuresh): refactor this code block out
+      t->schema.num_fields = resp.schema().num_fields();
+      for (int i = 0; i < t->schema.num_fields; i++) {
+        t->schema.fields[i].col_no = resp.schema().field(i).col_no();
+        strncpy(t->schema.fields[i].field_name,
+                resp.schema().field(i).field_name().c_str(), FIELD_NAME_LEN);
+        switch (resp.schema().field(i).field_type()) {
+          case vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
+            // TODO(madhavsuresh): this should all be one enum.
+            t->schema.fields[i].type = FIXEDCHAR;
+            break;
+          }
+          case vaultdb::FieldDesc_FieldType_INT: {
+            t->schema.fields[i].type = INT;
+            break;
+          }
+          default: { throw; }
+        }
+      }
+    } else {
+      t->tuple_pages[resp.page_no()] = (tuple_page_t *)malloc(PAGE_SIZE);
+      memcpy(t->tuple_pages[resp.page_no()], resp.page().c_str(), PAGE_SIZE);
+    }
+  }
+  auto status = reader->Finish();
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+  } else {
+    LOG(INFO) << "FAILURE";
+  }
+  return t;
+}
+
 // TODO(madhavsuresh): refactor this to return
+// tableid
 int DataOwnerClient::SendTable(table_t *t) {
   ::vaultdb::SendTableResponse resp;
   ::grpc::ClientContext context;
