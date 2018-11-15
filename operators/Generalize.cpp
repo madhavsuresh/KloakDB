@@ -63,7 +63,6 @@ void merge(
         cf_hash, std::vector<std::tuple<hostnum, tup_count, cf_hash>>> &gen_map,
     cf_hash h1, cf_hash h2) {
 
-
   if (gen_map.find(h1) == gen_map.end() || gen_map.find(h2) == gen_map.end()) {
     throw std::invalid_argument("Trying to merge to nonexistant class");
   }
