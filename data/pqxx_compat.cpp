@@ -34,7 +34,7 @@ table_t *get_table(std::string query_string, std::string dbname) {
   return t;
 }
 
-void build_tuple_from_pq(pqxx::tuple tup, tuple_t *tuple, schema_t *s, table_builder_t * tb) {
+void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_builder_t * tb) {
   int field_counter = 0;
   tuple->num_fields = s->num_fields;
   for (auto field : tup) {

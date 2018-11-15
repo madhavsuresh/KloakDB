@@ -47,8 +47,8 @@ set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
 
 
 #find_library(GLOG glog)
-link_directories(/usr/local/lib /opt/grpc/lib)
-include_directories("/opt/grpc/include")
+link_directories(${CMAKE_SOURCE_DIR}/lib/lib/ /usr/local/lib /opt/grpc/lib)
+include_directories(${CMAKE_SOURCE_DIR}/lib/include)
 
 include_directories(${CMAKE_SOURCE_DIR})
 #/home/madhav/DB/linux-sgx/sgxsdk/include
