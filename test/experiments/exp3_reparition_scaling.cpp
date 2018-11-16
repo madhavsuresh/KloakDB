@@ -2,11 +2,11 @@
 // Created by madhav on 11/8/18.
 //
 
-#include <gtest/gtest.h>
 #include <chrono>
 #include <operators/HashJoin.h>
 #include <operators/Generalize.h>
 #include <gflags/gflags.h>
+#include <rpc/HonestBrokerPrivate.h>
 #include "data/postgres_client.h"
 #include "data/pqxx_compat.h"
 #include "exp3_reparition_scaling.h"
@@ -28,9 +28,21 @@ void exp3_hb() {
   auto finish = std::chrono::high_resolution_clock::now();
 
 }
-
-
 std::string xdbname = "kloak_experiments_exp3";
+
+void exp3_script_HB(HonestBrokerPrivate *p) {
+  p->NumHosts();
+  std::vector<std::shared_ptr<::vaultdb::TableID>> tids;
+  for (int i = 0; i < p->NumHosts(); i++) {
+    vaultdb::TableID t1 =
+            p->DBMSQuery(i, "dbname=" +xdbname, "SELECT * from exp3_random;");
+    tids.emplace_back(std::make_shared<::vaultdb::TableID>(t1));
+  }
+  p->SetControlFlowColID(1);
+  auto repartition_ids = p->Repartition(tids);
+
+}
+
 void exp3_setup_do() {
   std::string command = "createdb " + xdbname;
   system(command.c_str());

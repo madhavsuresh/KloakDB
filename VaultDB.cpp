@@ -53,6 +53,8 @@ int main(int argc, char **argv) {
     // Wait til all hosts are ready
     p->WaitForAllHosts();
     p->RegisterPeerHosts();
+    exp3_script_HB(p);
+    /*
     vaultdb::TableID t1 =
         p->DBMSQuery(0, "dbname=test", "SELECT * from rpc_test_small_5;");
     vaultdb::TableID t2 =
@@ -96,6 +98,7 @@ int main(int argc, char **argv) {
     exp.mutable_desc()->set_field_type(::vaultdb::FieldDesc_FieldType_INT);
     exp.set_intfield(5);
     p->Filter(sorted_ids, exp);
+     */
     hb_thread.join();
     exit(0);
   } else {
