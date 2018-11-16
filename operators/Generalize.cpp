@@ -13,12 +13,6 @@
 #include <cstring>
 
 
-typedef int cf_hash;
-typedef int cf_gen;
-typedef int hostnum;
-typedef int tup_count;
-typedef int numhosts;
-typedef double score;
 
 bool is_kanon(std::vector<std::tuple<hostnum, tup_count, cf_hash>> equiv_class,
               int num_hosts, int k) {
@@ -43,6 +37,7 @@ bool is_kanon(std::vector<std::tuple<hostnum, tup_count, cf_hash>> equiv_class,
     }
     return true;
   }
+  printf("outside of one host context");
 
   for (int i = 0; i < num_hosts; i++) {
     int accumulator = 0;
@@ -82,6 +77,7 @@ void log_stats(
         gen_map,
     int k) {
   int max_size = 0;
+  cf_hash _max = 0;
   double total_size = 0;
   double avg_num = 0;
   for (auto &i : gen_map) {
@@ -92,12 +88,14 @@ void log_stats(
     }
     if (max_size < curr_size) {
       max_size = curr_size;
+      _max = i.first;
     }
     if (curr_size < k) {
-      std::cout << "THIS IS BAD!!" << std::endl;
+      //std::cout << "THIS IS BAD!!" << std::endl;
     }
     total_size += curr_size;
   }
+  std::cout << "max key: " << _max << std::endl;
   std::cout << std::endl
             << gen_map.size() << "max size: " << max_size << "average size "
             << total_size / gen_map.size() << " num cf_per class"
@@ -170,7 +168,8 @@ cf_hash find_smallest_equiv_not_eq(
 /*
  * This is a greedy generalization algorithm. As input, it takes a list of
  * tables indexed by host, number of hosts in the cluster, and the k anonymous
- * parameter 'k'
+ * parameter 'k'. The tables are assumed to be generated from
+ * SELECT col, count(*) FROM table GROUP BY col
  *
  * The algorithm works in two phases:
  * First it builds a map of control flow attributes to vectors containing the
@@ -185,8 +184,8 @@ cf_hash find_smallest_equiv_not_eq(
  *
  *
  */
-table_t * generalize(std::vector<std::pair<hostnum, table_t *>> host_table_pairs,
-                int num_hosts, int k) {
+table_t * generalize_table(std::vector<std::pair<hostnum, table_t *>> host_table_pairs,
+                           int num_hosts, int k) {
   // std::pair<host_num, count>
 
   // Step 1: Figure `
@@ -249,7 +248,19 @@ table_t * generalize(std::vector<std::pair<hostnum, table_t *>> host_table_pairs
       needs_merging = false;
     }
   }
-  log_stats(gen_map, k);
-  // return nullptr;
   return generate_genmap_table(gen_map);
+}
+
+table_t * generalize_zip(table_t * t, table_t * gen_map_table, int col_no) {
+  std::unordered_map<cf_hash, cf_gen> gen_map;
+  for (int i = 0; i < gen_map_table->num_tuples; i++) {
+    tuple_t * tup = get_tuple(i, gen_map_table);
+    gen_map[tup->field_list[0].f.int_field.val] = tup->field_list[0].f.int_field.genval;
+  }
+  for (int i = 0; i < t->num_tuples; i++) {
+    tuple_t * tup = get_tuple(i, t);
+    auto gen_val = gen_map[tup->field_list[col_no].f.int_field.val];
+    tup->field_list[col_no].f.int_field.genval = gen_val;
+  }
+  return t;
 }

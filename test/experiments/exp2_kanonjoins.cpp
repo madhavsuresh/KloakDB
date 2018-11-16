@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include <chrono>
 #include <operators/HashJoin.h>
+#include <operators/Generalize.h>
 #include "data/postgres_client.h"
 #include "data/pqxx_compat.h"
 
@@ -47,31 +48,58 @@ public:
 
 };
 
-void generalize(table_t *, int k) {
 
-}
-
-void make_k(table_t * t, int k) {
-  for (int i = 0; i < t->num_tuples/k; i++) {
-    for (int j = 0; j < k; j++) {
-      get_tuple(i*k+j, t)->field_list[1].f.int_field.genval = i;
-    }
-  }
-}
 
 TEST_F(exp2_kanonjoins, test1) {
 
   query("CREATE TABLE exp2_random (a INT, b INT)", dbname);
   query("INSERT into exp2_random (a,b) select i, floor(random() * 10000+1)::int from generate_series(1,25200) s(i)", dbname);
   table_t * t = get_table("SELECT * FROM exp2_random", dbname);
+  table_t * cnt = get_table("SELECT b, count(*) from exp2_random group by b;", dbname);
 
-  make_k(t, 100);
+  std::vector<std::pair<hostnum , table_t*>> input;
+  input.emplace_back(0, cnt);
   join_def_t jd;
   jd.r_col = colno_from_name(t, "b");
   jd.l_col = colno_from_name(t, "b");
   jd.project_len = 1;
   jd.project_list[0].side = LEFT_RELATION;
   jd.project_list[0].col_no = colno_from_name(t, "b");
-  table_t * out =  hash_join(t,t, jd);
-  printf("\n%d\n",out->num_tuples);
+
+  for (int i = 1; i < 501; i+=10) {
+    auto start = std::chrono::high_resolution_clock::now();
+    table_t * z = generalize_table(input, 1, i);
+    table_t * genned = generalize_zip(t, z, colno_from_name(t, "b"));
+    auto join = std::chrono::high_resolution_clock::now();
+    table_t * out =  hash_join(genned,genned, jd);
+    free_table(out);
+    free_table(z);
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+  }
+
+  for (int i = 1; i < 501; i+=10) {
+    auto start = std::chrono::high_resolution_clock::now();
+    table_t * z = generalize_table(input, 1, i);
+    table_t * genned = generalize_zip(t, z, colno_from_name(t, "b"));
+    auto join = std::chrono::high_resolution_clock::now();
+    table_t * out =  hash_join(genned,genned, jd);
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> elapsed = finish - start;
+    printf("\n%d\n",out->num_tuples);
+    int total_output = 0;
+    for (int j = 0; j < out->num_tuples; j++) {
+      if (!get_tuple(j, out)->is_dummy) {
+        total_output++;
+      }
+    }
+    free_table(out);
+    free_table(z);
+    std::cout << "Total Output:" << total_output;
+    std::cout << i << "-anon Total Elapsed time: " << elapsed.count() << " s\n";
+    elapsed = join - start;
+    std::cout << i << "Gen Elapsed time: " << elapsed.count() << " s\n";
+    elapsed = finish - join;
+    std::cout << i << "Join Elapsed time: " << elapsed.count() << " s\n";
+  }
 }

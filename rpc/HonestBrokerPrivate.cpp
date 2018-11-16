@@ -38,7 +38,7 @@ void HonestBrokerPrivate::Generalize(std::string table_name, std::string column,
   for (auto &t : tids ) {
     gen_tables.emplace_back(t.hostnum(), do_clients[t.hostnum()]->GetTable(t));
   }
-  table_t * gen_map = generalize(gen_tables, this->NumHosts(), 5);
+  table_t * gen_map = generalize_table(gen_tables, this->NumHosts(), 5);
   std::vector<::vaultdb::TableID> gen_ids;
   for (int i = 0; i < this->num_hosts; i++) {
      auto resp = do_clients[i]->SendTable(gen_map);
