@@ -2,10 +2,10 @@
 #include <gtest/gtest.h>
 #include <pqxx/result>
 
-#include "operators/Filter.h"
-#include "operators/Sort.h"
 #include "data/postgres_client.h"
 #include "data/pqxx_compat.h"
+#include "operators/Filter.h"
+#include "operators/Sort.h"
 
 class sort_test : public ::testing::Test {
 public:
@@ -18,7 +18,7 @@ protected:
 };
 
 TEST_F(sort_test, simple_sort) {
-  //TODO(madhavsuresh): this test doesn't do anything
+  // TODO(madhavsuresh): this test doesn't do anything
   std::string query1("create table sort_test (a INT, b INT)");
   query(query1, dbname);
   query1 = "INSERT INTO sort_test (a,b) VALUES (7,6), (8,3), (9,1)";
@@ -86,7 +86,7 @@ TEST_F(sort_test, swap_unit) {
 }
 
 TEST_F(sort_test, string_type) {
-  //TODO(madhavsuresh): this test doesn't do anything
+  // TODO(madhavsuresh): this test doesn't do anything
   std::string query1("create table sort_test (a varchar(16), b INT)");
 
   query(query1, dbname);
