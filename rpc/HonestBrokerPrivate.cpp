@@ -168,14 +168,24 @@ std::shared_ptr<const ::vaultdb::TableID> HonestBrokerPrivate::Coalesce(
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
 HonestBrokerPrivate::RepartitionStepOne(
     std::shared_ptr<::vaultdb::TableID> id) {
-  return do_clients[id.get()->hostnum()]->RepartitionStepOne(id);
+  auto start = std::chrono::high_resolution_clock::now();
+  auto ret = do_clients[id.get()->hostnum()]->RepartitionStepOne(id);
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = finish - start;
+  std::cout << "Repartition Step One Elapsed time: " << elapsed.count() << " s\n";
+  return ret;
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
 HonestBrokerPrivate::RepartitionStepTwo(
     int host_num,
     std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments) {
-  return do_clients[host_num]->RepartitionStepTwo(table_fragments);
+  auto start = std::chrono::high_resolution_clock::now();
+  auto ret = do_clients[host_num]->RepartitionStepTwo(table_fragments);
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = finish - start;
+  std::cout << "Repartition Step Two Elapsed time: " << elapsed.count() << " s\n";
+  return ret;
 }
 
 int HonestBrokerPrivate::NumHosts() { return this->num_hosts; }
