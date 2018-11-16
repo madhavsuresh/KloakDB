@@ -14,3 +14,8 @@ add_executable(exp2_kanonjoins exp2_kanonjoins.cpp)
 # TODO(madhavsuresh) why does the order of this only affect this target, and no other targets?
 target_link_libraries(exp2_kanonjoins gtest_main profiler operators dataformat pqxxcompat)
 add_test(NAME exp2_kanonjoins COMMAND exp2_kanonjoins)
+
+add_executable(exp3_reparition_scaling exp3_reparition_scaling.cpp)
+# TODO(madhavsuresh) why does the order of this only affect this target, and no other targets?
+target_link_libraries(exp3_reparition_scaling gtest_main profiler operators dataformat pqxxcompat)
+add_test(NAME exp3_reparition_scaling COMMAND exp3_reparition_scaling)

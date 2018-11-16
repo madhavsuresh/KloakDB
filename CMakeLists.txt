@@ -61,7 +61,7 @@ set(REPART_SRCS
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/rpc)
 
-add_executable(vaultdb VaultDB.cpp)
+add_executable(vaultdb VaultDB.cpp test/experiments/exp3_reparition_scaling.cpp)
 
 target_link_libraries(vaultdb asan gflags dl pthread krpc g3logger profiler pqxxcompat dataformat operators klogger)
 

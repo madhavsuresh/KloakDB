@@ -15,6 +15,7 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
 #include <thread>
+#include "test/experiments/exp3_reparition_scaling.h"
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
 DEFINE_string(address, "", "IPV4 Address for current instance");
@@ -98,6 +99,8 @@ int main(int argc, char **argv) {
     hb_thread.join();
     exit(0);
   } else {
+    exp3_setup_do();
+
     DataOwnerPrivate *p =
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address);
     std::thread do_thread(runDataOwnerServer, p);
