@@ -42,7 +42,7 @@ TEST_F(gen_test, single_host) {
   input.emplace_back(1, t);
   input.emplace_back(2, t);
   input.emplace_back(3, t);
-  generalize(input, 4, 4000);
+  generalize_table(input, 4, 4000);
   auto end_first_join = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = end_first_join - start;
   std::cout << "First Join Elapsed time: " << elapsed.count() << " s\n";

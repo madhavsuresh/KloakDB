@@ -209,7 +209,7 @@ void init_table_builder(uint64_t expected_tuples, int num_columns,
 table_t *coalesce_tables(std::vector<table_t *> tables) {
   table_builder_t tb;
   int num_columns = tables[0]->schema.num_fields;
-  int size = 0;
+  uint64_t size = 0;
   for (auto t : tables) {
     size += t->num_tuples;
     if (t->schema.num_fields != num_columns) {
