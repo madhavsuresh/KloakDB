@@ -48,6 +48,7 @@ public:
 
   ::vaultdb::TableID DBMSQuery(int host_num, std::string dbname,
                                std::string query);
+   void WaitForAllHosts();
 
 private:
   std::mutex registrationMutex;

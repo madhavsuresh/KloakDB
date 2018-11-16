@@ -49,7 +49,8 @@ int main(int argc, char **argv) {
     g3::initializeLogging(logworker.get());
     HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address);
     std::thread hb_thread(runHonestBrokerServer, p);
-    getchar();
+    // Wait til all hosts are ready
+    p->WaitForAllHosts();
     p->RegisterPeerHosts();
     vaultdb::TableID t1 =
         p->DBMSQuery(0, "dbname=test", "SELECT * from rpc_test_small_5;");
@@ -95,6 +96,7 @@ int main(int argc, char **argv) {
     exp.set_intfield(5);
     p->Filter(sorted_ids, exp);
     hb_thread.join();
+    exit(0);
   } else {
     DataOwnerPrivate *p =
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address);

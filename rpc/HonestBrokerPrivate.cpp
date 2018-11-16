@@ -14,6 +14,12 @@ HonestBrokerPrivate::HonestBrokerPrivate(std::string honest_broker_address)
   this->num_hosts = 0;
   this->expected_num_hosts = FLAGS_expected_num_hosts;
 }
+void HonestBrokerPrivate::WaitForAllHosts() {
+  while (this->NumHosts() < this->expected_num_hosts) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+  }
+  printf("All hosts registered");
+}
 
 int HonestBrokerPrivate::RegisterPeerHosts() {
   for (int i = 0; i < num_hosts; i++) {
