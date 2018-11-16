@@ -2,22 +2,27 @@
   "HB":{
     "user": "will",
     "address":"guinea-pig.cs.northwestern.edu",
-    "port":"50000"
+    "port":"40000"
   },
   "Hosts":[
     {
       "label": "label can be optional?",
       "user": "will",
       "address":"guinea-pig.cs.northwestern.edu",
-      "port":"50001"
+      "port":"40001"
     },
     {
       "user": "will",
       "address":"guinea-pig.cs.northwestern.edu",
-      "port":"50002"
+      "port":"40002"
     }
   ],
   "BASE_DIR": "/home/will/",
-  "Experiments":["1"],
+  "Experiments":[
+    {
+      "id": "1",
+      "expected_num_hosts": "1"
+    }
+  ],
   "Github": "git@github.com:madhavsuresh/vaultdb_operators.git"
 }
