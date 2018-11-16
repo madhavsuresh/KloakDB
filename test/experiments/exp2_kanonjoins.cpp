@@ -67,6 +67,9 @@ TEST_F(exp2_kanonjoins, test1) {
   jd.project_list[0].col_no = colno_from_name(t, "b");
 
   for (int i = 1; i < 501; i+=10) {
+    if (i == 11) {
+      i--;
+    }
     auto start = std::chrono::high_resolution_clock::now();
     table_t * z = generalize_table(input, 1, i);
     table_t * genned = generalize_zip(t, z, colno_from_name(t, "b"));
@@ -79,6 +82,9 @@ TEST_F(exp2_kanonjoins, test1) {
   }
 
   for (int i = 1; i < 501; i+=10) {
+    if (i == 11) {
+      i--;
+    }
     auto start = std::chrono::high_resolution_clock::now();
     table_t * z = generalize_table(input, 1, i);
     table_t * genned = generalize_zip(t, z, colno_from_name(t, "b"));
