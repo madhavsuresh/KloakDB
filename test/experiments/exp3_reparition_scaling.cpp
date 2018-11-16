@@ -39,11 +39,21 @@ void exp3_script_HB(HonestBrokerPrivate *p) {
     tids.emplace_back(std::make_shared<::vaultdb::TableID>(t1));
   }
   p->SetControlFlowColID(1);
-  auto repartition_ids = p->Repartition(tids);
 
+  auto start = std::chrono::high_resolution_clock::now();
+  auto repartition_ids = p->Repartition(tids);
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = finish - start;
+  std::cout << "Repartition Elapsed time: " << elapsed.count() << " s\n";
+}
+
+void exp3_teardown_do() {
+  std::string command = "dropdb " + xdbname;
+  system(command.c_str());
 }
 
 void exp3_setup_do() {
+  exp3_teardown_do();
   std::string command = "createdb " + xdbname;
   system(command.c_str());
   std::string dbname = "dbname=" + xdbname;
@@ -59,8 +69,4 @@ void exp3_setup_do() {
 
 
 
-}
- void exp3_teardown_do() {
-   std::string command = "dropdb " + xdbname;
-   system(command.c_str());
 }
