@@ -276,9 +276,11 @@ join_def_t make_join_def_t(::vaultdb::JoinDef def) {
 groupby_def_t make_groupby_def_t(::vaultdb::GroupByDef def) {
   groupby_def_t def_t;
 
+  //TODO(madhavsuresh): this needs to be fixed, the API is inconsistent.
   switch (def.type()) {
   case ::vaultdb::GroupByDef_GroupByType_COUNT: {
     def_t.type = COUNT;
+    def_t.colno = def.col_no();
     break;
   }
   case ::vaultdb::GroupByDef_GroupByType_MINX: {
