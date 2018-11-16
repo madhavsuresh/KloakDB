@@ -78,21 +78,29 @@ HonestBrokerPrivate::Repartition(
     std::vector<std::shared_ptr<::vaultdb::TableID>> &ids) {
   std::map<int, std::vector<std::shared_ptr<const ::vaultdb::TableID>>>
       table_fragments;
+  auto start = std::chrono::high_resolution_clock::now();
   for (auto id : ids) {
     auto k = RepartitionStepOne(id);
     for (auto j : k) {
       table_fragments[j.get()->hostnum()].emplace_back(j);
     }
   }
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = finish - start;
+  std::cout << "TOTAL Repartition Step One Elapsed time: " << elapsed.count() << " s\n";
 
   std::map<int, std::vector<std::shared_ptr<const ::vaultdb::TableID>>>
       hashed_table_fragments;
+  start = std::chrono::high_resolution_clock::now();
   for (int i = 0; i < num_hosts; i++) {
     auto out = RepartitionStepTwo(i, table_fragments[i]);
     for (auto j : out) {
       hashed_table_fragments[j.get()->hostnum()].emplace_back(j);
     }
   }
+  finish = std::chrono::high_resolution_clock::now();
+  elapsed = finish - start;
+  std::cout << "TOTAL Repartition Step Two Elapsed time: " << elapsed.count() << " s\n";
 
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> coalesced_tables;
   for (int i = 0; i < num_hosts; i++) {
@@ -172,7 +180,7 @@ HonestBrokerPrivate::RepartitionStepOne(
   auto ret = do_clients[id.get()->hostnum()]->RepartitionStepOne(id);
   auto finish = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = finish - start;
-  std::cout << "Repartition Step One Elapsed time: " << elapsed.count() << " s\n";
+  std::cout << "Host (" << id.get()->hostnum() << ")Repartition Step One Elapsed time: " << elapsed.count() << " s\n";
   return ret;
 }
 
@@ -184,7 +192,7 @@ HonestBrokerPrivate::RepartitionStepTwo(
   auto ret = do_clients[host_num]->RepartitionStepTwo(table_fragments);
   auto finish = std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = finish - start;
-  std::cout << "Repartition Step Two Elapsed time: " << elapsed.count() << " s\n";
+  std::cout << "Host (" << host_num << ")Repartition Step Two Elapsed time: " << elapsed.count() << " s\n";
   return ret;
 }
 
