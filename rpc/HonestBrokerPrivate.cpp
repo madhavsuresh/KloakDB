@@ -28,29 +28,43 @@ int HonestBrokerPrivate::RegisterPeerHosts() {
 }
 
 std::string count_star_query(std::string table_name, std::string column) {
-  return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " + column;
+  return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " +
+         column;
 }
 // TODO(madhavsuresh): support multiple column generalization
 // TODO(madhavsuresh): this is a work in progress. this needs to be filled in.
-void HonestBrokerPrivate::Generalize(std::string table_name, std::string column, std::string dbname) {
+std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+HonestBrokerPrivate::Generalize(
+    std::string table_name, std::string column, std::string dbname,
+    std::vector<std::shared_ptr<const ::vaultdb::TableID>> scanned_tables) {
   std::string query_string = count_star_query(table_name, column);
 
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>> out_vec;
   std::vector<::vaultdb::TableID> tids;
   for (int i = 0; i < this->num_hosts; i++) {
     auto tid = this->DBMSQuery(i, "dbname=" + dbname, query_string);
     tids.push_back(tid);
   }
-  std::vector<std::pair<hostnum, table_t*>> gen_tables;
-  for (auto &t : tids ) {
+  std::vector<std::pair<hostnum, table_t *>> gen_tables;
+  for (auto &t : tids) {
     gen_tables.emplace_back(t.hostnum(), do_clients[t.hostnum()]->GetTable(t));
   }
-  table_t * gen_map = generalize_table(gen_tables, this->NumHosts(), 5);
+  table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), 5);
   std::vector<::vaultdb::TableID> gen_ids;
   for (int i = 0; i < this->num_hosts; i++) {
-     auto resp = do_clients[i]->SendTable(gen_map);
+    auto resp = do_clients[i]->SendTable(gen_map);
+    ::vaultdb::TableID out;
+    out.set_hostnum(i);
+    out.set_tableid(resp);
+    auto outptr = std::make_shared<const ::vaultdb::TableID>(out);
+    for (auto &st : scanned_tables) {
+      if (st.get()->hostnum() == i) {
+        out_vec.emplace_back(do_clients[i]->GenZip(outptr, st));
+      }
+    }
   }
+  return out_vec;
 }
-
 
 int HonestBrokerPrivate::RegisterHost(std::string hostName) {
   this->registrationMutex.lock();

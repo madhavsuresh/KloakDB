@@ -2,6 +2,7 @@
 // Created by madhav on 10/1/18.
 //
 
+#include <operators/Generalize.h>
 #include "DataOwnerImpl.h"
 #include "operators/Aggregate.h"
 #include "operators/Filter.h"
@@ -55,6 +56,17 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
     id->set_hostnum(i.first);
     id->set_tableid(i.second);
   }
+  return grpc::Status::OK;
+}
+::grpc::Status DataOwnerImpl::GeneralizeZip(::grpc::ServerContext* context, const ::vaultdb::GeneralizeZipRequest* request,
+        ::vaultdb::GeneralizeZipResponse* response) {
+  table_t *gen_table = p->GetTable(request->gentableid().tableid());
+  table_t *scan_table = p->GetTable(request->scantableid().tableid());
+  table_t *output_table = generalize_zip(scan_table, gen_table, request->colno());
+
+  auto tid = response->mutable_generalizedscantable();
+  tid->set_hostnum(p->HostNum());
+  tid->set_tableid(p->AddTable(output_table));
   return grpc::Status::OK;
 }
 

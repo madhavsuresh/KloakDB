@@ -44,6 +44,8 @@ public:
        std::shared_ptr<const ::vaultdb::TableID> right_tid,
        ::vaultdb::JoinDef join);
 
+  std::shared_ptr<const ::vaultdb::TableID>
+  GenZip(std::shared_ptr<const ::vaultdb::TableID> gen_map, std::shared_ptr<const ::vaultdb::TableID> scan_table);
   // TODO(madhavsuresh): this needs to be renamed to be consistent
   int SendTable(table_t *t);
 

@@ -44,7 +44,9 @@ public:
   int GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
   int RegisterPeerHosts();
-  void Generalize(std::string table_name, std::string column, std::string dbname);
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>> Generalize(
+      std::string table_name, std::string column, std::string dbname,
+      std::vector<std::shared_ptr<const ::vaultdb::TableID>> scanned_tables);
 
   ::vaultdb::TableID DBMSQuery(int host_num, std::string dbname,
                                std::string query);
