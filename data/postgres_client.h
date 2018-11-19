@@ -20,6 +20,7 @@
 #define PAGE_SIZE 32768 // 32k sized pages. This could be much bigger.
 #define LEFT_RELATION 0
 #define RIGHT_RELATION 1
+#define TABLE_MANAGER_MAX_TABLES 32
 
 // invariant that every table has the same size tuple
 
@@ -137,8 +138,16 @@ typedef struct table_builder {
   table_t *table;
 } table_builder_t;
 
+typedef struct table_manager {
+    uint32_t table_counter;
+    bool allocated_map[TABLE_MANAGER_MAX_TABLES]; // TRUE if table is at position, FALSE is not at position.
+    table_t *table_list[TABLE_MANAGER_MAX_TABLES];
+} table_manager_t;
+
 // TODO(madhavsuresh): might need to worry about blocks
 
+uint32_t insert_into_table_manager(table_manager_t *tm, table_t *t);
+table_t *get_table_table_manager(table_manager_t *tm, uint32_t pos);
 tuple_t *get_tuple_from_page(int tuple_number, tuple_page_t *tp,
                              table_t *table);
 tuple_t *get_tuple(int tuple_number, table_t *table);
