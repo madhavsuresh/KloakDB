@@ -47,12 +47,12 @@ set(CMAKE_CXX_STANDARD 14)
 
 
 #find_library(GLOG glog)
-link_directories(${CMAKE_SOURCE_DIR}/lib/lib/ /usr/local/lib /opt/grpc/lib)
+link_directories(${CMAKE_SOURCE_DIR}/lib/lib/ ${CMAKE_SOURCE_DIR}/lib/sgxsdk/lib64 /usr/local/lib /opt/grpc/lib)
 include_directories(${CMAKE_SOURCE_DIR}/lib/include)
+include_directories(${CMAKE_SOURCE_DIR}/lib/sgxsdk/include)
 
 include_directories(${CMAKE_SOURCE_DIR})
 #/home/madhav/DB/linux-sgx/sgxsdk/include
-link_directories(/home/madhav/DB/linux-sgx/sgxsdk/lib64)
 find_library(SGXCRYPTO sgx_tcrypto)
 
 
