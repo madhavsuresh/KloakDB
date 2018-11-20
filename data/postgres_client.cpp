@@ -270,3 +270,29 @@ double get_num_field(table_t *t, int tuple_no, int colno) {
   }
   }
 }
+
+uint32_t insert_into_table_manager(table_manager_t *tm, table_t *t) {
+  for (uint32_t i = 0; i < TABLE_MANAGER_MAX_TABLES; i++) {
+    if (!tm->allocated_map[i]) {
+      tm->table_list[i] = t;
+      tm->allocated_map[i] = true;
+      return i;
+    }
+  }
+  throw;
+}
+
+table_t *get_table_table_manager(table_manager_t *tm, uint32_t pos) {
+  if (!tm->allocated_map[pos]) {
+    throw;
+  }
+  return tm->table_list[pos];
+}
+
+void free_table_table_manager(table_manager_t *tm, uint32_t pos) {
+  if (!tm->allocated_map[pos]) {
+    throw;
+  }
+  free_table(tm->table_list[pos]);
+  tm->allocated_map[pos] = false;
+}
