@@ -31,7 +31,8 @@ std::string tuple_string(tuple_t *t) {
     }
     case TIMESTAMP: {
       time_t time = t->field_list[i].f.int_field.val;
-      char *timetext = asctime(gmtime(&time));
+      //TODO(madhavsuresh): HIGH PRIORITY FIX THIS TIME BUG
+      char *timetext; // = asctime(gmtime(&time));
       timetext[24] = '\0';
       output += std::string(timetext);
       break;
@@ -41,7 +42,6 @@ std::string tuple_string(tuple_t *t) {
       break;
     }
     default: {
-      printf("type: %d\n", t->field_list[i].type);
       throw std::invalid_argument("Cannot print this tuple");
     }
     }

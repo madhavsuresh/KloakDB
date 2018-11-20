@@ -37,7 +37,6 @@ bool is_kanon(std::vector<std::tuple<hostnum, tup_count, cf_hash>> equiv_class,
     }
     return true;
   }
-  printf("outside of one host context");
 
   for (int i = 0; i < num_hosts; i++) {
     int accumulator = 0;
@@ -95,11 +94,13 @@ void log_stats(
     }
     total_size += curr_size;
   }
+  /*
   std::cout << "max key: " << _max << std::endl;
   std::cout << std::endl
             << gen_map.size() << "max size: " << max_size << "average size "
             << total_size / gen_map.size() << " num cf_per class"
             << avg_num / gen_map.size() << std::endl;
+            */
 }
 
 table_t * generate_genmap_table(

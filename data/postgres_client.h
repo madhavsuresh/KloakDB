@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <string>
 #include <vector>
+#include <time.h>
 
 #define VARCHAROID 1043
 #define INT8OID 20
