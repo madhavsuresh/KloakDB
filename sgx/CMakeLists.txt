@@ -10,12 +10,14 @@ get_filename_component(vdb_edl_path "${vdb_edl}" PATH)
 add_custom_command(
 	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/VaultDB_u.c"
 	COMMAND ${SGX_EDGER8R} 
-	ARGS --untrusted ${vdb_edl} --search-path ${CMAKE_SOURCE_DIR}/sgx --search-path ${CMAKE_SOURCE_DIR}/lib/sgxsdk/include)
+	ARGS --untrusted ${vdb_edl} --search-path ${CMAKE_SOURCE_DIR}/sgx --search-path ${CMAKE_SOURCE_DIR}/lib/sgxsdk/include
+	DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/VaultDB.edl)
 
 add_custom_command(
 		OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/VaultDB_t.c"
 		COMMAND ${SGX_EDGER8R}
-		ARGS --trusted ${vdb_edl} --search-path ${CMAKE_SOURCE_DIR}/sgx --search-path ${CMAKE_SOURCE_DIR}/lib/sgxsdk/include)
+		ARGS --trusted ${vdb_edl} --search-path ${CMAKE_SOURCE_DIR}/sgx --search-path ${CMAKE_SOURCE_DIR}/lib/sgxsdk/include
+        DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/VaultDB.edl)
 
 #We use the "app" nomenclature that is used within the SGX development examples
 # App is for all code outside the enclave. 
@@ -53,12 +55,23 @@ else()
 	set(Service_Library_Path "${SERVICE_LIB}")
 endif()
 
+
+#recompile operator code for SGX compatability
+SET(VAULTDB_SOURCES
+		${CMAKE_SOURCE_DIR}/operators/Aggregate.cpp
+		${CMAKE_SOURCE_DIR}/operators/HashJoin.cpp
+		${CMAKE_SOURCE_DIR}/operators/Sort.cpp
+		${CMAKE_SOURCE_DIR}/operators/Filter.cpp
+		${CMAKE_SOURCE_DIR}/operators/Expressions.cpp
+		${CMAKE_SOURCE_DIR}/data/postgres_client.cpp
+		${CMAKE_SOURCE_DIR}/operators/Generalize.cpp
+		)
+
 set(ENCLAVE_LINK_FLAGS "-Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined -Wl,-pie,-eenclave_entry -Wl,--export-dynamic -Wl,--defsym,__ImageBase=0 -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/Enclave_debug.lds")
-add_library(vaultdb_trusted SHARED VaultDB_t.c VaultDBEnclave.cpp)
+add_library(vaultdb_trusted SHARED VaultDB_t.c VaultDBEnclave.cpp ${VAULTDB_SOURCES})
 target_link_libraries(vaultdb_trusted -Wl,--whole-archive "${Trts_Library_Path}" -Wl,--no-whole-archive -Wl,--start-group "${TSTDC_LIB}" "${TSTDCXX_LIB}"
 		"${TKEY_EXCHANGE_LIB}" "${TCRYPTO_LIB}" "${Service_Library_Path}" -Wl,--end-group)
-#target_link_libraries(vaultdb_trusted operators dataformat)
-set_property(TARGET vaultdb_trusted PROPERTY POSITION_INDEPENDENT_CODE OFF)
+set_property(TARGET vaultdb_trusted PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_target_properties(vaultdb_trusted PROPERTIES LINK_FLAGS ${ENCLAVE_LINK_FLAGS})
 
 add_custom_command(
@@ -66,5 +79,5 @@ add_custom_command(
 		DEPENDS vaultdb_trusted ${CMAKE_CURRENT_SOURCE_DIR}/Enclave.config.xml
 		OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/libvaultdb_trusted_signed.so)
 
-add_custom_target(vaultdb_trusted_signed_target ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libvaultdb_trusted_signed.so)
+add_custom_target(vaultdb_trusted_signed_target ALL DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/libvaultdb_trusted_signed.so )
 

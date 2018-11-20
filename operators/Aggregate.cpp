@@ -195,10 +195,12 @@ table_t *aggregate(table_t *t, groupby_def_t *def) {
     return aggregate_avg(t, def);
   }
   case MINX: {
-    printf("UNIMPLEMENTED");
+    throw;
+   // printf("UNIMPLEMENTED");
   }
   case GROUPBY_UNSUPPORTED: {
-    printf("UNSUPPORTED");
+   throw;
+   // printf("UNSUPPORTED");
   }
   }
   return nullptr;
