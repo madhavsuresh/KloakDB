@@ -1,0 +1,12 @@
+/* VaultDB.edl - Top EDL file. */
+enclave {
+	from "sgx_tstdc.edl" import *;
+	trusted {
+		public void ecall_load_table_enclave([in,size=len] void *ptr, size_t len);
+		public void ecall_
+	};
+	untrusted {
+		void ocall_copy_page([out, size=len] void *ptr, size_t len, int page_no);
+	};
+};
+
