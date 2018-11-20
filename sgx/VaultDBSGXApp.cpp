@@ -36,6 +36,11 @@ table_t *get_table_sgx(sgx_enclave_id_t eid, table_manager_t tm, int table_id) {
   return t;
 }
 
+void ocall_copy_page(void * ptr, size_t len, int page_no) {
+  tuple_page_t *tp;// = mytable->tuple_pages[page_no];
+  memcpy(ptr, tp, PAGE_SIZE);
+}
+
 table_t *hash_join_sgx(table_t *left, table_t *right, join_def_t def) {
 
   sgx_enclave_id_t eid = initialize_enclave();

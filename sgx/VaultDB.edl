@@ -3,7 +3,7 @@ enclave {
 	from "sgx_tstdc.edl" import *;
 	trusted {
 		public void ecall_load_table_enclave([in,size=len] void *ptr, size_t len);
-		public void ecall_load_table([user_check] void *table_manager, [in, size=table_t_len] void *table_t,
+		public void ecall_load_table([user_check] void *table_manager, [in, size=table_t_len] void *table,
 		 size_t table_t_len, [out] int *table_id);
 
         public void ecall_hash_join([user_check] void *table_manager, int left_table_id,int right_table_id,[in, size=jd_len] void *join_def,
