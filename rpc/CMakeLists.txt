@@ -40,6 +40,7 @@ add_custom_command(
 		--plugin=protoc-gen-grpc=${GRPC_PROTO_PLUGIN}
 		"${vdb_proto}"
 		DEPENDS "${vdb_proto}")
+add_custom_target(rpc_proto_gen ALL DEPENDS ${vdb_proto} ${vdb_protosrc} ${vdb_proto_headers} ${vdb_grpc_srs} ${vdb_grpc_hdrs})
 
 
 add_library(krpc ${vdb_proto_srcs} ${vdb_grpc_srcs} HonestBrokerImpl.cpp HonestBrokerPrivate.cpp HonestBrokerClient.cpp
