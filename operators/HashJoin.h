@@ -1,7 +1,7 @@
 //
 // Created by root on 10/4/18.
 //
-#include "../data/postgres_client.h"
+#include "data/postgres_client.h"
 
 #ifndef PROJECT_HASHJOIN_H
 #define PROJECT_HASHJOIN_H

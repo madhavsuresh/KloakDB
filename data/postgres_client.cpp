@@ -129,6 +129,7 @@ table_t *allocate_table(int num_tuple_pages) {
   if (ret == 0) {
     throw std::invalid_argument("Malloc failed");
   }
+  return ret;
 }
 
 bool compare_tuple_cols_val(tuple_t *t1, tuple_t *t2, int t1_col, int t2_col) {
