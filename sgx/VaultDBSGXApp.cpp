@@ -24,11 +24,21 @@ sgx_enclave_id_t initialize_enclave(void)
   return eid;
 }
 
+table_t * get_table_sgx(sgx_enclave_id_t eid, table_manager_t tm, int table_id) {
+  ecall_get_table_t(eid, &tm, )
+
+}
+
 table_t * hash_join_sgx(table_t * left, table_t * right, join_def_t def) {
 
   sgx_enclave_id_t eid = initialize_enclave();
-
-
-
+  table_manager_t tm;
+  int left_table_id, right_table_id, output_table_id;
+  //ecall_load_table_enclave()
+  ecall_load_table(eid, &tm, left, sizeof(table_t), &right_table_id);
+  ecall_load_table(eid, &tm, right, sizeof(table_t), &left_table_id);
+  ecall_hash_join(eid, left_table_id, right_table_id, &def, sizeof(join_def_t), &output_table_id);
+  ecall_get_table(eid, &tm, output_table_id);
+  sgx_destroy_enclave(eid);
 }
 
