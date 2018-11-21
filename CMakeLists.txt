@@ -63,7 +63,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/rpc)
 
 add_executable(vaultdb VaultDB.cpp)
 
-target_link_libraries(vaultdb asan gflags dl pthread krpc g3logger profiler pqxxcompat dataformat operators klogger)
+target_link_libraries(vaultdb asan gflags dl pthread krpc g3logger profiler pqxxcompat dataformat operators klogger vaultdb_sgx_app)
 
 add_subdirectory(rpc)
 add_subdirectory(data)
@@ -71,3 +71,4 @@ add_subdirectory(operators)
 add_subdirectory(test)
 add_subdirectory(logger)
 add_subdirectory(generalize)
+add_subdirectory(sgx)

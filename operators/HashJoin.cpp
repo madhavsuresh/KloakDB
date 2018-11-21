@@ -76,6 +76,12 @@ void merge_tuple(tuple_t *to_fill, tuple_t *left_tup, tuple_t *right_tup,
   }
 }
 
+table_t *hash_join(table_manager_t *tm, uint32_t left_table_id, uint32_t right_table_id, join_def_t def) {
+  table_t * left = get_table_table_manager(tm, left_table_id);
+  table_t * right = get_table_table_manager(tm, right_table_id);
+  return hash_join(left, right, def);
+}
+
 table_t *hash_join(table_t *left_table, table_t *right_table, join_def_t def) {
 
   schema_t schema = build_join_schema(left_table, right_table, def);

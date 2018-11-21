@@ -5,7 +5,7 @@ bool eq_expr(tuple *t, expr_t *ex) {
   switch (ex->field_val.type) {
   case FIXEDCHAR: {
     // TODO(madhavsuresh): turn this into a proper error
-    printf("ERROR UNSUPPORTED");
+    throw;
   }
   case INT: {
     if (t->field_list[ex->colno].f.int_field.val ==
@@ -30,7 +30,7 @@ bool expression_eval(tuple_t *t, expr_t *ex) {
     return eq_expr(t, ex);
   }
   case UNSUPPORTED_EXPR: {
-    printf("ERROR UNSUPPORTED");
+    throw;
   }
   case LIKE_EXPR:
     throw;

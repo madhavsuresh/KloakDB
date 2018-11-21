@@ -114,6 +114,7 @@ message SendTableResponse {
 message KFilterRequest {
     TableID tid = 1;
     Expr expr = 2;
+    bool in_sgx = 3;
 }
 
 message KFilterResponse {
@@ -124,6 +125,7 @@ message KJoinRequest {
     TableID left_tid = 1;
     TableID right_tid = 2;
     JoinDef def = 3;
+    bool in_sgx = 4;
 }
 
 message KJoinResponse {
@@ -145,6 +147,7 @@ message GroupByDef {
 message KAggregateRequest {
     TableID tid = 1;
     GroupByDef def = 2;
+    bool in_sgx = 3;
 }
 
 message KAggregateResponse {
@@ -170,6 +173,7 @@ message JoinDef {
 message KSortRequest {
     TableID tid = 1;
     SortDef sortdef = 2;
+    bool in_sgx = 3;
 }
 
 message KSortResponse {

@@ -31,7 +31,8 @@ std::string tuple_string(tuple_t *t) {
     }
     case TIMESTAMP: {
       time_t time = t->field_list[i].f.int_field.val;
-      char *timetext = asctime(gmtime(&time));
+      //TODO(madhavsuresh): HIGH PRIORITY FIX THIS TIME BUG
+      char *timetext; // = asctime(gmtime(&time));
       timetext[24] = '\0';
       output += std::string(timetext);
       break;
@@ -41,7 +42,6 @@ std::string tuple_string(tuple_t *t) {
       break;
     }
     default: {
-      printf("type: %d\n", t->field_list[i].type);
       throw std::invalid_argument("Cannot print this tuple");
     }
     }
@@ -129,6 +129,7 @@ table_t *allocate_table(int num_tuple_pages) {
   if (ret == 0) {
     throw std::invalid_argument("Malloc failed");
   }
+  return ret;
 }
 
 bool compare_tuple_cols_val(tuple_t *t1, tuple_t *t2, int t1_col, int t2_col) {
@@ -269,4 +270,30 @@ double get_num_field(table_t *t, int tuple_no, int colno) {
     return (double)get_tuple(tuple_no, t)->field_list[colno].f.double_field.val;
   }
   }
+}
+
+uint32_t insert_into_table_manager(table_manager_t *tm, table_t *t) {
+  for (uint32_t i = 0; i < TABLE_MANAGER_MAX_TABLES; i++) {
+    if (!tm->allocated_map[i]) {
+      tm->table_list[i] = t;
+      tm->allocated_map[i] = true;
+      return i;
+    }
+  }
+  throw;
+}
+
+table_t *get_table_table_manager(table_manager_t *tm, uint32_t pos) {
+  if (!tm->allocated_map[pos]) {
+    throw;
+  }
+  return tm->table_list[pos];
+}
+
+void free_table_table_manager(table_manager_t *tm, uint32_t pos) {
+  if (!tm->allocated_map[pos]) {
+    throw;
+  }
+  free_table(tm->table_list[pos]);
+  tm->allocated_map[pos] = false;
 }
