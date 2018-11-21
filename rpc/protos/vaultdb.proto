@@ -151,6 +151,8 @@ message GroupByDef {
     GroupByType type = 1;
     int32 col_no = 2;
     repeated int32 gb_col_nos = 3;
+    string col_name = 4;
+    repeated string gb_col_names = 5;
 }
 
 message KAggregateRequest {
@@ -170,6 +172,7 @@ message JoinColID {
     }
     RelationSide side = 1;
     int32 col_no = 2;
+    string colname = 3;
 }
 
 message JoinDef {
@@ -177,6 +180,8 @@ message JoinDef {
     int32 r_col = 2;
     int32 project_len = 3;
     repeated JoinColID project_list = 4;
+    string l_col_name = 5;
+    string r_col_name = 6;
 }
 
 message KSortRequest {
@@ -271,6 +276,7 @@ message Expr {
     FieldDesc desc = 3;
     int32 intfield = 4;
     string charfield = 5;
+    string colname = 6;
 }
 
 //TODO(madhavsuresh): do we need to serialize/unserialize the schema?
@@ -307,6 +313,7 @@ message Schema {
 message SortDef {
     int32 colno = 1;
     bool ascending = 2;
+    string colname = 3;
 }
 
 

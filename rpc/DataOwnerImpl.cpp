@@ -179,9 +179,9 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
   return grpc::Status::OK;
 }
 
-expr_t make_expr_t(const ::vaultdb::Expr &expr) {
+expr_t make_expr_t(table_t * t, const ::vaultdb::Expr &expr) {
   expr_t ex;
-  ex.colno = expr.colno();
+  ex.colno = colno_from_name(t, expr.colname());
   switch (expr.type()) {
   case vaultdb::Expr_ExprType_EQ_EXPR: {
     ex.expr_type = EQ_EXPR;
@@ -210,8 +210,8 @@ expr_t make_expr_t(const ::vaultdb::Expr &expr) {
 ::grpc::Status DataOwnerImpl::KFilter(::grpc::ServerContext *context,
                                       const ::vaultdb::KFilterRequest *request,
                                       ::vaultdb::KFilterResponse *response) {
-  expr_t ex = make_expr_t(request->expr());
   table_t *in = p->GetTable(request->tid().tableid());
+  expr_t ex = make_expr_t(in, request->expr());
   table_t *f;
   if (request->in_sgx()) {
     f = filter_sgx(in, &ex);
@@ -228,9 +228,9 @@ expr_t make_expr_t(const ::vaultdb::Expr &expr) {
   return ::grpc::Status::OK;
 }
 
-sort_t make_sort_t(const ::vaultdb::SortDef sort) {
+sort_t make_sort_t(table_t * t, const ::vaultdb::SortDef sort) {
   sort_t s;
-  s.colno = sort.colno();
+  s.colno = colno_from_name(t, sort.colname());
   s.ascending = sort.ascending();
   return s;
 }
@@ -238,9 +238,9 @@ sort_t make_sort_t(const ::vaultdb::SortDef sort) {
 ::grpc::Status DataOwnerImpl::KSort(::grpc::ServerContext *context,
                                     const ::vaultdb::KSortRequest *request,
                                     ::vaultdb::KSortResponse *response) {
-  sort_t s = make_sort_t(request->sortdef());
+  table_t * in = p->GetTable(request->tid().tableid());
+  sort_t s = make_sort_t(in, request->sortdef());
 
-  table_t *in = p->GetTable(request->tid().tableid());
   table_t *sorted;
   if (request->in_sgx()) {
     sorted = sort_sgx(in, &s);
@@ -257,22 +257,23 @@ sort_t make_sort_t(const ::vaultdb::SortDef sort) {
   return ::grpc::Status::OK;
 }
 
-join_def_t make_join_def_t(::vaultdb::JoinDef def) {
+join_def_t make_join_def_t(table_t * left, table_t * right, ::vaultdb::JoinDef def) {
   join_def_t def_t;
-  def_t.l_col = def.l_col();
-  def_t.r_col = def.r_col();
+  def_t.l_col = colno_from_name(left, def.l_col_name());
+  def_t.r_col = colno_from_name(right, def.r_col_name());
   def_t.project_len = def.project_len();
 
   for (int i = 0; i < def.project_list_size(); i++) {
     auto &project = def.project_list(i);
-    def_t.project_list[i].col_no = project.col_no();
     switch (project.side()) {
     case ::vaultdb::JoinColID_RelationSide_LEFT: {
       def_t.project_list[i].side = LEFT_RELATION;
+      def_t.project_list[i].col_no = colno_from_name(left, project.colname());
       break;
     }
     case ::vaultdb::JoinColID_RelationSide_RIGHT: {
       def_t.project_list[i].side = RIGHT_RELATION;
+      def_t.project_list[i].col_no = colno_from_name(right, project.colname());
       break;
     }
     default: { throw; }
@@ -284,15 +285,15 @@ join_def_t make_join_def_t(::vaultdb::JoinDef def) {
 ::grpc::Status DataOwnerImpl::KJoin(::grpc::ServerContext *context,
                                     const ::vaultdb::KJoinRequest *request,
                                     ::vaultdb::KJoinResponse *response) {
-  join_def_t def = make_join_def_t(request->def());
   table_t *left = p->GetTable(request->left_tid().tableid());
   table_t *right = p->GetTable(request->right_tid().tableid());
+  join_def_t def = make_join_def_t(left, right, request->def());
   table_t *out_join;
   if (request->in_sgx()) {
-    hash_join_sgx(left, right, def);
+    out_join = hash_join_sgx(left, right, def);
   } else {
 
-    hash_join(left, right, def);
+    out_join = hash_join(left, right, def);
   }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
@@ -305,26 +306,26 @@ join_def_t make_join_def_t(::vaultdb::JoinDef def) {
   return ::grpc::Status::OK;
 }
 
-groupby_def_t make_groupby_def_t(::vaultdb::GroupByDef def) {
+groupby_def_t make_groupby_def_t(table_t * t, ::vaultdb::GroupByDef def) {
   groupby_def_t def_t;
 
   //TODO(madhavsuresh): this needs to be fixed, the API is inconsistent.
   switch (def.type()) {
   case ::vaultdb::GroupByDef_GroupByType_COUNT: {
     def_t.type = COUNT;
-    def_t.colno = def.col_no();
+    def_t.colno = colno_from_name(t, def.col_name());
     break;
   }
   case ::vaultdb::GroupByDef_GroupByType_MINX: {
     def_t.type = MINX;
-    def_t.colno = def.col_no();
+    def_t.colno = colno_from_name(t, def.col_name());
     break;
   }
   case ::vaultdb::GroupByDef_GroupByType_AVG: {
     def_t.type = AVG;
     def_t.colno = def.col_no();
     for (int i = 0; i < def.gb_col_nos_size(); i++) {
-      def_t.gb_colnos[i] = static_cast<uint8_t>(def.gb_col_nos(i));
+      def_t.gb_colnos[i] = static_cast<uint8_t>(colno_from_name(t,def.gb_col_names(i)));
     }
     def_t.num_cols = def.gb_col_nos_size();
     break;
@@ -339,8 +340,8 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
                           const ::vaultdb::KAggregateRequest *request,
                           ::vaultdb::KAggregateResponse *response) {
 
-  groupby_def_t gbd = make_groupby_def_t(request->def());
   table_t *in = p->GetTable(request->tid().tableid());
+  groupby_def_t gbd = make_groupby_def_t(in, request->def());
   table_t *out;
   if (request->in_sgx()) {
     out = aggregate_sgx(in, &gbd);

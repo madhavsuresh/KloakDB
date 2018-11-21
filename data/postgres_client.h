@@ -61,9 +61,9 @@ enum GROUPBY_TYPE { GROUPBY_UNSUPPORTED, MINX, COUNT, AVG };
 
 typedef struct groupby_def {
   GROUPBY_TYPE type;
-  uint8_t colno;
+  uint32_t colno;
   int32_t num_cols;
-  uint8_t gb_colnos[MAX_FIELDS];
+  uint32_t gb_colnos[MAX_FIELDS];
 } groupby_def_t;
 
 typedef struct field_int {
