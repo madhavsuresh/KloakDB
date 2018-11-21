@@ -11,7 +11,7 @@ add_custom_command(
 
 #We use the "app" nomenclature that is used within the SGX development examples
 # App is for all code outside the enclave. 
-add_library(vaultdb_sgx_app VaultDBSGXApp.cpp "${CMAKE_CURRENT_BINARY_DIR}/VaultDB_u.c" Test.cpp)
+add_library(vaultdb_sgx_app VaultDBSGXApp.cpp "${CMAKE_CURRENT_BINARY_DIR}/VaultDB_u.c")
 enable_language(ASM)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
