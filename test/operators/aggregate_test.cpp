@@ -5,6 +5,7 @@
 #include "data/postgres_client.h"
 #include "data/pqxx_compat.h"
 #include <gtest/gtest.h>
+#include "sgx/App/VaultDBSGXApp.h"
 
 class aggregate_test : public ::testing::Test {
 public:
@@ -69,6 +70,25 @@ TEST_F(aggregate_test, avg_aggregate) {
   gbd.num_cols = 1;
   gbd.gb_colnos[0] = 1;
   table_t *t2 = aggregate(t, &gbd);
+  for (int i = 0; i < t2->num_tuples; i++) {
+    std::cout << tuple_string(get_tuple(i, t2)) << std::endl;
+  }
+  free_table(t);
+  free_table(t2);
+}
+
+TEST_F(aggregate_test, sgx_avg_aggregate) {
+  std::string query1 =
+      "INSERT INTO simple_agg (a,b) VALUES (1,7), (2,7), (3,4)";
+  query(query1, dbname);
+  query1 = "SELECT * FROM simple_agg";
+  table_t *t = get_table(query1, dbname);
+  groupby_def_t gbd;
+  gbd.type = AVG;
+  gbd.colno = 0;
+  gbd.num_cols = 1;
+  gbd.gb_colnos[0] = 1;
+  table_t *t2 = aggregate_sgx(t, &gbd);
   for (int i = 0; i < t2->num_tuples; i++) {
     std::cout << tuple_string(get_tuple(i, t2)) << std::endl;
   }

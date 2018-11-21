@@ -11,6 +11,7 @@
 #include "operators/Sort.h"
 #include "data/pqxx_compat.h"
 #include "DataOwnerPrivate.h"
+#include "sgx/App/VaultDBSGXApp.h"
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
 
@@ -197,7 +198,13 @@ expr_t make_expr_t(const ::vaultdb::Expr &expr) {
                                       const ::vaultdb::KFilterRequest *request,
                                       ::vaultdb::KFilterResponse *response) {
   expr_t ex = make_expr_t(request->expr());
-  table_t *f = filter(p->GetTable(request->tid().tableid()), &ex);
+  table_t *in = p->GetTable(request->tid().tableid());
+  table_t *f;
+  if (request->in_sgx()) {
+    f = filter_sgx(in, &ex);
+  } else {
+    f = filter(in, &ex);
+  }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(f));
@@ -220,7 +227,13 @@ sort_t make_sort_t(const ::vaultdb::SortDef sort) {
                                     ::vaultdb::KSortResponse *response) {
   sort_t s = make_sort_t(request->sortdef());
 
-  table_t *sorted = sort(p->GetTable(request->tid().tableid()), &s);
+  table_t *in = p->GetTable(request->tid().tableid());
+  table_t *sorted;
+  if (request->in_sgx()) {
+    sorted = sort_sgx(in, &s);
+  } else {
+    sorted = sort(in, &s);
+  }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(sorted));
@@ -259,9 +272,15 @@ join_def_t make_join_def_t(::vaultdb::JoinDef def) {
                                     const ::vaultdb::KJoinRequest *request,
                                     ::vaultdb::KJoinResponse *response) {
   join_def_t def = make_join_def_t(request->def());
-  table_t *out_join =
-      hash_join(p->GetTable(request->left_tid().tableid()),
-                p->GetTable(request->right_tid().tableid()), def);
+  table_t *left = p->GetTable(request->left_tid().tableid());
+  table_t *right = p->GetTable(request->right_tid().tableid());
+  table_t *out_join;
+  if (request->in_sgx()) {
+    hash_join_sgx(left, right, def);
+  } else {
+
+    hash_join(left, right, def);
+  }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out_join));
@@ -308,7 +327,13 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
                           ::vaultdb::KAggregateResponse *response) {
 
   groupby_def_t gbd = make_groupby_def_t(request->def());
-  table_t *out = aggregate(p->GetTable(request->tid().tableid()), &gbd);
+  table_t *in = p->GetTable(request->tid().tableid());
+  table_t *out;
+  if (request->in_sgx()) {
+    out = aggregate_sgx(in, &gbd);
+  } else {
+    out = aggregate(in, &gbd);
+  }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out));

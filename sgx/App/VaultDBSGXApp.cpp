@@ -79,3 +79,13 @@ table_t *filter_sgx(table_t *t, expr_t *ex) {
   ecall_filter(eid, &tm, table_id, ex, sizeof(expr_t), &output_table_id);
   return get_table_sgx(eid, tm, output_table_id);
 }
+
+table_t *sort_sgx(table_t *t, sort_t *s) {
+  sgx_enclave_id_t eid = initialize_enclave();
+  table_manager_t tm;
+  memset(&tm, '\0', sizeof(table_manager_t));
+  int table_id, output_table_id;
+  table_id = load_table_into_sgx(eid, &tm, t);
+  ecall_filter(eid, &tm, table_id, s, sizeof(sort_t), &output_table_id);
+  return get_table_sgx(eid, tm, output_table_id);
+}
