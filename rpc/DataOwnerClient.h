@@ -20,6 +20,7 @@ public:
   DataOwnerClient(int host_num, std::shared_ptr<grpc::Channel> channel)
       : stub_(vaultdb::DataOwner::NewStub(channel)), host_num(host_num) {}
 
+  void Shutdown();
   ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
   void GetPeerHosts(std::map<int, std::string> numToHostsMap);
   table_t * GetTable(::vaultdb::TableID);

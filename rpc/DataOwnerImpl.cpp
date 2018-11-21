@@ -13,7 +13,20 @@
 #include "DataOwnerPrivate.h"
 #include "sgx/App/VaultDBSGXApp.h"
 
+extern std::promise<void> exit_requested;
+
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
+
+::grpc::Status
+DataOwnerImpl::ShutDown(::grpc::ServerContext *context,
+                        const ::vaultdb::ShutDownRequest *request,
+                        ::vaultdb::ShutDownResponse *response) {
+  for (int i = 0; i < p->NumHosts(); i++) {
+    p->DeleteDataOwnerClient(i);
+  }
+  exit_requested.set_value();
+  return grpc::Status::OK;
+}
 
 ::grpc::Status
 DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,

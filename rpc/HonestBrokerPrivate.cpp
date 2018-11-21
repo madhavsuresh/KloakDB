@@ -14,6 +14,19 @@ HonestBrokerPrivate::HonestBrokerPrivate(std::string honest_broker_address)
   this->num_hosts = 0;
   this->expected_num_hosts = FLAGS_expected_num_hosts;
 }
+
+HonestBrokerPrivate::~HonestBrokerPrivate() {
+  for (int i = 0; i < this->num_hosts; i++) {
+    delete do_clients[i];
+  }
+}
+
+void HonestBrokerPrivate::Shutdown() {
+  for (int i = 0; i < this->NumHosts(); i++) {
+    do_clients[i]->Shutdown();
+  }
+}
+
 void HonestBrokerPrivate::WaitForAllHosts() {
   while (this->NumHosts() < this->expected_num_hosts) {
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));

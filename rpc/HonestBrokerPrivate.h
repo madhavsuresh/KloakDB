@@ -16,6 +16,8 @@ class HonestBrokerPrivate : public InfoPrivate {
 
 public:
   HonestBrokerPrivate(std::string address);
+   ~HonestBrokerPrivate();
+  void Shutdown();
   int RegisterHost(std::string hostName);
   int NumHosts();
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>

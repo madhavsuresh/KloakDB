@@ -5,6 +5,18 @@
 #include "DataOwnerClient.h"
 #include <g3log/g3log.hpp>
 
+void DataOwnerClient::Shutdown() {
+  vaultdb::ShutDownRequest req;
+  vaultdb::ShutDownResponse resp;
+  grpc::ClientContext context;
+  auto status = stub_->ShutDown(&context, req, &resp);
+  if (status.ok()) {
+
+  } else {
+
+  }
+}
+
 void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
   vaultdb::GetPeerHostsRequest req;
   vaultdb::GetPeerHostsResponse resp;

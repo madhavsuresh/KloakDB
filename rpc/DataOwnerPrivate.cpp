@@ -14,6 +14,10 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name,
       this->hb_host_name, grpc::InsecureChannelCredentials()));
   this->table_counter = 0;
 }
+void DataOwnerPrivate::DeleteDataOwnerClient(int host_num) {
+  delete this->client;
+  delete this->data_owner_clients[host_num];
+}
 
 void DataOwnerPrivate::SetDataOwnerClient(int host_num, std::string host_name) {
   data_owner_clients[host_num] = new DataOwnerClient(
