@@ -338,22 +338,18 @@ TEST_F(join_test, sgx) {
   jd.project_list[3].col_no = 1;
   table_t * output = hash_join_sgx(t, t, jd);
   //table_t *output = hash_join(t, t, jd);
-  /*
   ASSERT_EQ(output->num_tuples, 9);
 
-  printf("\n");
   std::string str_output;
   for (int i = 0; i < output->num_tuples; i++) {
     str_output += tuple_string(get_tuple(i, output)) + ",";
   }
 
-  ASSERT_STREQ(str_output.c_str(), "1| 4| 1| 2| ,1| 3| 1| 2| ,1| 2| 1| 2| ,1| "
-                                   "4| 1| 3| ,1| 3| 1| 3| ,1| 2| 1| 3| ,1| 4| "
-                                   "1| 4| ,1| 3| 1| 4| ,1| 2| 1| 4| ,");
+  ASSERT_STREQ(str_output.c_str(), "1| 2| 1| 2| ,1| 3| 1| 2| ,1| 4| 1| 2| ,1| "
+                                   "2| 1| 3| ,1| 3| 1| 3| ,1| 4| 1| 3| ,1| 2| "
+                                   "1| 4| ,1| 3| 1| 4| ,1| 4| 1| 4| ,");
   query1 = "DROP table full_join_simple";
   query(query1, dbname);
   free_table(t);
   free_table(output);
-   */
-
 }
