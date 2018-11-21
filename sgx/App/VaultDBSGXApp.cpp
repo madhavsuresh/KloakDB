@@ -58,10 +58,24 @@ table_t *hash_join_sgx(table_t *left, table_t *right, join_def_t def) {
   ecall_hash_join(eid, &tm, left_table_id, right_table_id, &def,
                   sizeof(join_def_t), &output_table_id);
   return get_table_sgx(eid, tm, output_table_id);
-  /*
-  table_t *output = get_table_sgx(eid, tm, output_table_id);
-  sgx_destroy_enclave(eid);
+}
 
-  return output;
-   */
+table_t *aggregate_sgx(table_t *t, groupby_def_t *gb) {
+  sgx_enclave_id_t eid = initialize_enclave();
+  table_manager_t tm;
+  memset(&tm, '\0', sizeof(table_manager_t));
+  int table_id, output_table_id;
+  table_id = load_table_into_sgx(eid, &tm, t);
+  ecall_aggregate(eid, &tm, table_id, gb, sizeof(groupby_def_t), &output_table_id);
+  return get_table_sgx(eid, tm, output_table_id);
+}
+
+table_t *filter_sgx(table_t *t, expr_t *ex) {
+  sgx_enclave_id_t eid = initialize_enclave();
+  table_manager_t tm;
+  memset(&tm, '\0', sizeof(table_manager_t));
+  int table_id, output_table_id;
+  table_id = load_table_into_sgx(eid, &tm, t);
+  ecall_filter(eid, &tm, table_id, ex, sizeof(expr_t), &output_table_id);
+  return get_table_sgx(eid, tm, output_table_id);
 }

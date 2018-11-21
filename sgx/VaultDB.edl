@@ -11,6 +11,11 @@ enclave {
         public void ecall_hash_join([user_check] void *table_manager, int left_table_id,int right_table_id,[in, size=jd_len] void *join_def,
         size_t jd_len, [out] int *output_table_id);
 
+	public void ecall_sort([user_check] void *table_manager, int table_id, [in, size=sd_len] void *sort_def, size_t sd_len, [out] int *output_table_id);
+	public void ecall_filter([user_check] void *table_manager, int table_id, [in, size=eb_len] void *expr_buf, size_t eb_len, [out] int *output_table_id);
+	public void ecall_aggregate([user_check] void *table_manager, int table_id, [in, size=gbd_len] void *gb_def, size_t gbd_len, 
+[out] int *output_table_id);
+
         public void ecall_get_table_t([user_check] void *table_manger, int table_id, [out, size=len] void *t, size_t len);
 
        public void ecall_get_tuple_page([user_check] void *table_manager, int table_id, int page_no, [out, size=len] void *tuple_page, size_t len);
