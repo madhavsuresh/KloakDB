@@ -1,12 +1,12 @@
 #ifndef PROJECT_POSTGRES_CLIENT_H
 #define PROJECT_POSTGRES_CLIENT_H
-// OID constants taken from postgres/catalog/pg_type.h, not included in
-// Ubuntu 16.04 postgres package. These are global constants set in postgres
 #include <cstdint>
 #include <string>
 #include <vector>
 #include <time.h>
 
+// OID constants taken from postgres/catalog/pg_type.h, not included in
+// Ubuntu 16.04 postgres package. These are global constants set in postgres
 #define VARCHAROID 1043
 #define INT8OID 20
 #define INT4OID 23

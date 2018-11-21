@@ -11,7 +11,7 @@ void ecall_load_table_enclave(void *table, size_t len) {
 void ecall_load_table(void *table_manager, void *table, size_t table_t_len, int *output_table_id) {
   table_manager_t *tm = (table_manager_t*) table_manager;
   table_t *tmp_t = (table_t*) table;
-  table_t * curr_table;// = allocate_table(tmp_t->num_tuple_pages);
+  table_t * curr_table = allocate_table(tmp_t->num_tuple_pages);
   memcpy(curr_table, table, table_t_len);
   tuple_page_t * scratch = (tuple_page_t *) malloc(PAGE_SIZE);
 
@@ -21,6 +21,7 @@ void ecall_load_table(void *table_manager, void *table, size_t table_t_len, int 
       throw;
     }
     ocall_copy_page(curr_table->tuple_pages[i], PAGE_SIZE, i);
+    //
   }
   int tid; // = insert_into_table_manager(tm,curr_table);
   join_def_t def;

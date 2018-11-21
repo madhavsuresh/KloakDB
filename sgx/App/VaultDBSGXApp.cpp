@@ -1,10 +1,9 @@
 #include "VaultDB_u.h"
-#include "data/postgres_client.h"
+#include "VaultDBSGXApp.h"
 #include "sgx_urts.h"
-#include <data/postgres_client.h>
 #include <gflags/gflags.h>
 
-DEFINE_string(enclave_path, "sgx/enclave.signed.so", "path for built enclave");
+DEFINE_string(enclave_path, "/home/madhav/DB/vaultdb_operators/cmake-build-debug/sgx/Enclave/libvaultdb_trusted_signed.so", "path for built enclave");
 /* Initialize the enclave:
  *   Call sgx_create_enclave to initialize an enclave instance
  */
@@ -51,7 +50,10 @@ table_t *hash_join_sgx(table_t *left, table_t *right, join_def_t def) {
   ecall_load_table(eid, &tm, right, sizeof(table_t), &left_table_id);
   ecall_hash_join(eid, &tm, left_table_id, right_table_id, &def,
                   sizeof(join_def_t), &output_table_id);
+  /*
   table_t *output = get_table_sgx(eid, tm, output_table_id);
   sgx_destroy_enclave(eid);
+
   return output;
+   */
 }
