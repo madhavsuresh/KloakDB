@@ -7,7 +7,7 @@
 #include "../data/postgres_client.h"
 #include <cstdint>
 
-typedef struct sort {
+typedef struct sortdef {
   int32_t colno;
   bool ascending;
 } sort_t;
