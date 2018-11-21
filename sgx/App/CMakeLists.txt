@@ -24,5 +24,3 @@ else()
 endif()
 target_link_libraries(vaultdb_sgx_app gflags)
 
-add_executable(app Test.cpp)
-target_link_libraries(app vaultdb_sgx_app dataformat gflags pthread)
