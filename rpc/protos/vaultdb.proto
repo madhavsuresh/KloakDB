@@ -74,6 +74,7 @@ message GetControlFlowColumnResponse{
 
 message ControlFlowColumn {
     int32 cfid = 1;
+    string cf_name = 2;
 }
 
 message RepartitionStepTwoRequest {
@@ -301,6 +302,8 @@ message FieldDesc {
         UNSUPPORTED = 0;
         FIXEDCHAR = 1;
         INT = 2;
+        DOUBLE = 3;
+        TIMESTAMP = 4;
     }
     FieldType field_type = 3;
 }

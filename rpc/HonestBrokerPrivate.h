@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+typedef std::shared_ptr<const ::vaultdb::TableID> tableid_ptr;
+
 class HonestBrokerPrivate : public InfoPrivate {
 
 public:
@@ -21,9 +23,9 @@ public:
   int RegisterHost(std::string hostName);
   int NumHosts();
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Repartition(std::vector<std::shared_ptr<::vaultdb::TableID>> &ids);
+  Repartition(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> id);
+  RepartitionStepOne(std::shared_ptr<const ::vaultdb::TableID> id);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepTwo(
       int host_num,
       std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments);
@@ -39,17 +41,19 @@ public:
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
   Join(std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>,
                              std::shared_ptr<const ::vaultdb::TableID>>> &ids,
-       ::vaultdb::JoinDef &join);
+       ::vaultdb::JoinDef &join, bool in_sgx);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
   Aggregate(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
             ::vaultdb::GroupByDef &groupby);
-  int GetControlFlowColID();
+   ::vaultdb::ControlFlowColumn GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
+  void SetControlFlowColName(std::string name);
   int RegisterPeerHosts();
   void Generalize(std::string table_name, std::string column, std::string dbname);
 
-  ::vaultdb::TableID DBMSQuery(int host_num, std::string dbname,
-                               std::string query);
+  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
+  ClusterDBMSQuery(std::string dbname, std::string query);
+   std::shared_ptr<const ::vaultdb::TableID> DBMSQuery(int host_num, std::string dbname, std::string query);
    void WaitForAllHosts();
 
 private:

@@ -38,4 +38,6 @@ private:
   int table_counter;
   std::map<int, table_t *> table_catalog;
 };
+
+void proto_schema_to_table_schema(table_t *t, const vaultdb::Schema &s);
 #endif // PROJECT_DATAOWNERPRIVATE_H

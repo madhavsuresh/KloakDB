@@ -6,10 +6,11 @@
 #include "operators/Generalize.h"
 #include <gflags/gflags.h>
 
-DEFINE_int32(expected_num_hosts, 1, "Expected number of hosts");
+DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
+using namespace vaultdb;
 
-HonestBrokerPrivate::HonestBrokerPrivate(std::string honest_broker_address)
+HonestBrokerPrivate::HonestBrokerPrivate(string honest_broker_address)
     : InfoPrivate(honest_broker_address) {
   this->num_hosts = 0;
   this->expected_num_hosts = FLAGS_expected_num_hosts;
@@ -29,7 +30,7 @@ void HonestBrokerPrivate::Shutdown() {
 
 void HonestBrokerPrivate::WaitForAllHosts() {
   while (this->NumHosts() < this->expected_num_hosts) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    this_thread::sleep_for(chrono::milliseconds(1000));
   }
   printf("All hosts registered");
 }
@@ -40,32 +41,34 @@ int HonestBrokerPrivate::RegisterPeerHosts() {
   }
 }
 
-std::string count_star_query(std::string table_name, std::string column) {
-  return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " + column;
+string count_star_query(string table_name, string column) {
+  return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " +
+         column;
 }
 // TODO(madhavsuresh): support multiple column generalization
 // TODO(madhavsuresh): this is a work in progress. this needs to be filled in.
-void HonestBrokerPrivate::Generalize(std::string table_name, std::string column, std::string dbname) {
-  std::string query_string = count_star_query(table_name, column);
+void HonestBrokerPrivate::Generalize(string table_name, string column,
+                                     string dbname) {
+  string query_string = count_star_query(table_name, column);
 
-  std::vector<::vaultdb::TableID> tids;
+  vector<tableid_ptr> tids;
   for (int i = 0; i < this->num_hosts; i++) {
     auto tid = this->DBMSQuery(i, "dbname=" + dbname, query_string);
     tids.push_back(tid);
   }
-  std::vector<std::pair<hostnum, table_t*>> gen_tables;
-  for (auto &t : tids ) {
-    gen_tables.emplace_back(t.hostnum(), do_clients[t.hostnum()]->GetTable(t));
+  vector<pair<hostnum, table_t *>> gen_tables;
+  for (auto &t : tids) {
+    gen_tables.emplace_back(t.get()->hostnum(),
+                            do_clients[t.get()->hostnum()]->GetTable(t));
   }
-  table_t * gen_map = generalize_table(gen_tables, this->NumHosts(), 5);
-  std::vector<::vaultdb::TableID> gen_ids;
+  table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), 5);
+  vector<::vaultdb::TableID> gen_ids;
   for (int i = 0; i < this->num_hosts; i++) {
-     auto resp = do_clients[i]->SendTable(gen_map);
+    auto resp = do_clients[i]->SendTable(gen_map);
   }
 }
 
-
-int HonestBrokerPrivate::RegisterHost(std::string hostName) {
+int HonestBrokerPrivate::RegisterHost(string hostName) {
   this->registrationMutex.lock();
   int host_num = this->num_hosts;
   remoteHostnames.push_back(hostName);
@@ -80,17 +83,23 @@ int HonestBrokerPrivate::RegisterHost(std::string hostName) {
   return host_num;
 }
 
-::vaultdb::TableID HonestBrokerPrivate::DBMSQuery(int host_num,
-                                                  std::string dbname,
-                                                  std::string query) {
+vector<tableid_ptr> HonestBrokerPrivate::ClusterDBMSQuery(string dbname,
+                                                          string query) {
+  vector<tableid_ptr> queried_tables;
+  for (int i = 0; i < num_hosts; i++) {
+    queried_tables.emplace_back(DBMSQuery(i, dbname, query));
+  }
+  return queried_tables;
+}
+
+tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
+                                           string query) {
+
   return this->do_clients[host_num]->DBMSQuery(dbname, query);
 }
 
-std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::Repartition(
-    std::vector<std::shared_ptr<::vaultdb::TableID>> &ids) {
-  std::map<int, std::vector<std::shared_ptr<const ::vaultdb::TableID>>>
-      table_fragments;
+vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
+  map<int, vector<tableid_ptr>> table_fragments;
   for (auto id : ids) {
     auto k = RepartitionStepOne(id);
     for (auto j : k) {
@@ -98,8 +107,7 @@ HonestBrokerPrivate::Repartition(
     }
   }
 
-  std::map<int, std::vector<std::shared_ptr<const ::vaultdb::TableID>>>
-      hashed_table_fragments;
+  map<int, vector<tableid_ptr>> hashed_table_fragments;
   for (int i = 0; i < num_hosts; i++) {
     auto out = RepartitionStepTwo(i, table_fragments[i]);
     for (auto j : out) {
@@ -107,21 +115,18 @@ HonestBrokerPrivate::Repartition(
     }
   }
 
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>> coalesced_tables;
+  vector<tableid_ptr> coalesced_tables;
   for (int i = 0; i < num_hosts; i++) {
-    std::shared_ptr<const ::vaultdb::TableID> tmp =
-        Coalesce(i, hashed_table_fragments[i]);
+    tableid_ptr tmp = Coalesce(i, hashed_table_fragments[i]);
     coalesced_tables.emplace_back(tmp);
   }
   return coalesced_tables;
 }
 
-std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::Filter(
-    std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
-    ::vaultdb::Expr &expr) {
+vector<tableid_ptr> HonestBrokerPrivate::Filter(vector<tableid_ptr> &ids,
+                                                ::vaultdb::Expr &expr) {
 
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>> filtered_tables;
+  vector<tableid_ptr> filtered_tables;
   for (auto &i : ids) {
     filtered_tables.emplace_back(
         do_clients[i.get()->hostnum()]->Filter(i, expr));
@@ -129,13 +134,11 @@ HonestBrokerPrivate::Filter(
   return filtered_tables;
 }
 
-std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::Join(
-    std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>,
-                          std::shared_ptr<const ::vaultdb::TableID>>> &ids,
-    ::vaultdb::JoinDef &join) {
+vector<tableid_ptr>
+HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
+                          ::vaultdb::JoinDef &join, bool in_sgx) {
 
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>> joined_tables;
+  vector<tableid_ptr> joined_tables;
   for (auto &i : ids) {
     joined_tables.emplace_back(
         do_clients[i.first.get()->hostnum()]->Join(i.first, i.second, join));
@@ -143,22 +146,19 @@ HonestBrokerPrivate::Join(
   return joined_tables;
 }
 
-std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::Sort(
-    std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
-    ::vaultdb::SortDef &sort) {
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>> sorted_tables;
+vector<tableid_ptr> HonestBrokerPrivate::Sort(vector<tableid_ptr> &ids,
+                                              ::vaultdb::SortDef &sort) {
+  vector<tableid_ptr> sorted_tables;
   for (auto &i : ids) {
     sorted_tables.emplace_back(do_clients[i.get()->hostnum()]->Sort(i, sort));
   }
   return sorted_tables;
 }
 
-std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::Aggregate(
-    std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
-    ::vaultdb::GroupByDef &groupby) {
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>> aggregate_tables;
+vector<tableid_ptr>
+HonestBrokerPrivate::Aggregate(vector<tableid_ptr> &ids,
+                               ::vaultdb::GroupByDef &groupby) {
+  vector<tableid_ptr> aggregate_tables;
   for (auto &i : ids) {
     aggregate_tables.emplace_back(
         do_clients[i.get()->hostnum()]->Aggregate(i, groupby));
@@ -170,24 +170,24 @@ void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {
   cf.set_cfid(col_ID);
 }
 
-int HonestBrokerPrivate::GetControlFlowColID() { return cf.cfid(); }
+void HonestBrokerPrivate::SetControlFlowColName(string name) {
+  cf.set_cf_name(name);
+}
 
-std::shared_ptr<const ::vaultdb::TableID> HonestBrokerPrivate::Coalesce(
-    int host_num,
-    std::vector<std::shared_ptr<const ::vaultdb::TableID>> tables) {
+::vaultdb::ControlFlowColumn HonestBrokerPrivate::GetControlFlowColID() { return cf; }
+
+tableid_ptr HonestBrokerPrivate::Coalesce(int host_num,
+                                          vector<tableid_ptr> tables) {
   return do_clients[host_num]->CoalesceTables(tables);
 }
 
-std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::RepartitionStepOne(
-    std::shared_ptr<::vaultdb::TableID> id) {
+vector<tableid_ptr> HonestBrokerPrivate::RepartitionStepOne(tableid_ptr id) {
   return do_clients[id.get()->hostnum()]->RepartitionStepOne(id);
 }
 
-std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-HonestBrokerPrivate::RepartitionStepTwo(
-    int host_num,
-    std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments) {
+vector<tableid_ptr>
+HonestBrokerPrivate::RepartitionStepTwo(int host_num,
+                                        vector<tableid_ptr> table_fragments) {
   return do_clients[host_num]->RepartitionStepTwo(table_fragments);
 }
 

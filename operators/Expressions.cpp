@@ -1,19 +1,16 @@
 #include "Expressions.h"
 #include <iostream>
+#include <cstring>
 
 bool eq_expr(tuple *t, expr_t *ex) {
   switch (ex->field_val.type) {
   case FIXEDCHAR: {
-    // TODO(madhavsuresh): turn this into a proper error
-    throw;
+    return strncmp(t->field_list[ex->colno].f.fixed_char_field.val,
+                   ex->field_val.f.fixed_char_field.val, FIXEDCHAR_LEN) == 0;
   }
   case INT: {
-    if (t->field_list[ex->colno].f.int_field.val ==
-        ex->field_val.f.int_field.val) {
-      return true;
-    } else {
-      return false;
-    }
+    return t->field_list[ex->colno].f.int_field.val ==
+           ex->field_val.f.int_field.val;
   }
   case UNSUPPORTED:
     throw;

@@ -30,6 +30,6 @@ HonestBrokerImpl::Register(::grpc::ServerContext *context,
     const ::vaultdb::GetControlFlowColumnRequest *request,
     ::vaultdb::GetControlFlowColumnResponse *response) {
   auto cf = response->mutable_cf();
-  cf->set_cfid(p->GetControlFlowColID());
+  cf->CopyFrom(p->GetControlFlowColID());
   return ::grpc::Status::OK;
 }

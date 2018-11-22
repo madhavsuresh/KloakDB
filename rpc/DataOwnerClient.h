@@ -21,14 +21,15 @@ public:
       : stub_(vaultdb::DataOwner::NewStub(channel)), host_num(host_num) {}
 
   void Shutdown();
-  ::vaultdb::TableID DBMSQuery(std::string dbname, std::string query);
+  std::shared_ptr<const ::vaultdb::TableID> DBMSQuery(std::string dbname,
+                                                      std::string query);
   void GetPeerHosts(std::map<int, std::string> numToHostsMap);
-  table_t * GetTable(::vaultdb::TableID);
+  table_t * GetTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr);
 
   std::shared_ptr<const ::vaultdb::TableID>
   Filter(std::shared_ptr<const ::vaultdb::TableID>, ::vaultdb::Expr);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> tid);
+  RepartitionStepOne(std::shared_ptr<const ::vaultdb::TableID> tid);
   std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepTwo(
       std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments);
   std::shared_ptr<const ::vaultdb::TableID> CoalesceTables(

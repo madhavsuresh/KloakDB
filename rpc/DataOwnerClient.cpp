@@ -3,6 +3,7 @@
 //
 
 #include "DataOwnerClient.h"
+#include "DataOwnerPrivate.h"
 #include <g3log/g3log.hpp>
 
 void DataOwnerClient::Shutdown() {
@@ -66,7 +67,7 @@ DataOwnerClient::RepartitionStepTwo(
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-DataOwnerClient::RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> tid) {
+DataOwnerClient::RepartitionStepOne(std::shared_ptr<const ::vaultdb::TableID> tid) {
   vaultdb::RepartitionStepOneRequest req;
   vaultdb::RepartitionStepOneResponse resp;
   grpc::ClientContext context;
@@ -91,8 +92,8 @@ DataOwnerClient::RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> tid) {
   return vec;
 }
 
-::vaultdb::TableID DataOwnerClient::DBMSQuery(std::string dbname,
-                                              std::string query) {
+std::shared_ptr<const ::vaultdb::TableID>
+DataOwnerClient::DBMSQuery(std::string dbname, std::string query) {
   vaultdb::DBMSQueryRequest req;
   vaultdb::DBMSQueryResponse resp;
   grpc::ClientContext context;
@@ -104,7 +105,9 @@ DataOwnerClient::RepartitionStepOne(std::shared_ptr<::vaultdb::TableID> tid) {
   if (status.ok()) {
     LOG(INFO) << "SUCCESS:->[" << host_num << "]"
               << "Query: [" << query << "]";
-    return resp.tableid();
+    auto tmp = std::make_shared<vaultdb::TableID>();
+    tmp.get()->CopyFrom(resp.tableid());
+    return tmp;
   } else {
     LOG(INFO) << "FAIL:->[" << host_num << "]";
     std::cerr << status.error_code() << ": " << status.error_message()
@@ -127,6 +130,17 @@ void table_schema_to_proto_schema(table_t *t, vaultdb::Schema *s) {
     case INT: {
       fd->set_field_type(vaultdb::FieldDesc_FieldType_INT);
       break;
+    }
+    case DOUBLE: {
+      fd->set_field_type(vaultdb::FieldDesc_FieldType_DOUBLE);
+      break;
+    }
+    case TIMESTAMP: {
+      fd->set_field_type(vaultdb::FieldDesc_FieldType_TIMESTAMP);
+      break;
+    }
+    case UNSUPPORTED : {
+      throw;
     }
     default: { throw; }
     }
@@ -183,14 +197,15 @@ DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid,
   }
 }
 
-table_t * DataOwnerClient::GetTable(::vaultdb::TableID id) {
+table_t * DataOwnerClient::GetTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr) {
   // TODO(madhavsuresh): this is copy pasted code, this block should be refactored out.
   ::vaultdb::GetTableRequest req;
   ::vaultdb::GetTableResponse resp;
   ::grpc::ClientContext context;
   table_t * t;
+  auto id = id_ptr.get();
 
-  req.mutable_id()->CopyFrom(id);
+  req.mutable_id()->CopyFrom(*id);
   std::unique_ptr<::grpc::ClientReader<::vaultdb::GetTableResponse>> reader(stub_->GetTable(&context, req));
   while (reader->Read(&resp)) {
     if (resp.is_header()) {
@@ -199,25 +214,7 @@ table_t * DataOwnerClient::GetTable(::vaultdb::TableID id) {
       t->size_of_tuple = resp.size_of_tuple();
       t->num_tuple_pages = resp.num_tuple_pages();
 
-      // TODO(madhavsuresh): refactor this code block out
-      t->schema.num_fields = resp.schema().num_fields();
-      for (int i = 0; i < t->schema.num_fields; i++) {
-        t->schema.fields[i].col_no = resp.schema().field(i).col_no();
-        strncpy(t->schema.fields[i].field_name,
-                resp.schema().field(i).field_name().c_str(), FIELD_NAME_LEN);
-        switch (resp.schema().field(i).field_type()) {
-          case vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
-            // TODO(madhavsuresh): this should all be one enum.
-            t->schema.fields[i].type = FIXEDCHAR;
-            break;
-          }
-          case vaultdb::FieldDesc_FieldType_INT: {
-            t->schema.fields[i].type = INT;
-            break;
-          }
-          default: { throw; }
-        }
-      }
+      proto_schema_to_table_schema(t, resp.schema());
     } else {
       t->tuple_pages[resp.page_no()] = (tuple_page_t *)malloc(PAGE_SIZE);
       memcpy(t->tuple_pages[resp.page_no()], resp.page().c_str(), PAGE_SIZE);

@@ -78,8 +78,9 @@ uint32_t hash_field_to_int(field_t f) {
   return out.u;
 }
 
-int hash_to_host(::vaultdb::ControlFlowColumn cf, int num_hosts, tuple_t *t) {
-  uint32_t i = hash_field_to_int(t->field_list[cf.cfid()]);
+int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t, table_t * table) {
+  int col_no = colno_from_name(table, cf.cf_name());
+  uint32_t i = hash_field_to_int(t->field_list[col_no]);
   return i % num_hosts;
 }
 
@@ -104,7 +105,7 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   ::vaultdb::ControlFlowColumn control_flow_col = p->GetControlFlowColID();
   for (auto t : tables) {
     for (int i = 0; i < t->num_tuples; i++) {
-      int host = hash_to_host(control_flow_col, num_hosts, get_tuple(i, t));
+      int host = hash_to_host(control_flow_col, num_hosts, get_tuple(i, t), t);
       append_tuple(&host_tb[host], get_tuple(i, t));
     }
   }
