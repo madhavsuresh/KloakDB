@@ -53,3 +53,16 @@ TEST_F(filter_test, sgx) {
   free_table(t);
   free(tb);
 }
+
+TEST_F(filter_test, string_test) {
+  query("DROP TABLE IF EXISTS filter_test", dbname);
+  query("CREATE TABLE filter_test (a INT, b VARCHAR)", dbname);
+  query("INSERT INTO filter_test (a,b) VALUES (1, 'a'), (2, 'b')", dbname);
+  table_t * t = get_table("SELECT * FROM filter_test", dbname);
+  expr_t expr = make_string_expr(EQ_EXPR, "a", 1);
+  table_t *out = filter(t, &expr);
+  ASSERT_EQ(out->num_tuples, 2);
+  ASSERT_EQ(get_tuple(0,out)->is_dummy, false);
+  ASSERT_EQ(get_tuple(1,out)->is_dummy, true);
+
+}

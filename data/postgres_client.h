@@ -155,6 +155,7 @@ tuple_t *get_tuple(int tuple_number, table_t *table);
 int64_t get_int_field(tuple_t *tup, int field_no);
 void free_table(table_t *table);
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno);
+expr_t make_string_expr(FILTER_EXPR type, std::string field_val, int colno);
 bool check_add_tuple_page(table_builder_t *tb);
 void add_tuple_page(table_builder_t *tb);
 void init_table_builder(uint64_t expected_tuples, int num_columns,

@@ -50,6 +50,15 @@ std::string tuple_string(tuple_t *t) {
   return output;
 }
 
+expr_t make_string_expr(FILTER_EXPR type, std::string field_val, int colno) {
+  expr_t expr;
+  expr.field_val.type = FIXEDCHAR;
+  strncpy(expr.field_val.f.fixed_char_field.val, field_val.c_str(), FIXEDCHAR_LEN);
+  expr.colno = colno;
+  expr.expr_type = type;
+  return expr;
+}
+
 expr_t make_int_expr(FILTER_EXPR type, uint64_t field_val, int colno) {
   expr_t expr;
   expr.field_val.type = INT;
@@ -270,6 +279,7 @@ double get_num_field(table_t *t, int tuple_no, int colno) {
     return (double)get_tuple(tuple_no, t)->field_list[colno].f.double_field.val;
   }
   }
+  throw;
 }
 
 uint32_t insert_into_table_manager(table_manager_t *tm, table_t *t) {
