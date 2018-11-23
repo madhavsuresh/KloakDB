@@ -26,11 +26,11 @@ CREATE TABLE diagnoses (
 
 DROP TABLE IF EXISTS cdiff_cohort;
 CREATE TABLE cdiff_cohort AS (
-       SELECT DISTINCT patient_id FROM diagnoses WHERE icd9 = '008.45' 
+       SELECT DISTINCT patient_id FROM diagnoses WHERE icd9 = '008.45');
 
 DROP TABLE IF EXISTS mi_cohort;
 CREATE TABLE mi_cohort AS (
-       SELECT DISTINCT patient_id FROM diagnoses WHERE icd9 LIKE '410%'
+       SELECT DISTINCT patient_id FROM diagnoses WHERE icd9 LIKE '410%');
 
 
 
@@ -71,9 +71,6 @@ CREATE TABLE medications (
     route character varying,
     timestamp_ timestamp without time zone
 );
-
-DROP TABLE IF EXISTS mi_cohort_medications;
-CREATE TABLE mi_cohort_medications AS SELECT * FROM medications  WHERE year = :test_year AND (site=:site1 OR site=:site2) AND patient_id IN (SELECT * FROM mi_cohort); 
 
 CREATE TABLE oblivious_partitioning_100 (
 	a INT,
@@ -120,4 +117,4 @@ CREATE TABLE oblivious_partitioning_10000000 (
 CREATE TABLE left_deep_joins_1024 (
 	a INT,
 	b INT
-)
+);
