@@ -3,7 +3,7 @@
 #include "sgx_urts.h"
 #include <gflags/gflags.h>
 
-DEFINE_string(enclave_path, "/home/madhav/DB/vaultdb_operators/cmake-build-debug/sgx/Enclave/libvaultdb_trusted_signed.so", "path for built enclave");
+DEFINE_string(enclave_path, "./sgx/Enclave/libvaultdb_trusted_signed.so", "path for built enclave");
 /* Initialize the enclave:
  *   Call sgx_create_enclave to initialize an enclave instance
  */

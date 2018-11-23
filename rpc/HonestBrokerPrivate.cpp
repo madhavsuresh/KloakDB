@@ -51,7 +51,7 @@ string count_star_query(string table_name, string column) {
 vector<tableid_ptr>
 HonestBrokerPrivate::Generalize(
     string table_name, string column, string dbname,
-    vector<tableid_ptr> scanned_tables) {
+    vector<tableid_ptr> scanned_tables, int gen_level) {
   string query_string = count_star_query(table_name, column);
 
   vector<tableid_ptr> out_vec;
@@ -65,7 +65,7 @@ HonestBrokerPrivate::Generalize(
     gen_tables.emplace_back(t.get()->hostnum(),
                             do_clients[t.get()->hostnum()]->GetTable(t));
   }
-  table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), 5);
+  table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), gen_level);
   for (int i = 0; i < this->num_hosts; i++) {
     auto resp = do_clients[i]->SendTable(gen_map);
     ::vaultdb::TableID out;

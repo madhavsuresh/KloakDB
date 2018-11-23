@@ -23,6 +23,8 @@ DEFINE_string(
     "IPV4 Address for honest broker instance (set by non-honest broker)");
 DEFINE_int32(experiment, 1, "experiment number");
 
+DEFINE_int32(gen_level, 5, "generalization level");
+
 DEFINE_string (database, "smcql_testDB", "database name");
 DEFINE_string(diagnoses_table, "diagnoses", "table name for diagnoses");
 DEFINE_string(medications_table, "medications", "table name for medications");
@@ -61,11 +63,18 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
   return ret;
 }
 
+void exp5(HonestBrokerPrivate *p) {
+  auto scan = p->ClusterDBMSQuery("dbname=test", "SELECT * FROM random2");
+  p->Generalize("random2" /* table name */, "b" /* column */, "test", scan, FLAGS_gen_level);
+
+}
+
 void aspirin_profile(HonestBrokerPrivate *p) {
   auto meds_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_medications_table);
   auto demographics_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_demographics_table);
   auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_diagnoses_table);
   auto vitals_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_vitals_table);
+  p->Generalize("vitals" /* table name */, "patient_id" /* generalization column */, FLAGS_database, vitals_scan, FLAGS_gen_level);
 
   // join def vitals-diagnoses
   JoinDef jd_vd;
@@ -186,7 +195,8 @@ int main(int argc, char **argv) {
 
     //dosage_study(p);
     //comorbidity(p);
-    aspirin_profile(p);
+    // aspirin_profile(p);
+    exp5(p);
     p->Shutdown();
     switch (FLAGS_experiment) {
       case 1 : {

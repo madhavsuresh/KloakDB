@@ -12,61 +12,59 @@
 #include <string>
 #include <vector>
 
-typedef std::shared_ptr<const ::vaultdb::TableID> tableid_ptr;
+using namespace std;
+using namespace vaultdb;
+typedef shared_ptr<const TableID> tableid_ptr;
 
 class HonestBrokerPrivate : public InfoPrivate {
 
 public:
-  HonestBrokerPrivate(std::string address);
-   ~HonestBrokerPrivate();
+  HonestBrokerPrivate(string address);
+  ~HonestBrokerPrivate();
   void Shutdown();
-  int RegisterHost(std::string hostName);
+  int RegisterHost(string hostName);
   int NumHosts();
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Repartition(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids);
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  RepartitionStepOne(std::shared_ptr<const ::vaultdb::TableID> id);
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>> RepartitionStepTwo(
-      int host_num,
-      std::vector<std::shared_ptr<const ::vaultdb::TableID>> table_fragments);
-  std::shared_ptr<const ::vaultdb::TableID>
-  Coalesce(int host_num,
-           std::vector<std::shared_ptr<const ::vaultdb::TableID>> tables);
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Filter(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
-         ::vaultdb::Expr &expr);
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Sort(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
-       ::vaultdb::SortDef &sort);
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Join(std::vector<std::pair<std::shared_ptr<const ::vaultdb::TableID>,
-                             std::shared_ptr<const ::vaultdb::TableID>>> &ids,
-       ::vaultdb::JoinDef &join, bool in_sgx);
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  Aggregate(std::vector<std::shared_ptr<const ::vaultdb::TableID>> &ids,
-            ::vaultdb::GroupByDef &groupby);
-   ::vaultdb::ControlFlowColumn GetControlFlowColID();
+  vector<shared_ptr<const TableID>>
+  Repartition(vector<std::shared_ptr<const TableID>> &ids);
+  vector<shared_ptr<const TableID>>
+  RepartitionStepOne(shared_ptr<const TableID> id);
+  vector<shared_ptr<const TableID>>
+  RepartitionStepTwo(int host_num,
+                     vector<shared_ptr<const TableID>> table_fragments);
+  shared_ptr<const TableID> Coalesce(int host_num,
+                                     vector<shared_ptr<const TableID>> tables);
+  vector<shared_ptr<const TableID>>
+  Filter(vector<shared_ptr<const TableID>> &ids, Expr &expr);
+  vector<shared_ptr<const TableID>> Sort(vector<shared_ptr<const TableID>> &ids,
+                                         SortDef &sort);
+  vector<shared_ptr<const TableID>>
+  Join(vector<pair<shared_ptr<const TableID>, shared_ptr<const TableID>>> &ids,
+       JoinDef &join, bool in_sgx);
+  vector<shared_ptr<const TableID>>
+  Aggregate(vector<shared_ptr<const TableID>> &ids, GroupByDef &groupby);
+  ControlFlowColumn GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
-  void SetControlFlowColName(std::string name);
+  void SetControlFlowColName(string name);
   int RegisterPeerHosts();
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>> Generalize(
-      std::string table_name, std::string column, std::string dbname,
-      std::vector<std::shared_ptr<const ::vaultdb::TableID>> scanned_tables);
+  vector<shared_ptr<const TableID>>
+  Generalize(string table_name, string column, string dbname,
+             vector<shared_ptr<const TableID>> scanned_tables, int gen_level);
 
-  std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-  ClusterDBMSQuery(std::string dbname, std::string query);
-   std::shared_ptr<const ::vaultdb::TableID> DBMSQuery(int host_num, std::string dbname, std::string query);
-   void WaitForAllHosts();
+  vector<shared_ptr<const TableID>> ClusterDBMSQuery(string dbname,
+                                                     string query);
+  shared_ptr<const TableID> DBMSQuery(int host_num, string dbname,
+                                      string query);
+  void WaitForAllHosts();
 
 private:
-  std::mutex registrationMutex;
+  mutex registrationMutex;
   // Expected num hosts is used for the bootstrapping process
   int expected_num_hosts;
   int num_hosts;
-  ::vaultdb::ControlFlowColumn cf;
-  std::vector<std::string> remoteHostnames;
-  std::map<int, std::string> numToHostMap;
-  std::map<int, DataOwnerClient *> do_clients;
+  ControlFlowColumn cf;
+  vector<string> remoteHostnames;
+  map<int, string> numToHostMap;
+  map<int, DataOwnerClient *> do_clients;
 };
 
 #endif // PROJECT_HONESTBROKERPRIVATE_H
