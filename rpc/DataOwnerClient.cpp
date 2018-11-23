@@ -229,7 +229,7 @@ table_t * DataOwnerClient::GetTable(std::shared_ptr<const ::vaultdb::TableID> id
   ::vaultdb::GetTableRequest req;
   ::vaultdb::GetTableResponse resp;
   ::grpc::ClientContext context;
-  table_t * t;
+  table_t * t = nullptr;
   auto id = id_ptr.get();
 
   req.mutable_id()->CopyFrom(*id);
@@ -252,6 +252,9 @@ table_t * DataOwnerClient::GetTable(std::shared_ptr<const ::vaultdb::TableID> id
     LOG(INFO) << "SUCCESS:->[" << host_num << "]";
   } else {
     LOG(INFO) << "FAILURE";
+  }
+  if (t == nullptr) {
+    throw;
   }
   return t;
 }
