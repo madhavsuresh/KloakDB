@@ -45,12 +45,16 @@ string count_star_query(string table_name, string column) {
   return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " +
          column;
 }
+
 // TODO(madhavsuresh): support multiple column generalization
 // TODO(madhavsuresh): this is a work in progress. this needs to be filled in.
-void HonestBrokerPrivate::Generalize(string table_name, string column,
-                                     string dbname) {
+vector<tableid_ptr>
+HonestBrokerPrivate::Generalize(
+    string table_name, string column, string dbname,
+    vector<tableid_ptr> scanned_tables) {
   string query_string = count_star_query(table_name, column);
 
+  vector<tableid_ptr> out_vec;
   vector<tableid_ptr> tids;
   for (int i = 0; i < this->num_hosts; i++) {
     auto tid = this->DBMSQuery(i, "dbname=" + dbname, query_string);
@@ -62,10 +66,19 @@ void HonestBrokerPrivate::Generalize(string table_name, string column,
                             do_clients[t.get()->hostnum()]->GetTable(t));
   }
   table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), 5);
-  vector<::vaultdb::TableID> gen_ids;
   for (int i = 0; i < this->num_hosts; i++) {
     auto resp = do_clients[i]->SendTable(gen_map);
+    ::vaultdb::TableID out;
+    out.set_hostnum(i);
+    out.set_tableid(resp);
+    auto outptr = make_shared<const ::vaultdb::TableID>(out);
+    for (auto &st : scanned_tables) {
+      if (st.get()->hostnum() == i) {
+        out_vec.emplace_back(do_clients[i]->GenZip(outptr, st));
+      }
+    }
   }
+  return out_vec;
 }
 
 int HonestBrokerPrivate::RegisterHost(string hostName) {

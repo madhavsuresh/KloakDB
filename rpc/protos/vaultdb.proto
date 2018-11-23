@@ -23,6 +23,7 @@ service DataOwner {
     rpc KSort (KSortRequest) returns (KSortResponse) {}
     rpc KAggregate (KAggregateRequest) returns (KAggregateResponse) {}
     rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
+    rpc GeneralizeZip (GeneralizeZipRequest) returns (GeneralizeZipResponse) {}
     // SendTable sends a table t to the receiving host
     rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
     rpc RepartitionStepOne (RepartitionStepOneRequest) returns (RepartitionStepOneResponse) {}
@@ -37,6 +38,16 @@ message ShutDownRequest {
 
 message ShutDownResponse {
 
+}
+
+message GeneralizeZipRequest {
+    TableID gentableid = 1;
+    TableID scantableid = 2;
+    int32 colno = 3;
+}
+
+message GeneralizeZipResponse {
+    TableID generalizedscantable = 1;
 }
 
 message GetTableRequest {

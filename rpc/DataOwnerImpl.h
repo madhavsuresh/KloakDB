@@ -30,6 +30,8 @@ public:
            const ::vaultdb::GetTableRequest *request,
            ::grpc::ServerWriter<::vaultdb::GetTableResponse> *writer);
 
+  ::grpc::Status GeneralizeZip(::grpc::ServerContext* context, const ::vaultdb::GeneralizeZipRequest* request,
+                                 ::vaultdb::GeneralizeZipResponse* response);
   ::grpc::Status
   SendTable(::grpc::ServerContext *context,
             ::grpc::ServerReader<::vaultdb::SendTableRequest> *reader,

@@ -172,6 +172,33 @@ std::shared_ptr<const ::vaultdb::TableID> DataOwnerClient::CoalesceTables(
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
+        DataOwnerClient::GenZip(std::shared_ptr<const ::vaultdb::TableID> gen_map, std::shared_ptr<const ::vaultdb::TableID> scan_table) {
+  ::vaultdb::GeneralizeZipRequest req;
+  ::vaultdb::GeneralizeZipResponse resp;
+  ::grpc::ClientContext context;
+
+  auto gt = req.mutable_gentableid();
+  gt->set_tableid(gen_map.get()->tableid());
+  gt->set_hostnum(gen_map.get()->hostnum());
+  auto st = req.mutable_scantableid();
+  st->set_tableid(scan_table.get()->tableid());
+  st->set_hostnum(scan_table.get()->hostnum());
+  auto status = stub_->GeneralizeZip(&context, req, &resp);
+  if (status.ok()) {
+    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
+    auto ret = std::make_shared<::vaultdb::TableID>();
+    ret.get()->CopyFrom(resp.generalizedscantable());
+    return ret;
+  } else {
+    LOG(INFO) << "FAIL:->[" << host_num << "]";
+    std::cerr << status.error_code() << ": " << status.error_message()
+
+              << std::endl;
+    throw;
+  }
+}
+
+std::shared_ptr<const ::vaultdb::TableID>
 DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid,
                         ::vaultdb::Expr expr) {
   ::vaultdb::KFilterRequest req;
