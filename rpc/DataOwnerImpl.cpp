@@ -185,7 +185,7 @@ expr_t make_expr_t(table_t * t, const ::vaultdb::Expr &expr) {
   switch (expr.desc().field_type()) {
   case ::vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
     ex.field_val.type = FIXEDCHAR;
-    memcpy(ex.field_val.f.fixed_char_field.val, expr.charfield().c_str(),
+    strncpy(ex.field_val.f.fixed_char_field.val, expr.charfield().c_str(),
            FIXEDCHAR_LEN);
     break;
   }
