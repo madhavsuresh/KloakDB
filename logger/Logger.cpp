@@ -46,7 +46,7 @@ void print_tuple_log(int ii, tuple_t *t) {
       ::log_server::LogRequest req;
       ::log_server::LogReply resp;
       ::grpc::ClientContext context;
-      req.set_logmessage("(" + host_short + ")" + log);
+      req.set_logmessage(log + "(" + host_short + ")");
       auto status = stub_->Log(&context, req, &resp);
       if (!status.ok()) {
         throw;
