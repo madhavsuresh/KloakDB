@@ -92,6 +92,18 @@ int DataOwnerPrivate::NumHosts() {
   return num_hosts;
 }
 
+void DataOwnerPrivate::FreeAllTables() {
+  for (const auto &pair : table_catalog) {
+    FreeTable(pair.first);
+  }
+}
+
+void DataOwnerPrivate::FreeTable(int i) {
+  if (GetTable(i) != nullptr) {
+    free_table(GetTable(i));
+  }
+}
+
 ::vaultdb::ControlFlowColumn DataOwnerPrivate::GetControlFlowColID() {
   return client->GetControlFlowColID();
 }

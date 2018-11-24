@@ -22,6 +22,8 @@ public:
   int SendTable(int worker_host_num, table_t *t);
   void SetDataOwnerClient(int host_num, std::string host_name);
   void DeleteDataOwnerClient(int host_num);
+  void FreeTable(int i);
+  void FreeAllTables();
   ::vaultdb::ControlFlowColumn GetControlFlowColID();
   table_t *GetTable(int table_id);
 

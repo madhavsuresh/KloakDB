@@ -263,6 +263,7 @@ int main(int argc, char **argv) {
     std::thread do_thread(serveFn);
     auto f = exit_requested.get_future();
     f.wait();
+    p->FreeAllTables();
     server->Shutdown();
     delete p;
     do_thread.join();
