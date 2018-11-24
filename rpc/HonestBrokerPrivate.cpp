@@ -105,7 +105,7 @@ int HonestBrokerPrivate::RegisterHost(string hostName) {
   remoteHostnames.push_back(hostName);
   numToHostMap[host_num] = hostName;
   do_clients[host_num] = new DataOwnerClient(
-      host_num,
+      hostName, host_num,
       grpc::CreateChannel(hostName, grpc::InsecureChannelCredentials()));
   this->registrationMutex.unlock();
   this->num_hosts++;
@@ -178,7 +178,7 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
   vector<tableid_ptr> joined_tables;
   for (auto &i : ids) {
     joined_tables.emplace_back(do_clients[i.first.get()->hostnum()]->Join(
-            i.first, i.second, join, in_sgx));
+        i.first, i.second, join, in_sgx));
   }
   return joined_tables;
 }

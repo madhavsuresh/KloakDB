@@ -37,3 +37,17 @@ void print_tuple_log(int ii, tuple_t *t) {
   LOGF(INFO, "%s}", output.c_str());
 }
 
+void RemoteSink::ReceiveLogMessage(g3::LogMessageMover logEntry) {
+  send_log_to_server(logEntry.get().toString());
+}
+
+void RemoteSink::send_log_to_server(std::string log) {
+  ::log_server::LogRequest req;
+  ::log_server::LogReply resp;
+  ::grpc::ClientContext context;
+  req.set_logmessage("(" + host_short + ")" + log);
+  auto status = stub_->Log(&context, req, &resp);
+  if (!status.ok()) {
+    throw;
+  }
+}
