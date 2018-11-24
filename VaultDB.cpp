@@ -74,7 +74,9 @@ void exp5(HonestBrokerPrivate *p) {
   auto p1 = jd.add_project_list();
   p1->set_colname("b");
   p1->set_side(JoinColID_RelationSide_LEFT);
-  auto out = p->Join(to_join1, jd, false /* in_sgx */);
+  auto out1 = p->Join(to_join1, jd, true /* in_sgx */);
+  auto to_join2 = zip_join_tables(gen_zipped, out1);
+  auto out2 = p->Join(to_join1, jd, true /* in_sgx */);
 
 }
 

@@ -42,7 +42,7 @@ public:
                                       GroupByDef groupby);
   shared_ptr<const TableID> Join(shared_ptr<const TableID> left_tid,
                                  shared_ptr<const TableID> right_tid,
-                                 JoinDef join);
+                                 JoinDef join, bool in_sgx);
 
   shared_ptr<const TableID> GenZip(shared_ptr<const TableID> gen_map,
                                    shared_ptr<const TableID> scan_table);

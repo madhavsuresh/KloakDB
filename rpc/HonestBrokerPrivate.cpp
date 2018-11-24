@@ -165,7 +165,7 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
   vector<tableid_ptr> joined_tables;
   for (auto &i : ids) {
     joined_tables.emplace_back(
-        do_clients[i.first.get()->hostnum()]->Join(i.first, i.second, join));
+        do_clients[i.first.get()->hostnum()]->Join(i.first, i.second, join, in_sgx));
   }
   return joined_tables;
 }

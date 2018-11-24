@@ -340,11 +340,12 @@ DataOwnerClient::Sort(std::shared_ptr<const ::vaultdb::TableID> tid,
 std::shared_ptr<const ::vaultdb::TableID>
 DataOwnerClient::Join(std::shared_ptr<const ::vaultdb::TableID> left_tid,
                       std::shared_ptr<const ::vaultdb::TableID> right_tid,
-                      ::vaultdb::JoinDef join) {
+                      ::vaultdb::JoinDef join, bool in_sgx) {
   ::vaultdb::KJoinRequest req;
   ::vaultdb::KJoinResponse resp;
   ::grpc::ClientContext context;
   req.mutable_def()->CopyFrom(join);
+  req.set_in_sgx(in_sgx);
   auto l = req.mutable_left_tid();
   l->set_hostnum(left_tid.get()->hostnum());
   l->set_tableid(left_tid.get()->tableid());
