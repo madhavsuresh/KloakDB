@@ -268,4 +268,5 @@ int main(int argc, char **argv) {
     delete p;
     do_thread.join();
   }
+  g3::internal::shutDownLogging();
 }

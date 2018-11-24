@@ -78,6 +78,10 @@ HonestBrokerPrivate::Generalize(
       }
     }
   }
+  free_table(gen_map);
+  for (auto &t : gen_tables) {
+    free_table(t.second);
+  }
   return out_vec;
 }
 

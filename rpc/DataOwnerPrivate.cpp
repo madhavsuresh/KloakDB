@@ -44,6 +44,9 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name,
       this->hb_host_name, grpc::InsecureChannelCredentials()));
   this->table_counter = 0;
 }
+DataOwnerPrivate::~DataOwnerPrivate() {
+  delete client;
+}
 void DataOwnerPrivate::DeleteDataOwnerClient(int host_num) {
   //delete this->client;
   delete this->data_owner_clients[host_num];
@@ -93,11 +96,21 @@ int DataOwnerPrivate::NumHosts() {
 }
 
 void DataOwnerPrivate::FreeAllTables() {
+  std::map<table_t *, bool> freed_tables;
   for (const auto &pair : table_catalog) {
-    FreeTable(pair.first);
+    if (!freed_tables[pair.second]) {
+      printf("%p %d\n", pair.second, freed_tables[pair.second]);
+      FreeTable(pair.first);
+      freed_tables[pair.second] = true;
+      table_catalog[pair.first] = nullptr;
+      printf("%p %d\n", pair.second, freed_tables[pair.second]);
+    }
   }
 }
 
+// TODO(madhavsuresh): this can get super nasty because some tables
+// modify the table in place, others return new tables
+// (sort, filter - in place); (join, aggregate - new tables)
 void DataOwnerPrivate::FreeTable(int i) {
   if (GetTable(i) != nullptr) {
     free_table(GetTable(i));

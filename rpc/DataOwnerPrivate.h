@@ -15,6 +15,7 @@ class DataOwnerPrivate : public InfoPrivate {
 
 public:
   DataOwnerPrivate(std::string hostname, std::string hb_host_name);
+  ~DataOwnerPrivate();
   int HostNum();
   int NumHosts();
   void Register();

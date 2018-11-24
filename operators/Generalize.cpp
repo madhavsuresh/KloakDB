@@ -130,6 +130,7 @@ table_t * generate_genmap_table(
     tup->field_list[0].f.int_field.genval = g.second;
     append_tuple(&tb, tup);
   }
+  free(tup);
   return tb.table;
 }
 
