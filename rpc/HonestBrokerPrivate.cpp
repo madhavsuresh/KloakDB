@@ -10,6 +10,7 @@ DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
 using namespace vaultdb;
 
+
 HonestBrokerPrivate::HonestBrokerPrivate(string honest_broker_address)
     : InfoPrivate(honest_broker_address) {
   this->num_hosts = 0;
@@ -149,6 +150,12 @@ vector<tableid_ptr> HonestBrokerPrivate::Filter(vector<tableid_ptr> &ids,
         do_clients[i.get()->hostnum()]->Filter(i, expr));
   }
   return filtered_tables;
+}
+
+void HonestBrokerPrivate::FreeTables(vector<tableid_ptr> &ids) {
+  for (auto &i : ids) {
+            do_clients[i.get()->hostnum()]->FreeTable(i);
+  }
 }
 
 vector<tableid_ptr>

@@ -54,6 +54,7 @@ public:
                                                      string query);
   shared_ptr<const TableID> DBMSQuery(int host_num, string dbname,
                                       string query);
+  void FreeTables(vector<tableid_ptr> &ids);
   void WaitForAllHosts();
 
 private:

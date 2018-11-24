@@ -223,6 +223,19 @@ DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid,
     throw;
   }
 }
+void * DataOwnerClient::FreeTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr) {
+
+  ::vaultdb::FreeTableRequest req;
+  ::vaultdb::FreeTableResponse resp;
+  ::grpc::ClientContext context;
+  auto t = req.mutable_tid();
+  t->set_hostnum(id_ptr.get()->hostnum());
+  t->set_tableid(id_ptr.get()->tableid());
+  auto status = stub_->FreeTable(&context, req, &resp);
+  if (!status.ok()) {
+    throw;
+  }
+}
 
 table_t * DataOwnerClient::GetTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr) {
   // TODO(madhavsuresh): this is copy pasted code, this block should be refactored out.

@@ -67,6 +67,8 @@ public:
                             const ::vaultdb::KAggregateRequest *request,
                             ::vaultdb::KAggregateResponse *response);
 
+  ::grpc::Status FreeTable(::grpc::ServerContext* context, const ::vaultdb::FreeTableRequest* request,
+                             ::vaultdb::FreeTableResponse* response);
 private:
   DataOwnerPrivate *p;
 };

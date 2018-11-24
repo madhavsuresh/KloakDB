@@ -26,6 +26,7 @@ public:
   shared_ptr<const TableID> DBMSQuery(string dbname, string query);
   void GetPeerHosts(map<int, string> numToHostsMap);
   table_t *GetTable(shared_ptr<const TableID> id_ptr);
+  void *FreeTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr);
 
   shared_ptr<const TableID> Filter(shared_ptr<const TableID>, Expr);
   vector<shared_ptr<const TableID>>

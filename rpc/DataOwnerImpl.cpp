@@ -155,6 +155,15 @@ DataOwnerImpl::DBMSQuery(::grpc::ServerContext *context,
 }
 
 ::grpc::Status
+DataOwnerImpl::FreeTable(::grpc::ServerContext *context,
+                         const ::vaultdb::FreeTableRequest *request,
+                         ::vaultdb::FreeTableResponse *response) {
+
+  p->FreeTable(request->tid().tableid());
+  return grpc::Status::OK;
+}
+
+::grpc::Status
 DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
                               const ::vaultdb::CoaleseTablesRequest *request,
                               ::vaultdb::CoaleseTablesResponse *response) {

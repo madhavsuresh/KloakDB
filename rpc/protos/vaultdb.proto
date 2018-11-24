@@ -30,6 +30,15 @@ service DataOwner {
     rpc RepartitionStepTwo (RepartitionStepTwoRequest) returns (RepartitionStepTwoResponse) {}
     rpc CoalesceTables (CoaleseTablesRequest) returns (CoaleseTablesResponse) {}
     rpc ShutDown (ShutDownRequest) returns (ShutDownResponse) {}
+    rpc FreeTable (FreeTableRequest) returns (FreeTableResponse) {}
+}
+
+message FreeTableRequest {
+    TableID tid = 1;
+}
+
+message FreeTableResponse {
+
 }
 
 message ShutDownRequest {
