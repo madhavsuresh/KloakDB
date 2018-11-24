@@ -3,6 +3,9 @@
 //
 
 #include "HonestBrokerPrivate.h"
+#include <gflags/gflags.h>
+#include "operators/Generalize.h"
+
 
 DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
