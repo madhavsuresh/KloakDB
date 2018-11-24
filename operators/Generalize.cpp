@@ -213,7 +213,13 @@ table_t * generalize_table(std::vector<std::pair<hostnum, table_t *>> host_table
     } else if (merges.size() == 1) {
       cf_hash smallest =
           find_smallest_equiv_not_eq(gen_map, std::get<0>(merges[0]));
-      merge(gen_map, smallest, std::get<0>(merges[0]));
+      // This will happen when k is too large for the input values.
+      // In this case, we just return the table which is "oblivious"
+      if (smallest == -1) {
+        needs_merging = false;
+      } else {
+        merge(gen_map, smallest, std::get<0>(merges[0]));
+      }
     } else {
       needs_merging = false;
     }
