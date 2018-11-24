@@ -18,7 +18,8 @@ LEVELS STATS{CLIENT.value + 1, "STATS"};
 #define LOG_TIMER(timer_name)                                                  \
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
-  LOG(STATS) << "TIMER " << #timer_name << ": [" << elapsed_##timer_name.count() << "s]"
+  LOG(STATS) << "TIMER " << #timer_name << ": ["                               \
+             << elapsed_##timer_name.count() << "s]"
 #endif // LOGDEFS
 
 #endif // PROJECT_LOGGERDEFS_H
