@@ -64,8 +64,17 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
 }
 
 void exp5(HonestBrokerPrivate *p) {
-  auto scan = p->ClusterDBMSQuery("dbname=test", "SELECT * FROM random2");
-  p->Generalize("random2" /* table name */, "b" /* column */, "test", scan, FLAGS_gen_level);
+  auto scan = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM left_deep_joins_1024");
+  auto gen_zipped = p->Generalize("left_deep_joins_1024" /* table name */, "b" /* column */, "vaultdb_" /* db_name */, scan, FLAGS_gen_level);
+  auto to_join1 = zip_join_tables(gen_zipped, gen_zipped);
+  JoinDef jd;
+  jd.set_l_col_name("b");
+  jd.set_r_col_name("b");
+  jd.set_project_len(1);
+  auto p1 = jd.add_project_list();
+  p1->set_colname("b");
+  p1->set_side(JoinColID_RelationSide_LEFT);
+  auto out = p->Join(to_join1, jd, false /* in_sgx */);
 
 }
 
