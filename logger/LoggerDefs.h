@@ -9,7 +9,7 @@
 #define LOGDEFS
 LEVELS IMPL{INFO.value + 1, "RPC-IMPL"};
 LEVELS CLIENT{IMPL.value + 1, "RPC-CLIENT"};
-LEVELS STATS{CLIENT.value + 1, "STATS"};
+LEVELS STATS{INFO.value - 1, "STATS"};
 
 #define START_TIMER(timer_name)                                                \
   auto start_##timer_name = std::chrono::high_resolution_clock::now()

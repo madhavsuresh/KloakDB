@@ -120,6 +120,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
     ::grpc::ServerContext *context, const ::vaultdb::GetTableRequest *request,
     ::grpc::ServerWriter<::vaultdb::GetTableResponse> *writer) {
 
+  START_TIMER(get_table_full);
   table_t *t = p->GetTable(request->id().tableid());
 
   ::vaultdb::GetTableResponse header;
@@ -138,6 +139,9 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
     pages.set_page((char *)t->tuple_pages[i], PAGE_SIZE);
     writer->Write(pages);
   }
+  END_TIMER(get_table_full);
+  LOG_TIMER(get_table_full);
+  LOG(IMPL) << "GetTable OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -146,6 +150,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
     ::grpc::ServerReader<::vaultdb::SendTableRequest> *reader,
     ::vaultdb::SendTableResponse *response) {
 
+  START_TIMER(send_table_full);
   vaultdb::SendTableRequest req;
 
   table_t *t;
@@ -166,6 +171,9 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
   LOG(INFO) << "Adding table received from ??";
   int table_id = this->p->AddTable(t);
   response->set_tableid(table_id);
+  END_TIMER(send_table_full);
+  LOG_TIMER(send_table_full);
+  LOG(IMPL) << "Send Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -174,14 +182,20 @@ DataOwnerImpl::DBMSQuery(::grpc::ServerContext *context,
                          const ::vaultdb::DBMSQueryRequest *request,
                          ::vaultdb::DBMSQueryResponse *response) {
 
+  START_TIMER(dbms_query_full);
+  START_TIMER(dbms_query_inner);
   table *t = get_table(request->query(), request->dbname());
-  LOG(INFO) << "Adding Table from Query:" << request->query();
+  END_TIMER(dbms_query_inner);
   int table_id = this->p->AddTable(t);
   vaultdb::TableID *tid = response->mutable_tableid();
   tid->set_tableid(table_id);
   tid->set_hostnum(this->p->HostNum());
   tid->set_query(request->query());
   tid->set_dbname(request->dbname());
+  END_TIMER(dbms_query_full);
+  LOG_TIMER(dbms_query_inner);
+  LOG_TIMER(dbms_query_full);
+  LOG(IMPL) << "DBMSQuery OK query: (" << request->query() << ")";
 
   return grpc::Status::OK;
 }
@@ -192,6 +206,7 @@ DataOwnerImpl::FreeTable(::grpc::ServerContext *context,
                          ::vaultdb::FreeTableResponse *response) {
 
   p->FreeTable(request->tid().tableid());
+  LOG(IMPL) << "Free Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -200,16 +215,22 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
                               const ::vaultdb::CoaleseTablesRequest *request,
                               ::vaultdb::CoaleseTablesResponse *response) {
 
+  START_TIMER(coalesce_tables_full);
   std::vector<table_t *> tables;
+  LOG(IMPL) << "Coalescing #=[" << request->tablefragments_size() << "] tables";
   for (int i = 0; i < request->tablefragments_size(); i++) {
-    LOG(INFO) << "Coalescing" << request->tablefragments(i).tableid();
     tables.push_back(p->GetTable(request->tablefragments(i).tableid()));
   }
+  START_TIMER(coalesce_tables_inner);
   table_t *t = coalesce_tables(tables);
+  END_TIMER(coalesce_tables_inner);
   ::vaultdb::TableID *tid = response->mutable_id();
   tid->set_tableid(p->AddTable(t));
   tid->set_hostnum(p->HostNum());
-  LOG(INFO) << "After coalescing: " << p->GetTable(tid->tableid())->num_tuples;
+  END_TIMER(coalesce_tables_full);
+  LOG_TIMER(coalesce_tables_inner);
+  LOG_TIMER(coalesce_tables_full);
+  LOG(IMPL) << "Coalesce Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -244,18 +265,29 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
 ::grpc::Status DataOwnerImpl::KFilter(::grpc::ServerContext *context,
                                       const ::vaultdb::KFilterRequest *request,
                                       ::vaultdb::KFilterResponse *response) {
+  START_TIMER(filter_full);
   table_t *in = p->GetTable(request->tid().tableid());
   expr_t ex = make_expr_t(in, request->expr());
   table_t *f;
   if (request->in_sgx()) {
+    LOG(IMPL) << "SGX Filter";
+    START_TIMER(sgx_filter_inner);
     f = filter_sgx(in, &ex);
+    END_TIMER(sgx_filter_inner);
+    LOG_TIMER(sgx_filter_inner);
   } else {
+    LOG(IMPL) << "Plain Filter";
+    START_TIMER(plain_filter_inner);
     f = filter(in, &ex);
+    END_TIMER(plain_filter_inner);
+    LOG_TIMER(plain_filter_inner);
   }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(f));
-  LOG(INFO) << "Success";
+  END_TIMER(filter_full);
+  LOG_TIMER(filter_full);
+  LOG(IMPL) << "Filter OK";
   return ::grpc::Status::OK;
 }
 
@@ -269,19 +301,30 @@ sort_t make_sort_t(table_t *t, const ::vaultdb::SortDef sort) {
 ::grpc::Status DataOwnerImpl::KSort(::grpc::ServerContext *context,
                                     const ::vaultdb::KSortRequest *request,
                                     ::vaultdb::KSortResponse *response) {
+  START_TIMER(sort_full);
   table_t *in = p->GetTable(request->tid().tableid());
   sort_t s = make_sort_t(in, request->sortdef());
 
   table_t *sorted;
   if (request->in_sgx()) {
+    LOG(IMPL) << "SGX Sort";
+    START_TIMER(sgx_sort_inner);
     sorted = sort_sgx(in, &s);
+    END_TIMER(sgx_sort_inner);
+    LOG_TIMER(sgx_sort_inner);
   } else {
+    LOG(IMPL) << "Plain Sort";
+    START_TIMER(plain_sort_inner);
     sorted = sort(in, &s);
+    END_TIMER(plain_sort_inner);
+    LOG_TIMER(plain_sort_inner);
   }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(sorted));
-  LOG(INFO) << "Success";
+  END_TIMER(sort_full);
+  LOG_TIMER(sort_full);
+  LOG(IMPL) << "Sort OK";
   return ::grpc::Status::OK;
 }
 
@@ -314,21 +357,30 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
 ::grpc::Status DataOwnerImpl::KJoin(::grpc::ServerContext *context,
                                     const ::vaultdb::KJoinRequest *request,
                                     ::vaultdb::KJoinResponse *response) {
+  START_TIMER(join_full);
   table_t *left = p->GetTable(request->left_tid().tableid());
   table_t *right = p->GetTable(request->right_tid().tableid());
   join_def_t def = make_join_def_t(left, right, request->def());
   table_t *out_join;
   if (request->in_sgx()) {
+    LOG(IMPL) << "SGX HashJoin";
+    START_TIMER(sgx_join_inner);
     out_join = hash_join_sgx(left, right, def);
+    END_TIMER(sgx_join_inner);
+    LOG_TIMER(sgx_join_inner);
   } else {
-
+    START_TIMER(plain_join_inner);
+    LOG(IMPL) << "Plain HashJoin";
     out_join = hash_join(left, right, def);
+    END_TIMER(plain_join_inner);
+    LOG_TIMER(plain_join_inner);
   }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out_join));
-  LOG(INFO) << "Success";
-  LOG(INFO) << out_join->num_tuples;
+  END_TIMER(join_full);
+  LOG_TIMER(join_full);
+  LOG(IMPL) << "Join OK";
   return ::grpc::Status::OK;
 }
 
@@ -366,19 +418,28 @@ groupby_def_t make_groupby_def_t(table_t *t, ::vaultdb::GroupByDef def) {
 DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
                           const ::vaultdb::KAggregateRequest *request,
                           ::vaultdb::KAggregateResponse *response) {
-
+  START_TIMER(aggregate_full);
   table_t *in = p->GetTable(request->tid().tableid());
   groupby_def_t gbd = make_groupby_def_t(in, request->def());
   table_t *out;
   if (request->in_sgx()) {
+    LOG(IMPL) << "SGX Aggregate";
+    START_TIMER(sgx_aggregate_inner);
     out = aggregate_sgx(in, &gbd);
+    END_TIMER(sgx_aggregate_inner);
+    LOG_TIMER(sgx_aggregate_inner);
   } else {
+    LOG(IMPL) << "Plain Aggregate";
+    START_TIMER(plain_aggregate_inner);
     out = aggregate(in, &gbd);
+    END_TIMER(plain_aggregate_inner);
+    LOG_TIMER(plain_aggregate_inner);
   }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out));
-  LOG(INFO) << "Success";
-  LOG(INFO) << out->num_tuples;
+  END_TIMER(aggregate_full);
+  LOG_TIMER(aggregate_full);
+  LOG(IMPL) << "Aggregate OK";
   return ::grpc::Status::OK;
 }
