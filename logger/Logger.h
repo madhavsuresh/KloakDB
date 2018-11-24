@@ -31,7 +31,7 @@ struct RemoteSink {
       ::log_server::LogRequest req;
       ::log_server::LogReply resp;
       ::grpc::ClientContext context;
-      req.set_logmessage("(" + host_short + ")" + log);
+      req.set_logmessage("(" + host_short + ")\t" + log);
       auto status = stub_->Log(&context, req, &resp);
       if (!status.ok()) {
         throw;

@@ -27,7 +27,7 @@ _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 class LogServer(logger_pb2_grpc.LogsServicer):
 
     def Log(self, request, context):
-        print(request.logmessage),
+        print(request.logmessage.strip())
         return logger_pb2.LogReply()
 
 
