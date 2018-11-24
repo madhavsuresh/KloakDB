@@ -7,14 +7,14 @@
 #include "Repartition.h"
 #include "data/pqxx_compat.h"
 #include "logger/Logger.h"
+#include "logger/LoggerDefs.h"
 #include "operators/Aggregate.h"
 #include "operators/Filter.h"
+#include "operators/Generalize.h"
 #include "operators/HashJoin.h"
 #include "operators/Sort.h"
 #include "sgx/App/VaultDBSGXApp.h"
 #include <future>
-#include <operators/Generalize.h>
-#include "logger/LoggerDefs.h"
 
 extern std::promise<void> exit_requested;
 
@@ -43,7 +43,6 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   LOG(IMPL) << "GetPeerHosts OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
-
 
 ::grpc::Status DataOwnerImpl::RepartitionStepTwo(
     ::grpc::ServerContext *context,
