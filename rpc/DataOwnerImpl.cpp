@@ -2,16 +2,19 @@
 // Created by madhav on 10/1/18.
 //
 
-#include <operators/Generalize.h>
 #include "DataOwnerImpl.h"
+#include "DataOwnerPrivate.h"
+#include "Repartition.h"
+#include "data/pqxx_compat.h"
+#include "logger/Logger.h"
 #include "operators/Aggregate.h"
 #include "operators/Filter.h"
 #include "operators/HashJoin.h"
-#include "Repartition.h"
 #include "operators/Sort.h"
-#include "data/pqxx_compat.h"
-#include "DataOwnerPrivate.h"
 #include "sgx/App/VaultDBSGXApp.h"
+#include <future>
+#include <operators/Generalize.h>
+#include "logger/LoggerDefs.h"
 
 extern std::promise<void> exit_requested;
 
@@ -25,6 +28,7 @@ DataOwnerImpl::ShutDown(::grpc::ServerContext *context,
     p->DeleteDataOwnerClient(i);
   }
   exit_requested.set_value();
+  LOG(IMPL) << "Shutdown OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -36,24 +40,35 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
     auto host = request->hostnames(i);
     p->SetDataOwnerClient(host.hostnum(), host.hostname());
   }
+  LOG(IMPL) << "GetPeerHosts OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
+
 
 ::grpc::Status DataOwnerImpl::RepartitionStepTwo(
     ::grpc::ServerContext *context,
     const ::vaultdb::RepartitionStepTwoRequest *request,
     ::vaultdb::RepartitionStepTwoResponse *response) {
+  LOG(IMPL) << "Repartition Step Two Start";
+  START_TIMER(repart_step_two_full);
   std::vector<table_t *> table_ptrs;
   for (int i = 0; i < request->tablefragments_size(); i++) {
     table_ptrs.push_back(p->GetTable(request->tablefragments(i).tableid()));
   }
+  START_TIMER(repart_step_two_inner);
   std::vector<std::pair<int32_t, int32_t>> info =
       repartition_step_two(table_ptrs, p->NumHosts(), p);
+  END_TIMER(repart_step_two_inner);
+
   for (auto i : info) {
     ::vaultdb::TableID *id = response->add_remoterepartitionids();
     id->set_hostnum(i.first);
     id->set_tableid(i.second);
   }
+  END_TIMER(repart_step_two_full);
+  LOG_TIMER(repart_step_two_full);
+  LOG_TIMER(repart_step_two_inner);
+  LOG(IMPL) << "Repartition Step Two OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -61,30 +76,49 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
     ::grpc::ServerContext *context,
     const ::vaultdb::RepartitionStepOneRequest *request,
     ::vaultdb::RepartitionStepOneResponse *response) {
+  LOG(IMPL) << "Repartition Step Two Start";
+  START_TIMER(repart_step_one_full);
   table_t *t = p->GetTable(request->tableid().tableid());
+  START_TIMER(repart_step_one_inner);
   std::vector<std::pair<int32_t, int32_t>> info =
       repart_step_one(t, p->NumHosts(), p);
+  END_TIMER(repart_step_one_inner);
   for (auto i : info) {
     ::vaultdb::TableID *id = response->add_remoterepartitionids();
     id->set_hostnum(i.first);
     id->set_tableid(i.second);
   }
+  END_TIMER(repart_step_one_full);
+  LOG_TIMER(repart_step_one_inner);
+  LOG_TIMER(repart_step_one_full);
+  LOG(IMPL) << "Repartition Step One OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
-::grpc::Status DataOwnerImpl::GeneralizeZip(::grpc::ServerContext* context, const ::vaultdb::GeneralizeZipRequest* request,
-        ::vaultdb::GeneralizeZipResponse* response) {
+::grpc::Status
+DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
+                             const ::vaultdb::GeneralizeZipRequest *request,
+                             ::vaultdb::GeneralizeZipResponse *response) {
+  START_TIMER(gen_zip_full);
   table_t *gen_table = p->GetTable(request->gentableid().tableid());
   table_t *scan_table = p->GetTable(request->scantableid().tableid());
-  table_t *output_table = generalize_zip(scan_table, gen_table, colno_from_name(scan_table, request->colname()));
+  START_TIMER(gen_zip_inner);
+  table_t *output_table = generalize_zip(
+      scan_table, gen_table, colno_from_name(scan_table, request->colname()));
+  END_TIMER(gen_zip_inner);
 
   auto tid = response->mutable_generalizedscantable();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(output_table));
+  END_TIMER(gen_zip_full);
+  LOG_TIMER(gen_zip_inner);
+  LOG_TIMER(gen_zip_full);
+  LOG(IMPL) << "GeneralizeZip OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
-::grpc::Status DataOwnerImpl::GetTable(::grpc::ServerContext* context, const ::vaultdb::GetTableRequest* request,
-        ::grpc::ServerWriter< ::vaultdb::GetTableResponse>* writer) {
+::grpc::Status DataOwnerImpl::GetTable(
+    ::grpc::ServerContext *context, const ::vaultdb::GetTableRequest *request,
+    ::grpc::ServerWriter<::vaultdb::GetTableResponse> *writer) {
 
   table_t *t = p->GetTable(request->id().tableid());
 
@@ -106,7 +140,6 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   }
   return grpc::Status::OK;
 }
-
 
 ::grpc::Status DataOwnerImpl::SendTable(
     ::grpc::ServerContext *context,
@@ -180,7 +213,7 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
   return grpc::Status::OK;
 }
 
-expr_t make_expr_t(table_t * t, const ::vaultdb::Expr &expr) {
+expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
   expr_t ex;
   ex.colno = colno_from_name(t, expr.colname());
   switch (expr.type()) {
@@ -194,7 +227,7 @@ expr_t make_expr_t(table_t * t, const ::vaultdb::Expr &expr) {
   case ::vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
     ex.field_val.type = FIXEDCHAR;
     strncpy(ex.field_val.f.fixed_char_field.val, expr.charfield().c_str(),
-           FIXEDCHAR_LEN);
+            FIXEDCHAR_LEN);
     break;
   }
   case ::vaultdb::FieldDesc_FieldType_INT: {
@@ -226,7 +259,7 @@ expr_t make_expr_t(table_t * t, const ::vaultdb::Expr &expr) {
   return ::grpc::Status::OK;
 }
 
-sort_t make_sort_t(table_t * t, const ::vaultdb::SortDef sort) {
+sort_t make_sort_t(table_t *t, const ::vaultdb::SortDef sort) {
   sort_t s;
   s.colno = colno_from_name(t, sort.colname());
   s.ascending = sort.ascending();
@@ -236,7 +269,7 @@ sort_t make_sort_t(table_t * t, const ::vaultdb::SortDef sort) {
 ::grpc::Status DataOwnerImpl::KSort(::grpc::ServerContext *context,
                                     const ::vaultdb::KSortRequest *request,
                                     ::vaultdb::KSortResponse *response) {
-  table_t * in = p->GetTable(request->tid().tableid());
+  table_t *in = p->GetTable(request->tid().tableid());
   sort_t s = make_sort_t(in, request->sortdef());
 
   table_t *sorted;
@@ -252,7 +285,8 @@ sort_t make_sort_t(table_t * t, const ::vaultdb::SortDef sort) {
   return ::grpc::Status::OK;
 }
 
-join_def_t make_join_def_t(table_t * left, table_t * right, ::vaultdb::JoinDef def) {
+join_def_t make_join_def_t(table_t *left, table_t *right,
+                           ::vaultdb::JoinDef def) {
   join_def_t def_t;
   def_t.l_col = colno_from_name(left, def.l_col_name());
   def_t.r_col = colno_from_name(right, def.r_col_name());
@@ -298,10 +332,10 @@ join_def_t make_join_def_t(table_t * left, table_t * right, ::vaultdb::JoinDef d
   return ::grpc::Status::OK;
 }
 
-groupby_def_t make_groupby_def_t(table_t * t, ::vaultdb::GroupByDef def) {
+groupby_def_t make_groupby_def_t(table_t *t, ::vaultdb::GroupByDef def) {
   groupby_def_t def_t;
 
-  //TODO(madhavsuresh): this needs to be fixed, the API is inconsistent.
+  // TODO(madhavsuresh): this needs to be fixed, the API is inconsistent.
   switch (def.type()) {
   case ::vaultdb::GroupByDef_GroupByType_COUNT: {
     def_t.type = COUNT;
@@ -317,7 +351,8 @@ groupby_def_t make_groupby_def_t(table_t * t, ::vaultdb::GroupByDef def) {
     def_t.type = AVG;
     def_t.colno = def.col_no();
     for (int i = 0; i < def.gb_col_nos_size(); i++) {
-      def_t.gb_colnos[i] = static_cast<uint8_t>(colno_from_name(t,def.gb_col_names(i)));
+      def_t.gb_colnos[i] =
+          static_cast<uint8_t>(colno_from_name(t, def.gb_col_names(i)));
     }
     def_t.num_cols = def.gb_col_nos_size();
     break;

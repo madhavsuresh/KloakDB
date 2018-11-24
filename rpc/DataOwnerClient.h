@@ -7,8 +7,7 @@
 
 #include "../data/postgres_client.h"
 #include "vaultdb.grpc.pb.h"
-#include <g3log/g3log.hpp>
-#include <g3log/logworker.hpp>
+#include "logger/Logger.h"
 #include <grpcpp/grpcpp.h>
 #include <string>
 
