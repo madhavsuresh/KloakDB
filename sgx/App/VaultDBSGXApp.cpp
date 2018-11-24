@@ -32,6 +32,7 @@ table_t *get_table_sgx(sgx_enclave_id_t eid, table_manager_t tm, int table_id) {
     t->tuple_pages[i] = (tuple_page_t *)malloc(PAGE_SIZE);
     ecall_get_tuple_page(eid, &tm, table_id, (int) i, t->tuple_pages[i], PAGE_SIZE);
   }
+  free(tmp);
   return t;
 }
 
