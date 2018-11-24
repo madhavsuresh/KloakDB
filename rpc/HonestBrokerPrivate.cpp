@@ -50,7 +50,7 @@ string count_star_query(string table_name, string column) {
 void log_gen_stats(table_t * gen_map, std::string column) {
   map<int, int> mapping_table;
   for (int i = 0; i < gen_map->num_tuples; i++) {
-    mapping_table[get_tuple(i, gen_map)->field_list[colno_from_name(gen_map, column)].f.int_field.genval]++;
+    mapping_table[get_tuple(i, gen_map)->field_list[0].f.int_field.genval]++;
   }
   for (auto t: mapping_table) {
     LOG(INFO) << "Gen value:" << t.first << ", COUNT:" << t.second;
@@ -77,7 +77,7 @@ HonestBrokerPrivate::Generalize(
                             do_clients[t.get()->hostnum()]->GetTable(t));
   }
   table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), gen_level);
-  log_gen_stats(gen_map, column);
+  log_gen_stats(gen_map)
   for (int i = 0; i < this->num_hosts; i++) {
     auto resp = do_clients[i]->SendTable(gen_map);
     ::vaultdb::TableID out;
