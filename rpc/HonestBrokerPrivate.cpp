@@ -77,7 +77,7 @@ HonestBrokerPrivate::Generalize(
                             do_clients[t.get()->hostnum()]->GetTable(t));
   }
   table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), gen_level);
-  log_gen_stats(gen_map)
+  log_gen_stats(gen_map, column);
   for (int i = 0; i < this->num_hosts; i++) {
     auto resp = do_clients[i]->SendTable(gen_map);
     ::vaultdb::TableID out;
