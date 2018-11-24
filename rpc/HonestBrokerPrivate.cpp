@@ -3,8 +3,6 @@
 //
 
 #include "HonestBrokerPrivate.h"
-#include "operators/Generalize.h"
-#include <gflags/gflags.h>
 
 DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
@@ -52,9 +50,11 @@ void log_gen_stats(table_t * gen_map, std::string column) {
   for (int i = 0; i < gen_map->num_tuples; i++) {
     mapping_table[get_tuple(i, gen_map)->field_list[0].f.int_field.genval]++;
   }
+  std::string out;
   for (auto t: mapping_table) {
-    LOG(INFO) << "Gen value:" << t.first << ", COUNT:" << t.second;
+    out += "Gen value:" + std::to_string(t.first) + ", COUNT:" + std::to_string(t.second) + "\n";
   }
+  LOG(INFO) << out;
 }
 
 // TODO(madhavsuresh): support multiple column generalization
