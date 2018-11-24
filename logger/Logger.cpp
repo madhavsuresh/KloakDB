@@ -2,8 +2,6 @@
 // Created by madhav on 10/30/18.
 //
 #include "Logger.h"
-#include <g3log/g3log.hpp>
-#include <iostream>
 
 void print_tuple(tuple_t *t) { std::cout << tuple_string(t); }
 
@@ -38,3 +36,4 @@ void print_tuple_log(int ii, tuple_t *t) {
   }
   LOGF(INFO, "%s}", output.c_str());
 }
+

@@ -3,6 +3,7 @@
 //
 
 #include "VaultDB.h"
+#include "logger/Logger.h"
 #include "rpc/DataOwnerImpl.h"
 #include "rpc/DataOwnerPrivate.h"
 #include "rpc/HonestBrokerClient.h"
@@ -25,12 +26,17 @@ DEFINE_int32(experiment, 1, "experiment number");
 
 DEFINE_int32(gen_level, 5, "generalization level");
 
-DEFINE_string (database, "smcql_testDB", "database name");
+DEFINE_string(database, "smcql_testDB", "database name");
 DEFINE_string(diagnoses_table, "diagnoses", "table name for diagnoses");
 DEFINE_string(medications_table, "medications", "table name for medications");
-DEFINE_string(demographics_table, "demographics", "table name for demographics");
+DEFINE_string(demographics_table, "demographics",
+              "table name for demographics");
 DEFINE_string(vitals_table, "vitals", "table name for vitals");
-DEFINE_string (cdiff_cohort_diag_table, "cdiff_cohort_diagnoses", "table name for cdiff cohort diagnoses");
+DEFINE_string(cdiff_cohort_diag_table, "cdiff_cohort_diagnoses",
+              "table name for cdiff cohort diagnoses");
+DEFINE_string(logger_host_name, "mylapore.cs.northwestern.edu:50000",
+              "port for logger");
+DEFINE_string(host_short, "vaultdb", "short host name");
 
 using namespace std;
 using namespace vaultdb;
@@ -64,9 +70,14 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
 }
 
 void exp5(HonestBrokerPrivate *p) {
-  auto scan = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM left_deep_joins_1024");
-  auto gen_zipped = p->Generalize("left_deep_joins_1024" /* table name */, "b" /* column */, "vaultdb_" /* db_name */, scan, FLAGS_gen_level);
-  auto to_join1 = zip_join_tables(gen_zipped, gen_zipped);
+  auto scan = p->ClusterDBMSQuery("dbname=vaultdb_",
+                                  "SELECT * FROM left_deep_joins_1024");
+  auto gen_zipped =
+      p->Generalize("left_deep_joins_1024" /* table name */, "b" /* column */,
+                    "vaultdb_" /* db_name */, scan, FLAGS_gen_level);
+  p->SetControlFlowColName("b");
+  auto repart = p->Repartition(gen_zipped);
+  auto to_join1 = zip_join_tables(repart, repart);
   JoinDef jd;
   jd.set_l_col_name("b");
   jd.set_r_col_name("b");
@@ -74,18 +85,23 @@ void exp5(HonestBrokerPrivate *p) {
   auto p1 = jd.add_project_list();
   p1->set_colname("b");
   p1->set_side(JoinColID_RelationSide_LEFT);
-  auto out1 = p->Join(to_join1, jd, true /* in_sgx */);
-  auto to_join2 = zip_join_tables(gen_zipped, out1);
-  auto out2 = p->Join(to_join1, jd, true /* in_sgx */);
-
+  auto out1 = p->Join(to_join1, jd, false /* in_sgx */);
+  auto to_join2 = zip_join_tables(repart, out1);
+  auto out2 = p->Join(to_join1, jd, false /* in_sgx */);
 }
 
 void aspirin_profile(HonestBrokerPrivate *p) {
-  auto meds_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_medications_table);
-  auto demographics_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_demographics_table);
-  auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_diagnoses_table);
-  auto vitals_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_vitals_table);
-  p->Generalize("vitals" /* table name */, "patient_id" /* generalization column */, FLAGS_database, vitals_scan, FLAGS_gen_level);
+  auto meds_scan = p->ClusterDBMSQuery(
+      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_medications_table);
+  auto demographics_scan = p->ClusterDBMSQuery(
+      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_demographics_table);
+  auto diagnoses_scan = p->ClusterDBMSQuery(
+      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_diagnoses_table);
+  auto vitals_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database,
+                                         "SELECT * from " + FLAGS_vitals_table);
+  p->Generalize("vitals" /* table name */,
+                "patient_id" /* generalization column */, FLAGS_database,
+                vitals_scan, FLAGS_gen_level);
 
   // join def vitals-diagnoses
   JoinDef jd_vd;
@@ -144,9 +160,11 @@ void aspirin_profile(HonestBrokerPrivate *p) {
 }
 
 void comorbidity(HonestBrokerPrivate *p) {
-  auto cdiff_cohort_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_cdiff_cohort_diag_table);
+  auto cdiff_cohort_scan =
+      p->ClusterDBMSQuery("dbname=" + FLAGS_database,
+                          "SELECT * from " + FLAGS_cdiff_cohort_diag_table);
   p->SetControlFlowColName("major_icd9");
-  //TODO(madhavsuresh): add generalization
+  // TODO(madhavsuresh): add generalization
   auto cdiff_cohort_repart = p->Repartition(cdiff_cohort_scan);
 
   GroupByDef gbd;
@@ -163,9 +181,11 @@ void comorbidity(HonestBrokerPrivate *p) {
 }
 
 void dosage_study(HonestBrokerPrivate *p) {
-  auto diag_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_diagnoses_table);
-  auto med_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database, "SELECT * from " + FLAGS_medications_table);
-  //auto to_join = zip_join_tables(diag_scan, med_scan);
+  auto diag_scan = p->ClusterDBMSQuery(
+      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_diagnoses_table);
+  auto med_scan = p->ClusterDBMSQuery(
+      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_medications_table);
+  // auto to_join = zip_join_tables(diag_scan, med_scan);
   p->SetControlFlowColName("patient_id");
   auto diag_repart = p->Repartition(diag_scan);
   auto med_repart = p->Repartition(med_scan);
@@ -182,64 +202,66 @@ void dosage_study(HonestBrokerPrivate *p) {
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
 }
 
-
 int main(int argc, char **argv) {
   gflags::ParseCommandLineFlags(&argc, &argv, true);
   std::unique_ptr<g3::LogWorker> logworker{g3::LogWorker::createLogWorker()};
+  logworker->addSink(
+      std::make_unique<RemoteSink>(
+          FLAGS_host_short,
+          grpc::CreateChannel(FLAGS_logger_host_name,
+                              grpc::InsecureChannelCredentials())),
+      &RemoteSink::ReceiveLogMessage);
+  g3::initializeLogging(logworker.get());
 
   if (FLAGS_honest_broker == true) {
-    auto defaultHandler = logworker->addDefaultLogger("HB", "logs");
-    g3::initializeLogging(logworker.get());
+    LOG(INFO) << "Starting Vaultdb Sesssion";
+    // auto defaultHandler = logworker->addDefaultLogger("HB", "logs");
     HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address);
     HonestBrokerImpl hb(p);
     grpc::ServerBuilder builder;
     builder.AddListeningPort(p->HostName(), grpc::InsecureServerCredentials());
     builder.RegisterService(&hb);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-    auto serveFn = [&]() {
-        server->Wait();
-    };
+    auto serveFn = [&]() { server->Wait(); };
     std::thread hb_thread(serveFn);
 
     p->WaitForAllHosts();
     p->RegisterPeerHosts();
 
-    //dosage_study(p);
-    //comorbidity(p);
+    // dosage_study(p);
+    // comorbidity(p);
     // aspirin_profile(p);
     exp5(p);
     p->Shutdown();
     switch (FLAGS_experiment) {
-      case 1 : {
+    case 1: {
 
-        break;
-      }
-      case 2 : {
+      break;
+    }
+    case 2: {
 
-        break;
-      }
-      case 3 : {
+      break;
+    }
+    case 3: {
 
-        break;
-      }
-      case 4 : {
+      break;
+    }
+    case 4: {
 
-        break;
-      }
-      case 5 : {
+      break;
+    }
+    case 5: {
 
-        break;
-      }
-      case 6 : {
+      break;
+    }
+    case 6: {
 
-        break;
-      }
-      case 7 : {
-        break;
-      }
-      default: {
-        printf("NOTHING HAPPENS HERE\n");
-      }
+      break;
+    }
+    case 7: {
+      break;
+    }
+    default: { printf("NOTHING HAPPENS HERE\n"); }
     }
 
     server->Shutdown();
@@ -249,19 +271,13 @@ int main(int argc, char **argv) {
     DataOwnerPrivate *p =
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address);
     p->Register();
-    auto defaultHandler = logworker->addDefaultLogger(
-            "DO" + std::to_string(p->HostNum()), "logs");
-    g3::initializeLogging(logworker.get());
 
     DataOwnerImpl d(p);
     grpc::ServerBuilder builder;
     builder.AddListeningPort(p->HostName(), grpc::InsecureServerCredentials());
     builder.RegisterService(&d);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-
-    auto serveFn = [&]() {
-      server->Wait();
-    };
+    auto serveFn = [&]() { server->Wait(); };
     std::thread do_thread(serveFn);
     auto f = exit_requested.get_future();
     f.wait();
@@ -270,5 +286,6 @@ int main(int argc, char **argv) {
     delete p;
     do_thread.join();
   }
+  LOG(INFO) << "closing vaultdb session";
   g3::internal::shutDownLogging();
 }

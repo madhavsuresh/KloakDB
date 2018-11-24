@@ -1,0 +1,12 @@
+Package                  Version
+------------------------ -------
+googleapis-common-protos 1.5.5  
+grpcio                   1.16.1 
+grpcio-tools             1.16.1 
+pip                      18.1   
+protobuf                 3.6.1  
+psycopg2                 2.7.6.1
+psycopg2-binary          2.7.6.1
+setuptools               40.6.2 
+six                      1.11.0 
+wheel                    0.32.3 

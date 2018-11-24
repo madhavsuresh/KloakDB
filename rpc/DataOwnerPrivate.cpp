@@ -99,11 +99,9 @@ void DataOwnerPrivate::FreeAllTables() {
   std::map<table_t *, bool> freed_tables;
   for (const auto &pair : table_catalog) {
     if (!freed_tables[pair.second]) {
-      printf("%p %d\n", pair.second, freed_tables[pair.second]);
       FreeTable(pair.first);
       freed_tables[pair.second] = true;
       table_catalog[pair.first] = nullptr;
-      printf("%p %d\n", pair.second, freed_tables[pair.second]);
     }
   }
 }

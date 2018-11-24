@@ -8,3 +8,8 @@ cmake-build-debug/
 build/
 lib/ 
 external/
+deploy/__pycache__/
+deploy/env/
+deploy/logger_pb2.py
+deploy/logger_pb2_grpc.py
+

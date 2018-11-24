@@ -60,6 +60,7 @@ set(REPART_SRCS
     Repartition.cpp)
 
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/rpc)
+include_directories(${CMAKE_CURRENT_BINARY_DIR}/logger)
 
 add_executable(vaultdb VaultDB.cpp)
 

@@ -5,6 +5,7 @@
 #include "DataOwnerClient.h"
 #include "DataOwnerPrivate.h"
 #include <g3log/g3log.hpp>
+#include "logger/Logger.h"
 
 void DataOwnerClient::Shutdown() {
   vaultdb::ShutDownRequest req;

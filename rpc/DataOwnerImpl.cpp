@@ -7,7 +7,6 @@
 #include "operators/Aggregate.h"
 #include "operators/Filter.h"
 #include "operators/HashJoin.h"
-#include "logger/Logger.h"
 #include "Repartition.h"
 #include "operators/Sort.h"
 #include "data/pqxx_compat.h"
@@ -224,9 +223,6 @@ expr_t make_expr_t(table_t * t, const ::vaultdb::Expr &expr) {
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(f));
   LOG(INFO) << "Success";
-  for (int i = 0; i < f->num_tuples; i++) {
-    print_tuple_log(i, get_tuple(i, f));
-  }
   return ::grpc::Status::OK;
 }
 
@@ -253,9 +249,6 @@ sort_t make_sort_t(table_t * t, const ::vaultdb::SortDef sort) {
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(sorted));
   LOG(INFO) << "Success";
-  for (int i = 0; i < sorted->num_tuples; i++) {
-    print_tuple_log(i, get_tuple(i, sorted));
-  }
   return ::grpc::Status::OK;
 }
 
@@ -301,9 +294,6 @@ join_def_t make_join_def_t(table_t * left, table_t * right, ::vaultdb::JoinDef d
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out_join));
   LOG(INFO) << "Success";
-  for (int i = 0; i < out_join->num_tuples; i++) {
-    print_tuple_log(i, get_tuple(i, out_join));
-  }
   LOG(INFO) << out_join->num_tuples;
   return ::grpc::Status::OK;
 }
@@ -354,9 +344,6 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out));
   LOG(INFO) << "Success";
-  for (int i = 0; i < out->num_tuples; i++) {
-    print_tuple_log(i, get_tuple(i, out));
-  }
   LOG(INFO) << out->num_tuples;
   return ::grpc::Status::OK;
 }
