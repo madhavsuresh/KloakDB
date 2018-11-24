@@ -54,7 +54,7 @@ if [ ! -d "g3log" ]; then
 	cd ../../
 	mkdir build
 	cd build
-	cmake -DCPACK_PACKAGING_INSTALL_PREFIX=$BASEDIR/lib ..
+	cmake -DCPACK_PACKAGING_INSTALL_PREFIX=$BASEDIR/lib -DCMAKE_BUILD_TYPE=Release -DCHANGE_G3LOG_DEBUG_TO_DBUG=ON ..
 	make -j10
 	make install
 fi

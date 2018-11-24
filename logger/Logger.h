@@ -24,7 +24,6 @@ struct RemoteSink {
     :host_short(host_short), stub_(::log_server::Logs::NewStub(channel)) {}
 
     void ReceiveLogMessage(g3::LogMessageMover logEntry) {
-      std::cout << logEntry.get().toString() << std::endl;
       send_log_to_server(logEntry.get().toString());
     }
 
