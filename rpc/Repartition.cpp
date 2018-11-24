@@ -66,7 +66,7 @@ uint32_t hash_field_to_int(field_t f) {
     break;
   }
   case INT: {
-    std::vector<unsigned char> input(f.f.int_field.val, f.f.int_field.val + 8);
+    std::vector<unsigned char> input(f.f.int_field.genval, f.f.int_field.genval + 8);
     picosha2::hash256(input.begin(), input.end(), hash.begin(), hash.end());
     break;
   }
