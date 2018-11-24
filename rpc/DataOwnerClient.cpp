@@ -173,11 +173,13 @@ std::shared_ptr<const ::vaultdb::TableID> DataOwnerClient::CoalesceTables(
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
-        DataOwnerClient::GenZip(std::shared_ptr<const ::vaultdb::TableID> gen_map, std::shared_ptr<const ::vaultdb::TableID> scan_table) {
+DataOwnerClient::GenZip(std::shared_ptr<const ::vaultdb::TableID> gen_map,
+                        std::shared_ptr<const ::vaultdb::TableID> scan_table, std::string col_name) {
   ::vaultdb::GeneralizeZipRequest req;
   ::vaultdb::GeneralizeZipResponse resp;
   ::grpc::ClientContext context;
 
+  req.set_colname(col_name);
   auto gt = req.mutable_gentableid();
   gt->set_tableid(gen_map.get()->tableid());
   gt->set_hostnum(gen_map.get()->hostnum());

@@ -45,7 +45,8 @@ public:
                                  JoinDef join, bool in_sgx);
 
   shared_ptr<const TableID> GenZip(shared_ptr<const TableID> gen_map,
-                                   shared_ptr<const TableID> scan_table);
+                                   shared_ptr<const TableID> scan_table,
+                                   std::string col_name);
   // TODO(madhavsuresh): this needs to be renamed to be consistent
   int SendTable(table_t *t);
 

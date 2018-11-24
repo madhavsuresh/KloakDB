@@ -3,14 +3,12 @@
 //
 
 #include "HonestBrokerPrivate.h"
-#include <gflags/gflags.h>
 #include "operators/Generalize.h"
-
+#include <gflags/gflags.h>
 
 DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
 using namespace vaultdb;
-
 
 HonestBrokerPrivate::HonestBrokerPrivate(string honest_broker_address)
     : InfoPrivate(honest_broker_address) {
@@ -48,14 +46,15 @@ string count_star_query(string table_name, string column) {
          column;
 }
 
-void log_gen_stats(table_t * gen_map, std::string column) {
+void log_gen_stats(table_t *gen_map, std::string column) {
   map<int, int> mapping_table;
   for (int i = 0; i < gen_map->num_tuples; i++) {
     mapping_table[get_tuple(i, gen_map)->field_list[0].f.int_field.genval]++;
   }
   std::string out;
-  for (auto t: mapping_table) {
-    out += "Gen value:" + std::to_string(t.first) + ", COUNT:" + std::to_string(t.second) + "\n";
+  for (auto t : mapping_table) {
+    out += "Gen value:" + std::to_string(t.first) +
+           ", COUNT:" + std::to_string(t.second) + "\n";
   }
   LOG(INFO) << out;
 }
@@ -63,9 +62,9 @@ void log_gen_stats(table_t * gen_map, std::string column) {
 // TODO(madhavsuresh): support multiple column generalization
 // TODO(madhavsuresh): this is a work in progress. this needs to be filled in.
 vector<tableid_ptr>
-HonestBrokerPrivate::Generalize(
-    string table_name, string column, string dbname,
-    vector<tableid_ptr> scanned_tables, int gen_level) {
+HonestBrokerPrivate::Generalize(string table_name, string column, string dbname,
+                                vector<tableid_ptr> scanned_tables,
+                                int gen_level) {
   string query_string = count_star_query(table_name, column);
 
   vector<tableid_ptr> out_vec;
@@ -89,7 +88,7 @@ HonestBrokerPrivate::Generalize(
     auto outptr = make_shared<const ::vaultdb::TableID>(out);
     for (auto &st : scanned_tables) {
       if (st.get()->hostnum() == i) {
-        out_vec.emplace_back(do_clients[i]->GenZip(outptr, st));
+        out_vec.emplace_back(do_clients[i]->GenZip(outptr, st, column));
       }
     }
   }
@@ -168,7 +167,7 @@ vector<tableid_ptr> HonestBrokerPrivate::Filter(vector<tableid_ptr> &ids,
 
 void HonestBrokerPrivate::FreeTables(vector<tableid_ptr> &ids) {
   for (auto &i : ids) {
-            do_clients[i.get()->hostnum()]->FreeTable(i);
+    do_clients[i.get()->hostnum()]->FreeTable(i);
   }
 }
 
@@ -178,8 +177,8 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
 
   vector<tableid_ptr> joined_tables;
   for (auto &i : ids) {
-    joined_tables.emplace_back(
-        do_clients[i.first.get()->hostnum()]->Join(i.first, i.second, join, in_sgx));
+    joined_tables.emplace_back(do_clients[i.first.get()->hostnum()]->Join(
+            i.first, i.second, join, in_sgx));
   }
   return joined_tables;
 }
@@ -212,7 +211,9 @@ void HonestBrokerPrivate::SetControlFlowColName(string name) {
   cf.set_cf_name(name);
 }
 
-::vaultdb::ControlFlowColumn HonestBrokerPrivate::GetControlFlowColID() { return cf; }
+::vaultdb::ControlFlowColumn HonestBrokerPrivate::GetControlFlowColID() {
+  return cf;
+}
 
 tableid_ptr HonestBrokerPrivate::Coalesce(int host_num,
                                           vector<tableid_ptr> tables) {

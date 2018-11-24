@@ -53,6 +53,7 @@ message GeneralizeZipRequest {
     TableID gentableid = 1;
     TableID scantableid = 2;
     int32 colno = 3;
+    string colname = 4;
 }
 
 message GeneralizeZipResponse {

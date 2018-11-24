@@ -75,7 +75,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
         ::vaultdb::GeneralizeZipResponse* response) {
   table_t *gen_table = p->GetTable(request->gentableid().tableid());
   table_t *scan_table = p->GetTable(request->scantableid().tableid());
-  table_t *output_table = generalize_zip(scan_table, gen_table, request->colno());
+  table_t *output_table = generalize_zip(scan_table, gen_table, colno_from_name(scan_table, request->colname()));
 
   auto tid = response->mutable_generalizedscantable();
   tid->set_hostnum(p->HostNum());
