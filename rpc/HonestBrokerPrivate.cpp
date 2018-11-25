@@ -43,7 +43,7 @@ int HonestBrokerPrivate::RegisterPeerHosts() {
 
 string count_star_query(string table_name, string column) {
   return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " +
-         column;
+         column + " ORDER BY " + column;
 }
 
 void log_gen_stats(table_t *gen_map, std::string column) {

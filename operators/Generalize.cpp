@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+using namespace std;
 
 void log_stats(
         std::unordered_map<cf_hash,
@@ -42,6 +43,8 @@ void log_stats(
           << "average size " << total_size / gen_map.size()
           << " num cf_per class" << avg_num / gen_map.size();
 }
+typedef std::vector<std::tuple<hostnum, tup_count, cf_hash>> eq_class_t;
+
 bool is_kanon(std::vector<std::tuple<hostnum, tup_count, cf_hash>> equiv_class,
               int num_hosts, int k) {
 
@@ -160,6 +163,61 @@ cf_hash find_smallest_equiv_not_eq(
     }
   }
   return cf_hash_key;
+}
+
+typedef std::string table_name;
+
+int get_min_range(std::vector<std::pair<hostnum, table_t *>>, int min_value, int num_hosts, int k) {
+
+
+  std::unordered_map<cf_hash, eq_class_t> val_map;
+  eq_class_t eqv;
+  for (int i = min_value; i++; ) {
+    // TODO(madhavsuresh) test out
+    for (auto &a : val_map[i]) {
+      eqv.push_back(a);
+    }
+    if (is_kanon(eqv, num_hosts, k)) {
+      return i;
+    }
+  }
+
+}
+
+/*
+ * This assume generalized values are integers.
+ * This algorithm accounts for generalization accross multiple tables.
+ * We assume that the ranges given for the control flow attribute are
+ * continuous integer ranges.
+ */
+table_t *
+generalize_table(std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t*>>> table_map_host_table_pairs, int num_hosts, int k, int num_tables) {
+
+  bool needs_merge = true;
+  // Hard coded assumption that we are only dealing with natural numbers.
+  std::unordered_map<cf_hash,
+          std::vector<std::tuple<hostnum, tup_count, cf_hash>>>
+          gen_map;
+
+  for (auto &ht : host_table_pairs) {
+    table_t *t = ht.second;
+    for (int i = 0; i < t->num_tuples; i++) {
+      tuple_t *tup = get_tuple(i, t);
+      gen_map[tup->field_list[0].f.int_field.val].emplace_back(
+              (hostnum)ht.first, (tup_count)tup->field_list[1].f.int_field.val,
+              tup->field_list[0].f.int_field.val);
+    }
+  }
+  int min_value = 0;
+  while (needs_merge) {
+
+    vector<int> min_vals;
+    for (auto &maps : table_map_host_table_pairs) {
+      min_vals.push_back(get_min_range(maps.second, min_value));
+
+    }
+  }
+
 }
 
 /*
