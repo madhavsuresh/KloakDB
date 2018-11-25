@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <memory>
 #include <cstring>
+#include "logger/Logger.h"
+#include "logger/LoggerDefs.h"
 
 
 
@@ -225,6 +227,35 @@ table_t * generalize_table(std::vector<std::pair<hostnum, table_t *>> host_table
     }
   }
   return generate_genmap_table(gen_map);
+}
+void log_stats(
+        std::unordered_map<cf_hash,
+                std::vector<std::tuple<hostnum, tup_count, cf_hash>>>
+        gen_map,
+        int k) {
+  int max_size = 0;
+  cf_hash _max = 0;
+  double total_size = 0;
+  double avg_num = 0;
+  for (auto &i : gen_map) {
+    int curr_size = 0;
+    avg_num += i.second.size();
+    for (auto &j : i.second) {
+      curr_size += std::get<1>(j);
+    }
+    if (max_size < curr_size) {
+      max_size = curr_size;
+      _max = i.first;
+    }
+    if (curr_size < k) {
+      //std::cout << "THIS IS BAD!!" << std::endl;
+    }
+    total_size += curr_size;
+  }
+  LOG(OP) << "max key: " << _max
+            << gen_map.size() << "max size: " << max_size << "average size "
+            << total_size / gen_map.size() << " num cf_per class"
+            << avg_num / gen_map.size();
 }
 
 table_t * generalize_zip(table_t * t, table_t * gen_map_table, int col_no) {
