@@ -72,9 +72,9 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
 
 void exp5(HonestBrokerPrivate *p) {
   auto scan = p->ClusterDBMSQuery("dbname=vaultdb_",
-                                  "SELECT * FROM left_deep_joins_1024");
+                                  "SELECT * FROM left_deep_joins_25200");
   auto gen_zipped =
-      p->Generalize("left_deep_joins_1024" /* table name */, "b" /* column */,
+      p->Generalize("left_deep_joins_25200" /* table name */, "b" /* column */,
                     "vaultdb_" /* db_name */, scan, FLAGS_gen_level);
   p->SetControlFlowColName("b");
   auto repart = p->Repartition(gen_zipped);
