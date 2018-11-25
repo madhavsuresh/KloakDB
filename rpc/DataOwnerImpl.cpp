@@ -142,8 +142,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
     pages.set_page((char *)t->tuple_pages[i], PAGE_SIZE);
     writer->Write(pages);
   }
-  END_TIMER(get_table_full);
-  LOG_TIMER(get_table_full);
+  END_AND_LOG_RPC_TIMER(get_table_full, p->HostName());
   LOG(DO_IMPL) << "GetTable OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
@@ -174,8 +173,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
   LOG(INFO) << "Adding table received from ??";
   int table_id = this->p->AddTable(t);
   response->set_tableid(table_id);
-  END_TIMER(send_table_full);
-  LOG_TIMER(send_table_full);
+  END_AND_LOG_RPC_TIMER(send_table_full,p->HostName());
   LOG(DO_IMPL) << "Send Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
@@ -378,6 +376,7 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
     END_TIMER(plain_join_inner);
     LOG_TIMER(plain_join_inner);
   }
+  LOG(OP) << "Join Number of Output Tuples :[" << out_join->num_tuples << "]";
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out_join));
@@ -438,6 +437,7 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
     END_TIMER(plain_aggregate_inner);
     LOG_TIMER(plain_aggregate_inner);
   }
+  LOG(OP) << "Aggregate Number of Output Tuples :[" << out->num_tuples << "]";
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out));

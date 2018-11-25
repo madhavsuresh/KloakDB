@@ -14,6 +14,7 @@ const LEVELS DO_IMPL{INFO.value + 2, "DO-IMPL"};
 const LEVELS SGX_STATS{INFO.value + 10, "SGX-STATS"};
 const LEVELS SGX {INFO.value + 11, "SGX"};
 const LEVELS SGX_FATAL {INFO.value + 12, "SGX-FATAL"};
+const LEVELS OP {INFO.value + 30, "OP"};
 
 #define START_TIMER(timer_name)                                                \
   auto start_##timer_name = std::chrono::high_resolution_clock::now()
