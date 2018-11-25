@@ -18,14 +18,14 @@ using namespace vaultdb;
 class DataOwnerClient {
 
 public:
-  DataOwnerClient(int host_num, shared_ptr<grpc::Channel> channel)
-      : stub_(DataOwner::NewStub(channel)), host_num(host_num) {}
+  DataOwnerClient(std::string host_name, int host_num, shared_ptr<grpc::Channel> channel)
+      : stub_(DataOwner::NewStub(channel)), host_num(host_num), host_name(host_name) {}
 
   void Shutdown();
   shared_ptr<const TableID> DBMSQuery(string dbname, string query);
   void GetPeerHosts(map<int, string> numToHostsMap);
   table_t *GetTable(shared_ptr<const TableID> id_ptr);
-  void *FreeTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr);
+  void FreeTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr);
 
   shared_ptr<const TableID> Filter(shared_ptr<const TableID>, Expr);
   vector<shared_ptr<const TableID>>
@@ -51,6 +51,7 @@ public:
 
 private:
   int host_num;
+  std::string host_name;
   unique_ptr<DataOwner::Stub> stub_;
 };
 

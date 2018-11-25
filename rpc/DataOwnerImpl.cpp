@@ -7,7 +7,10 @@
 #include "Repartition.h"
 #include "data/pqxx_compat.h"
 #include "logger/Logger.h"
+#ifndef LOGGER_DEFS
+#define LOGGER_DEFS
 #include "logger/LoggerDefs.h"
+#endif
 #include "operators/Aggregate.h"
 #include "operators/Filter.h"
 #include "operators/Generalize.h"
@@ -15,6 +18,7 @@
 #include "operators/Sort.h"
 #include "sgx/App/VaultDBSGXApp.h"
 #include <future>
+
 
 extern std::promise<void> exit_requested;
 
@@ -28,7 +32,7 @@ DataOwnerImpl::ShutDown(::grpc::ServerContext *context,
     p->DeleteDataOwnerClient(i);
   }
   exit_requested.set_value();
-  LOG(IMPL) << "Shutdown OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "Shutdown OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -40,7 +44,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
     auto host = request->hostnames(i);
     p->SetDataOwnerClient(host.hostnum(), host.hostname());
   }
-  LOG(IMPL) << "GetPeerHosts OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "GetPeerHosts OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -48,7 +52,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
     ::grpc::ServerContext *context,
     const ::vaultdb::RepartitionStepTwoRequest *request,
     ::vaultdb::RepartitionStepTwoResponse *response) {
-  LOG(IMPL) << "Repartition Step Two Start";
+  LOG(DO_IMPL) << "Repartition Step Two Start";
   START_TIMER(repart_step_two_full);
   std::vector<table_t *> table_ptrs;
   for (int i = 0; i < request->tablefragments_size(); i++) {
@@ -67,7 +71,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   END_TIMER(repart_step_two_full);
   LOG_TIMER(repart_step_two_full);
   LOG_TIMER(repart_step_two_inner);
-  LOG(IMPL) << "Repartition Step Two OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "Repartition Step Two OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -75,7 +79,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
     ::grpc::ServerContext *context,
     const ::vaultdb::RepartitionStepOneRequest *request,
     ::vaultdb::RepartitionStepOneResponse *response) {
-  LOG(IMPL) << "Repartition Step Two Start";
+  LOG(DO_IMPL) << "Repartition Step Two Start";
   START_TIMER(repart_step_one_full);
   table_t *t = p->GetTable(request->tableid().tableid());
   START_TIMER(repart_step_one_inner);
@@ -90,7 +94,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   END_TIMER(repart_step_one_full);
   LOG_TIMER(repart_step_one_inner);
   LOG_TIMER(repart_step_one_full);
-  LOG(IMPL) << "Repartition Step One OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "Repartition Step One OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 ::grpc::Status
@@ -111,7 +115,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
   END_TIMER(gen_zip_full);
   LOG_TIMER(gen_zip_inner);
   LOG_TIMER(gen_zip_full);
-  LOG(IMPL) << "GeneralizeZip OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "GeneralizeZip OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -140,7 +144,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
   }
   END_TIMER(get_table_full);
   LOG_TIMER(get_table_full);
-  LOG(IMPL) << "GetTable OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "GetTable OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -172,7 +176,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
   response->set_tableid(table_id);
   END_TIMER(send_table_full);
   LOG_TIMER(send_table_full);
-  LOG(IMPL) << "Send Table OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "Send Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -194,7 +198,7 @@ DataOwnerImpl::DBMSQuery(::grpc::ServerContext *context,
   END_TIMER(dbms_query_full);
   LOG_TIMER(dbms_query_inner);
   LOG_TIMER(dbms_query_full);
-  LOG(IMPL) << "DBMSQuery OK query: (" << request->query() << ")";
+  LOG(DO_IMPL) << "DBMSQuery OK query: (" << request->query() << ")";
 
   return grpc::Status::OK;
 }
@@ -205,7 +209,7 @@ DataOwnerImpl::FreeTable(::grpc::ServerContext *context,
                          ::vaultdb::FreeTableResponse *response) {
 
   p->FreeTable(request->tid().tableid());
-  LOG(IMPL) << "Free Table OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "Free Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -216,7 +220,7 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
 
   START_TIMER(coalesce_tables_full);
   std::vector<table_t *> tables;
-  LOG(IMPL) << "Coalescing #=[" << request->tablefragments_size() << "] tables";
+  LOG(DO_IMPL) << "Coalescing #=[" << request->tablefragments_size() << "] tables";
   for (int i = 0; i < request->tablefragments_size(); i++) {
     tables.push_back(p->GetTable(request->tablefragments(i).tableid()));
   }
@@ -229,7 +233,7 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
   END_TIMER(coalesce_tables_full);
   LOG_TIMER(coalesce_tables_inner);
   LOG_TIMER(coalesce_tables_full);
-  LOG(IMPL) << "Coalesce Table OK (" << context->peer() << ")";
+  LOG(DO_IMPL) << "Coalesce Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
 
@@ -269,13 +273,13 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
   expr_t ex = make_expr_t(in, request->expr());
   table_t *f;
   if (request->in_sgx()) {
-    LOG(IMPL) << "SGX Filter";
+    LOG(DO_IMPL) << "SGX Filter";
     START_TIMER(sgx_filter_inner);
     f = filter_sgx(in, &ex);
     END_TIMER(sgx_filter_inner);
     LOG_TIMER(sgx_filter_inner);
   } else {
-    LOG(IMPL) << "Plain Filter";
+    LOG(DO_IMPL) << "Plain Filter";
     START_TIMER(plain_filter_inner);
     f = filter(in, &ex);
     END_TIMER(plain_filter_inner);
@@ -286,7 +290,7 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
   tid->set_tableid(p->AddTable(f));
   END_TIMER(filter_full);
   LOG_TIMER(filter_full);
-  LOG(IMPL) << "Filter OK";
+  LOG(DO_IMPL) << "Filter OK";
   return ::grpc::Status::OK;
 }
 
@@ -306,13 +310,13 @@ sort_t make_sort_t(table_t *t, const ::vaultdb::SortDef sort) {
 
   table_t *sorted;
   if (request->in_sgx()) {
-    LOG(IMPL) << "SGX Sort";
+    LOG(DO_IMPL) << "SGX Sort";
     START_TIMER(sgx_sort_inner);
     sorted = sort_sgx(in, &s);
     END_TIMER(sgx_sort_inner);
     LOG_TIMER(sgx_sort_inner);
   } else {
-    LOG(IMPL) << "Plain Sort";
+    LOG(DO_IMPL) << "Plain Sort";
     START_TIMER(plain_sort_inner);
     sorted = sort(in, &s);
     END_TIMER(plain_sort_inner);
@@ -323,7 +327,7 @@ sort_t make_sort_t(table_t *t, const ::vaultdb::SortDef sort) {
   tid->set_tableid(p->AddTable(sorted));
   END_TIMER(sort_full);
   LOG_TIMER(sort_full);
-  LOG(IMPL) << "Sort OK";
+  LOG(DO_IMPL) << "Sort OK";
   return ::grpc::Status::OK;
 }
 
@@ -362,14 +366,14 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
   join_def_t def = make_join_def_t(left, right, request->def());
   table_t *out_join;
   if (request->in_sgx()) {
-    LOG(IMPL) << "SGX HashJoin";
+    LOG(DO_IMPL) << "SGX HashJoin";
     START_TIMER(sgx_join_inner);
     out_join = hash_join_sgx(left, right, def);
     END_TIMER(sgx_join_inner);
     LOG_TIMER(sgx_join_inner);
   } else {
     START_TIMER(plain_join_inner);
-    LOG(IMPL) << "Plain HashJoin";
+    LOG(DO_IMPL) << "Plain HashJoin";
     out_join = hash_join(left, right, def);
     END_TIMER(plain_join_inner);
     LOG_TIMER(plain_join_inner);
@@ -379,7 +383,7 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
   tid->set_tableid(p->AddTable(out_join));
   END_TIMER(join_full);
   LOG_TIMER(join_full);
-  LOG(IMPL) << "Join OK";
+  LOG(DO_IMPL) << "Join OK";
   return ::grpc::Status::OK;
 }
 
@@ -422,13 +426,13 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
   groupby_def_t gbd = make_groupby_def_t(in, request->def());
   table_t *out;
   if (request->in_sgx()) {
-    LOG(IMPL) << "SGX Aggregate";
+    LOG(DO_IMPL) << "SGX Aggregate";
     START_TIMER(sgx_aggregate_inner);
     out = aggregate_sgx(in, &gbd);
     END_TIMER(sgx_aggregate_inner);
     LOG_TIMER(sgx_aggregate_inner);
   } else {
-    LOG(IMPL) << "Plain Aggregate";
+    LOG(DO_IMPL) << "Plain Aggregate";
     START_TIMER(plain_aggregate_inner);
     out = aggregate(in, &gbd);
     END_TIMER(plain_aggregate_inner);
@@ -439,6 +443,6 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
   tid->set_tableid(p->AddTable(out));
   END_TIMER(aggregate_full);
   LOG_TIMER(aggregate_full);
-  LOG(IMPL) << "Aggregate OK";
+  LOG(DO_IMPL) << "Aggregate OK";
   return ::grpc::Status::OK;
 }

@@ -11,26 +11,26 @@ void proto_schema_to_table_schema(table_t *t, const vaultdb::Schema &s) {
     strncpy(t->schema.fields[i].field_name, s.field(i).field_name().c_str(),
             FIELD_NAME_LEN);
     switch (s.field(i).field_type()) {
-      case vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
-        t->schema.fields[i].type = FIXEDCHAR;
-        break;
-      }
-      case vaultdb::FieldDesc_FieldType_INT: {
-        t->schema.fields[i].type = INT;
-        break;
-      }
-      case vaultdb::FieldDesc_FieldType_DOUBLE: {
-        t->schema.fields[i].type = DOUBLE;
-        break;
-      }
-      case vaultdb::FieldDesc_FieldType_TIMESTAMP: {
-        t->schema.fields[i].type = TIMESTAMP;
-        break;
-      }
-      case vaultdb::FieldDesc_FieldType_UNSUPPORTED: {
-        throw;
-      }
-      default: { throw; }
+    case vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
+      t->schema.fields[i].type = FIXEDCHAR;
+      break;
+    }
+    case vaultdb::FieldDesc_FieldType_INT: {
+      t->schema.fields[i].type = INT;
+      break;
+    }
+    case vaultdb::FieldDesc_FieldType_DOUBLE: {
+      t->schema.fields[i].type = DOUBLE;
+      break;
+    }
+    case vaultdb::FieldDesc_FieldType_TIMESTAMP: {
+      t->schema.fields[i].type = TIMESTAMP;
+      break;
+    }
+    case vaultdb::FieldDesc_FieldType_UNSUPPORTED: {
+      throw;
+    }
+    default: { throw; }
     }
   }
 }
@@ -44,17 +44,15 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name,
       this->hb_host_name, grpc::InsecureChannelCredentials()));
   this->table_counter = 0;
 }
-DataOwnerPrivate::~DataOwnerPrivate() {
-  delete client;
-}
+DataOwnerPrivate::~DataOwnerPrivate() { delete client; }
 void DataOwnerPrivate::DeleteDataOwnerClient(int host_num) {
-  //delete this->client;
+  // delete this->client;
   delete this->data_owner_clients[host_num];
 }
 
 void DataOwnerPrivate::SetDataOwnerClient(int host_num, std::string host_name) {
   data_owner_clients[host_num] = new DataOwnerClient(
-      host_num,
+      host_name, host_num,
       grpc::CreateChannel(host_name, grpc::InsecureChannelCredentials()));
 }
 
