@@ -4,6 +4,7 @@
 
 #include "VaultDB.h"
 #include "logger/Logger.h"
+#include "logger/LoggerDefs.h"
 #include "rpc/DataOwnerImpl.h"
 #include "rpc/DataOwnerPrivate.h"
 #include "rpc/HonestBrokerClient.h"
@@ -77,7 +78,11 @@ void exp5(HonestBrokerPrivate *p) {
       p->Generalize("left_deep_joins_25200" /* table name */, "b" /* column */,
                     "vaultdb_" /* db_name */, scan, FLAGS_gen_level);
   p->SetControlFlowColName("b");
+  LOG(EXEC) << "======Start Repartition====";
+  START_TIMER(repartition_exec);
   auto repart = p->Repartition(gen_zipped);
+  END_AND_LOG_EXEC_TIMER(repartition_exec);
+  LOG(EXEC) << "======End Repartition====";
   auto to_join1 = zip_join_tables(repart, repart);
   JoinDef jd;
   jd.set_l_col_name("b");
@@ -86,13 +91,29 @@ void exp5(HonestBrokerPrivate *p) {
   auto p1 = jd.add_project_list();
   p1->set_colname("b");
   p1->set_side(JoinColID_RelationSide_LEFT);
+  LOG(EXEC) << "======Start Join 1====";
+  START_TIMER(join1);
   auto out1 = p->Join(to_join1, jd, false /* in_sgx */);
+  END_AND_LOG_EXEC_TIMER(join1);
+  LOG(EXEC) << "======END Join 1====";
   auto to_join2 = zip_join_tables(repart, out1);
+  LOG(EXEC) << "======Start Join 2====";
+  START_TIMER(join2);
   auto out2 = p->Join(to_join2, jd, false /* in_sgx */);
+  END_AND_LOG_EXEC_TIMER(join2);
+  LOG(EXEC) << "======END Join 2====";
   auto to_join3 = zip_join_tables(repart, out2);
+  LOG(EXEC) << "======Start Join 3====";
+  START_TIMER(join3);
   auto out3 = p->Join(to_join3, jd, false /* in_sgx */);
+  END_AND_LOG_EXEC_TIMER(join3);
+  LOG(EXEC) << "======END Join 3====";
   auto to_join4 = zip_join_tables(repart, out3);
+  LOG(EXEC) << "======Start Join 4====";
+  START_TIMER(join4);
   auto out4 = p->Join(to_join4, jd, false /* in_sgx */);
+  END_AND_LOG_EXEC_TIMER(join4);
+  LOG(EXEC) << "======END Join 4====";
 }
 
 void aspirin_profile(HonestBrokerPrivate *p) {

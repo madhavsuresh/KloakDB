@@ -15,6 +15,8 @@ const LEVELS SGX_STATS{INFO.value + 10, "SGX-STATS"};
 const LEVELS SGX {INFO.value + 11, "SGX"};
 const LEVELS SGX_FATAL {INFO.value + 12, "SGX-FATAL"};
 const LEVELS OP {INFO.value + 30, "OP"};
+const LEVELS EXEC {INFO.value-50, "EXEC"};
+const LEVELS EXEC_STATS {INFO.value-50, "EXEC-STATS"};
 
 #define START_TIMER(timer_name)                                                \
   auto start_##timer_name = std::chrono::high_resolution_clock::now()
@@ -23,19 +25,25 @@ const LEVELS OP {INFO.value + 30, "OP"};
 #define LOG_TIMER(timer_name)                                                  \
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
-  LOG(STATS) << "TIMER " << #timer_name << ": ["                               \
+  LOG(STATS) <<  #timer_name << ": ["                               \
              << elapsed_##timer_name.count() << "s]"
 
 #define LOG_SGX_TIMER(timer_name) \
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
-  LOG(SGX_STATS) << "TIMER " << #timer_name << ": ["                               \
+  LOG(SGX_STATS) << #timer_name << ": ["                               \
+             << elapsed_##timer_name.count() << "s]"
+
+#define LOG_EXEC_TIMER(timer_name) \
+  std::chrono::duration<double> elapsed_##timer_name =                         \
+      end_##timer_name - start_##timer_name;                                   \
+  LOG(EXEC_STATS) << #timer_name << ": ["                               \
              << elapsed_##timer_name.count() << "s]"
 
 #define LOG_RPC_TIMER(timer_name, hostname)                                                  \
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
-  LOG(RPC_STATS) << "[" << hostname << "] TIMER " << #timer_name << ": ["                               \
+  LOG(RPC_STATS) << "[" << hostname << "] " << #timer_name << ": ["                               \
              << elapsed_##timer_name.count() << "s]"
 
 #define END_AND_LOG_TIMER(timer_name)                                          \
@@ -48,6 +56,12 @@ const LEVELS OP {INFO.value + 30, "OP"};
   do {                                                                         \
     END_TIMER(timer_name);                                                     \
     LOG_RPC_TIMER(timer_name, hostname);                                                     \
+  } while (0)
+
+#define END_AND_LOG_EXEC_TIMER(timer_name)                                          \
+  do {                                                                         \
+    END_TIMER(timer_name);                                                     \
+    LOG_EXEC_TIMER(timer_name);                                                     \
   } while (0)
 
 #define END_AND_LOG_SGX_TIMER(timer_name)                                          \
