@@ -8,6 +8,7 @@
 #include "rpc/DataOwnerPrivate.h"
 #include "rpc/HonestBrokerClient.h"
 #include "rpc/HonestBrokerImpl.h"
+#include <future>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
 #include <gflags/gflags.h>
@@ -16,7 +17,6 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
 #include <thread>
-#include <future>
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
 DEFINE_string(address, "", "IPV4 Address for current instance");
@@ -88,7 +88,11 @@ void exp5(HonestBrokerPrivate *p) {
   p1->set_side(JoinColID_RelationSide_LEFT);
   auto out1 = p->Join(to_join1, jd, false /* in_sgx */);
   auto to_join2 = zip_join_tables(repart, out1);
-  auto out2 = p->Join(to_join1, jd, false /* in_sgx */);
+  auto out2 = p->Join(to_join2, jd, false /* in_sgx */);
+  auto to_join3 = zip_join_tables(repart, out2);
+  auto out3 = p->Join(to_join3, jd, false /* in_sgx */);
+  auto to_join4 = zip_join_tables(repart, out3);
+  auto out4 = p->Join(to_join4, jd, false /* in_sgx */);
 }
 
 void aspirin_profile(HonestBrokerPrivate *p) {
