@@ -3,8 +3,8 @@
 //
 
 #include "HonestBrokerPrivate.h"
-#include "operators/Generalize.h"
 #include <gflags/gflags.h>
+#include <logger/LoggerDefs.h>
 
 DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
@@ -43,20 +43,80 @@ int HonestBrokerPrivate::RegisterPeerHosts() {
 
 string count_star_query(string table_name, string column) {
   return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " +
-         column;
+         column + " ORDER BY " + column;
 }
 
-void log_gen_stats(table_t *gen_map, std::string column) {
-  map<int, int> mapping_table;
+void log_gen_stats(table_t *gen_map) {
+  map<int, int> counter;
   for (int i = 0; i < gen_map->num_tuples; i++) {
-    mapping_table[get_tuple(i, gen_map)->field_list[0].f.int_field.genval]++;
+    counter[get_tuple(i, gen_map)->field_list[0].f.int_field.genval]++;
   }
-  std::string out;
-  for (auto t : mapping_table) {
-    out += "Gen value:" + std::to_string(t.first) +
-           ", COUNT:" + std::to_string(t.second) + "\n";
+  int max_val = 0;
+  int min_val = 100000;
+  int num_classes = 0;
+  for (auto &i : counter) {
+    num_classes++;
+    if (max_val < i.second) {
+      max_val = i.second;
+    }
+    if (min_val > i.second) {
+      min_val = i.second;
+    }
   }
-  LOG(INFO) << out;
+  LOG(STATS) << "Gen Stats: MIN:[" << min_val << "], MAX:[" << max_val
+             << "] AVG:[" << (double)gen_map->num_tuples / num_classes << "]";
+}
+
+unordered_map<table_name, vector<tableid_ptr>>
+HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
+                                int gen_level) {
+
+  unordered_map<table_name, vector<tableid_ptr>> out_map;
+  std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+      gen_input;
+  std::vector<tableid_ptr> input_scans;
+  for (auto &table : in) {
+    auto to_gen = table.second;
+    input_scans.insert(input_scans.end(), to_gen.scan_tables.begin(),
+                       to_gen.scan_tables.end());
+  }
+
+  for (auto &table : in) {
+    vector<tableid_ptr> tids;
+    string column = table.second.column;
+    auto query = count_star_query(table.first, column);
+    auto dbname = table.second.dbname;
+    for (int i = 0; i < this->num_hosts; i++) {
+      auto tid = this->DBMSQuery(i, "dbname=" + dbname, query);
+      tids.push_back(tid);
+    }
+    vector<pair<hostnum, table_t *>> count_tables;
+    for (auto &t : tids) {
+      count_tables.emplace_back(t.get()->hostnum(),
+                                do_clients[t.get()->hostnum()]->GetTable(t));
+    }
+    gen_input[table.first] = count_tables;
+  }
+  table_t *gen_map = generalize_table(gen_input, num_hosts, gen_level);
+  log_gen_stats(gen_map);
+
+  for (int i = 0; i < num_hosts; i++) {
+    auto resp = do_clients[i]->SendTable(gen_map);
+    ::vaultdb::TableID out;
+    out.set_hostnum(i);
+    out.set_tableid(resp);
+    auto outptr = make_shared<const ::vaultdb::TableID>(out);
+    for (auto &table : in) {
+      auto tup = table.second.scan_tables;
+      for (auto &st : tup) {
+        if (st.get()->hostnum() == i) {
+          auto zipped = do_clients[i]->GenZip(outptr, st, table.second.column);
+          out_map[table.first].emplace_back(zipped);
+        }
+      }
+    }
+  }
+  return out_map;
 }
 
 // TODO(madhavsuresh): support multiple column generalization
@@ -79,7 +139,6 @@ HonestBrokerPrivate::Generalize(string table_name, string column, string dbname,
                             do_clients[t.get()->hostnum()]->GetTable(t));
   }
   table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), gen_level);
-  log_gen_stats(gen_map, column);
   for (int i = 0; i < this->num_hosts; i++) {
     auto resp = do_clients[i]->SendTable(gen_map);
     ::vaultdb::TableID out;
@@ -116,6 +175,7 @@ int HonestBrokerPrivate::RegisterHost(string hostName) {
 
 vector<tableid_ptr> HonestBrokerPrivate::ClusterDBMSQuery(string dbname,
                                                           string query) {
+  LOG(HB_P) << "Cluster Querying: " + query;
   vector<tableid_ptr> queried_tables;
   for (int i = 0; i < num_hosts; i++) {
     queried_tables.emplace_back(DBMSQuery(i, dbname, query));
@@ -125,7 +185,7 @@ vector<tableid_ptr> HonestBrokerPrivate::ClusterDBMSQuery(string dbname,
 
 tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
                                            string query) {
-
+  LOG(HB_P) << "Point Querying: " + query;
   return this->do_clients[host_num]->DBMSQuery(dbname, query);
 }
 

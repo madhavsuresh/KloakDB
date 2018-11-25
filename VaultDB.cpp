@@ -74,9 +74,16 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
 void exp5(HonestBrokerPrivate *p) {
   auto scan = p->ClusterDBMSQuery("dbname=vaultdb_",
                                   "SELECT * FROM left_deep_joins_1024");
-  auto gen_zipped =
-      p->Generalize("left_deep_joins_1024" /* table name */, "b" /* column */,
-                    "vaultdb_" /* db_name */, scan, FLAGS_gen_level);
+  unordered_map<table_name, to_gen_t> gen_in;
+  to_gen_t to_gen_ld;
+  to_gen_ld.column = "b";
+  to_gen_ld.dbname = "vaultdb_";
+  to_gen_ld.scan_tables.insert(to_gen_ld.scan_tables.end(), scan.begin(),
+                               scan.end());
+  gen_in["left_deep_joins_1024"] = to_gen_ld;
+  auto gen_zipped_map = p->Generalize(gen_in, FLAGS_gen_level);
+  auto gen_zipped = gen_zipped_map["left_deep_joins_1024"];
+
   p->SetControlFlowColName("b");
   LOG(EXEC) << "======Start Repartition====";
   START_TIMER(repartition_exec);
@@ -93,13 +100,13 @@ void exp5(HonestBrokerPrivate *p) {
   p1->set_side(JoinColID_RelationSide_LEFT);
   LOG(EXEC) << "======Start Join 1====";
   START_TIMER(join1);
-  auto out1 = p->Join(to_join1, jd, true /* in_sgx */);
+  auto out1 = p->Join(to_join1, jd, false);
   END_AND_LOG_EXEC_TIMER(join1);
   LOG(EXEC) << "======END Join 1====";
   auto to_join2 = zip_join_tables(repart, out1);
   LOG(EXEC) << "======Start Join 2====";
   START_TIMER(join2);
-  auto out2 = p->Join(to_join2, jd, true /* in_sgx */);
+  auto out2 = p->Join(to_join2, jd, false);
   END_AND_LOG_EXEC_TIMER(join2);
   LOG(EXEC) << "======END Join 2====";
   auto to_join3 = zip_join_tables(repart, out2);
@@ -107,7 +114,7 @@ void exp5(HonestBrokerPrivate *p) {
   LOG(EXEC) << "======Start Join 3====";
   START_TIMER(join3);
   */
-  //auto out3 = p->Join(to_join3, jd, false /* in_sgx */);
+  // auto out3 = p->Join(to_join3, jd, false /* in_sgx */);
   /*
   END_AND_LOG_EXEC_TIMER(join3);
   LOG(EXEC) << "======END Join 3====";
@@ -115,7 +122,7 @@ void exp5(HonestBrokerPrivate *p) {
   LOG(EXEC) << "======Start Join 4====";
   START_TIMER(join4);
   */
-  //auto out4 = p->Join(to_join4, jd, false /* in_sgx */);
+  // auto out4 = p->Join(to_join4, jd, false /* in_sgx */);
   /*
   END_AND_LOG_EXEC_TIMER(join4);
   LOG(EXEC) << "======END Join 4====";
