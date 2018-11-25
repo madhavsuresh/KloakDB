@@ -38,7 +38,7 @@ void log_stats(
     }
     total_size += curr_size;
   }
-  LOG(OP) << "max key: " << _max << gen_map.size() << "max size: " << max_size
+  LOG(OP) << "max key: [" << _max << "] : len:(" << gen_map[_max].size() << ") max size: " << max_size
           << "average size " << total_size / gen_map.size()
           << " num cf_per class" << avg_num / gen_map.size();
 }
