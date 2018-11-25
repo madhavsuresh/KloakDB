@@ -19,11 +19,11 @@ void send_log_to_server(std::string);
 
 
 struct RemoteSink {
-    std::unique_ptr<::log_server::Logs::Stub> stub_;
     std::string host_short;
+    std::unique_ptr<::log_server::Logs::Stub> stub_;
 
-    RemoteSink(std::string host_short, std::shared_ptr<grpc::Channel> channel)
-    :host_short(host_short), stub_(::log_server::Logs::NewStub(channel)) {}
+    RemoteSink(std::string in_host_short, std::shared_ptr<grpc::Channel> in_channel)
+    :host_short(in_host_short), stub_(::log_server::Logs::NewStub(in_channel)) {}
     void ReceiveLogMessage(g3::LogMessageMover logEntry);
     void send_log_to_server(std::string log);
 };
