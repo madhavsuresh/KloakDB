@@ -35,7 +35,7 @@ DEFINE_string(demographics_table, "demographics",
 DEFINE_string(vitals_table, "vitals", "table name for vitals");
 DEFINE_string(cdiff_cohort_diag_table, "cdiff_cohort_diagnoses",
               "table name for cdiff cohort diagnoses");
-DEFINE_string(logger_host_name, "mylapore.cs.northwestern.edu:50000",
+DEFINE_string(logger_host_name, "guinea-pig.cs.northwestern.edu:60000",
               "port for logger");
 DEFINE_string(host_short, "vaultdb", "short host name");
 
