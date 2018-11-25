@@ -4,18 +4,44 @@
 
 // Typedefs to make code easier to read without using classes.
 #include "Generalize.h"
-#include <algorithm>
-#include <iostream>
-#include <map>
-#include <string>
-#include <unordered_map>
-#include <memory>
-#include <cstring>
 #include "logger/Logger.h"
 #include "logger/LoggerDefs.h"
+#include <algorithm>
+#include <cstring>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <string>
+#include <unordered_map>
 
-
-
+void log_stats(
+        std::unordered_map<cf_hash,
+                std::vector<std::tuple<hostnum, tup_count, cf_hash>>>
+        gen_map,
+        int k) {
+  int max_size = 0;
+  cf_hash _max = 0;
+  double total_size = 0;
+  double avg_num = 0;
+  for (auto &i : gen_map) {
+    int curr_size = 0;
+    avg_num += i.second.size();
+    for (auto &j : i.second) {
+      curr_size += std::get<1>(j);
+    }
+    if (max_size < curr_size) {
+      max_size = curr_size;
+      _max = i.first;
+    }
+    if (curr_size < k) {
+      // std::cout << "THIS IS BAD!!" << std::endl;
+    }
+    total_size += curr_size;
+  }
+  LOG(OP) << "max key: " << _max << gen_map.size() << "max size: " << max_size
+          << "average size " << total_size / gen_map.size()
+          << " num cf_per class" << avg_num / gen_map.size();
+}
 bool is_kanon(std::vector<std::tuple<hostnum, tup_count, cf_hash>> equiv_class,
               int num_hosts, int k) {
 
@@ -72,8 +98,7 @@ bool kscore(std::tuple<int, tup_count> p1, std::tuple<int, tup_count> p2) {
   return std::get<1>(p1) < std::get<1>(p2);
 }
 
-
-table_t * generate_genmap_table(
+table_t *generate_genmap_table(
     std::unordered_map<cf_hash,
                        std::vector<std::tuple<hostnum, tup_count, cf_hash>>>
         gen_map) {
@@ -92,7 +117,7 @@ table_t * generate_genmap_table(
   schema.fields[0].type = INT;
   strncpy(schema.fields[0].field_name, "cf_hash_orig\0", FIELD_NAME_LEN);
   init_table_builder(output_map.size(), 1 /* num_columns */, &schema, &tb);
-  auto * tup = (tuple_t*) malloc(tb.size_of_tuple);
+  auto *tup = (tuple_t *)malloc(tb.size_of_tuple);
   tup->num_fields = 1;
   tup->field_list[0].type = INT;
   for (auto &g : output_map) {
@@ -156,8 +181,9 @@ cf_hash find_smallest_equiv_not_eq(
  *
  *
  */
-table_t * generalize_table(std::vector<std::pair<hostnum, table_t *>> host_table_pairs,
-                           int num_hosts, int k) {
+table_t *
+generalize_table(std::vector<std::pair<hostnum, table_t *>> host_table_pairs,
+                 int num_hosts, int k) {
   // std::pair<host_num, count>
 
   // Step 1: Figure `
@@ -226,46 +252,19 @@ table_t * generalize_table(std::vector<std::pair<hostnum, table_t *>> host_table
       needs_merging = false;
     }
   }
+  log_stats(gen_map, k);
   return generate_genmap_table(gen_map);
 }
-void log_stats(
-        std::unordered_map<cf_hash,
-                std::vector<std::tuple<hostnum, tup_count, cf_hash>>>
-        gen_map,
-        int k) {
-  int max_size = 0;
-  cf_hash _max = 0;
-  double total_size = 0;
-  double avg_num = 0;
-  for (auto &i : gen_map) {
-    int curr_size = 0;
-    avg_num += i.second.size();
-    for (auto &j : i.second) {
-      curr_size += std::get<1>(j);
-    }
-    if (max_size < curr_size) {
-      max_size = curr_size;
-      _max = i.first;
-    }
-    if (curr_size < k) {
-      //std::cout << "THIS IS BAD!!" << std::endl;
-    }
-    total_size += curr_size;
-  }
-  LOG(OP) << "max key: " << _max
-            << gen_map.size() << "max size: " << max_size << "average size "
-            << total_size / gen_map.size() << " num cf_per class"
-            << avg_num / gen_map.size();
-}
 
-table_t * generalize_zip(table_t * t, table_t * gen_map_table, int col_no) {
+table_t *generalize_zip(table_t *t, table_t *gen_map_table, int col_no) {
   std::unordered_map<cf_hash, cf_gen> gen_map;
   for (int i = 0; i < gen_map_table->num_tuples; i++) {
-    tuple_t * tup = get_tuple(i, gen_map_table);
-    gen_map[tup->field_list[0].f.int_field.val] = tup->field_list[0].f.int_field.genval;
+    tuple_t *tup = get_tuple(i, gen_map_table);
+    gen_map[tup->field_list[0].f.int_field.val] =
+        tup->field_list[0].f.int_field.genval;
   }
   for (int i = 0; i < t->num_tuples; i++) {
-    tuple_t * tup = get_tuple(i, t);
+    tuple_t *tup = get_tuple(i, t);
     auto gen_val = gen_map[tup->field_list[col_no].f.int_field.val];
     tup->field_list[col_no].f.int_field.genval = gen_val;
   }
