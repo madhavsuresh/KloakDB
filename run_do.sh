@@ -1,5 +1,5 @@
 #!/bin/bash
-killall vaultdb
+killall -9 vaultdb
 git pull 
 cd build && make -j10 vaultdb
 HOSTNAME=`hostname`
