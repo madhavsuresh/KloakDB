@@ -231,6 +231,7 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
   END_TIMER(coalesce_tables_full);
   LOG_TIMER(coalesce_tables_inner);
   LOG_TIMER(coalesce_tables_full);
+  LOG(OP) << "Coalesce Tables Size: [" << t->num_tuples << "]";
   LOG(DO_IMPL) << "Coalesce Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
