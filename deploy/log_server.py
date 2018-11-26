@@ -34,7 +34,7 @@ class LogServer(logger_pb2_grpc.LogsServicer):
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
     logger_pb2_grpc.add_LogsServicer_to_server(LogServer(), server)
-    server.add_insecure_port('[::]:50000')
+    server.add_insecure_port('[::]:60000')
     server.start()
     try:
         while True:

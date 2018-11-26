@@ -4,10 +4,12 @@
 
 #include "VaultDB.h"
 #include "logger/Logger.h"
+#include "logger/LoggerDefs.h"
 #include "rpc/DataOwnerImpl.h"
 #include "rpc/DataOwnerPrivate.h"
 #include "rpc/HonestBrokerClient.h"
 #include "rpc/HonestBrokerImpl.h"
+#include <future>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
 #include <gflags/gflags.h>
@@ -34,9 +36,10 @@ DEFINE_string(demographics_table, "demographics",
 DEFINE_string(vitals_table, "vitals", "table name for vitals");
 DEFINE_string(cdiff_cohort_diag_table, "cdiff_cohort_diagnoses",
               "table name for cdiff cohort diagnoses");
-DEFINE_string(logger_host_name, "mylapore.cs.northwestern.edu:50000",
+DEFINE_string(logger_host_name, "guinea-pig.cs.northwestern.edu:60000",
               "port for logger");
 DEFINE_string(host_short, "vaultdb", "short host name");
+DEFINE_bool(sgx, false, "Use SGX for queries");
 
 using namespace std;
 using namespace vaultdb;
@@ -72,11 +75,22 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
 void exp5(HonestBrokerPrivate *p) {
   auto scan = p->ClusterDBMSQuery("dbname=vaultdb_",
                                   "SELECT * FROM left_deep_joins_1024");
-  auto gen_zipped =
-      p->Generalize("left_deep_joins_1024" /* table name */, "b" /* column */,
-                    "vaultdb_" /* db_name */, scan, FLAGS_gen_level);
+  unordered_map<table_name, to_gen_t> gen_in;
+  to_gen_t to_gen_ld;
+  to_gen_ld.column = "b";
+  to_gen_ld.dbname = "vaultdb_";
+  to_gen_ld.scan_tables.insert(to_gen_ld.scan_tables.end(), scan.begin(),
+                               scan.end());
+  gen_in["left_deep_joins_1024"] = to_gen_ld;
+  auto gen_zipped_map = p->Generalize(gen_in, FLAGS_gen_level);
+  auto gen_zipped = gen_zipped_map["left_deep_joins_1024"];
+
   p->SetControlFlowColName("b");
+  LOG(EXEC) << "======Start Repartition====";
+  START_TIMER(repartition_exec);
   auto repart = p->Repartition(gen_zipped);
+  END_AND_LOG_EXEC_TIMER(repartition_exec);
+  LOG(EXEC) << "======End Repartition====";
   auto to_join1 = zip_join_tables(repart, repart);
   JoinDef jd;
   jd.set_l_col_name("b");
@@ -85,9 +99,29 @@ void exp5(HonestBrokerPrivate *p) {
   auto p1 = jd.add_project_list();
   p1->set_colname("b");
   p1->set_side(JoinColID_RelationSide_LEFT);
-  auto out1 = p->Join(to_join1, jd, false /* in_sgx */);
+  LOG(EXEC) << "======Start Join 1====";
+  START_TIMER(join1);
+  auto out1 = p->Join(to_join1, jd, FLAGS_sgx);
+  END_AND_LOG_EXEC_TIMER(join1);
+  LOG(EXEC) << "======END Join 1====";
   auto to_join2 = zip_join_tables(repart, out1);
-  auto out2 = p->Join(to_join1, jd, false /* in_sgx */);
+  LOG(EXEC) << "======Start Join 2====";
+  START_TIMER(join2);
+  auto out2 = p->Join(to_join2, jd, FLAGS_sgx);
+  END_AND_LOG_EXEC_TIMER(join2);
+  LOG(EXEC) << "======END Join 2====";
+  auto to_join3 = zip_join_tables(repart, out2);
+  LOG(EXEC) << "======Start Join 3====";
+  START_TIMER(join3);
+  auto out3 = p->Join(to_join3, jd, FLAGS_sgx);
+  END_AND_LOG_EXEC_TIMER(join3);
+  LOG(EXEC) << "======END Join 3====";
+  auto to_join4 = zip_join_tables(repart, out3);
+  LOG(EXEC) << "======Start Join 4====";
+  START_TIMER(join4);
+  auto out4 = p->Join(to_join4, jd, FLAGS_sgx);
+  END_AND_LOG_EXEC_TIMER(join4);
+  LOG(EXEC) << "======END Join 4====";
 }
 
 void aspirin_profile(HonestBrokerPrivate *p) {

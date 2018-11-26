@@ -118,3 +118,13 @@ CREATE TABLE left_deep_joins_1024 (
 	a INT,
 	b INT
 );
+
+CREATE TABLE left_deep_joins_4096 (
+	a INT,
+	b INT
+);
+
+CREATE TABLE left_deep_joins_25200 (
+	a INT,
+	b INT
+);

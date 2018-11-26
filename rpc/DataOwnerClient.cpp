@@ -4,19 +4,17 @@
 
 #include "DataOwnerClient.h"
 #include "DataOwnerPrivate.h"
-#include <g3log/g3log.hpp>
 #include "logger/Logger.h"
+#include <g3log/g3log.hpp>
+#include "logger/LoggerDefs.h"
+
 
 void DataOwnerClient::Shutdown() {
   vaultdb::ShutDownRequest req;
   vaultdb::ShutDownResponse resp;
   grpc::ClientContext context;
   auto status = stub_->ShutDown(&context, req, &resp);
-  if (status.ok()) {
-
-  } else {
-
-  }
+  DOCLIENT_LOG_STATUS(shut_down, status);
 }
 
 void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
@@ -32,11 +30,7 @@ void DataOwnerClient::GetPeerHosts(std::map<int, std::string> numToHostsMap) {
   }
 
   auto status = stub_->GetPeerHosts(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-  }
+  DOCLIENT_LOG_STATUS(get_peer_hosts, status);
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
@@ -51,24 +45,21 @@ DataOwnerClient::RepartitionStepTwo(
     ::vaultdb::TableID *tid = req.add_tablefragments();
     tid->CopyFrom(*f.get());
   }
+  START_TIMER(repartition_step_two);
   auto status = stub_->RepartitionStepTwo(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "], RepartitionStepTwo";
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-  }
+  END_AND_LOG_RPC_TIMER(repartition_step_two, host_name);
+  DOCLIENT_LOG_STATUS(repartition_step_two, status);
   for (int i = 0; i < resp.remoterepartitionids_size(); i++) {
-    // TODO(madhavsuresh): figure out how CPP memory managment works
     auto tmp = std::make_shared<::vaultdb::TableID>();
     tmp.get()->CopyFrom(resp.remoterepartitionids(i));
     vec.emplace_back(tmp);
   }
-
   return vec;
 }
 
 std::vector<std::shared_ptr<const ::vaultdb::TableID>>
-DataOwnerClient::RepartitionStepOne(std::shared_ptr<const ::vaultdb::TableID> tid) {
+DataOwnerClient::RepartitionStepOne(
+    std::shared_ptr<const ::vaultdb::TableID> tid) {
   vaultdb::RepartitionStepOneRequest req;
   vaultdb::RepartitionStepOneResponse resp;
   grpc::ClientContext context;
@@ -77,13 +68,10 @@ DataOwnerClient::RepartitionStepOne(std::shared_ptr<const ::vaultdb::TableID> ti
   t->set_hostnum(tid.get()->hostnum());
   t->set_tableid(tid.get()->tableid());
 
+  START_TIMER(repartition_step_one);
   auto status = stub_->RepartitionStepOne(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "], Repartition at tableID: ["
-              << tid.get()->tableid() << "]";
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-  }
+  END_AND_LOG_RPC_TIMER(repartition_step_one, host_name);
+  DOCLIENT_LOG_STATUS(repartition_step_one, status);
   std::vector<std::shared_ptr<const vaultdb::TableID>> vec;
   for (int i = 0; i < resp.remoterepartitionids_size(); i++) {
     auto tmp = std::make_shared<vaultdb::TableID>();
@@ -102,19 +90,13 @@ DataOwnerClient::DBMSQuery(std::string dbname, std::string query) {
   req.set_dbname(dbname);
   req.set_query(query);
 
+  START_TIMER(dbms_rpc);
   auto status = stub_->DBMSQuery(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]"
-              << "Query: [" << query << "]";
-    auto tmp = std::make_shared<vaultdb::TableID>();
-    tmp.get()->CopyFrom(resp.tableid());
-    return tmp;
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-    std::cerr << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    throw;
-  }
+  END_AND_LOG_RPC_TIMER(dbms_rpc, host_name);
+  DOCLIENT_LOG_STATUS(dbms_query, status);
+  auto tmp = std::make_shared<vaultdb::TableID>();
+  tmp.get()->CopyFrom(resp.tableid());
+  return tmp;
 }
 
 void table_schema_to_proto_schema(table_t *t, vaultdb::Schema *s) {
@@ -140,7 +122,7 @@ void table_schema_to_proto_schema(table_t *t, vaultdb::Schema *s) {
       fd->set_field_type(vaultdb::FieldDesc_FieldType_TIMESTAMP);
       break;
     }
-    case UNSUPPORTED : {
+    case UNSUPPORTED: {
       throw;
     }
     default: { throw; }
@@ -158,23 +140,19 @@ std::shared_ptr<const ::vaultdb::TableID> DataOwnerClient::CoalesceTables(
     auto tf = req.add_tablefragments();
     tf->CopyFrom(*t.get());
   }
+  START_TIMER(coalesce_rpc);
   auto status = stub_->CoalesceTables(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-    auto ret = std::make_shared<::vaultdb::TableID>();
-    ret.get()->CopyFrom(resp.id());
-    return ret;
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-    std::cerr << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    throw;
-  }
+  END_AND_LOG_RPC_TIMER(coalesce_rpc, host_name);
+  DOCLIENT_LOG_STATUS(coalesce_tables, status);
+  auto ret = std::make_shared<::vaultdb::TableID>();
+  ret.get()->CopyFrom(resp.id());
+  return ret;
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
 DataOwnerClient::GenZip(std::shared_ptr<const ::vaultdb::TableID> gen_map,
-                        std::shared_ptr<const ::vaultdb::TableID> scan_table, std::string col_name) {
+                        std::shared_ptr<const ::vaultdb::TableID> scan_table,
+                        std::string col_name) {
   ::vaultdb::GeneralizeZipRequest req;
   ::vaultdb::GeneralizeZipResponse resp;
   ::grpc::ClientContext context;
@@ -186,19 +164,13 @@ DataOwnerClient::GenZip(std::shared_ptr<const ::vaultdb::TableID> gen_map,
   auto st = req.mutable_scantableid();
   st->set_tableid(scan_table.get()->tableid());
   st->set_hostnum(scan_table.get()->hostnum());
+  START_TIMER(genzip_rpc);
   auto status = stub_->GeneralizeZip(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-    auto ret = std::make_shared<::vaultdb::TableID>();
-    ret.get()->CopyFrom(resp.generalizedscantable());
-    return ret;
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-    std::cerr << status.error_code() << ": " << status.error_message()
-
-              << std::endl;
-    throw;
-  }
+  END_AND_LOG_RPC_TIMER(genzip_rpc, host_name);
+  DOCLIENT_LOG_STATUS(generalize_zip, status);
+  auto ret = std::make_shared<::vaultdb::TableID>();
+  ret.get()->CopyFrom(resp.generalizedscantable());
+  return ret;
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
@@ -212,21 +184,17 @@ DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid,
   auto t = req.mutable_tid();
   t->set_hostnum(tid.get()->hostnum());
   t->set_tableid(tid.get()->tableid());
+  START_TIMER(filter_rpc);
   auto status = stub_->KFilter(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-    auto ret = std::make_shared<::vaultdb::TableID>();
-    ret.get()->CopyFrom(resp.tid());
-    return ret;
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-    std::cerr << status.error_code() << ": " << status.error_message()
-
-              << std::endl;
-    throw;
-  }
+  END_AND_LOG_RPC_TIMER(filter_rpc, host_name);
+  DOCLIENT_LOG_STATUS(k_filter, status);
+  auto ret = std::make_shared<::vaultdb::TableID>();
+  ret.get()->CopyFrom(resp.tid());
+  return ret;
 }
-void * DataOwnerClient::FreeTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr) {
+
+void DataOwnerClient::FreeTable(
+    std::shared_ptr<const ::vaultdb::TableID> id_ptr) {
 
   ::vaultdb::FreeTableRequest req;
   ::vaultdb::FreeTableResponse resp;
@@ -234,22 +202,26 @@ void * DataOwnerClient::FreeTable(std::shared_ptr<const ::vaultdb::TableID> id_p
   auto t = req.mutable_tid();
   t->set_hostnum(id_ptr.get()->hostnum());
   t->set_tableid(id_ptr.get()->tableid());
+  START_TIMER(free_table_rpc);
   auto status = stub_->FreeTable(&context, req, &resp);
-  if (!status.ok()) {
-    throw;
-  }
+  END_AND_LOG_RPC_TIMER(free_table_rpc, host_name);
+  DOCLIENT_LOG_STATUS(client_free_table, status);
 }
 
-table_t * DataOwnerClient::GetTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr) {
-  // TODO(madhavsuresh): this is copy pasted code, this block should be refactored out.
+table_t *
+DataOwnerClient::GetTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr) {
+  // TODO(madhavsuresh): this is copy pasted code, this block should be
+  // refactored out.
   ::vaultdb::GetTableRequest req;
   ::vaultdb::GetTableResponse resp;
   ::grpc::ClientContext context;
-  table_t * t = nullptr;
+  table_t *t = nullptr;
   auto id = id_ptr.get();
 
   req.mutable_id()->CopyFrom(*id);
-  std::unique_ptr<::grpc::ClientReader<::vaultdb::GetTableResponse>> reader(stub_->GetTable(&context, req));
+  START_TIMER(get_table_rpc);
+  std::unique_ptr<::grpc::ClientReader<::vaultdb::GetTableResponse>> reader(
+      stub_->GetTable(&context, req));
   while (reader->Read(&resp)) {
     if (resp.is_header()) {
       t = allocate_table(resp.num_tuple_pages());
@@ -264,11 +236,8 @@ table_t * DataOwnerClient::GetTable(std::shared_ptr<const ::vaultdb::TableID> id
     }
   }
   auto status = reader->Finish();
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-  } else {
-    LOG(INFO) << "FAILURE";
-  }
+  END_AND_LOG_RPC_TIMER(get_table_rpc, host_name);
+  DOCLIENT_LOG_STATUS(get_table, status);
   if (t == nullptr) {
     throw;
   }
@@ -292,6 +261,7 @@ int DataOwnerClient::SendTable(table_t *t) {
 
   ::vaultdb::Schema *s = header.mutable_schema();
   table_schema_to_proto_schema(t, s);
+  START_TIMER(send_table_rpc);
   writer->Write(header);
 
   ::vaultdb::SendTableRequest pages;
@@ -303,17 +273,10 @@ int DataOwnerClient::SendTable(table_t *t) {
   }
   writer->WritesDone();
   ::grpc::Status status = writer->Finish();
+  END_AND_LOG_RPC_TIMER(send_table_rpc, host_name);
 
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "], num_tuples:[" << t->num_tuples
-              << "], num_pages: [" << t->num_tuple_pages << "]";
-    return resp.tableid();
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-    std::cerr << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    throw;
-  }
+  DOCLIENT_LOG_STATUS(send_table, status);
+  return resp.tableid();
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
@@ -326,18 +289,13 @@ DataOwnerClient::Sort(std::shared_ptr<const ::vaultdb::TableID> tid,
   auto t = req.mutable_tid();
   t->set_hostnum(tid.get()->hostnum());
   t->set_tableid(tid.get()->tableid());
+  START_TIMER(sort_rpc);
   auto status = stub_->KSort(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-    auto ret = std::make_shared<::vaultdb::TableID>();
-    ret.get()->CopyFrom(resp.tid());
-    return ret;
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-    std::cerr << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    throw;
-  }
+  END_AND_LOG_RPC_TIMER(sort_rpc, host_name);
+  DOCLIENT_LOG_STATUS(client_sort, status);
+  auto ret = std::make_shared<::vaultdb::TableID>();
+  ret.get()->CopyFrom(resp.tid());
+  return ret;
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
@@ -356,18 +314,13 @@ DataOwnerClient::Join(std::shared_ptr<const ::vaultdb::TableID> left_tid,
   auto r = req.mutable_right_tid();
   r->set_hostnum(right_tid.get()->hostnum());
   r->set_tableid(right_tid.get()->tableid());
+  START_TIMER(join_rpc_call);
   auto status = stub_->KJoin(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-    auto ret = std::make_shared<::vaultdb::TableID>();
-    ret.get()->CopyFrom(resp.tid());
-    return ret;
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-    std::cerr << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    throw;
-  }
+  END_AND_LOG_RPC_TIMER(join_rpc_call, host_name);
+  DOCLIENT_LOG_STATUS(client_join, status);
+  auto ret = std::make_shared<::vaultdb::TableID>();
+  ret.get()->CopyFrom(resp.tid());
+  return ret;
 }
 
 std::shared_ptr<const ::vaultdb::TableID>
@@ -380,16 +333,11 @@ DataOwnerClient::Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid,
   auto t = req.mutable_tid();
   t->set_hostnum(tid.get()->hostnum());
   t->set_tableid(tid.get()->tableid());
+  START_TIMER(aggregate_rpc);
   auto status = stub_->KAggregate(&context, req, &resp);
-  if (status.ok()) {
-    LOG(INFO) << "SUCCESS:->[" << host_num << "]";
-    auto ret = std::make_shared<::vaultdb::TableID>();
-    ret.get()->CopyFrom(resp.tid());
-    return ret;
-  } else {
-    LOG(INFO) << "FAIL:->[" << host_num << "]";
-    std::cerr << status.error_code() << ": " << status.error_message()
-              << std::endl;
-    throw;
-  }
+  END_AND_LOG_RPC_TIMER(aggregate_rpc, host_name);
+  DOCLIENT_LOG_STATUS(client_aggregate, status);
+  auto ret = std::make_shared<::vaultdb::TableID>();
+  ret.get()->CopyFrom(resp.tid());
+  return ret;
 }
