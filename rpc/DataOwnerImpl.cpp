@@ -59,8 +59,13 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
     table_ptrs.push_back(p->GetTable(request->tablefragments(i).tableid()));
   }
   START_TIMER(repart_step_two_inner);
-  std::vector<std::pair<int32_t, int32_t>> info =
-      repartition_step_two(table_ptrs, p->NumHosts(), p);
+  std::vector<std::pair<int32_t, int32_t>> info;
+  if (table_ptrs.size() == 0) {
+    LOG(DO_IMPL) << "Repartition Step Two, no input tables on host";
+  } else {
+    LOG(DO_IMPL) << "Repartition Step Two on #[" << table_ptrs.size() << "] tables";
+    info = repartition_step_two(table_ptrs, p->NumHosts(), p);
+  }
   END_TIMER(repart_step_two_inner);
 
   for (auto i : info) {
