@@ -82,7 +82,11 @@ void exp5(HonestBrokerPrivate *p) {
   to_gen_ld.scan_tables.insert(to_gen_ld.scan_tables.end(), scan.begin(),
                                scan.end());
   gen_in["left_deep_joins_1024"] = to_gen_ld;
+    LOG(EXEC) << "======Start Generalize====";
+  START_TIMER(generalize);
   auto gen_zipped_map = p->Generalize(gen_in, FLAGS_gen_level);
+  END_AND_LOG_EXEC_TIMER(generalize);
+  LOG(EXEC) << "======End Generalize====";
   auto gen_zipped = gen_zipped_map["left_deep_joins_1024"];
 
   p->SetControlFlowColName("b");
