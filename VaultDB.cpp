@@ -189,7 +189,7 @@ void aspirin_profile(HonestBrokerPrivate *p) {
   gbd.set_type(GroupByDef_GroupByType_AVG);
   gbd.set_col_name("pulse");
   gbd.add_gb_col_names("gender");
-  gbd.add_gb_col_names("pulse");
+  gbd.add_gb_col_names("race");
   auto final_avg = p->Aggregate(out_pd_join, gbd);
 }
 
