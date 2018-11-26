@@ -97,6 +97,28 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   LOG(DO_IMPL) << "Repartition Step One OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
+
+void log_gen_zip(table_t * zipped, int colno) {
+  map<int, int> counter;
+  for (int i = 0; i < zipped->num_tuples; i++) {
+    counter[get_tuple(i, zipped)->field_list[colno].f.int_field.genval]++;
+  }
+  int max_val = 0;
+  int min_val = 100000;
+  int num_classes = 0;
+  for (auto &i : counter) {
+    num_classes++;
+    if (max_val < i.second) {
+      max_val = i.second;
+    }
+    if (min_val > i.second) {
+      min_val = i.second;
+    }
+  }
+  LOG(STATS) << "Gen Stats: MIN:[" << min_val << "], MAX:[" << max_val
+             << "] AVG:[" << (double)zipped->num_tuples / num_classes << "]";
+
+}
 ::grpc::Status
 DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
                              const ::vaultdb::GeneralizeZipRequest *request,
@@ -107,6 +129,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
   START_TIMER(gen_zip_inner);
   table_t *output_table = generalize_zip(
       scan_table, gen_table, colno_from_name(scan_table, request->colname()));
+  log_gen_zip(output_table, colno_from_name(scan_table, request->colname()));
   END_TIMER(gen_zip_inner);
 
   auto tid = response->mutable_generalizedscantable();
