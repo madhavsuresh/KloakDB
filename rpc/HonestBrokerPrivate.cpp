@@ -87,7 +87,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     auto query = count_star_query(table.first, column);
     auto dbname = table.second.dbname;
     for (int i = 0; i < this->num_hosts; i++) {
-      auto tid = this->DBMSQuery(i, "dbname=" + dbname, column);
+      auto tid = this->DBMSQuery(i, "dbname=" + dbname, query);
       tids.push_back(tid);
     }
     vector<pair<hostnum, table_t *>> count_tables;
