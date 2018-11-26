@@ -79,3 +79,50 @@ TEST_F(gen_test, left_deep) {
   }
   log_gen_stats(i);
 }
+
+TEST_F(gen_test, new_gen) {
+  table_t * t = get_table("SELECT b, count(b) FROM left_deep_joins_1024 group by b order by b asc", "dbname=vaultdb_");
+  table_t * actual_table = get_table("SELECT * FROM left_deep_joins_1024;", "dbname=vaultdb_");
+  std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+          tables;
+  tables["one"].emplace_back(0,t);
+  //tables["one"].emplace_back(1,t);
+  //jtables["two"].emplace_back(0,t);
+  //tables["two"].emplace_back(1,t);
+  auto out = generalize_table(tables, 2, 6);
+  printf("NUM TUPLES %d", out->num_tuples);
+  for (int i = 0; i < out->num_tuples; i++) {
+    if (get_tuple(i, out)->field_list[0].f.int_field.val != i) {
+      printf("\nWHAT %d", i);
+    }
+    //std::cout << tuple_string(get_tuple(i, out)) << std::endl;
+  }
+  auto zipped = generalize_zip(actual_table, out, colno_from_name(actual_table, "b"));
+  map<int, int> counter;
+  for (int i = 0; i < zipped->num_tuples; i++) {
+    counter[get_tuple(i, zipped)->field_list[1].f.int_field.genval]++;
+    if (get_tuple(i, zipped)->field_list[1].f.int_field.genval == 9993) {
+      std::cout << tuple_string(get_tuple(i, zipped)) << std::endl;
+    }
+  }
+  int max_val = 0;
+  int min_val = 100000;
+  int num_classes = 0;
+  for (auto &i : counter) {
+    num_classes++;
+    if (max_val < i.second) {
+      max_val = i.second;
+    }
+    if (min_val > i.second) {
+      min_val = i.second;
+    }
+    if (i.second == 891) {
+      printf("\n891: %d", i.first);
+    }
+    if (i.second == 1) {
+
+      printf("\n1: %d", i.first);
+    }
+  }
+  printf("\nMIN: %d, MAX: %d, AVG: %f", min_val, max_val, (double)zipped->num_tuples/num_classes);
+}
