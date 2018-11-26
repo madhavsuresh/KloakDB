@@ -97,7 +97,9 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     }
     gen_input[table.first] = count_tables;
   }
+  START_TIMER(generalize_inner);
   table_t *gen_map = generalize_table(gen_input, num_hosts, gen_level);
+  END_AND_LOG_TIMER(generalize_inner);
   log_gen_stats(gen_map);
 
   for (int i = 0; i < num_hosts; i++) {
