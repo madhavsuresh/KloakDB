@@ -39,6 +39,7 @@ DEFINE_string(cdiff_cohort_diag_table, "cdiff_cohort_diagnoses",
 DEFINE_string(logger_host_name, "guinea-pig.cs.northwestern.edu:60000",
               "port for logger");
 DEFINE_string(host_short, "vaultdb", "short host name");
+DEFINE_bool(sgx, false, "Use SGX for queries");
 
 using namespace std;
 using namespace vaultdb;
@@ -100,33 +101,27 @@ void exp5(HonestBrokerPrivate *p) {
   p1->set_side(JoinColID_RelationSide_LEFT);
   LOG(EXEC) << "======Start Join 1====";
   START_TIMER(join1);
-  auto out1 = p->Join(to_join1, jd, false);
+  auto out1 = p->Join(to_join1, jd, FLAGS_sgx);
   END_AND_LOG_EXEC_TIMER(join1);
   LOG(EXEC) << "======END Join 1====";
   auto to_join2 = zip_join_tables(repart, out1);
   LOG(EXEC) << "======Start Join 2====";
   START_TIMER(join2);
-  auto out2 = p->Join(to_join2, jd, false);
+  auto out2 = p->Join(to_join2, jd, FLAGS_sgx);
   END_AND_LOG_EXEC_TIMER(join2);
   LOG(EXEC) << "======END Join 2====";
   auto to_join3 = zip_join_tables(repart, out2);
-  /*
   LOG(EXEC) << "======Start Join 3====";
   START_TIMER(join3);
-  */
-  // auto out3 = p->Join(to_join3, jd, false /* in_sgx */);
-  /*
+  auto out3 = p->Join(to_join3, jd, FLAGS_sgx);
   END_AND_LOG_EXEC_TIMER(join3);
   LOG(EXEC) << "======END Join 3====";
   auto to_join4 = zip_join_tables(repart, out3);
   LOG(EXEC) << "======Start Join 4====";
   START_TIMER(join4);
-  */
-  // auto out4 = p->Join(to_join4, jd, false /* in_sgx */);
-  /*
+  auto out4 = p->Join(to_join4, jd, FLAGS_sgx);
   END_AND_LOG_EXEC_TIMER(join4);
   LOG(EXEC) << "======END Join 4====";
-  */
 }
 
 void aspirin_profile(HonestBrokerPrivate *p) {
