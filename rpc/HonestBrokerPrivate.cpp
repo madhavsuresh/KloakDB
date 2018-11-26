@@ -175,7 +175,7 @@ int HonestBrokerPrivate::RegisterHost(string hostName) {
 
 vector<tableid_ptr> HonestBrokerPrivate::ClusterDBMSQuery(string dbname,
                                                           string query) {
-  LOG(HB_P) << "Querying: " + query;
+  LOG(HB_P) << "Cluster Querying: " + query;
   vector<tableid_ptr> queried_tables;
   for (int i = 0; i < num_hosts; i++) {
     queried_tables.emplace_back(DBMSQuery(i, dbname, query));
@@ -185,7 +185,7 @@ vector<tableid_ptr> HonestBrokerPrivate::ClusterDBMSQuery(string dbname,
 
 tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
                                            string query) {
-
+  LOG(HB_P) << "Point Querying: " + query;
   return this->do_clients[host_num]->DBMSQuery(dbname, query);
 }
 

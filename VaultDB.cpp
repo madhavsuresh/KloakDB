@@ -78,9 +78,9 @@ void exp5(HonestBrokerPrivate *p) {
   to_gen_t to_gen_ld;
   to_gen_ld.column = "b";
   to_gen_ld.dbname = "vaultdb_";
-  to_gen_ld.scan_tables.insert(to_gen_ld.scan_tables.end(), scan.begin(), scan.end());
+  to_gen_ld.scan_tables.insert(to_gen_ld.scan_tables.end(), scan.begin(),
+                               scan.end());
   gen_in["left_deep_joins_1024"] = to_gen_ld;
-  /*
   auto gen_zipped_map =
       p->Generalize(gen_in, FLAGS_gen_level);
   auto gen_zipped = gen_zipped_map["lef_deep_joins_1024"];
@@ -101,7 +101,7 @@ void exp5(HonestBrokerPrivate *p) {
   p1->set_side(JoinColID_RelationSide_LEFT);
   LOG(EXEC) << "======Start Join 1====";
   START_TIMER(join1);
-  //auto out1 = p->Join(to_join1, jd, true );
+  auto out1 = p->Join(to_join1, jd, true );
   END_AND_LOG_EXEC_TIMER(join1);
   LOG(EXEC) << "======END Join 1====";
   auto to_join2 = zip_join_tables(repart, out1);
@@ -111,12 +111,11 @@ void exp5(HonestBrokerPrivate *p) {
   END_AND_LOG_EXEC_TIMER(join2);
   LOG(EXEC) << "======END Join 2====";
   auto to_join3 = zip_join_tables(repart, out2);
-  */
   /*
   LOG(EXEC) << "======Start Join 3====";
   START_TIMER(join3);
   */
-  //auto out3 = p->Join(to_join3, jd, false /* in_sgx */);
+  // auto out3 = p->Join(to_join3, jd, false /* in_sgx */);
   /*
   END_AND_LOG_EXEC_TIMER(join3);
   LOG(EXEC) << "======END Join 3====";
@@ -124,7 +123,7 @@ void exp5(HonestBrokerPrivate *p) {
   LOG(EXEC) << "======Start Join 4====";
   START_TIMER(join4);
   */
-  //auto out4 = p->Join(to_join4, jd, false /* in_sgx */);
+  // auto out4 = p->Join(to_join4, jd, false /* in_sgx */);
   /*
   END_AND_LOG_EXEC_TIMER(join4);
   LOG(EXEC) << "======END Join 4====";
