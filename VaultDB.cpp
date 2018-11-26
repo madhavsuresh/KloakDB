@@ -82,7 +82,7 @@ void exp5(HonestBrokerPrivate *p) {
                                scan.end());
   gen_in["left_deep_joins_1024"] = to_gen_ld;
   auto gen_zipped_map = p->Generalize(gen_in, FLAGS_gen_level);
-  auto gen_zipped = gen_zipped_map["lef_deep_joins_1024"];
+  auto gen_zipped = gen_zipped_map["left_deep_joins_1024"];
 
   p->SetControlFlowColName("b");
   LOG(EXEC) << "======Start Repartition====";
