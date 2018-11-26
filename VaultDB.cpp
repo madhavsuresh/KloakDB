@@ -100,13 +100,13 @@ void exp5(HonestBrokerPrivate *p) {
   p1->set_side(JoinColID_RelationSide_LEFT);
   LOG(EXEC) << "======Start Join 1====";
   START_TIMER(join1);
-  auto out1 = p->Join(to_join1, jd, true);
+  auto out1 = p->Join(to_join1, jd, false);
   END_AND_LOG_EXEC_TIMER(join1);
   LOG(EXEC) << "======END Join 1====";
   auto to_join2 = zip_join_tables(repart, out1);
   LOG(EXEC) << "======Start Join 2====";
   START_TIMER(join2);
-  auto out2 = p->Join(to_join2, jd, true);
+  auto out2 = p->Join(to_join2, jd, false);
   END_AND_LOG_EXEC_TIMER(join2);
   LOG(EXEC) << "======END Join 2====";
   auto to_join3 = zip_join_tables(repart, out2);
