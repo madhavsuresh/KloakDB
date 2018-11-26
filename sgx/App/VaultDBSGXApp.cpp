@@ -53,7 +53,6 @@ int load_table_into_sgx(sgx_enclave_id_t eid, table_manager_t *tm, table_t * t) 
   LOG(SGX) << "ecall_load_table";
   ecall_load_table(eid, tm, t, sizeof(table_t), &table_id);
   for (uint64_t i = 0; i < t->num_tuple_pages; i++) {
-    LOG(SGX) << "ecall_load_tuple_page";
     ecall_load_tuple_page(eid, tm, table_id, i, t->tuple_pages[i], PAGE_SIZE);
   }
   END_AND_LOG_SGX_TIMER(load_table);
