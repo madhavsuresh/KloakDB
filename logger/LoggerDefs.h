@@ -7,6 +7,7 @@
 #include <g3log/g3log.hpp>
 
 const LEVELS STATS{INFO.value - 1, "STATS"};
+const LEVELS HB_P{INFO.value+2, "HB-P"};
 const LEVELS RPC_STATS{INFO.value + 1, "RPC-STATS"};
 const LEVELS DO_CLIE{INFO.value + 40, "DO-CLIE"};
 const LEVELS DO_CLIE_FATAL{INFO.value + 41, "DO-CLIE-FATAL"};
