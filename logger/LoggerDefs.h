@@ -18,6 +18,7 @@ const LEVELS SGX_FATAL {INFO.value + 12, "SGX-FATAL"};
 const LEVELS OP {INFO.value + 30, "OP"};
 const LEVELS EXEC {INFO.value-50, "EXEC"};
 const LEVELS EXEC_STATS {INFO.value-50, "EXEC-STATS"};
+const LEVELS EXP_DATA {INFO.value- 51, "EXP-DATA"};
 
 #define START_TIMER(timer_name)                                                \
   auto start_##timer_name = std::chrono::high_resolution_clock::now()
@@ -33,6 +34,13 @@ const LEVELS EXEC_STATS {INFO.value-50, "EXEC-STATS"};
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
   LOG(SGX_STATS) << #timer_name << ": ["                               \
+             << elapsed_##timer_name.count() << "s]"
+
+
+#define LOG_EXP_TIMER(timer_name) \
+  std::chrono::duration<double> elapsed_##timer_name =                         \
+      end_##timer_name - start_##timer_name;                                   \
+  LOG(EXP_DATA) << #timer_name << ": ["                               \
              << elapsed_##timer_name.count() << "s]"
 
 #define LOG_EXEC_TIMER(timer_name) \
@@ -51,6 +59,12 @@ const LEVELS EXEC_STATS {INFO.value-50, "EXEC-STATS"};
   do {                                                                         \
     END_TIMER(timer_name);                                                     \
     LOG_TIMER(timer_name);                                                     \
+  } while (0)
+
+#define END_AND_LOG_EXP_TIMER(timer_name)                                          \
+  do {                                                                         \
+    END_TIMER(timer_name);                                                     \
+    LOG_EXP_TIMER(timer_name);                                                     \
   } while (0)
 
 #define END_AND_LOG_RPC_TIMER(timer_name, hostname)                                          \

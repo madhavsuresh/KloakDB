@@ -8,6 +8,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "logger/LoggerDefs.h"
 
 // this is here just to make the host table repartitioning a little bit easier.
 #define MAX_NUM_HOSTS 32
@@ -30,10 +31,13 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   std::map<int, table_t *> partition_map;
   std::map<int, std::vector<int>> rand_assignment;
   std::vector<HostIDPair> host_and_ID;
+  START_TIMER(repart_one_shuffle_assign);
   for (int i = 0; i < t->num_tuples; i++) {
     rand_assignment[std::rand() % num_hosts].push_back(i);
   }
+  END_AND_LOG_EXEC_TIMER(repart_one_shuffle_assign);
 
+  START_TIMER(repart_one_data_movement);
   for (auto it = rand_assignment.begin(); it != rand_assignment.end(); it++) {
     int host = it->first;
     std::vector<int> index_lst = it->second;
@@ -50,6 +54,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
     }
     host_and_ID.push_back(std::make_pair(host, id));
   }
+  END_AND_LOG_EXP_TIMER(repart_one_data_movement);
   return host_and_ID;
 }
 
@@ -131,6 +136,7 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
                        &tables[0]->schema, &host_tb[i]);
   }
 
+  START_TIMER(repart_two_hashing);
   ::vaultdb::ControlFlowColumn control_flow_col = p->GetControlFlowColID();
   for (auto t : tables) {
     for (int i = 0; i < t->num_tuples; i++) {
@@ -138,12 +144,14 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
       append_tuple(&host_tb[host], get_tuple(i, t));
     }
   }
+  END_AND_LOG_EXP_TIMER(repart_two_hashing);
 
   std::vector<HostIDPair> host_and_ID;
   int myid = p->AddTable(host_tb[p->HostNum()].table);
   host_and_ID.push_back(std::make_pair(p->HostNum(), myid));
 
   vector<std::future<HostIDPair>> threads_send;
+  START_TIMER(repart_two_data_movement);
   for (int i = 0; i < num_hosts; i++) {
     // TODO(madhavsuresh): need to send all of these IDs over to HB after step
     // two so that way tables can be coalesced
@@ -159,6 +167,7 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   for (auto &h : threads_send) {
     host_and_ID.push_back(h.get());
   }
+  END_AND_LOG_EXP_TIMER(repart_two_data_movement);
   for (int i = 0; i < num_hosts; i++) {
     if (i != p->HostNum()) {
       free_table(host_tb[i].table);
