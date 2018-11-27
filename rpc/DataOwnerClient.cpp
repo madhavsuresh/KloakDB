@@ -175,12 +175,13 @@ DataOwnerClient::GenZip(std::shared_ptr<const ::vaultdb::TableID> gen_map,
 
 std::shared_ptr<const ::vaultdb::TableID>
 DataOwnerClient::Filter(std::shared_ptr<const ::vaultdb::TableID> tid,
-                        ::vaultdb::Expr expr) {
+                        ::vaultdb::Expr expr, bool in_sgx) {
   ::vaultdb::KFilterRequest req;
   ::vaultdb::KFilterResponse resp;
   ::grpc::ClientContext context;
 
   req.mutable_expr()->CopyFrom(expr);
+  req.set_in_sgx(in_sgx);
   auto t = req.mutable_tid();
   t->set_hostnum(tid.get()->hostnum());
   t->set_tableid(tid.get()->tableid());
@@ -281,12 +282,13 @@ int DataOwnerClient::SendTable(table_t *t) {
 
 std::shared_ptr<const ::vaultdb::TableID>
 DataOwnerClient::Sort(std::shared_ptr<const ::vaultdb::TableID> tid,
-                      ::vaultdb::SortDef sort) {
+                      ::vaultdb::SortDef sort, bool in_sgx) {
   ::vaultdb::KSortRequest req;
   ::vaultdb::KSortResponse resp;
   ::grpc::ClientContext context;
   req.mutable_sortdef()->CopyFrom(sort);
   auto t = req.mutable_tid();
+  req.set_in_sgx(in_sgx);
   t->set_hostnum(tid.get()->hostnum());
   t->set_tableid(tid.get()->tableid());
   START_TIMER(sort_rpc);
@@ -325,11 +327,12 @@ DataOwnerClient::Join(std::shared_ptr<const ::vaultdb::TableID> left_tid,
 
 std::shared_ptr<const ::vaultdb::TableID>
 DataOwnerClient::Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid,
-                           ::vaultdb::GroupByDef groupby) {
+                           ::vaultdb::GroupByDef groupby, bool in_sgx) {
   ::vaultdb::KAggregateRequest req;
   ::vaultdb::KAggregateResponse resp;
   ::grpc::ClientContext context;
   req.mutable_def()->CopyFrom(groupby);
+  req.set_in_sgx(in_sgx);
   auto t = req.mutable_tid();
   t->set_hostnum(tid.get()->hostnum());
   t->set_tableid(tid.get()->tableid());

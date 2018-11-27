@@ -44,14 +44,14 @@ public:
   shared_ptr<const TableID> Coalesce(int host_num,
                                      vector<shared_ptr<const TableID>> tables);
   vector<shared_ptr<const TableID>>
-  Filter(vector<shared_ptr<const TableID>> &ids, Expr &expr);
+  Filter(vector<shared_ptr<const TableID>> &ids, Expr &expr, bool in_sgx);
   vector<shared_ptr<const TableID>> Sort(vector<shared_ptr<const TableID>> &ids,
-                                         SortDef &sort);
+                                         SortDef &sort, bool in_sgx);
   vector<shared_ptr<const TableID>>
   Join(vector<pair<shared_ptr<const TableID>, shared_ptr<const TableID>>> &ids,
        JoinDef &join, bool in_sgx);
   vector<shared_ptr<const TableID>>
-  Aggregate(vector<shared_ptr<const TableID>> &ids, GroupByDef &groupby);
+  Aggregate(vector<shared_ptr<const TableID>> &ids, GroupByDef &groupby, bool in_sgx);
   ControlFlowColumn GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
   void SetControlFlowColName(string name);

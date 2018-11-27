@@ -27,7 +27,7 @@ public:
   table_t *GetTable(shared_ptr<const TableID> id_ptr);
   void FreeTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr);
 
-  shared_ptr<const TableID> Filter(shared_ptr<const TableID>, Expr);
+  shared_ptr<const TableID> Filter(shared_ptr<const TableID>, Expr, bool in_sgx);
   vector<shared_ptr<const TableID>>
   RepartitionStepOne(shared_ptr<const TableID> tid);
   vector<shared_ptr<const TableID>>
@@ -35,10 +35,10 @@ public:
   shared_ptr<const TableID>
   CoalesceTables(vector<shared_ptr<const TableID>> &tables);
 
-  shared_ptr<const TableID> Sort(shared_ptr<const TableID> tid, SortDef sort);
+  shared_ptr<const TableID> Sort(shared_ptr<const TableID> tid, SortDef sort,bool in_sgx);
 
   shared_ptr<const TableID> Aggregate(shared_ptr<const TableID> tid,
-                                      GroupByDef groupby);
+                                      GroupByDef groupby, bool in_sgx);
   shared_ptr<const TableID> Join(shared_ptr<const TableID> left_tid,
                                  shared_ptr<const TableID> right_tid,
                                  JoinDef join, bool in_sgx);

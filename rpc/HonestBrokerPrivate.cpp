@@ -251,12 +251,12 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
 }
 
 vector<tableid_ptr> HonestBrokerPrivate::Filter(vector<tableid_ptr> &ids,
-                                                ::vaultdb::Expr &expr) {
+                                                ::vaultdb::Expr &expr, bool in_sgx) {
 
   vector<tableid_ptr> filtered_tables;
   for (auto &i : ids) {
     filtered_tables.emplace_back(
-        do_clients[i.get()->hostnum()]->Filter(i, expr));
+        do_clients[i.get()->hostnum()]->Filter(i, expr, in_sgx));
   }
   return filtered_tables;
 }
@@ -280,21 +280,21 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
 }
 
 vector<tableid_ptr> HonestBrokerPrivate::Sort(vector<tableid_ptr> &ids,
-                                              ::vaultdb::SortDef &sort) {
+                                              ::vaultdb::SortDef &sort, bool in_sgx) {
   vector<tableid_ptr> sorted_tables;
   for (auto &i : ids) {
-    sorted_tables.emplace_back(do_clients[i.get()->hostnum()]->Sort(i, sort));
+    sorted_tables.emplace_back(do_clients[i.get()->hostnum()]->Sort(i, sort, in_sgx));
   }
   return sorted_tables;
 }
 
 vector<tableid_ptr>
 HonestBrokerPrivate::Aggregate(vector<tableid_ptr> &ids,
-                               ::vaultdb::GroupByDef &groupby) {
+                               ::vaultdb::GroupByDef &groupby, bool in_sgx) {
   vector<tableid_ptr> aggregate_tables;
   for (auto &i : ids) {
     aggregate_tables.emplace_back(
-        do_clients[i.get()->hostnum()]->Aggregate(i, groupby));
+        do_clients[i.get()->hostnum()]->Aggregate(i, groupby, in_sgx));
   }
   return aggregate_tables;
 }
