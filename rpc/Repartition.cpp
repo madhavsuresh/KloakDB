@@ -61,11 +61,11 @@ uint32_t hash_field_to_int_sgx(field_t f) {
   } out;
   switch (f.type) {
     case FIXEDCHAR: {
-      sgx_sha256_msg(reinterpret_cast<uint8_t *>(f.f.fixed_char_field.val), FIXEDCHAR_LEN, &hash);
+      sgx_sha256_msg(reinterpret_cast<uint8_t *>(&f.f.fixed_char_field.val), FIXEDCHAR_LEN, &hash);
       break;
     }
     case INT: {
-      sgx_sha256_msg(reinterpret_cast<uint8_t *>(f.f.int_field.genval), 8, &hash);
+      sgx_sha256_msg(reinterpret_cast<uint8_t *>(&f.f.int_field.genval), 8, &hash);
       break;
     }
   }
