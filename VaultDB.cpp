@@ -18,6 +18,7 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
 #include "test/experiments/exp5.h"
+#include "test/experiments/exp3.h"
 #include <thread>
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
@@ -224,7 +225,7 @@ int main(int argc, char **argv) {
       break;
     }
     case 3: {
-
+      exp3(p);
       break;
     }
     case 4: {

@@ -205,14 +205,8 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
 
   map<int, vector<tableid_ptr>> hashed_table_fragments;
   START_TIMER(repartition_step_two_outer_private);
-  vector<promise<vector<tableid_ptr>>> promises;
-  // promises.assign(num_hosts, promise<vector<tableid_ptr>>());
-  vector<future<vector<tableid_ptr>>> futures;
-  for (int i = 0; i < num_hosts; i++) {
-    futures[i] = promises[i].get_future();
-  }
-  vector<std::future<vector<tableid_ptr>>> threads;
 
+  vector<std::future<vector<tableid_ptr>>> threads;
   for (int i = 0; i < num_hosts; i++) {
     threads.push_back(std::async(std::launch::async,
                                  &HonestBrokerPrivate::RepartitionStepTwo, this,
