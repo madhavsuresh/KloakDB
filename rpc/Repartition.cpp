@@ -7,6 +7,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <future>
 
 // this is here just to make the host table repartitioning a little bit easier.
 #define MAX_NUM_HOSTS 32
@@ -44,7 +45,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
       LOG(INFO) << "Adding self partitioned table from repartition";
       id = p->AddTable(output_table);
     } else {
-      id = p->SendTable(host, output_table);
+      id = std::get<1>(p->SendTable(host, output_table));
       free_table(output_table);
     }
     host_and_ID.push_back(std::make_pair(host, id));
@@ -135,19 +136,25 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   }
 
   std::vector<HostIDPair> host_and_ID;
+  int myid = p->AddTable(host_tb[p->HostNum()].table);
+  host_and_ID.push_back(std::make_pair(p->HostNum(), myid));
+
+  vector<std::future<HostIDPair>> threads_send;
   for (int i = 0; i < num_hosts; i++) {
     // TODO(madhavsuresh): need to send all of these IDs over to HB after step
     // two so that way tables can be coalesced
-    LOG(INFO) << "Sending to host [" << i << "]";
-    int id;
     if (i == p->HostNum()) {
-      id = p->AddTable(host_tb[i].table);
-    } else {
-      id = p->SendTable(i, host_tb[i].table);
-      free_table(host_tb[i].table);
+      continue;
+   } else {
+      threads_send.push_back(std::async(std::launch::async, &DataOwnerPrivate::SendTable,p, i, host_tb[i].table));
     }
+  }
 
-    host_and_ID.push_back(std::make_pair(i, id));
+  for (auto &h : threads_send) {
+    host_and_ID.push_back(h.get());
+  }
+  for (int i = 0; i < num_hosts; i++) {
+    free_table(host_tb[i].table);
   }
   return host_and_ID;
 }

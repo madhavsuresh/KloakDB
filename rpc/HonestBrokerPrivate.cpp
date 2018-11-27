@@ -238,8 +238,9 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
   vector<std::future<tableid_ptr>> threads_coalesced;
   START_TIMER(repartition_coalesce_outer_private);
   for (int i = 0; i < num_hosts; i++) {
-    threads_coalesced.push_back(std::async(std::launch::async, &HonestBrokerPrivate::Coalesce,
-            this, i, hashed_table_fragments[i]));
+    threads_coalesced.push_back(std::async(std::launch::async,
+                                           &HonestBrokerPrivate::Coalesce, this,
+                                           i, hashed_table_fragments[i]));
   }
   for (auto &f : threads_coalesced) {
     auto out = f.get();

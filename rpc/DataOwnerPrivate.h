@@ -20,7 +20,7 @@ public:
   int NumHosts();
   void Register();
   int AddTable(table_t *t);
-  int SendTable(int worker_host_num, table_t *t);
+  std::pair<int,int> SendTable(int worker_host_num, table_t *t);
   void SetDataOwnerClient(int host_num, std::string host_name);
   void DeleteDataOwnerClient(int host_num);
   void FreeTable(int i);
