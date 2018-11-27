@@ -1,13 +1,13 @@
-#include "sgx_tcrypto.h"
-#include "hash/picosha2.h"
 #include "data/postgres_client.h"
+#include "hash/picosha2.h"
 #include "rpc/DataOwnerPrivate.h"
+#include "sgx_tcrypto.h"
 #include <cstdlib>
 #include <ctime>
+#include <future>
 #include <iostream>
 #include <map>
 #include <vector>
-#include <future>
 
 // this is here just to make the host table repartitioning a little bit easier.
 #define MAX_NUM_HOSTS 32
@@ -57,18 +57,20 @@ uint32_t hash_field_to_int_sgx(field_t f) {
 
   sgx_sha256_hash_t hash;
   union {
-      uint32_t u;
-      unsigned char u8[sizeof(uint32_t)];
+    uint32_t u;
+    unsigned char u8[sizeof(uint32_t)];
   } out;
   switch (f.type) {
-    case FIXEDCHAR: {
-      sgx_sha256_msg(reinterpret_cast<uint8_t *>(&f.f.fixed_char_field.val), FIXEDCHAR_LEN, &hash);
-      break;
-    }
-    case INT: {
-      sgx_sha256_msg(reinterpret_cast<uint8_t *>(&f.f.int_field.genval), 8, &hash);
-      break;
-    }
+  case FIXEDCHAR: {
+    sgx_sha256_msg(reinterpret_cast<uint8_t *>(&f.f.fixed_char_field.val),
+                   FIXEDCHAR_LEN, &hash);
+    break;
+  }
+  case INT: {
+    sgx_sha256_msg(reinterpret_cast<uint8_t *>(&f.f.int_field.genval), 8,
+                   &hash);
+    break;
+  }
   }
   out.u8[0] = hash[0];
   out.u8[1] = hash[1];
@@ -91,7 +93,8 @@ uint32_t hash_field_to_int(field_t f) {
     break;
   }
   case INT: {
-    std::vector<unsigned char> input(f.f.int_field.genval, f.f.int_field.genval + 8);
+    std::vector<unsigned char> input(f.f.int_field.genval,
+                                     f.f.int_field.genval + 8);
     picosha2::hash256(input.begin(), input.end(), hash.begin(), hash.end());
     break;
   }
@@ -103,7 +106,8 @@ uint32_t hash_field_to_int(field_t f) {
   return out.u;
 }
 
-int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t, table_t * table) {
+int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t,
+                 table_t *table) {
   int col_no = colno_from_name(table, cf.cf_name());
   uint32_t i = hash_field_to_int_sgx(t->field_list[col_no]);
   return i % num_hosts;
@@ -145,8 +149,10 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     // two so that way tables can be coalesced
     if (i == p->HostNum()) {
       continue;
-   } else {
-      threads_send.push_back(std::async(std::launch::async, &DataOwnerPrivate::SendTable,p, i, host_tb[i].table));
+    } else {
+      threads_send.push_back(std::async(std::launch::async,
+                                        &DataOwnerPrivate::SendTable, p, i,
+                                        host_tb[i].table));
     }
   }
 
@@ -154,7 +160,9 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     host_and_ID.push_back(h.get());
   }
   for (int i = 0; i < num_hosts; i++) {
-    free_table(host_tb[i].table);
+    if (i != p->HostNum()) {
+      free_table(host_tb[i].table);
+    }
   }
   return host_and_ID;
 }
