@@ -8,6 +8,7 @@
 #include "DataOwnerClient.h"
 #include "InfoPrivate.h"
 #include "operators/Generalize.h"
+#include <future>
 #include <map>
 #include <mutex>
 #include <string>
@@ -20,9 +21,9 @@ typedef string column;
 typedef string dbname;
 
 typedef struct to_gen {
-    string column;
-    string dbname;
-    vector<tableid_ptr> scan_tables;
+  string column;
+  string dbname;
+  vector<tableid_ptr> scan_tables;
 } to_gen_t;
 
 class HonestBrokerPrivate : public InfoPrivate {
@@ -58,8 +59,8 @@ public:
   vector<shared_ptr<const TableID>>
   Generalize(string table_name, string column, string dbname,
              vector<shared_ptr<const TableID>> scanned_tables, int gen_level);
-    unordered_map<table_name,vector<tableid_ptr>>
-    Generalize(unordered_map<table_name, to_gen_t> in, int gen_level);
+  unordered_map<table_name, vector<tableid_ptr>>
+  Generalize(unordered_map<table_name, to_gen_t> in, int gen_level);
   vector<shared_ptr<const TableID>> ClusterDBMSQuery(string dbname,
                                                      string query);
   shared_ptr<const TableID> DBMSQuery(int host_num, string dbname,

@@ -1,4 +1,4 @@
-add_executable(aspirin_profile_test aspirin_profile_test.cpp)
+add_executable(aspirin_profile_test aspirin_profile_test.cpp exp3.cpp)
 target_link_libraries(aspirin_profile_test gtest_main profiler operators dataformat pqxxcompat)
 add_test(NAME aspirin_profile_test COMMAND aspirin_profile_test)
 

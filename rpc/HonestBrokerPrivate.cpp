@@ -3,6 +3,7 @@
 //
 
 #include "HonestBrokerPrivate.h"
+#include <future>
 #include <gflags/gflags.h>
 #include <logger/LoggerDefs.h>
 
@@ -193,26 +194,46 @@ tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
 
 vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
   map<int, vector<tableid_ptr>> table_fragments;
+  START_TIMER(repartition_step_one_outer_private);
   for (auto id : ids) {
     auto k = RepartitionStepOne(id);
     for (auto j : k) {
       table_fragments[j.get()->hostnum()].emplace_back(j);
     }
   }
+  END_AND_LOG_TIMER(repartition_step_one_outer_private);
 
   map<int, vector<tableid_ptr>> hashed_table_fragments;
+  START_TIMER(repartition_step_two_outer_private);
+  vector<promise<vector<tableid_ptr>>> promises;
+  // promises.assign(num_hosts, promise<vector<tableid_ptr>>());
+  vector<future<vector<tableid_ptr>>> futures;
   for (int i = 0; i < num_hosts; i++) {
-    auto out = RepartitionStepTwo(i, table_fragments[i]);
+    futures[i] = promises[i].get_future();
+  }
+  vector<std::future<vector<tableid_ptr>>> threads;
+
+  for (int i = 0; i < num_hosts; i++) {
+    threads.push_back(std::async(std::launch::async,
+                                 &HonestBrokerPrivate::RepartitionStepTwo, this,
+                                 i, table_fragments[i]));
+  }
+  for (auto &f : threads) {
+    auto out = f.get();
     for (auto j : out) {
       hashed_table_fragments[j.get()->hostnum()].emplace_back(j);
     }
   }
 
+  END_AND_LOG_TIMER(repartition_step_two_outer_private);
+
   vector<tableid_ptr> coalesced_tables;
+  START_TIMER(repartition_coalesce_outer_private);
   for (int i = 0; i < num_hosts; i++) {
     tableid_ptr tmp = Coalesce(i, hashed_table_fragments[i]);
     coalesced_tables.emplace_back(tmp);
   }
+  END_AND_LOG_TIMER(repartition_coalesce_outer_private);
   return coalesced_tables;
 }
 
