@@ -1,4 +1,4 @@
-//#include "sgx_tcrypto.h"
+#include "sgx_tcrypto.h"
 #include "hash/picosha2.h"
 #include "data/postgres_client.h"
 #include "rpc/DataOwnerPrivate.h"
@@ -52,6 +52,30 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   return host_and_ID;
 }
 
+uint32_t hash_field_to_int_sgx(field_t f) {
+
+  sgx_sha256_hash_t hash;
+  union {
+      uint32_t u;
+      unsigned char u8[sizeof(uint32_t)];
+  } out;
+  switch (f.type) {
+    case FIXEDCHAR: {
+      sgx_sha256_msg(reinterpret_cast<uint8_t *>(f.f.fixed_char_field.val), FIXEDCHAR_LEN, &hash);
+      break;
+    }
+    case INT: {
+      sgx_sha256_msg(reinterpret_cast<uint8_t *>(f.f.int_field.genval), 8, &hash);
+      break;
+    }
+  }
+  out.u8[0] = hash[0];
+  out.u8[1] = hash[1];
+  out.u8[2] = hash[2];
+  out.u8[3] = hash[4];
+  return out.u;
+}
+
 uint32_t hash_field_to_int(field_t f) {
   std::vector<unsigned char> hash(picosha2::k_digest_size);
   union {
@@ -80,7 +104,7 @@ uint32_t hash_field_to_int(field_t f) {
 
 int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t, table_t * table) {
   int col_no = colno_from_name(table, cf.cf_name());
-  uint32_t i = hash_field_to_int(t->field_list[col_no]);
+  uint32_t i = hash_field_to_int_sgx(t->field_list[col_no]);
   return i % num_hosts;
 }
 

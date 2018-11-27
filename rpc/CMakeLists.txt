@@ -9,6 +9,7 @@ find_library(GRPC grpc)
 find_library(GFLAGS gflags)
 find_library(DL dl)
 find_library(PROTOBUF protobuf)
+find_library(TCRYPTO_LIB sgx_tcrypto ${CMAKE_SOURCE_DIR}/lib/sgxsdk/lib64)
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
@@ -46,4 +47,4 @@ add_custom_target(rpc_proto_gen ALL DEPENDS ${vdb_proto} ${vdb_proto_srcs} ${vdb
 add_library(krpc ${vdb_proto_srcs} ${vdb_grpc_srcs} HonestBrokerImpl.cpp HonestBrokerPrivate.cpp HonestBrokerClient.cpp
 	DataOwnerPrivate.cpp DataOwnerImpl.cpp InfoPrivate.cpp DataOwnerClient.cpp Repartition.cpp)
 
-target_link_libraries(krpc grpc grpc++ protobuf dl klogger)
+target_link_libraries(krpc grpc grpc++ protobuf dl klogger ${TCRYPTO_LIB})
