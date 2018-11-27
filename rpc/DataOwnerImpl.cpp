@@ -84,7 +84,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
     ::grpc::ServerContext *context,
     const ::vaultdb::RepartitionStepOneRequest *request,
     ::vaultdb::RepartitionStepOneResponse *response) {
-  LOG(DO_IMPL) << "Repartition Step Two Start";
+  LOG(DO_IMPL) << "Repartition Step One Start";
   START_TIMER(repart_step_one_full);
   table_t *t = p->GetTable(request->tableid().tableid());
   START_TIMER(repart_step_one_inner);

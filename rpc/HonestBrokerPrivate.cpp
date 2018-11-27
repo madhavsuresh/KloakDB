@@ -195,8 +195,14 @@ tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
 vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
   map<int, vector<tableid_ptr>> table_fragments;
   START_TIMER(repartition_step_one_outer_private);
+  vector<std::future<vector<tableid_ptr>>> threads_repart1;
   for (auto id : ids) {
-    auto k = RepartitionStepOne(id);
+    threads_repart1.push_back(
+        std::async(std::launch::async, &HonestBrokerPrivate::RepartitionStepOne,
+                   this, id));
+  }
+  for (auto &f : threads_repart1) {
+    auto k = f.get();
     for (auto j : k) {
       table_fragments[j.get()->hostnum()].emplace_back(j);
     }
@@ -206,13 +212,13 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
   map<int, vector<tableid_ptr>> hashed_table_fragments;
   START_TIMER(repartition_step_two_outer_private);
 
-  vector<std::future<vector<tableid_ptr>>> threads;
+  vector<std::future<vector<tableid_ptr>>> threads_repart2;
   for (int i = 0; i < num_hosts; i++) {
-    threads.push_back(std::async(std::launch::async,
-                                 &HonestBrokerPrivate::RepartitionStepTwo, this,
-                                 i, table_fragments[i]));
+    threads_repart2.push_back(
+        std::async(std::launch::async, &HonestBrokerPrivate::RepartitionStepTwo,
+                   this, i, table_fragments[i]));
   }
-  for (auto &f : threads) {
+  for (auto &f : threads_repart2) {
     auto out = f.get();
     for (auto j : out) {
       hashed_table_fragments[j.get()->hostnum()].emplace_back(j);
