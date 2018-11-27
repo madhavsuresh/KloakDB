@@ -34,6 +34,9 @@ void merge_tuple(tuple_t *to_fill, tuple_t *left_tup, tuple_t *right_tup,
   to_fill->num_fields = def.project_len;
   to_fill->is_dummy =
       !compare_tuple_cols_val(left_tup, right_tup, def.l_col, def.r_col);
+  if (left_tup->is_dummy || right_tup->is_dummy) {
+    to_fill->is_dummy = true;
+  }
 
   for (int i = 0; i < def.project_len; i++) {
     tuple_t *copyFromTup = tuples[def.project_list[i].side];
