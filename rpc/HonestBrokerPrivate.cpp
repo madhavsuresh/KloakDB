@@ -180,8 +180,14 @@ vector<tableid_ptr> HonestBrokerPrivate::ClusterDBMSQuery(string dbname,
                                                           string query) {
   LOG(HB_P) << "Cluster Querying: " + query;
   vector<tableid_ptr> queried_tables;
+  vector<std::future<tableid_ptr>> threads;
   for (int i = 0; i < num_hosts; i++) {
-    queried_tables.emplace_back(DBMSQuery(i, dbname, query));
+    threads.push_back(std::async(std::launch::async, &HonestBrokerPrivate::DBMSQuery, this,
+            i, dbname, query));
+  }
+  for (auto &f : threads) {
+    auto tt = f.get();
+    queried_tables.push_back(tt);
   }
   return queried_tables;
 }
