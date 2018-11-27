@@ -16,7 +16,7 @@ DEFINE_int32(exp3_datasize, 100, "exp3 data size");
 
 void exp3(HonestBrokerPrivate *p) {
   auto scan = p->ClusterDBMSQuery("dbname=vaultdb_",
-                                  "SELECT * from oblivious_partitioning" +
+                                  "SELECT * from oblivious_partitioning_" +
                                       std::to_string(FLAGS_exp3_datasize));
   p->SetControlFlowColName("b");
   START_TIMER(repartition_outer);

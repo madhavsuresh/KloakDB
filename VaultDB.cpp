@@ -214,7 +214,6 @@ int main(int argc, char **argv) {
     // dosage_study(p);
     // comorbidity(p);
     // aspirin_profile(p);
-    p->Shutdown();
     switch (FLAGS_experiment) {
     case 1: {
 
@@ -245,6 +244,7 @@ int main(int argc, char **argv) {
     }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
+    p->Shutdown();
 
     server->Shutdown();
     delete p;
