@@ -74,44 +74,32 @@ CREATE TABLE medications (
 
 CREATE TABLE oblivious_partitioning_100 (
 	a INT,
-	b INT,
-	c INT,
-	d INT
+	b INT
 );
 
 CREATE TABLE oblivious_partitioning_1000 (
 	a INT,
-	b INT,
-	c INT,
-	d INT
+	b INT
 );
 
 CREATE TABLE oblivious_partitioning_10000 (
 	a INT,
-	b INT,
-	c INT,
-	d INT
+	b INT
 );
 
 CREATE TABLE oblivious_partitioning_100000 (
 	a INT,
-	b INT,
-	c INT,
-	d INT
+	b INT
 );
 
 CREATE TABLE oblivious_partitioning_1000000 (
 	a INT,
-	b INT,
-	c INT,
-	d INT
+	b INT
 );
 
 CREATE TABLE oblivious_partitioning_10000000 (
 	a INT,
-	b INT,
-	c INT,
-	d INT
+	b INT
 );
 
 CREATE TABLE left_deep_joins_1024 (
