@@ -149,6 +149,12 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   std::vector<HostIDPair> host_and_ID;
   int myid = p->AddTable(host_tb[p->HostNum()].table);
   host_and_ID.push_back(std::make_pair(p->HostNum(), myid));
+  for (int zzz = 0; zzz< host_tb[p->HostNum()].table->num_tuples; zzz++) {
+    int col_noz = colno_from_name(host_tb[p->HostNum()].table, p->GetControlFlowColID().cf_name());
+    if (get_tuple(zzz, host_tb[p->HostNum()].table)->field_list[col_noz].f.int_field.val > 10000) {
+      LOG(DEBUG_AGG) << "IN REPARTITION TABLE IS CORRUPTED";
+    }
+  }
 
   vector<std::future<HostIDPair>> threads_send;
   START_TIMER(repart_two_data_movement);
@@ -158,6 +164,12 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     if (i == p->HostNum()) {
       continue;
     } else {
+      for (int zzz = 0; zzz< host_tb[i].table->num_tuples; zzz++) {
+        int col_noz = colno_from_name(host_tb[i].table, p->GetControlFlowColID().cf_name());
+        if (get_tuple(zzz, host_tb[i].table)->field_list[col_noz].f.int_field.val > 10000) {
+          LOG(DEBUG_AGG) << "IN REPARTITION TABLE IS CORRUPTED";
+        }
+      }
       threads_send.push_back(std::async(std::launch::async,
                                         &DataOwnerPrivate::SendTable, p, i,
                                         host_tb[i].table));
