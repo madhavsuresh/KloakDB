@@ -181,6 +181,7 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     host_and_ID.push_back(h.get());
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_two_data_movement);
+  /*
   for (int i = 0; i < num_hosts; i++) {
     if (i != p->HostNum()) {
       free_table(host_tb[i].table);
@@ -189,5 +190,6 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   for (int i = 0; i < num_hosts; i++) {
     free_table(dummy_host_tb[i].table);
   }
+   */
   return host_and_ID;
 }
