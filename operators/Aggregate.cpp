@@ -27,6 +27,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
   if (t->num_tuples == 0) {
     throw;
   }
+  LOG(DEBUG_AGG) << "There are " << t->num_tuples << " num tuples here";
 
   FIELD_TYPE type = t->schema.fields[colno].type;
   for (int i = 0; i < t->num_tuples; i++) {
@@ -35,11 +36,6 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
     switch (type) {
     case INT: {
       key = std::to_string(tup->field_list[colno].f.int_field.val);
-      if (tup->field_list[colno].f.int_field.val > 10000) {
-        LOG(DEBUG_AGG)
-            << "THIS IS AN ERROR, THIS VALUE SHOULD NOT BE ABOVE 100000 ["
-            << tup->field_list[colno].f.int_field.val << "]";
-      }
       break;
     }
     case FIXEDCHAR: {
