@@ -114,7 +114,7 @@ uint32_t hash_field_to_int(field_t f) {
 int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t,
                  table_t *table) {
   int col_no = colno_from_name(table, cf.cf_name());
-  uint32_t i = hash_field_to_int(t->field_list[col_no]);
+  uint32_t i = hash_field_to_int_sgx(t->field_list[col_no]);
   return i % num_hosts;
 }
 
