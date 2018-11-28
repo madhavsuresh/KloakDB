@@ -87,6 +87,14 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   LOG(DO_IMPL) << "Repartition Step One Start";
   START_TIMER(repart_step_one_full);
   table_t *t = p->GetTable(request->tableid().tableid());
+  int col_noz = colno_from_name(t,
+                                p->GetControlFlowColID().cf_name());
+  for (int z = 0; z < t->num_tuples; z++) {
+    if (get_tuple(z, t)->field_list[col_noz].f.int_field.val > 10000) {
+      LOG(DEBUG_AGG) << "(RIGHT AFTER READ) IN REPARTITION TABLE IS CORRUPTED val: [" << get_tuple(z, t)->field_list[col_noz].f.int_field.val;
+      throw;
+    }
+  }
   START_TIMER(repart_step_one_inner);
   std::vector<std::pair<int32_t, int32_t>> info =
       repart_step_one(t, p->NumHosts(), p);
