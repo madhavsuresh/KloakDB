@@ -18,7 +18,7 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   p->SetControlFlowColName("major_icd9");
   START_TIMER(generalize);
   auto gen_out = p->Generalize("cdiff_cohort_diagnoses", "major_icd9",
-                               "vaultdb_", cdiff_cohort_scan, 5);
+                               "vaultdb_", cdiff_cohort_scan, 10);
   END_AND_LOG_EXEC_TIMER(generalize);
   START_TIMER(repartition);
   auto cdiff_cohort_repart = p->Repartition(gen_out);
