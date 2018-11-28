@@ -114,7 +114,7 @@ const LEVELS EXP3_STAT {INFO.value- 54, "EXP3-STAT"};
 #define LOG_EXP3_STAT_TIMER(timer_name) \
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
-  LOG(EXP3_STAT) << #timer_name << ": ["                               \
-             << elapsed_##timer_name.count() << "s]"
+  LOG(EXP3_STAT) << "|" << #timer_name << ","                               \
+             << elapsed_##timer_name.count() << ""
 
 #endif // PROJECT_LOGGERDEFS_H

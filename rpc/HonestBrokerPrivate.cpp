@@ -214,7 +214,7 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
       table_fragments[j.get()->hostnum()].emplace_back(j);
     }
   }
-  END_AND_LOG_TIMER(repartition_step_one_outer_private);
+  END_AND_LOG_EXP3_STAT_TIMER(repartition_step_one_outer_private);
 
   map<int, vector<tableid_ptr>> hashed_table_fragments;
   START_TIMER(repartition_step_two_outer_private);
@@ -232,7 +232,7 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
     }
   }
 
-  END_AND_LOG_TIMER(repartition_step_two_outer_private);
+  END_AND_LOG_EXP3_STAT_TIMER(repartition_step_two_outer_private);
 
   vector<tableid_ptr> coalesced_tables;
   vector<std::future<tableid_ptr>> threads_coalesced;
@@ -246,7 +246,7 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
     auto out = f.get();
     coalesced_tables.emplace_back(out);
   }
-  END_AND_LOG_TIMER(repartition_coalesce_outer_private);
+  END_AND_LOG_EXP3_STAT_TIMER(repartition_coalesce_outer_private);
   return coalesced_tables;
 }
 

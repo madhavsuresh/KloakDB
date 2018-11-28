@@ -222,14 +222,6 @@ DataOwnerImpl::DBMSQuery(::grpc::ServerContext *context,
   START_TIMER(dbms_query_full);
   START_TIMER(dbms_query_inner);
   table *t = get_table(request->query(), request->dbname());
-  int col_noz = colno_from_name(t,
-                                p->GetControlFlowColID().cf_name());
-  for (int z = 0; z < t->num_tuples; z++) {
-    if (get_tuple(z, t)->field_list[col_noz].f.int_field.val > 10000) {
-      LOG(DEBUG_AGG) << "(LOCAL STEP 1) IN REPARTITION TABLE IS CORRUPTED val: [" << get_tuple(z, t)->field_list[col_noz].f.int_field.val;
-      throw;
-    }
-  }
   END_TIMER(dbms_query_inner);
   int table_id = this->p->AddTable(t);
   vaultdb::TableID *tid = response->mutable_tableid();
