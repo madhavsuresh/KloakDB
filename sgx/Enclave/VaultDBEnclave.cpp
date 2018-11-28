@@ -27,6 +27,12 @@ void ecall_load_tuple_page(void* table_manager, int table_id, int page_no, void*
   memcpy(t->tuple_pages[page_no], tuple_page, len);
 }
 
+void ecall_free_table(void *table_manager, int table_id) {
+  auto *tm = (table_manager_t *) table_manager;
+  table_t* t = get_table_table_manager(tm, table_id);
+  free_table(t);
+}
+
 void ecall_hash_join(void* table_manager, int left_table_id, int right_table_id, void* join_def, size_t jd_len, int* output_table_id) {
   auto *tm = (table_manager_t*) table_manager;
   table_t* left = get_table_table_manager(tm, left_table_id);
@@ -75,3 +81,4 @@ void ecall_aggregate(void *table_manager, int table_id,  void *gb_def, size_t gb
   auto tid = insert_into_table_manager(tm, output);
   *output_table_id = tid;
 }
+

@@ -43,6 +43,7 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name,
   client = new HonestBrokerClient(grpc::CreateChannel(
       this->hb_host_name, grpc::InsecureChannelCredentials()));
   this->table_counter = 0;
+  
 }
 DataOwnerPrivate::~DataOwnerPrivate() { delete client; }
 void DataOwnerPrivate::DeleteDataOwnerClient(int host_num) {
