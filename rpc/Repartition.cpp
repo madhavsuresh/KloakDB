@@ -1,5 +1,6 @@
 #include "data/postgres_client.h"
 #include "hash/picosha2.h"
+#include "logger/LoggerDefs.h"
 #include "rpc/DataOwnerPrivate.h"
 #include "sgx_tcrypto.h"
 #include <cstdlib>
@@ -8,7 +9,6 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include "logger/LoggerDefs.h"
 
 // this is here just to make the host table repartitioning a little bit easier.
 #define MAX_NUM_HOSTS 32
@@ -149,10 +149,17 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   std::vector<HostIDPair> host_and_ID;
   int myid = p->AddTable(host_tb[p->HostNum()].table);
   host_and_ID.push_back(std::make_pair(p->HostNum(), myid));
-  for (int zzz = 0; zzz< host_tb[p->HostNum()].table->num_tuples; zzz++) {
-    int col_noz = colno_from_name(host_tb[p->HostNum()].table, p->GetControlFlowColID().cf_name());
-    if (get_tuple(zzz, host_tb[p->HostNum()].table)->field_list[col_noz].f.int_field.val > 10000) {
-      LOG(DEBUG_AGG) << "IN REPARTITION TABLE IS CORRUPTED";
+  for (int zzz = 0; zzz < host_tb[p->HostNum()].table->num_tuples; zzz++) {
+    int col_noz = colno_from_name(host_tb[p->HostNum()].table,
+                                  p->GetControlFlowColID().cf_name());
+    if (get_tuple(zzz, host_tb[p->HostNum()].table)
+            ->field_list[col_noz]
+            .f.int_field.val > 10000) {
+      LOG(DEBUG_AGG) << "(LOCAL) IN REPARTITION TABLE IS CORRUPTED val: [" <<get_tuple(zzz, host_tb[p->HostNum()].table)
+            ->field_list[col_noz]
+            .f.int_field.val;
+      throw;
+
     }
   }
 
@@ -164,10 +171,14 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     if (i == p->HostNum()) {
       continue;
     } else {
-      for (int zzz = 0; zzz< host_tb[i].table->num_tuples; zzz++) {
-        int col_noz = colno_from_name(host_tb[i].table, p->GetControlFlowColID().cf_name());
-        if (get_tuple(zzz, host_tb[i].table)->field_list[col_noz].f.int_field.val > 10000) {
-          LOG(DEBUG_AGG) << "IN REPARTITION TABLE IS CORRUPTED";
+      for (int zzz = 0; zzz < host_tb[i].table->num_tuples; zzz++) {
+        int col_noz = colno_from_name(host_tb[i].table,
+                                      p->GetControlFlowColID().cf_name());
+        if (get_tuple(zzz, host_tb[i].table)
+                ->field_list[col_noz]
+                .f.int_field.val > 10000) {
+          LOG(DEBUG_AGG) << "REMOTE IN REPARTITION TABLE IS CORRUPTED";
+          throw;
         }
       }
       threads_send.push_back(std::async(std::launch::async,

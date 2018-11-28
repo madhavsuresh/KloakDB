@@ -26,6 +26,7 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   auto cdiff_cohort_repart = p->Repartition(cdiff_cohort_scan);
   END_AND_LOG_EXEC_TIMER(repartition);
 
+  /*
   GroupByDef gbd;
   gbd.set_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);
@@ -43,6 +44,7 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   START_TIMER(sort);
   auto sorted = p->Sort(cnt_repartition, sort, false);
   END_AND_LOG_EXEC_TIMER(sort);
+   */
 }
 
 void exp4(HonestBrokerPrivate *p) { comorbidity(p, "vaultdb_", 5); }
