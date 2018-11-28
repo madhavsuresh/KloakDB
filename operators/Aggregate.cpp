@@ -1,5 +1,7 @@
 #include "Aggregate.h"
 #include "Expressions.h"
+#include "logger/LoggerDefs.h"
+#include "sgx_tcrypto.h"
 #include <cstring>
 #include <map>
 #include <unordered_map>
@@ -25,6 +27,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
   if (t->num_tuples == 0) {
     throw;
   }
+  LOG(DEBUG_AGG) << "There are " << t->num_tuples << " num tuples here";
 
   FIELD_TYPE type = t->schema.fields[colno].type;
   for (int i = 0; i < t->num_tuples; i++) {
@@ -50,7 +53,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
       agg_map[key]++;
     }
   }
-  agg_map.size();
+  LOG(DEBUG_AGG) << "size of aggregate map: " << agg_map.size();
 
   schema_t schema = agg_schema(colno, t);
   // TODO(madhavsuresh): remove all frees inside of operators
@@ -196,11 +199,11 @@ table_t *aggregate(table_t *t, groupby_def_t *def) {
   }
   case MINX: {
     throw;
-   // printf("UNIMPLEMENTED");
+    // printf("UNIMPLEMENTED");
   }
   case GROUPBY_UNSUPPORTED: {
-   throw;
-   // printf("UNSUPPORTED");
+    throw;
+    // printf("UNSUPPORTED");
   }
   }
   return nullptr;

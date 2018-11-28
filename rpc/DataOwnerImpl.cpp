@@ -19,7 +19,6 @@
 #include "sgx/App/VaultDBSGXApp.h"
 #include <future>
 
-
 extern std::promise<void> exit_requested;
 
 DataOwnerImpl::DataOwnerImpl(DataOwnerPrivate *p) { this->p = p; }
@@ -63,7 +62,8 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   if (table_ptrs.size() == 0) {
     LOG(DO_IMPL) << "Repartition Step Two, no input tables on host";
   } else {
-    LOG(DO_IMPL) << "Repartition Step Two on #[" << table_ptrs.size() << "] tables";
+    LOG(DO_IMPL) << "Repartition Step Two on #[" << table_ptrs.size()
+                 << "] tables";
     info = repartition_step_two(table_ptrs, p->NumHosts(), p);
   }
   END_TIMER(repart_step_two_inner);
@@ -87,6 +87,15 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   LOG(DO_IMPL) << "Repartition Step One Start";
   START_TIMER(repart_step_one_full);
   table_t *t = p->GetTable(request->tableid().tableid());
+  int col_noz = colno_from_name(t, p->GetControlFlowColID().cf_name());
+  for (int z = 0; z < t->num_tuples; z++) {
+    if (get_tuple(z, t)->field_list[col_noz].f.int_field.val > 10000) {
+      LOG(DEBUG_AGG)
+          << "(RIGHT AFTER READ) IN REPARTITION TABLE IS CORRUPTED val: ["
+          << get_tuple(z, t)->field_list[col_noz].f.int_field.val;
+      break;
+    }
+  }
   START_TIMER(repart_step_one_inner);
   std::vector<std::pair<int32_t, int32_t>> info =
       repart_step_one(t, p->NumHosts(), p);
@@ -103,7 +112,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   return grpc::Status::OK;
 }
 
-void log_gen_zip(table_t * zipped, int colno) {
+void log_gen_zip(table_t *zipped, int colno) {
   map<int, int> counter;
   for (int i = 0; i < zipped->num_tuples; i++) {
     counter[get_tuple(i, zipped)->field_list[colno].f.int_field.genval]++;
@@ -122,7 +131,6 @@ void log_gen_zip(table_t * zipped, int colno) {
   }
   LOG(STATS) << "Gen Stats: MIN:[" << min_val << "], MAX:[" << max_val
              << "] AVG:[" << (double)zipped->num_tuples / num_classes << "]";
-
 }
 ::grpc::Status
 DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
@@ -201,7 +209,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
   LOG(INFO) << "Adding table received from ??";
   int table_id = this->p->AddTable(t);
   response->set_tableid(table_id);
-  END_AND_LOG_RPC_TIMER(send_table_full,p->HostName());
+  END_AND_LOG_RPC_TIMER(send_table_full, p->HostName());
   LOG(DO_IMPL) << "Send Table OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
@@ -214,6 +222,14 @@ DataOwnerImpl::DBMSQuery(::grpc::ServerContext *context,
   START_TIMER(dbms_query_full);
   START_TIMER(dbms_query_inner);
   table *t = get_table(request->query(), request->dbname());
+  int col_noz = colno_from_name(t,
+                                p->GetControlFlowColID().cf_name());
+  for (int z = 0; z < t->num_tuples; z++) {
+    if (get_tuple(z, t)->field_list[col_noz].f.int_field.val > 10000) {
+      LOG(DEBUG_AGG) << "(LOCAL STEP 1) IN REPARTITION TABLE IS CORRUPTED val: [" << get_tuple(z, t)->field_list[col_noz].f.int_field.val;
+      throw;
+    }
+  }
   END_TIMER(dbms_query_inner);
   int table_id = this->p->AddTable(t);
   vaultdb::TableID *tid = response->mutable_tableid();
@@ -246,7 +262,8 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
 
   START_TIMER(coalesce_tables_full);
   std::vector<table_t *> tables;
-  LOG(DO_IMPL) << "Coalescing #=[" << request->tablefragments_size() << "] tables";
+  LOG(DO_IMPL) << "Coalescing #=[" << request->tablefragments_size()
+               << "] tables";
   for (int i = 0; i < request->tablefragments_size(); i++) {
     tables.push_back(p->GetTable(request->tablefragments(i).tableid()));
   }

@@ -19,6 +19,7 @@ const LEVELS OP {INFO.value + 30, "OP"};
 const LEVELS EXEC {INFO.value-50, "EXEC"};
 const LEVELS EXEC_STATS {INFO.value-50, "EXEC-STATS"};
 const LEVELS EXP_DATA {INFO.value- 51, "EXP-DATA"};
+const LEVELS DEBUG_AGG {INFO.value- 53, "DEBUG-AGG"};
 
 #define START_TIMER(timer_name)                                                \
   auto start_##timer_name = std::chrono::high_resolution_clock::now()

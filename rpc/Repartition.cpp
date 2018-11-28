@@ -1,5 +1,6 @@
 #include "data/postgres_client.h"
 #include "hash/picosha2.h"
+#include "logger/LoggerDefs.h"
 #include "rpc/DataOwnerPrivate.h"
 #include "sgx_tcrypto.h"
 #include <cstdlib>
@@ -8,7 +9,6 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include "logger/LoggerDefs.h"
 
 // this is here just to make the host table repartitioning a little bit easier.
 #define MAX_NUM_HOSTS 32
