@@ -9,8 +9,16 @@ DEFINE_string(enclave_path, "./sgx/Enclave/libvaultdb_trusted_signed.so",
               "path for built enclave");
 
 sgx_enclave_id_t global_eid = 0;
+bool enclave_open = false;
 
-sgx_enclave_id_t get_enclave() { return global_eid; }
+sgx_enclave_id_t get_enclave() {
+  if (enclave_open) {
+    return global_eid;
+  } else {
+    global_eid = initialize_enclave();
+  }
+  return global_eid;
+}
 
 typedef struct _sgx_errlist_t {
   sgx_status_t err;
@@ -73,7 +81,7 @@ sgx_enclave_id_t initialize_enclave(void) {
 
   LOG(SGX) << "Creating Enclave: " << FLAGS_enclave_path;
   START_TIMER(sgx_create);
-  global_eid = sgx_create_enclave(FLAGS_enclave_path.c_str(), SGX_DEBUG_FLAG,
+  ret = sgx_create_enclave(FLAGS_enclave_path.c_str(), SGX_DEBUG_FLAG,
                                   &token, &updated, &global_eid, NULL);
   END_AND_LOG_SGX_TIMER(sgx_create);
   if (ret != SGX_SUCCESS) {

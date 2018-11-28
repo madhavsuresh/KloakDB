@@ -11,5 +11,5 @@ target_link_libraries(sort_test gtest_main profiler tcmalloc operators dataforma
 add_test(NAME sort_test COMMAND sort_test)
 
 add_executable(join_test join_test.cpp)
-target_link_libraries(join_test gtest_main profiler tcmalloc operators dataformat pqxxcompat vaultdb_sgx_app)
+target_link_libraries(join_test gtest_main profiler tcmalloc operators dataformat pqxxcompat vaultdb_sgx_app klogger)
 add_test(NAME join_test COMMAND join_test)
