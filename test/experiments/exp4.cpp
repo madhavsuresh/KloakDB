@@ -17,7 +17,8 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
                         cdiff_cohort_scan.end());
   p->SetControlFlowColName("major_icd9");
   START_TIMER(generalize);
-   auto gen_out = p->Generalize("cdiff_cohort_diagnoses","major_icd9", "vaultdb_", cdiff_cohort_scan, 5);
+  auto gen_out = p->Generalize("cdiff_cohort_diagnoses", "major_icd9",
+                               "vaultdb_", cdiff_cohort_scan, 5);
   END_AND_LOG_EXEC_TIMER(generalize);
   START_TIMER(repartition);
   auto cdiff_cohort_repart = p->Repartition(gen_out);
@@ -27,7 +28,7 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   gbd.set_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);
   START_TIMER(aggregate);
-  auto agg_out = p->Aggregate(cdiff_cohort_repart, gbd, true);
+  auto agg_out = p->Aggregate(cdiff_cohort_repart, gbd, false);
   END_AND_LOG_EXEC_TIMER(aggregate);
 
   p->SetControlFlowColName("count");
@@ -38,7 +39,7 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   sort.set_colname("count");
   sort.set_ascending(false);
   START_TIMER(sort);
-  auto sorted = p->Sort(cnt_repartition, sort, true);
+  auto sorted = p->Sort(cnt_repartition, sort, false);
   END_AND_LOG_EXEC_TIMER(sort);
 }
 
