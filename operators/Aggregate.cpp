@@ -57,7 +57,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
       agg_map[key]++;
     }
   }
-  LOG(DEBUG_AGG) << "size of aggregate map: " <<  agg_map.size();
+  LOG(DEBUG_AGG) << "size of aggregate map: " << agg_map.size();
 
   schema_t schema = agg_schema(colno, t);
   // TODO(madhavsuresh): remove all frees inside of operators
