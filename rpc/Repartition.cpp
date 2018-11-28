@@ -46,6 +46,14 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
     // this function.
     tableID id = 0;
     if (host == p->HostNum()) {
+      int col_noz = colno_from_name(output_table,
+                                    p->GetControlFlowColID().cf_name());
+      for (int z = 0; z < output_table->num_tuples; z++) {
+        if (get_tuple(z, output_table)->field_list[col_noz].f.int_field.val > 10000) {
+          LOG(DEBUG_AGG) << "(LOCAL STEP 1) IN REPARTITION TABLE IS CORRUPTED val: [" << get_tuple(z, output_table)->field_list[col_noz].f.int_field.val;
+          throw;
+        }
+      }
       LOG(INFO) << "Adding self partitioned table from repartition";
       id = p->AddTable(output_table);
     } else {
