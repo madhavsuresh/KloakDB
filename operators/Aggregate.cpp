@@ -3,6 +3,8 @@
 #include <cstring>
 #include <map>
 #include <unordered_map>
+#include "sgx_tcrypto.h"
+#include "logger/LoggerDefs.h"
 
 schema_t agg_schema(int32_t colno, table_t *t) {
   schema_t agg_schema;
@@ -33,6 +35,9 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
     switch (type) {
     case INT: {
       key = std::to_string(tup->field_list[colno].f.int_field.val);
+      if (tup->field_list[colno].f.int_field.val > 10000) {
+        LOG(DEBUG_AGG) << "THIS IS AN ERROR, THIS VALUE SHOULD NOT BE ABOVE 100000 [" << tup->field_list[colno].f.int_field.val << "]";
+      }
       break;
     }
     case FIXEDCHAR: {
@@ -50,7 +55,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
       agg_map[key]++;
     }
   }
-  agg_map.size();
+  LOG(DEBUG_AGG) << "size of aggregate map: " agg_map.size();
 
   schema_t schema = agg_schema(colno, t);
   // TODO(madhavsuresh): remove all frees inside of operators
