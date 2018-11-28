@@ -14,7 +14,7 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname,  int gen_level) {
     to_gen_t tg;
     tg.column = "major_icd9";
     tg.dbname = "vaultdb_";
-   gen_in["cdiff_cohort"] = tg;
+   gen_in["cdiff_cohort_diagnoses"] = tg;
     tg.scan_tables.insert(tg.scan_tables.end(), cdiff_cohort_scan.begin(), cdiff_cohort_scan.end());
     p->SetControlFlowColName("major_icd9");
     auto gen_out = p->Generalize(gen_in, gen_level);
