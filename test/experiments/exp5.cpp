@@ -8,7 +8,7 @@
 
 void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   auto scan = p->ClusterDBMSQuery("dbname=vaultdb_",
-                                  "SELECT * FROM left_deep_joins_1024");
+                                  "SELECT * FROM left_deep_joins_512");
   unordered_map<table_name, to_gen_t> gen_in;
   to_gen_t to_gen_ld;
   to_gen_ld.column = "b";
