@@ -209,6 +209,7 @@ int main(int argc, char **argv) {
       break;
     }
     case 4: {
+        exp4(p);
 
       break;
     }
