@@ -17,3 +17,5 @@ insert into oblivious_partitioning_100000 (a,b) select floor(random()*1000+1)::i
 insert into oblivious_partitioning_1000000 (a,b) select floor(random()*1000+1)::int, floor(random()*1000+1)::int from generate_series(1,1000000) s(i);
 
 insert into oblivious_partitioning_10000000 (a,b) select floor(random()*1000+1)::int, floor(random()*1000+1)::int from generate_series(1,10000000) s(i);
+
+insert into cdiff_cohort_diagnoses (major_icd9) select floor(random()*10000+1)::int from generate_series(1,100000) s(i);

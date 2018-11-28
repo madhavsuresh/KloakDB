@@ -18,6 +18,7 @@
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
 #include "test/experiments/exp5.h"
+#include "test/experiments/exp4.h"
 #include "test/experiments/exp3.h"
 #include <thread>
 
@@ -139,29 +140,9 @@ void aspirin_profile(HonestBrokerPrivate *p) {
   gbd.set_col_name("pulse");
   gbd.add_gb_col_names("gender");
   gbd.add_gb_col_names("race");
-  auto final_avg = p->Aggregate(out_pd_join, gbd);
+  auto final_avg = p->Aggregate(out_pd_join, gbd, false);
 }
 
-void comorbidity(HonestBrokerPrivate *p) {
-  auto cdiff_cohort_scan =
-      p->ClusterDBMSQuery("dbname=" + FLAGS_database,
-                          "SELECT * from " + FLAGS_cdiff_cohort_diag_table);
-  p->SetControlFlowColName("major_icd9");
-  // TODO(madhavsuresh): add generalization
-  auto cdiff_cohort_repart = p->Repartition(cdiff_cohort_scan);
-
-  GroupByDef gbd;
-  gbd.set_col_name("major_icd9");
-  gbd.set_type(GroupByDef_GroupByType_COUNT);
-  auto agg_out = p->Aggregate(cdiff_cohort_repart, gbd);
-
-  p->SetControlFlowColName("major_icd9");
-  auto cnt_repartition = p->Repartition(agg_out);
-  SortDef sort;
-  sort.set_colname("count");
-  sort.set_ascending(false);
-  auto sorted = p->Sort(cnt_repartition, sort);
-}
 
 void dosage_study(HonestBrokerPrivate *p) {
   auto diag_scan = p->ClusterDBMSQuery(
