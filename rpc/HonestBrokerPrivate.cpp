@@ -267,14 +267,21 @@ void HonestBrokerPrivate::FreeTables(vector<tableid_ptr> &ids) {
   }
 }
 
+
 vector<tableid_ptr>
 HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
                           ::vaultdb::JoinDef &join, bool in_sgx) {
 
   vector<tableid_ptr> joined_tables;
+  vector<std::future<tableid_ptr>> threads;
   for (auto &i : ids) {
-    joined_tables.emplace_back(do_clients[i.first.get()->hostnum()]->Join(
-        i.first, i.second, join, in_sgx));
+    auto client = do_clients[i.first.get()->hostnum()];
+    threads.push_back(async(launch::async, &DataOwnerClient::Join,
+           client,  i.first, i.second, join, in_sgx));
+
+  }
+  for (auto &j : threads) {
+    joined_tables.emplace_back(j.get());
   }
   return joined_tables;
 }
