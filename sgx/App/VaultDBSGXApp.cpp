@@ -16,6 +16,7 @@ sgx_enclave_id_t get_enclave() {
     return global_eid;
   } else {
     global_eid = initialize_enclave();
+    enclave_open = true;
   }
   return global_eid;
 }
@@ -81,8 +82,8 @@ sgx_enclave_id_t initialize_enclave(void) {
 
   LOG(SGX) << "Creating Enclave: " << FLAGS_enclave_path;
   START_TIMER(sgx_create);
-  ret = sgx_create_enclave(FLAGS_enclave_path.c_str(), SGX_DEBUG_FLAG,
-                                  &token, &updated, &global_eid, NULL);
+  ret = sgx_create_enclave(FLAGS_enclave_path.c_str(), SGX_DEBUG_FLAG, &token,
+                           &updated, &global_eid, NULL);
   END_AND_LOG_SGX_TIMER(sgx_create);
   if (ret != SGX_SUCCESS) {
     print_error_message(ret);

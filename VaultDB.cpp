@@ -236,6 +236,7 @@ int main(int argc, char **argv) {
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address);
     p->Register();
 
+    auto enclave = get_enclave();
 
 
     DataOwnerImpl d(p);
