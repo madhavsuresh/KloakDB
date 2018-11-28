@@ -415,6 +415,7 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
     LOG_TIMER(plain_join_inner);
   }
   LOG(OP) << "Join Number of Output Tuples :[" << out_join->num_tuples << "]";
+  LOG(OP) << "Join Number of Tuples Pages:[" << out_join->num_tuple_pages << "]";
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out_join));

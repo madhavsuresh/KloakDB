@@ -102,6 +102,11 @@ CREATE TABLE oblivious_partitioning_10000000 (
 	b INT
 );
 
+CREATE TABLE left_deep_joins_512 (
+	a INT,
+	b INT
+);
+
 CREATE TABLE left_deep_joins_1024 (
 	a INT,
 	b INT

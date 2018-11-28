@@ -234,7 +234,6 @@ int main(int argc, char **argv) {
     auto enclave = get_enclave();
     p->Register();
 
-
     DataOwnerImpl d(p);
     grpc::ServerBuilder builder;
     builder.AddListeningPort(p->HostName(), grpc::InsecureServerCredentials());
