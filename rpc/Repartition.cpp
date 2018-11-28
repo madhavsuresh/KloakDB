@@ -16,7 +16,8 @@ typedef int32_t hostNum;
 typedef int32_t tableID;
 typedef std::pair<hostNum, tableID> HostIDPair;
 
-HostIDPair ship_off_repart_one(DataOwnerPrivate *p, int host, std::vector<int> index_lst, table_t * t) {
+HostIDPair ship_off_repart_one(DataOwnerPrivate *p, int host,
+                               std::vector<int> index_lst, table_t *t) {
 
   table_t *output_table = copy_table_by_index(t, index_lst);
   // TODO(madhavsuresh): have the argument to this be a function pointer to
@@ -57,9 +58,8 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   vector<std::future<HostIDPair>> threads_send;
   for (auto it = rand_assignment.begin(); it != rand_assignment.end(); it++) {
     HostIDPair hidp = ship_off_repart_one(p, it->first, it->second, t);
-    threads_send.push_back(std::async(std::launch::async,
-                                      ship_off_repart_one, p,
-                                      it->first,it->second,t));
+    threads_send.push_back(std::async(std::launch::async, ship_off_repart_one,
+                                      p, it->first, it->second, t));
   }
   for (auto &h : threads_send) {
     host_and_ID.push_back(h.get());
@@ -161,9 +161,8 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
         if (j == host) {
           append_tuple(&host_tb[host], get_tuple(i, t));
         } else {
-          append_tuple(&dummy_host_tb[host], get_tuple(i,t));
+          append_tuple(&dummy_host_tb[host], get_tuple(i, t));
         }
-
       }
     }
   }

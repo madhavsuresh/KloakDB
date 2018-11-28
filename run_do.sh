@@ -1,7 +1,7 @@
 #!/bin/bash
 killall -9 vaultdb
 git pull 
-cd build && make -j10 vaultdb
+cd build && make -j10 vaultdb vaultdb_trusted_signed_target
 HOSTNAME=`hostname`
 PREFIX='v'
 H2="${HOSTNAME: -1}"
