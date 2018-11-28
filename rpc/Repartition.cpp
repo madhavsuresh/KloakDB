@@ -35,7 +35,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   for (int i = 0; i < t->num_tuples; i++) {
     rand_assignment[std::rand() % num_hosts].push_back(i);
   }
-  END_AND_LOG_EXEC_TIMER(repart_one_shuffle_assign);
+  END_AND_LOG_EXP3_STAT_TIMER(repart_one_shuffle_assign);
 
   START_TIMER(repart_one_data_movement);
   for (auto it = rand_assignment.begin(); it != rand_assignment.end(); it++) {
@@ -54,7 +54,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
     }
     host_and_ID.push_back(std::make_pair(host, id));
   }
-  END_AND_LOG_EXP_TIMER(repart_one_data_movement);
+  END_AND_LOG_EXP3_STAT_TIMER(repart_one_data_movement);
   return host_and_ID;
 }
 
@@ -130,10 +130,16 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     throw;
   }
   table_builder_t host_tb[MAX_NUM_HOSTS];
+  table_builder_t dummy_host_tb[MAX_NUM_HOSTS];
 
   for (int i = 0; i < num_hosts; i++) {
     init_table_builder(max_tuples, tables[0]->schema.num_fields,
                        &tables[0]->schema, &host_tb[i]);
+  }
+
+  for (int i = 0; i < num_hosts; i++) {
+    init_table_builder(max_tuples, tables[0]->schema.num_fields,
+                       &tables[0]->schema, &dummy_host_tb[i]);
   }
 
   START_TIMER(repart_two_hashing);
@@ -141,10 +147,17 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   for (auto t : tables) {
     for (int i = 0; i < t->num_tuples; i++) {
       int host = hash_to_host(control_flow_col, num_hosts, get_tuple(i, t), t);
-      append_tuple(&host_tb[host], get_tuple(i, t));
+      for (int j = 0; j < num_hosts; j++) {
+        if (j == host) {
+          append_tuple(&host_tb[host], get_tuple(i, t));
+        } else {
+          append_tuple(&dummy_host_tb[host], get_tuple(i,t));
+        }
+
+      }
     }
   }
-  END_AND_LOG_EXP_TIMER(repart_two_hashing);
+  END_AND_LOG_EXP3_STAT_TIMER(repart_two_hashing);
 
   std::vector<HostIDPair> host_and_ID;
   int myid = p->AddTable(host_tb[p->HostNum()].table);
@@ -167,11 +180,14 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   for (auto &h : threads_send) {
     host_and_ID.push_back(h.get());
   }
-  END_AND_LOG_EXP_TIMER(repart_two_data_movement);
+  END_AND_LOG_EXP3_STAT_TIMER(repart_two_data_movement);
   for (int i = 0; i < num_hosts; i++) {
     if (i != p->HostNum()) {
       free_table(host_tb[i].table);
     }
+  }
+  for (int i = 0; i < num_hosts; i++) {
+    free_table(dummy_host_tb[i].table);
   }
   return host_and_ID;
 }

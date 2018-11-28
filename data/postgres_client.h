@@ -64,6 +64,7 @@ typedef struct groupby_def {
   uint32_t colno;
   int32_t num_cols;
   uint32_t gb_colnos[MAX_FIELDS];
+  uint32_t kanon_col;
 } groupby_def_t;
 
 typedef struct field_int {

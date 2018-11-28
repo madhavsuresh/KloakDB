@@ -5,6 +5,7 @@
 #include <cstring>
 #include <map>
 #include <unordered_map>
+using namespace std;
 
 schema_t agg_schema(int32_t colno, table_t *t) {
   schema_t agg_schema;
@@ -27,7 +28,6 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
   if (t->num_tuples == 0) {
     throw;
   }
-  LOG(DEBUG_AGG) << "There are " << t->num_tuples << " num tuples here";
 
   FIELD_TYPE type = t->schema.fields[colno].type;
   for (int i = 0; i < t->num_tuples; i++) {
@@ -53,7 +53,6 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
       agg_map[key]++;
     }
   }
-  LOG(DEBUG_AGG) << "size of aggregate map: " << agg_map.size();
 
   schema_t schema = agg_schema(colno, t);
   // TODO(madhavsuresh): remove all frees inside of operators
@@ -188,7 +187,46 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
   return tb.table;
 }
 
+table_t *kaggregate_count(table_t * t, int colno, int kanon_col) {
+  map<int, int> equiv_classes;
+  auto typ = get_tuple(0, t)->field_list[kanon_col].type;
+  for (int i = 0; i < t->num_tuples; i++) {
+    switch (typ) {
+      case INT : {
+        tuple_t * tup = get_tuple(i, t);
+        equiv_classes[tup->field_list[kanon_col].f.int_field.genval]++;
+      }
+      default:
+        throw;
+    }
+
+  }
+
+}
+
 table_t *aggregate(table_t *t, groupby_def_t *def) {
+  if (def->kanon_col == def->colno) {
+    switch (def->type) {
+      case COUNT: {
+        return kaggregate_count(t, def->colno, def->kanon_col);
+        break;
+      }
+      case AVG: {
+        //return kaggregate_avg(t, def);
+        throw;
+        break;
+      }
+      case MINX: {
+        throw;
+        // printf("UNIMPLEMENTED");
+      }
+      case GROUPBY_UNSUPPORTED: {
+        throw;
+        // printf("UNSUPPORTED");
+      }
+    }
+    return nullptr;
+  }
   switch (def->type) {
   case COUNT: {
     return aggregate_count(t, def->colno);
