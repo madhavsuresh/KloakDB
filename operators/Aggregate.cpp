@@ -1,6 +1,5 @@
 #include "Aggregate.h"
 #include "Expressions.h"
-#include "logger/LoggerDefs.h"
 #include "sgx_tcrypto.h"
 #include <cstring>
 #include <map>
