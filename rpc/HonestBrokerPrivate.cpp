@@ -251,7 +251,8 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
 }
 
 vector<tableid_ptr> HonestBrokerPrivate::Filter(vector<tableid_ptr> &ids,
-                                                ::vaultdb::Expr &expr, bool in_sgx) {
+                                                ::vaultdb::Expr &expr,
+                                                bool in_sgx) {
 
   vector<tableid_ptr> filtered_tables;
   for (auto &i : ids) {
@@ -267,7 +268,6 @@ void HonestBrokerPrivate::FreeTables(vector<tableid_ptr> &ids) {
   }
 }
 
-
 vector<tableid_ptr>
 HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
                           ::vaultdb::JoinDef &join, bool in_sgx) {
@@ -276,9 +276,8 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
   vector<std::future<tableid_ptr>> threads;
   for (auto &i : ids) {
     auto client = do_clients[i.first.get()->hostnum()];
-    threads.push_back(async(launch::async, &DataOwnerClient::Join,
-           client,  i.first, i.second, join, in_sgx));
-
+    threads.push_back(async(launch::async, &DataOwnerClient::Join, client,
+                            i.first, i.second, join, in_sgx));
   }
   for (auto &j : threads) {
     joined_tables.emplace_back(j.get());
@@ -287,10 +286,12 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
 }
 
 vector<tableid_ptr> HonestBrokerPrivate::Sort(vector<tableid_ptr> &ids,
-                                              ::vaultdb::SortDef &sort, bool in_sgx) {
+                                              ::vaultdb::SortDef &sort,
+                                              bool in_sgx) {
   vector<tableid_ptr> sorted_tables;
   for (auto &i : ids) {
-    sorted_tables.emplace_back(do_clients[i.get()->hostnum()]->Sort(i, sort, in_sgx));
+    sorted_tables.emplace_back(
+        do_clients[i.get()->hostnum()]->Sort(i, sort, in_sgx));
   }
   return sorted_tables;
 }
