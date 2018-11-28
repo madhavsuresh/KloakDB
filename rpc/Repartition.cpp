@@ -46,14 +46,6 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
     // this function.
     tableID id = 0;
     if (host == p->HostNum()) {
-      int col_noz = colno_from_name(output_table,
-                                    p->GetControlFlowColID().cf_name());
-      for (int z = 0; z < output_table->num_tuples; z++) {
-        if (get_tuple(z, output_table)->field_list[col_noz].f.int_field.val > 10000) {
-          LOG(DEBUG_AGG) << "(LOCAL STEP 1) IN REPARTITION TABLE IS CORRUPTED val: [" << get_tuple(z, output_table)->field_list[col_noz].f.int_field.val;
-          throw;
-        }
-      }
       LOG(INFO) << "Adding self partitioned table from repartition";
       id = p->AddTable(output_table);
     } else {
@@ -157,19 +149,6 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   std::vector<HostIDPair> host_and_ID;
   int myid = p->AddTable(host_tb[p->HostNum()].table);
   host_and_ID.push_back(std::make_pair(p->HostNum(), myid));
-  for (int zzz = 0; zzz < host_tb[p->HostNum()].table->num_tuples; zzz++) {
-    int col_noz = colno_from_name(host_tb[p->HostNum()].table,
-                                  p->GetControlFlowColID().cf_name());
-    if (get_tuple(zzz, host_tb[p->HostNum()].table)
-            ->field_list[col_noz]
-            .f.int_field.val > 10000) {
-      LOG(DEBUG_AGG) << "(LOCAL) IN REPARTITION TABLE IS CORRUPTED val: [" <<get_tuple(zzz, host_tb[p->HostNum()].table)
-            ->field_list[col_noz]
-            .f.int_field.val;
-      throw;
-
-    }
-  }
 
   vector<std::future<HostIDPair>> threads_send;
   START_TIMER(repart_two_data_movement);
@@ -179,16 +158,6 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     if (i == p->HostNum()) {
       continue;
     } else {
-      for (int zzz = 0; zzz < host_tb[i].table->num_tuples; zzz++) {
-        int col_noz = colno_from_name(host_tb[i].table,
-                                      p->GetControlFlowColID().cf_name());
-        if (get_tuple(zzz, host_tb[i].table)
-                ->field_list[col_noz]
-                .f.int_field.val > 10000) {
-          LOG(DEBUG_AGG) << "REMOTE IN REPARTITION TABLE IS CORRUPTED";
-          throw;
-        }
-      }
       threads_send.push_back(std::async(std::launch::async,
                                         &DataOwnerPrivate::SendTable, p, i,
                                         host_tb[i].table));
