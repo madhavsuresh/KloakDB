@@ -8,7 +8,7 @@
 void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   p->SetControlFlowColName("major_icd9");
   auto cdiff_cohort_scan = p->ClusterDBMSQuery(
-      "dbname=" + dbname, "SELECT * from cdiff_cohort_diagnoses");
+      "dbname=" + dbname, "SELECT major_icd9 from cdiff_cohort_diagnoses");
   unordered_map<string, to_gen_t> gen_in;
   to_gen_t tg;
   tg.column = "major_icd9";
@@ -24,7 +24,6 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   auto cdiff_cohort_repart = p->Repartition(cdiff_cohort_scan);
   END_AND_LOG_EXEC_TIMER(repartition);
 
-  /*
   GroupByDef gbd;
   gbd.set_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);
@@ -42,7 +41,6 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   START_TIMER(sort);
   auto sorted = p->Sort(cnt_repartition, sort, false);
   END_AND_LOG_EXEC_TIMER(sort);
-   */
 }
 
 void exp4(HonestBrokerPrivate *p) { comorbidity(p, "vaultdb_", 5); }
