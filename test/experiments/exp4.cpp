@@ -22,17 +22,15 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
                                "vaultdb_", cdiff_cohort_scan, 10);
   END_AND_LOG_EXEC_TIMER(generalize);
    */
-  /*
   START_TIMER(repartition);
   auto cdiff_cohort_repart = p->Repartition(cdiff_cohort_scan);
   END_AND_LOG_EXEC_TIMER(repartition);
-   */
 
   GroupByDef gbd;
   gbd.set_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);
   START_TIMER(aggregate);
-  auto agg_out = p->Aggregate(cdiff_cohort_scan, gbd, false);
+  auto agg_out = p->Aggregate(cdiff_cohort_repart, gbd, false);
   END_AND_LOG_EXEC_TIMER(aggregate);
 
   p->SetControlFlowColName("count");
