@@ -21,5 +21,5 @@ void exp3(HonestBrokerPrivate *p) {
   p->SetControlFlowColName("b");
   START_TIMER(repartition_outer);
   p->Repartition(scan);
-  END_AND_LOG_EXEC_TIMER(repartition_outer);
+  END_AND_LOG_EXP3_STAT_TIMER(repartition_outer);
 }
