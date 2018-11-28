@@ -21,6 +21,7 @@
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp3.h"
 #include <thread>
+#include <sgx/App/VaultDBSGXApp.h>
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
 DEFINE_string(address, "", "IPV4 Address for current instance");
@@ -191,7 +192,6 @@ int main(int argc, char **argv) {
 
     p->WaitForAllHosts();
     p->RegisterPeerHosts();
-
     // dosage_study(p);
     // comorbidity(p);
     // aspirin_profile(p);
@@ -235,6 +235,9 @@ int main(int argc, char **argv) {
     DataOwnerPrivate *p =
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address);
     p->Register();
+
+    initialize_enclave();
+
 
     DataOwnerImpl d(p);
     grpc::ServerBuilder builder;
