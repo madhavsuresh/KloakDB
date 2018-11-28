@@ -9,6 +9,9 @@
 #include "rpc/DataOwnerPrivate.h"
 #include "rpc/HonestBrokerClient.h"
 #include "rpc/HonestBrokerImpl.h"
+#include "test/experiments/exp3.h"
+#include "test/experiments/exp4.h"
+#include "test/experiments/exp5.h"
 #include <future>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
@@ -17,11 +20,8 @@
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
-#include "test/experiments/exp5.h"
-#include "test/experiments/exp4.h"
-#include "test/experiments/exp3.h"
-#include <thread>
 #include <sgx/App/VaultDBSGXApp.h>
+#include <thread>
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
 DEFINE_string(address, "", "IPV4 Address for current instance");
@@ -44,7 +44,6 @@ DEFINE_string(logger_host_name, "guinea-pig.cs.northwestern.edu:60000",
               "port for logger");
 DEFINE_string(host_short, "vaultdb", "short host name");
 DEFINE_bool(sgx, false, "Use SGX for queries");
-
 
 std::promise<void> exit_requested;
 
@@ -73,7 +72,6 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
   }
   return ret;
 }
-
 
 void aspirin_profile(HonestBrokerPrivate *p) {
   auto meds_scan = p->ClusterDBMSQuery(
@@ -144,7 +142,6 @@ void aspirin_profile(HonestBrokerPrivate *p) {
   auto final_avg = p->Aggregate(out_pd_join, gbd, false);
 }
 
-
 void dosage_study(HonestBrokerPrivate *p) {
   auto diag_scan = p->ClusterDBMSQuery(
       "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_diagnoses_table);
@@ -209,7 +206,7 @@ int main(int argc, char **argv) {
       break;
     }
     case 4: {
-        exp4(p);
+      exp4(p);
 
       break;
     }
@@ -234,9 +231,8 @@ int main(int argc, char **argv) {
   } else {
     DataOwnerPrivate *p =
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address);
-    p->Register();
-
     auto enclave = get_enclave();
+    p->Register();
 
 
     DataOwnerImpl d(p);
