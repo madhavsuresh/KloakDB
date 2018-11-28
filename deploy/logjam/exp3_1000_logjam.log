@@ -2068,3 +2068,10 @@
 (v2)2018/11/28 11:27:18 667050	DO-IMPL [DataOwnerImpl.cpp->ShutDown:34]	Shutdown OK (ipv4:165.124.181.94:52752)
 (v1)2018/11/28 11:27:18 669807	INFO [VaultDB.cpp->main:253]	closing vaultdb session
 (v2)2018/11/28 11:27:18 667903	INFO [VaultDB.cpp->main:253]	closing vaultdb session
+(pg)2018/11/28 17:28:09 023427	INFO [VaultDB.cpp->main:181]	Starting Vaultdb Sesssion
+(pg)2018/11/28 17:28:10 245391	INFO [HonestBrokerPrivate.cpp->RegisterHost:174]	registered host: [vaultdb03.research.northwestern.edu:50000] at hostnum : [0]
+(v3)2018/11/28 11:28:22 996974	INFO [DataOwnerPrivate.cpp->Register:65]	Registered, host num:0
+(pg)2018/11/28 17:28:10 281114	INFO [HonestBrokerPrivate.cpp->RegisterHost:174]	registered host: [vaultdb01.research.northwestern.edu:50000] at hostnum : [1]
+(v1)2018/11/28 11:28:23 032357	INFO [DataOwnerPrivate.cpp->Register:65]	Registered, host num:1
+(pg)2018/11/28 17:28:10 361558	INFO [HonestBrokerPrivate.cpp->RegisterHost:174]	registered host: [vaultdb02.research.northwestern.edu:50000] at hostnum : [2]
+(v2)2018/11/28 11:28:23 114409	INFO [DataOwnerPrivate.cpp->Register:65]	Registered, host num:2
