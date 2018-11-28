@@ -16,17 +16,13 @@ void comorbidity(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
   gen_in["cdiff_cohort_diagnoses"] = tg;
   tg.scan_tables.insert(tg.scan_tables.end(), cdiff_cohort_scan.begin(),
                         cdiff_cohort_scan.end());
-  /*
   START_TIMER(generalize);
   auto gen_out = p->Generalize("cdiff_cohort_diagnoses", "major_icd9",
                                "vaultdb_", cdiff_cohort_scan, 10);
   END_AND_LOG_EXEC_TIMER(generalize);
-   */
-  /*
   START_TIMER(repartition);
   auto cdiff_cohort_repart = p->Repartition(cdiff_cohort_scan);
   END_AND_LOG_EXEC_TIMER(repartition);
-   */
 
   /*
   GroupByDef gbd;

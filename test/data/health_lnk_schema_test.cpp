@@ -19,7 +19,7 @@ protected:
     // This test can just create the database we want
     // TODO(madhavsuresh): should create new database every time
     // TODO(madhavsuresh): these test are very brittle.
-    dbname = "dbname=test";
+    dbname = "dbname=vaultdb_";
     test_year = "2006";
     site1 = "4";
     site2 = "7";
