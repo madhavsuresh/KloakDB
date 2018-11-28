@@ -16,6 +16,22 @@ typedef int32_t hostNum;
 typedef int32_t tableID;
 typedef std::pair<hostNum, tableID> HostIDPair;
 
+HostIDPair ship_off_repart_one(DataOwnerPrivate *p, int host, std::vector<int> index_lst, table_t * t) {
+
+  table_t *output_table = copy_table_by_index(t, index_lst);
+  // TODO(madhavsuresh): have the argument to this be a function pointer to
+  // this function.
+  tableID id = 0;
+  if (host == p->HostNum()) {
+    LOG(INFO) << "Adding self partitioned table from repartition";
+    id = p->AddTable(output_table);
+  } else {
+    id = std::get<1>(p->SendTable(host, output_table));
+    free_table(output_table);
+  }
+  return std::make_pair(host, id);
+}
+
 // TODO(madhavsuresh): this is an example of how having typedefs can make
 // the code more clear. This needs to be extended to the whole codebase.
 std::vector<std::pair<int32_t, int32_t>>
@@ -38,21 +54,15 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_shuffle_assign);
 
   START_TIMER(repart_one_data_movement);
+  vector<std::future<HostIDPair>> threads_send;
   for (auto it = rand_assignment.begin(); it != rand_assignment.end(); it++) {
-    int host = it->first;
-    std::vector<int> index_lst = it->second;
-    table_t *output_table = copy_table_by_index(t, index_lst);
-    // TODO(madhavsuresh): have the argument to this be a function pointer to
-    // this function.
-    tableID id = 0;
-    if (host == p->HostNum()) {
-      LOG(INFO) << "Adding self partitioned table from repartition";
-      id = p->AddTable(output_table);
-    } else {
-      id = std::get<1>(p->SendTable(host, output_table));
-      free_table(output_table);
-    }
-    host_and_ID.push_back(std::make_pair(host, id));
+    HostIDPair hidp = ship_off_repart_one(p, it->first, it->second, t);
+    threads_send.push_back(std::async(std::launch::async,
+                                      ship_off_repart_one, p,
+                                      it->first,it->second,t));
+  }
+  for (auto &h : threads_send) {
+    host_and_ID.push_back(h.get());
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_data_movement);
   return host_and_ID;
