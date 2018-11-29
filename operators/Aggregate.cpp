@@ -75,6 +75,7 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
     }
     tup->field_list[1].type = INT;
     tup->field_list[1].f.int_field.val = agg_pair.second;
+    tup->field_list[1].f.int_field.genval = agg_pair.second;
     tup->num_fields = 2;
     append_tuple(&tb, tup);
   }
