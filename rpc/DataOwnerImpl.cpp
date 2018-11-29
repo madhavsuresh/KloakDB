@@ -256,6 +256,13 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
   std::vector<table_t *> tables;
   LOG(DO_IMPL) << "Coalescing #=[" << request->tablefragments_size()
                << "] tables";
+  if (request->tablefragments_size() == 0) {
+    ::vaultdb::TableID *tid = response->mutable_id();
+    tid->set_tableid(-1);
+    tid->set_hostnum(p->HostNum());
+    return grpc::Status::OK;
+  }
+
   for (int i = 0; i < request->tablefragments_size(); i++) {
     tables.push_back(p->GetTable(request->tablefragments(i).tableid()));
   }
@@ -265,12 +272,11 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
   ::vaultdb::TableID *tid = response->mutable_id();
   tid->set_tableid(p->AddTable(t));
   tid->set_hostnum(p->HostNum());
+  LOG(OP) << "Coalesce Tables Size: [" << t->num_tuples << "]";
   END_TIMER(coalesce_tables_full);
   LOG_TIMER(coalesce_tables_inner);
   LOG_TIMER(coalesce_tables_full);
-  LOG(OP) << "Coalesce Tables Size: [" << t->num_tuples << "]";
   LOG(DO_IMPL) << "Coalesce Table OK (" << context->peer() << ")";
-  return grpc::Status::OK;
 }
 
 expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
