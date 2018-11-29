@@ -244,9 +244,7 @@ vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
   }
   for (auto &f : threads_coalesced) {
     auto out = f.get();
-    if (out.get()->tableid() != -1) {
-      coalesced_tables.emplace_back(out);
-    }
+    coalesced_tables.emplace_back(out);
   }
   END_AND_LOG_EXP3_STAT_TIMER(repartition_coalesce_outer_private);
   return coalesced_tables;
