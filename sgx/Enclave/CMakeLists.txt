@@ -1,5 +1,5 @@
-SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fpie -fstack-protector -fvisibility=hidden -nostdinc -fPIC -Wno-attributes -O0 -g -Wall -Wextra -Winit-self -Wpointer-arith -Wreturn-type -Waddress -Wsequence-point -Wformat-security -Wmissing-include-dirs -Wfloat-equal -Wundef -Wshadow -Wcast-align -Wcast-qual -Wconversion -Wredundant-decls")
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fpie -fstack-protector -fvisibility=hidden -nostdinc -nostdinc++ -m64 -O0 -g -Wall -Wextra -Winit-self -Wpointer-arith -Wreturn-type -Waddress -Wsequence-point -Wformat-security -Wmissing-include-dirs -Wfloat-equal -Wundef -Wshadow -Wcast-align -Wcast-qual -Wconversion -Wredundant-decls -DDEBUG -UNDEBUG -UEDEBUG" )
+SET(CMAKE_C_FLAGS "-fpie -fstack-protector -fvisibility=hidden -nostdinc -fPIC -Wno-attributes -O0 -g -Wall -Wextra -Winit-self -Wpointer-arith -Wreturn-type -Waddress -Wsequence-point -Wformat-security -Wmissing-include-dirs -Wfloat-equal -Wundef -Wshadow -Wcast-align -Wcast-qual -Wconversion -Wredundant-decls")
+SET(CMAKE_CXX_FLAGS " -fpie -fstack-protector -fvisibility=hidden -nostdinc -nostdinc++ -m64 -O0 -g -Wall -Wextra -Winit-self -Wpointer-arith -Wreturn-type -Waddress -Wsequence-point -Wformat-security -Wmissing-include-dirs -Wfloat-equal -Wundef -Wshadow -Wcast-align -Wcast-qual -Wconversion -Wredundant-decls -DDEBUG -UNDEBUG -UEDEBUG" )
 
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 add_custom_command(
