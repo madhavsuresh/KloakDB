@@ -2,10 +2,9 @@
 // Created by madhav on 11/26/18.
 //
 
-#include <rpc/HonestBrokerPrivate.h>
-#include <logger/LoggerDefs.h>
 #include "VaultDB.h"
-
+#include <logger/LoggerDefs.h>
+#include <rpc/HonestBrokerPrivate.h>
 
 void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   auto scan = p->ClusterDBMSQuery("dbname=vaultdb_",
@@ -20,20 +19,19 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   vector<tableid_ptr> into_repart;
   /*
   if (gen_level != 0) {/* if 0, we are running obliviously */
-  */
-    LOG(EXEC) << "======Start Generalize====";
-    START_TIMER(generalize);
-    auto gen_zipped_map = p->Generalize(gen_in, gen_level);
-    END_AND_LOG_EXEC_TIMER(generalize);
-    LOG(EXEC) << "======End Generalize====";
-    auto gen_zipped = gen_zipped_map["left_deep_joins_1024"];
-    into_repart = gen_zipped;
-    /*
-  } else {
-    auto obli = p->MakeObli(scan, "b");
-    into_repart = obli;
-  }
-     */
+  LOG(EXEC) << "======Start Generalize====";
+  START_TIMER(generalize);
+  auto gen_zipped_map = p->Generalize(gen_in, gen_level);
+  END_AND_LOG_EXEC_TIMER(generalize);
+  LOG(EXEC) << "======End Generalize====";
+  auto gen_zipped = gen_zipped_map["left_deep_joins_1024"];
+  into_repart = gen_zipped;
+  /*
+} else {
+  auto obli = p->MakeObli(scan, "b");
+  into_repart = obli;
+}
+   */
 
   p->SetControlFlowColName("b");
   LOG(EXEC) << "======Start Repartition==== GEN_LEVEL:[" << gen_level << "]";
