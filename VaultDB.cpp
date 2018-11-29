@@ -75,16 +75,17 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
 
 void aspirin_profile(HonestBrokerPrivate *p) {
   auto meds_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_medications_table);
+      "dbname=" + FLAGS_database, "SELECT patient_id, medication from " + FLAGS_medications_table);
   auto demographics_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_demographics_table);
+      "dbname=" + FLAGS_database, "SELECT DISTINCT patient_id, gender, race from " + FLAGS_demographics_table);
   auto diagnoses_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_diagnoses_table);
+      "dbname=" + FLAGS_database, "SELECT icd9, patient_id from " + FLAGS_diagnoses_table);
   auto vitals_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database,
-                                         "SELECT * from " + FLAGS_vitals_table);
-  p->Generalize("vitals" /* table name */,
-                "patient_id" /* generalization column */, FLAGS_database,
-                vitals_scan, FLAGS_gen_level);
+                                         "SELECT patient_id, pulse from " + FLAGS_vitals_table);
+  auto meds_repart = p->Repartition(meds_scan);
+  auto demographics_repart = p->Repartition(demographics_scan);
+  auto diagnoses_repart = p->Repartition(diagnoses_scan);
+  auto vitals_repart = p->Repartition(vitals_scan);
 
   p->SetControlFlowColName("patient_id");
   // join def vitals-diagnoses
@@ -99,7 +100,7 @@ void aspirin_profile(HonestBrokerPrivate *p) {
   auto vdjp2 = jd_vd.add_project_list();
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("pulse");
-  auto to_join1 = zip_join_tables(vitals_scan, diagnoses_scan);
+  auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
   auto out_vd_join = p->Join(to_join1, jd_vd, false /* in_sgx */);
 
   // join def first join "plus medications"
@@ -115,7 +116,7 @@ void aspirin_profile(HonestBrokerPrivate *p) {
   auto pmp2 = jd_pm2.add_project_list();
   pmp2->set_side(JoinColID_RelationSide_LEFT);
   pmp2->set_colname("pulse");
-  auto to_join2 = zip_join_tables(out_vd_join, meds_scan);
+  auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, false /* in_sgx */);
 
   // join def second join "plus demographics"
@@ -132,7 +133,7 @@ void aspirin_profile(HonestBrokerPrivate *p) {
   auto pdp3 = jd_pd3.add_project_list();
   pdp3->set_side(JoinColID_RelationSide_RIGHT);
   pdp3->set_colname("race");
-  auto to_join3 = zip_join_tables(out_pm_join, demographics_scan);
+  auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
   auto out_pd_join = p->Join(to_join3, jd_pd3, false /* in_sgx */);
 
   GroupByDef gbd;
