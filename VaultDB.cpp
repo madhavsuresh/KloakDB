@@ -86,6 +86,7 @@ void aspirin_profile(HonestBrokerPrivate *p) {
                 "patient_id" /* generalization column */, FLAGS_database,
                 vitals_scan, FLAGS_gen_level);
 
+  p->SetControlFlowColName("patient_id");
   // join def vitals-diagnoses
   JoinDef jd_vd;
   jd_vd.set_l_col_name("patient_id");
@@ -139,6 +140,10 @@ void aspirin_profile(HonestBrokerPrivate *p) {
   gbd.set_col_name("pulse");
   gbd.add_gb_col_names("gender");
   gbd.add_gb_col_names("race");
+  vector<string> cfids;
+  cfids.emplace_back("gender");
+  cfids.emplace_back("race");
+  p->SetControlFlowColName("patient_id");
   auto final_avg = p->Aggregate(out_pd_join, gbd, false);
 }
 
@@ -219,6 +224,7 @@ int main(int argc, char **argv) {
       break;
     }
     case 7: {
+      aspirin_profile(p);
       break;
     }
     default: { printf("NOTHING HAPPENS HERE\n"); }
