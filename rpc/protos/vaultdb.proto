@@ -102,8 +102,7 @@ message GetControlFlowColumnResponse{
 }
 
 message ControlFlowColumn {
-    int32 cfid = 1;
-    string cf_name = 2;
+    repeated string cf_name_strings = 1;
 }
 
 message RepartitionStepTwoRequest {
