@@ -61,6 +61,7 @@ public:
              vector<shared_ptr<const TableID>> scanned_tables, int gen_level);
   unordered_map<table_name, vector<tableid_ptr>>
   Generalize(unordered_map<table_name, to_gen_t> in, int gen_level);
+ vector<tableid_ptr> MakeObli(vector<tableid_ptr> &ids, string col_name);
   vector<shared_ptr<const TableID>> ClusterDBMSQuery(string dbname,
                                                      string query);
   shared_ptr<const TableID> DBMSQuery(int host_num, string dbname,

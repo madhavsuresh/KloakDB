@@ -306,6 +306,21 @@ HonestBrokerPrivate::Aggregate(vector<tableid_ptr> &ids,
   }
   return aggregate_tables;
 }
+vector<tableid_ptr> HonestBrokerPrivate::MakeObli(vector<tableid_ptr> &ids,
+                                                  string col_name) {
+
+  vector<tableid_ptr> obli_tables;
+  vector<std::future<tableid_ptr>> threads;
+  for (auto &i : ids) {
+    auto client = do_clients[i.get()->hostnum()];
+    threads.push_back(
+        async(launch::async, &DataOwnerClient::MakeObli, client, i, col_name));
+  }
+  for (auto &j : threads) {
+    obli_tables.emplace_back(j.get());
+  }
+  return obli_tables;
+}
 
 void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {
   cf.set_cfid(col_ID);

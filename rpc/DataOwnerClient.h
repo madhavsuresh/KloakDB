@@ -46,6 +46,8 @@ public:
   shared_ptr<const TableID> GenZip(shared_ptr<const TableID> gen_map,
                                    shared_ptr<const TableID> scan_table,
                                    std::string col_name);
+    std::shared_ptr<const ::vaultdb::TableID>
+    MakeObli(std::shared_ptr<const ::vaultdb::TableID> tid, std::string col_name);
   // TODO(madhavsuresh): this needs to be renamed to be consistent
   int SendTable(table_t *t);
 

@@ -393,6 +393,21 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
   return def_t;
 }
 
+::grpc::Status DataOwnerImpl::MakeObli(::grpc::ServerContext* context, const ::vaultdb::MakeObliRequest* request,
+        ::vaultdb::MakeObliResponse* response) {
+  START_TIMER(make_obli_full);
+  table_t *t = p->GetTable(request->tid().tableid());
+
+  for (int j = 0; j < t->num_tuples; j++) {
+    get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.int_field.genval = 0;
+  }
+  auto tid = response->mutable_tid();
+  tid->set_hostnum(p->HostNum());
+  tid->set_tableid(p->AddTable(t));
+  END_AND_LOG_TIMER(make_obli_full);
+  return ::grpc::Status::OK;
+}
+
 ::grpc::Status DataOwnerImpl::KJoin(::grpc::ServerContext *context,
                                     const ::vaultdb::KJoinRequest *request,
                                     ::vaultdb::KJoinResponse *response) {
