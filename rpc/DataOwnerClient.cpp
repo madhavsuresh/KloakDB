@@ -344,3 +344,22 @@ DataOwnerClient::Aggregate(std::shared_ptr<const ::vaultdb::TableID> tid,
   ret.get()->CopyFrom(resp.tid());
   return ret;
 }
+
+std::shared_ptr<const ::vaultdb::TableID>
+        DataOwnerClient::MakeObli(std::shared_ptr<const ::vaultdb::TableID> tid, std::string col_name) {
+  ::vaultdb::MakeObliRequest req;
+  ::vaultdb::MakeObliResponse resp;
+  ::grpc::ClientContext context;
+
+  req.set_col_name(col_name);
+  auto t = req.mutable_tid();
+  t->set_hostnum(tid.get()->hostnum());
+  t->set_tableid(tid.get()->tableid());
+  START_TIMER(makeobli_rpc);
+  auto status = stub_->MakeObli(&context, req, &resp);
+  END_TIMER(makeobli_rpc);
+  DOCLIENT_LOG_STATUS(makeobli, status);
+  auto ret = std::make_shared<::vaultdb::TableID>();
+  ret.get()->CopyFrom(resp.tid());
+  return ret;
+}

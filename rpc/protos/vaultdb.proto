@@ -24,6 +24,7 @@ service DataOwner {
     rpc KAggregate (KAggregateRequest) returns (KAggregateResponse) {}
     rpc Generalize (GeneralizeRequest) returns (GeneralizeResponse) {}
     rpc GeneralizeZip (GeneralizeZipRequest) returns (GeneralizeZipResponse) {}
+    rpc MakeObli (MakeObliRequest) returns (MakeObliResponse) {}
     // SendTable sends a table t to the receiving host
     rpc SendTable (stream SendTableRequest) returns (SendTableResponse) {}
     rpc RepartitionStepOne (RepartitionStepOneRequest) returns (RepartitionStepOneResponse) {}
@@ -31,6 +32,13 @@ service DataOwner {
     rpc CoalesceTables (CoaleseTablesRequest) returns (CoaleseTablesResponse) {}
     rpc ShutDown (ShutDownRequest) returns (ShutDownResponse) {}
     rpc FreeTable (FreeTableRequest) returns (FreeTableResponse) {}
+}
+message MakeObliRequest {
+    TableID tid = 1;
+    string col_name = 2;
+}
+message MakeObliResponse {
+    TableID tid = 1 ;
 }
 
 message FreeTableRequest {

@@ -69,6 +69,8 @@ public:
 
   ::grpc::Status FreeTable(::grpc::ServerContext* context, const ::vaultdb::FreeTableRequest* request,
                              ::vaultdb::FreeTableResponse* response);
+    ::grpc::Status MakeObli(::grpc::ServerContext* context, const ::vaultdb::MakeObliRequest* request,
+                                           ::vaultdb::MakeObliResponse* response);
 private:
   DataOwnerPrivate *p;
 };
