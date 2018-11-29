@@ -8,6 +8,7 @@
 #include <operators/Generalize.h>
 #include "data/postgres_client.h"
 #include "data/pqxx_compat.h"
+#include "logger/LoggerDefs.h"
 
 // This test file tests "Experiment 2" for the KloakDB VLDB 2019 paper.
 // Description:
@@ -66,6 +67,7 @@ TEST_F(exp2_kanonjoins, test1) {
   jd.project_list[0].side = LEFT_RELATION;
   jd.project_list[0].col_no = colno_from_name(t, "b");
 
+  /*
   for (int i = 1; i < 501; i+=10) {
     if (i == 11) {
       i--;
@@ -80,6 +82,8 @@ TEST_F(exp2_kanonjoins, test1) {
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
   }
+   */
+
 
   for (int i = 1; i < 501; i+=10) {
     if (i == 11) {
@@ -88,8 +92,13 @@ TEST_F(exp2_kanonjoins, test1) {
     auto start = std::chrono::high_resolution_clock::now();
     table_t * z = generalize_table(input, 1, i);
     table_t * genned = generalize_zip(t, z, colno_from_name(t, "b"));
+    /*
+    for (int j = 0; j < t->num_tuples; j++) {
+      get_tuple(j, t)->field_list[colno_from_name(t, "b")].f.int_field.genval = 0;
+    }
+     */
     auto join = std::chrono::high_resolution_clock::now();
-    table_t * out =  hash_join(genned,genned, jd);
+    table_t * out =  hash_join(t,t, jd);
     auto finish = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double> elapsed = finish - start;
     printf("\n%d\n",out->num_tuples);

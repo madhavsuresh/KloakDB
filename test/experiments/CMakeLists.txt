@@ -12,5 +12,5 @@ add_test(NAME dosage_study_test COMMAND dosage_study_test)
 
 add_executable(exp2_kanonjoins exp2_kanonjoins.cpp)
 # TODO(madhavsuresh) why does the order of this only affect this target, and no other targets?
-target_link_libraries(exp2_kanonjoins gtest_main profiler operators dataformat pqxxcompat)
+target_link_libraries(exp2_kanonjoins gtest_main profiler operators dataformat pqxxcompat klogger)
 add_test(NAME exp2_kanonjoins COMMAND exp2_kanonjoins)
