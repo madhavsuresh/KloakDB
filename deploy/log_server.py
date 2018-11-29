@@ -20,14 +20,23 @@ import grpc
 
 import logger_pb2
 import logger_pb2_grpc
+import logging
 
 _ONE_DAY_IN_SECONDS = 60 * 60 * 24
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+logger_handler = logging.FileHandler('exp5_logjam.log')
+logger_handler.setLevel(logging.INFO)
+logger_formatter = logging.Formatter('%(message)s')
+logger_handler.setFormatter(logger_formatter)
+logger.addHandler(logger_handler)
 
 
 class LogServer(logger_pb2_grpc.LogsServicer):
 
     def Log(self, request, context):
-        print(request.logmessage.strip())
+        logger.info(request.logmessage.strip())
         return logger_pb2.LogReply()
 
 
