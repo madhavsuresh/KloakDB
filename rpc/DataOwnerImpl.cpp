@@ -232,6 +232,8 @@ DataOwnerImpl::DBMSQuery(::grpc::ServerContext *context,
   END_TIMER(dbms_query_full);
   LOG_TIMER(dbms_query_inner);
   LOG_TIMER(dbms_query_full);
+  LOG(DO_IMPL) << "Num Tuples" << t->num_tuples;
+  LOG(DO_IMPL) << "Num Tuples (manager)" << p->GetTable(table_id);
   LOG(DO_IMPL) << "DBMSQuery OK query: (" << request->query() << ")";
 
   return grpc::Status::OK;
