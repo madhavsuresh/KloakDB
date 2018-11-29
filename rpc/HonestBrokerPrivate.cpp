@@ -322,12 +322,14 @@ vector<tableid_ptr> HonestBrokerPrivate::MakeObli(vector<tableid_ptr> &ids,
   return obli_tables;
 }
 
-void HonestBrokerPrivate::SetControlFlowColID(int col_ID) {
-  cf.set_cfid(col_ID);
+void HonestBrokerPrivate::SetControlFlowColName(string name) {
+  cf.add_cf_name_strings(name);
 }
 
-void HonestBrokerPrivate::SetControlFlowColName(string name) {
-  cf.set_cf_name(name);
+void HonestBrokerPrivate::SetControlFlowColNames(vector<string> names) {
+  for (auto &name : names) {
+    cf.add_cf_name_strings(name);
+  }
 }
 
 ::vaultdb::ControlFlowColumn HonestBrokerPrivate::GetControlFlowColID() {

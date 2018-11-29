@@ -55,6 +55,7 @@ public:
   ControlFlowColumn GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
   void SetControlFlowColName(string name);
+  void SetControlFlowColNames(vector<string> name);
   int RegisterPeerHosts();
   vector<shared_ptr<const TableID>>
   Generalize(string table_name, string column, string dbname,

@@ -67,26 +67,13 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_data_movement);
   return host_and_ID;
 }
-
-uint32_t hash_field_to_int_sgx(field_t f) {
-
+uint32_t hash_fields_to_int_sgx(uint8_t f[], uint32_t len) {
   sgx_sha256_hash_t hash;
   union {
-    uint32_t u;
-    unsigned char u8[sizeof(uint32_t)];
+      uint32_t u;
+      unsigned char u8[sizeof(uint32_t)];
   } out;
-  switch (f.type) {
-  case FIXEDCHAR: {
-    sgx_sha256_msg(reinterpret_cast<uint8_t *>(&f.f.fixed_char_field.val),
-                   FIXEDCHAR_LEN, &hash);
-    break;
-  }
-  case INT: {
-    sgx_sha256_msg(reinterpret_cast<uint8_t *>(&f.f.int_field.genval), 8,
-                   &hash);
-    break;
-  }
-  }
+  sgx_sha256_msg(f, len, &hash);
   out.u8[0] = hash[0];
   out.u8[1] = hash[1];
   out.u8[2] = hash[2];
@@ -94,37 +81,33 @@ uint32_t hash_field_to_int_sgx(field_t f) {
   return out.u;
 }
 
-uint32_t hash_field_to_int(field_t f) {
-  std::vector<unsigned char> hash(picosha2::k_digest_size);
-  union {
-    uint32_t u;
-    unsigned char u8[sizeof(uint32_t)];
-  } out;
-  switch (f.type) {
-  case FIXEDCHAR: {
-    std::vector<unsigned char> input(f.f.fixed_char_field.val,
-                                     f.f.fixed_char_field.val + 16);
-    picosha2::hash256(input.begin(), input.end(), hash.begin(), hash.end());
-    break;
-  }
-  case INT: {
-    std::vector<unsigned char> input(f.f.int_field.genval,
-                                     f.f.int_field.genval + 8);
-    picosha2::hash256(input.begin(), input.end(), hash.begin(), hash.end());
-    break;
-  }
-  }
-  out.u8[0] = hash[0];
-  out.u8[1] = hash[1];
-  out.u8[2] = hash[2];
-  out.u8[3] = hash[4];
-  return out.u;
-}
 
 int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t,
                  table_t *table) {
-  int col_no = colno_from_name(table, cf.cf_name());
-  uint32_t i = hash_field_to_int_sgx(t->field_list[col_no]);
+  if (cf.cf_name_strings_size() > 20) {
+    throw;
+  }
+  uint8_t f[MAX_FIELDS*FIXEDCHAR_LEN];
+  uint32_t ptr = 0;
+  for (int i = 0; i < cf.cf_name_strings_size(); i++) {
+    int input_col = colno_from_name(table,cf.cf_name_strings(i));
+    switch(t->field_list[input_col].type){
+      case FIXEDCHAR : {
+        memcpy(&f[ptr], t->field_list[input_col].f.fixed_char_field.val, FIXEDCHAR_LEN);
+        ptr += FIXEDCHAR_LEN;
+        break;
+      }
+      case INT: {
+        memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.genval), sizeof(uint64_t));
+        ptr += sizeof(uint64_t);
+        break;
+      }
+     default :{
+        throw;
+      }
+    }
+  }
+  uint32_t i = hash_fields_to_int_sgx(f, ptr);
   return i % num_hosts;
 }
 
