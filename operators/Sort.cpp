@@ -70,15 +70,21 @@ void swap_tuples(int t1, int t2, table_t *t, bool to_swap) {
       break;
     }
     case INT: {
-      uint64_t f1, f2;
+      uint64_t f1, f2, f1gen, f2gen;
       f1 = tup1->field_list[i].f.int_field.val;
       f2 = tup2->field_list[i].f.int_field.val;
+      f1gen = tup1->field_list[i].f.int_field.genval;
+      f2gen = tup2->field_list[i].f.int_field.genval;
       if (to_swap) {
         tup1->field_list[i].f.int_field.val = f2;
+        tup1->field_list[i].f.int_field.genval = f2gen;
         tup2->field_list[i].f.int_field.val = f1;
+        tup2->field_list[i].f.int_field.genval = f1gen;
       } else {
         tup1->field_list[i].f.int_field.val = f1;
+        tup1->field_list[i].f.int_field.genval = f1gen;
         tup2->field_list[i].f.int_field.val = f2;
+        tup2->field_list[i].f.int_field.genval = f2gen;
       }
     } break;
     }
