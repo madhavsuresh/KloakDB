@@ -7,11 +7,13 @@
 #include <ctime>
 #include <iomanip>
 #include <iostream>
+#include <logger/LoggerDefs.h>
 
 FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
   switch (oid) {
   case VARCHAROID:
     return FIXEDCHAR;
+  case NUMERIC:
   case INT4OID:
   case INT8OID:
     return INT;
@@ -48,9 +50,7 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
     switch (s->fields[field_counter].type) {
     case FIXEDCHAR:
       if (field.size() > FIXEDCHAR_LEN) {
-        free_table(tb->table);
-        free(tb);
-        throw std::invalid_argument("Unsupported length column");
+        LOG(PQXX) << "TUPLE SIZE BREACHED: " << field ;
       }
       strncpy(tuple->field_list[field_counter].f.fixed_char_field.val,
               field.c_str(), FIXEDCHAR_LEN);

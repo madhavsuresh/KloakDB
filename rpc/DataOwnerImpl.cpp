@@ -283,8 +283,17 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
     ex.expr_type = EQ_EXPR;
     break;
   }
+  case Expr_ExprType_NEQ_EXPR: {
+    ex.expr_type = NEQ_EXPR;
+    break;
+  }
+  case Expr_ExprType_LIKE_EXPR: {
+    ex.expr_type = LIKE_EXPR;
+    break;
+  }
   default: { throw; }
   }
+
   switch (expr.desc().field_type()) {
   case ::vaultdb::FieldDesc_FieldType_FIXEDCHAR: {
     ex.field_val.type = FIXEDCHAR;

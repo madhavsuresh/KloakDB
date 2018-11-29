@@ -3,7 +3,7 @@ target_link_libraries(aggregate_test gtest_main profiler tcmalloc operators data
 add_test(NAME aggregate_test COMMAND aggregate_test)
 
 add_executable(filter_test filter_test.cpp)
-target_link_libraries(filter_test gtest_main profiler tcmalloc operators dataformat pqxxcompat vaultdb_sgx_app)
+target_link_libraries(filter_test gtest_main profiler tcmalloc operators dataformat pqxxcompat vaultdb_sgx_app klogger)
 add_test(NAME filter_test COMMAND filter_test)
 
 add_executable(sort_test sort_test.cpp)

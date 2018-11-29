@@ -300,6 +300,8 @@ message Expr {
     enum ExprType {
         UNSUPPORTED_EXPR = 0;
         EQ_EXPR = 1;
+        NEQ_EXPR = 2;
+        LIKE_EXPR = 3;
     }
 
     ExprType type = 1;
