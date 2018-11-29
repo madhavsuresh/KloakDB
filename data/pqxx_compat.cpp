@@ -12,6 +12,7 @@ FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
   switch (oid) {
   case VARCHAROID:
     return FIXEDCHAR;
+  case NUMERIC:
   case INT4OID:
   case INT8OID:
     return INT;
