@@ -21,6 +21,7 @@ const LEVELS EXEC_STATS {INFO.value-50, "EXEC-STATS"};
 const LEVELS EXP_DATA {INFO.value- 51, "EXP-DATA"};
 const LEVELS DEBUG_AGG {INFO.value- 53, "DEBUG-AGG"};
 const LEVELS EXP3_STAT {INFO.value- 54, "EXP3-STAT"};
+const LEVELS EXP5_STAT {INFO.value- 54, "EXP3-STAT"};
 
 #define START_TIMER(timer_name)                                                \
   auto start_##timer_name = std::chrono::high_resolution_clock::now()
@@ -88,6 +89,12 @@ const LEVELS EXP3_STAT {INFO.value- 54, "EXP3-STAT"};
     LOG_EXP3_STAT_TIMER(timer_name);                                                     \
   } while (0)
 
+#define END_AND_LOG_EXP5_STAT_TIMER(timer_name, k)                                          \
+  do {                                                                         \
+    END_TIMER(timer_name);                                                     \
+    LOG_EXP5_STAT_TIMER(timer_name, k);                                                     \
+  } while (0)
+
 #define END_AND_LOG_SGX_TIMER(timer_name)                                          \
   do {                                                                         \
     END_TIMER(timer_name);                                                     \
@@ -117,4 +124,9 @@ const LEVELS EXP3_STAT {INFO.value- 54, "EXP3-STAT"};
   LOG(EXP3_STAT) << "|" << #timer_name << ","                               \
              << elapsed_##timer_name.count() << ""
 
+#define LOG_EXP5_STAT_TIMER(timer_name, k) \
+  std::chrono::duration<double> elapsed_##timer_name =                         \
+      end_##timer_name - start_##timer_name;                                   \
+  LOG(EXP5_STAT) << "|" << #timer_name#k << ","                               \
+             << elapsed_##timer_name.count() << ""
 #endif // PROJECT_LOGGERDEFS_H
