@@ -127,6 +127,6 @@ const LEVELS EXP5_STAT {INFO.value- 54, "EXP5-STAT"};
 #define LOG_EXP5_STAT_TIMER(timer_name, k) \
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
-  LOG(EXP5_STAT) << "|" << #timer_name << k <<  ","                               \
+  LOG(EXP5_STAT) << "|" << #timer_name << ","<<  k <<  ","                               \
              << elapsed_##timer_name.count() << ""
 #endif // PROJECT_LOGGERDEFS_H
