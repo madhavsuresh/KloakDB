@@ -17,7 +17,6 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
                                scan.end());
   gen_in["left_deep_joins_1024"] = to_gen_ld;
   vector<tableid_ptr> into_repart;
-  /*
   if (gen_level != 0) {/* if 0, we are running obliviously */
   LOG(EXEC) << "======Start Generalize====";
   START_TIMER(generalize);
@@ -26,12 +25,10 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   LOG(EXEC) << "======End Generalize====";
   auto gen_zipped = gen_zipped_map["left_deep_joins_1024"];
   into_repart = gen_zipped;
-  /*
 } else {
   auto obli = p->MakeObli(scan, "b");
   into_repart = obli;
 }
-   */
 
   p->SetControlFlowColName("b");
   LOG(EXEC) << "======Start Repartition==== GEN_LEVEL:[" << gen_level << "]";

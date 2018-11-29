@@ -43,7 +43,7 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name,
   client = new HonestBrokerClient(grpc::CreateChannel(
       this->hb_host_name, grpc::InsecureChannelCredentials()));
   this->table_counter = 0;
-  
+
 }
 DataOwnerPrivate::~DataOwnerPrivate() { delete client; }
 void DataOwnerPrivate::DeleteDataOwnerClient(int host_num) {
@@ -75,7 +75,6 @@ int DataOwnerPrivate::AddTable(table_t *t) {
   table_catalog[table_id] = t;
   table_counter++;
   table_catalog_mutex.unlock();
-  LOG(INFO) << "Added Table [" << table_id << "]";
   return table_id;
 }
 
