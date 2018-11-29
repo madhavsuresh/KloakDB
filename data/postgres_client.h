@@ -29,7 +29,7 @@
 // TODO(madhavsuresh): change to intfield
 enum FIELD_TYPE { UNSUPPORTED, FIXEDCHAR, INT, DOUBLE, TIMESTAMP};
 
-enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR, LIKE_EXPR };
+enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR, NEQ_EXPR, LIKE_EXPR };
 
 typedef struct field_desc {
   char field_name[FIELD_NAME_LEN];

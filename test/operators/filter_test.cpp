@@ -66,3 +66,17 @@ TEST_F(filter_test, string_test) {
   ASSERT_EQ(get_tuple(1,out)->is_dummy, true);
 
 }
+
+TEST_F(filter_test, like_test) {
+  query("DROP TABLE IF EXISTS filter_test", dbname);
+  query("CREATE TABLE filter_test (a INT, b VARCHAR)", dbname);
+  query("INSERT INTO filter_test (a,b) VALUES (1, 'aaa'), (2, 'b')", dbname);
+  table_t * t = get_table("SELECT * FROM filter_test", dbname);
+  //ASSERT_EQ(strstr("aaa", "a"),NULL);
+  expr_t expr = make_string_expr(LIKE_EXPR, "a", 1);
+  table_t *out = filter(t, &expr);
+  ASSERT_EQ(out->num_tuples, 2);
+  ASSERT_EQ(get_tuple(0,out)->is_dummy, false);
+  ASSERT_EQ(get_tuple(1,out)->is_dummy, true);
+
+}

@@ -21,15 +21,28 @@ bool eq_expr(tuple *t, expr_t *ex) {
   }
 }
 
+bool like_expr(tuple *t, expr_t *ex) {
+  if (ex->field_val.type != FIXEDCHAR) {
+    throw;
+  }
+  if (strstr(t->field_list[ex->colno].f.fixed_char_field.val, ex->field_val.f.fixed_char_field.val) != NULL) {
+    return true;
+  }
+  return false;
+}
+
 bool expression_eval(tuple_t *t, expr_t *ex) {
   switch (ex->expr_type) {
   case EQ_EXPR: {
     return eq_expr(t, ex);
   }
+  case NEQ_EXPR: {
+    return !eq_expr(t, ex);
+  }
   case UNSUPPORTED_EXPR: {
     throw;
   }
   case LIKE_EXPR:
-    throw;
+    return like_expr(t, ex);
   }
 }
