@@ -87,7 +87,6 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
   auto out_pd_join = p->Join(to_join3, jd_pd3, false);
 
-  /*
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
   gbd.set_col_name("pulse");
@@ -98,5 +97,4 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   cfids.emplace_back("race");
   p->SetControlFlowColName("patient_id");
   auto final_avg = p->Aggregate(out_pd_join, gbd, false);
-  */
 }
