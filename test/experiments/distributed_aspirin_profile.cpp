@@ -3,18 +3,23 @@
 //
 #include "distributed_aspirin_profile.h"
 
-void aspirin_profile(HonestBrokerPrivate *p, std::string database, std::string diagnoses_table, std::string vitals_table, std::string medications_table,
-                     std::string demographics_table, std::string year) {
+void aspirin_profile(HonestBrokerPrivate *p, std::string database,
+                     std::string diagnoses_table, std::string vitals_table,
+                     std::string medications_table,
+                     std::string demographics_table, std::string year,
+                     bool sgx) {
 
   std::string year_append = "";
   if (year != "") {
     year_append = " where year=" + year;
   }
   p->SetControlFlowColName("patient_id");
-  auto diagnoses_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table + year_append);
-  auto vitals_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                         "SELECT patient_id, pulse from " + vitals_table + year_append + " AND pulse IS NOT NULL");
+  auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + database,
+                                            "SELECT icd9, patient_id from " +
+                                                diagnoses_table + year_append);
+  auto vitals_scan = p->ClusterDBMSQuery(
+      "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table +
+                                year_append + " AND pulse IS NOT NULL");
   auto diagnoses_repart = p->Repartition(diagnoses_scan);
   auto vitals_repart = p->Repartition(vitals_scan);
 
@@ -31,7 +36,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database, std::string d
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
-  auto out_vd_join = p->Join(to_join1, jd_vd, false /* in_sgx */);
+  auto out_vd_join = p->Join(to_join1, jd_vd, sgx /* in_sgx */);
   /*
   p->FreeTables(vitals_repart);
   p->FreeTables(diagnoses_repart);
@@ -52,7 +57,8 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database, std::string d
   pmp2->set_side(JoinColID_RelationSide_LEFT);
   pmp2->set_colname("pulse");
   auto meds_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT patient_id, medication from " + medications_table);
+          "dbname=" + database, "SELECT patient_id, medication from " +
+  medications_table);
 
   auto meds_repart = p->Repartition(meds_scan);
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
@@ -60,8 +66,9 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database, std::string d
   p->FreeTables(meds_repart);
 
   auto demographics_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
-  auto demographics_repart = p->Repartition(demographics_scan);
+          "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from "
+  + demographics_table); auto demographics_repart =
+  p->Repartition(demographics_scan);
   // join def second join "plus demographics"
   JoinDef jd_pd3;
   jd_pd3.set_l_col_name("patient_id");
@@ -91,4 +98,3 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database, std::string d
   auto final_avg = p->Aggregate(out_pd_join, gbd, false);
   */
 }
-

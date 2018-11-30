@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
     }
     case 7: {
       if (FLAGS_hl_query == "aspirin") {
-        aspirin_profile(p,FLAGS_db, FLAGS_di_table, FLAGS_vit_table, FLAGS_meds_table, FLAGS_dem_table, FLAGS_year);
+        aspirin_profile(p,FLAGS_db, FLAGS_di_table, FLAGS_vit_table, FLAGS_meds_table, FLAGS_dem_table, FLAGS_year, FLAGS_sgx);
       }
 
       break;
