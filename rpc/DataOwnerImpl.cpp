@@ -459,10 +459,12 @@ groupby_def_t make_groupby_def_t(table_t *t, ::vaultdb::GroupByDef def) {
   }
   case ::vaultdb::GroupByDef_GroupByType_AVG: {
     def_t.type = AVG;
-    def_t.colno = def.col_no();
+    def_t.colno = colno_from_name(t, def.col_name());
+    LOG(OP) << "AVG COL NO" << def_t.colno << " NAME:" << def.col_name();
     for (int i = 0; i < def.gb_col_nos_size(); i++) {
       def_t.gb_colnos[i] =
           static_cast<uint8_t>(colno_from_name(t, def.gb_col_names(i)));
+      LOG(OP) << " GB NAMES:" << def.gb_col_names(i) << ", NO" << def_t.gb_colnos[i];
     }
     def_t.num_cols = def.gb_col_nos_size();
     break;
@@ -480,16 +482,6 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
   table_t *in = p->GetTable(request->tid().tableid());
   groupby_def_t gbd = make_groupby_def_t(in, request->def());
   table_t *out;
-  LOG(OP) << "Aggregate on 0" << in->schema.fields[gbd.gb_colnos[0]].field_name;
-  LOG(OP) << "Aggregate on 1" << in->schema.fields[gbd.gb_colnos[1]].field_name;
-  LOG(OP) << "Aggregate on FIELD" << in->schema.fields[gbd.colno].field_name;
-  LOG(OP) << "TOP 10 TUPLES into AGGREGATE";
-  LOG(OP) << "Num fields " << in->schema.num_fields;
-  /*
-  for (int i = 0; i < 10; i++) {
-    LOG(OP) << tuple_string(get_tuple(i, in));
-  }
-   */
   if (request->in_sgx()) {
     LOG(DO_IMPL) << "SGX Aggregate";
     START_TIMER(sgx_aggregate_inner);
