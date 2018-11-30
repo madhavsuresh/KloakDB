@@ -105,6 +105,7 @@ int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t,
         break;
       }
      default :{
+       LOG(PQXX) << "Unsupported type :[" << t->field_list[input_col].type << "]";
        LOG(FATAL) << "Unsupported type for hash_to_host";
         throw;
       }
