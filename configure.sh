@@ -36,10 +36,10 @@ if [ ! -d "grpc" ]; then
 	git clone --branch v1.16.1 https://github.com/grpc/grpc.git
 	cd grpc
 	git submodule update --init
-	make HAS_SYSTEM_PROTOBUF=false -j10
-	make prefix=$BASEDIR/lib install
-	cd third_party/protobuf
-	make prefix=$BASEDIR/lib install
+	make HAS_SYSTEM_PROTOBUF=true -j10
+	#make prefix=$BASEDIR/lib install
+	#cd third_party/protobuf
+	#make prefix=$BASEDIR/lib install
 	# back in external
 	cd $BASEDIR/external
 fi
