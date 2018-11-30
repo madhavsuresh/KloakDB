@@ -92,6 +92,9 @@ void initialize_tuple_page(table_builder_t *tb) {
 
 void add_tuple_page(table_builder_t *tb) {
   tb->curr_page++;
+  if (tb->curr_page > MAX_NUM_PAGES) {
+    throw;
+  }
   allocate_tuple_page(tb);
 }
 
@@ -132,10 +135,10 @@ bool check_add_tuple_page(table_builder_t *tb) {
   return false;
 }
 
-table_t *allocate_table(int num_tuple_pages) {
+table_t *allocate_table(uint64_t num_tuple_pages) {
   table_t *ret = (table_t *)malloc(sizeof(table_t) +
                                    num_tuple_pages * sizeof(tuple_page_t *));
-  if (ret == 0) {
+  if (ret == nullptr) {
     throw std::invalid_argument("Malloc failed");
   }
   return ret;
@@ -197,6 +200,9 @@ void init_table_builder(uint64_t expected_tuples, int num_columns,
   uint64_t total_size = tb->expected_tuples * tb->size_of_tuple;
   tb->expected_pages =
       tb->expected_tuples / tuples_per_page(tb->size_of_tuple) + 1;
+  if (tb->expected_pages > MAX_NUM_PAGES) {
+    tb->expected_pages = MAX_NUM_PAGES;
+  }
   // total_size / PAGE_SIZE + 2;
   // TODO(madhavsuresh): this needs to be abstracted out. this is terrible.
   tb->table = allocate_table(tb->expected_pages); //(table_t *)

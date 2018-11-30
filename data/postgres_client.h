@@ -19,7 +19,9 @@
 #define FIELD_NAME_LEN FIELD_LEN
 #define FIXEDCHAR_LEN 16
 #define MAX_FIELDS 20
-#define PAGE_SIZE 32768 // 32k sized pages. This could be much bigger.
+#define PAGE_SIZE 1048576
+//#define PAGE_SIZE 32768 // 32k sized pages. This could be much bigger.
+#define MAX_NUM_PAGES 32768
 #define LEFT_RELATION 0
 #define RIGHT_RELATION 1
 #define TABLE_MANAGER_MAX_TABLES 32
@@ -165,7 +167,7 @@ void init_table_builder(uint64_t expected_tuples, int num_columns,
                         schema_t *schema, table_builder_t *tb);
 void copy_tuple_to_position(table_t *t, int pos, tuple_t *tup);
 table_t *copy_table_by_index(table_t *t, std::vector<int> index_list);
-table_t *allocate_table(int num_tuple_pages);
+table_t *allocate_table(uint64_t num_tuple_pages);
 void append_tuple(table_builder_t *tb, tuple_t *tup);
 table_t *coalesce_tables(std::vector<table_t *> tables);
 std::string tuple_string(tuple_t *t);
