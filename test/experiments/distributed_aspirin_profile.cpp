@@ -36,7 +36,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
-  auto out_vd_join = p->Join(to_join1, jd_vd, sgx /* in_sgx */);
+  auto out_vd_join = p->Join(to_join1, jd_vd, false /* in_sgx */);
   /*
   p->FreeTables(vitals_repart);
   p->FreeTables(diagnoses_repart);
@@ -62,8 +62,9 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   auto meds_repart = p->Repartition(meds_scan);
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, false );
-  /*
-  p->FreeTables(meds_repart);
+
+  //p->FreeTables(meds_repart);
+
 
   auto demographics_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from "
@@ -86,6 +87,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
   auto out_pd_join = p->Join(to_join3, jd_pd3, false);
 
+  /*
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
   gbd.set_col_name("pulse");
