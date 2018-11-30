@@ -40,6 +40,7 @@ IF( EXISTS "${CMAKE_CURRENT_BINARY_DIR}/compile_commands.json" )
 	)
 ENDIF()
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fno-omit-frame-pointer -g")
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address -fno-omit-frame-pointer -g")
 #set(CMAKE_CXX_FLAGS "-fno-omit-frame-pointer -fsanitize=address -g")
 #set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} -g -fno-omit-frame-pointer -fsanitize=address")
@@ -47,7 +48,7 @@ set(CMAKE_CXX_STANDARD 14)
 
 
 #find_library(GLOG glog)
-link_directories(${CMAKE_SOURCE_DIR}/lib/lib/ ${CMAKE_SOURCE_DIR}/lib/sgxsdk/lib64 /usr/local/lib /opt/grpc/lib)
+link_directories(${CMAKE_SOURCE_DIR}/lib/lib/ /usr/local/lib /opt/grpc/lib)
 include_directories(${CMAKE_SOURCE_DIR}/lib/include)
 include_directories(${CMAKE_SOURCE_DIR}/lib/sgxsdk/include)
 
