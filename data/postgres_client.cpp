@@ -240,6 +240,7 @@ table_t *coalesce_tables(std::vector<table_t *> tables) {
       tuple_t *tup = get_tuple(i, t);
       append_tuple(&tb, tup);
     }
+    free_table(t);
   }
   return tb.table;
 }
