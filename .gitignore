@@ -12,4 +12,6 @@ deploy/__pycache__/
 deploy/env/
 deploy/logger_pb2.py
 deploy/logger_pb2_grpc.py
+tags*
+.gdb_history
 
