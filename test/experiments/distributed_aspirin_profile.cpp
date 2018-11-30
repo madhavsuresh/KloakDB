@@ -42,7 +42,6 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   p->FreeTables(diagnoses_repart);
    */
 
-  /*
   // join def first join "plus medications"
   // join between output of vitals/diagnonses join and medications
   JoinDef jd_pm2;
@@ -63,6 +62,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   auto meds_repart = p->Repartition(meds_scan);
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, false );
+  /*
   p->FreeTables(meds_repart);
 
   auto demographics_scan = p->ClusterDBMSQuery(
