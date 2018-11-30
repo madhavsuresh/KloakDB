@@ -14,7 +14,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database, std::string d
   auto diagnoses_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table + year_append);
   auto vitals_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                         "SELECT patient_id, pulse from " + vitals_table + year_append);
+                                         "SELECT patient_id, pulse from " + vitals_table + year_append + " AND pulse IS NOT NULL");
   auto diagnoses_repart = p->Repartition(diagnoses_scan);
   auto vitals_repart = p->Repartition(vitals_scan);
 
