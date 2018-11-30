@@ -107,11 +107,12 @@ def run_test(num_machines, num_runs,query_function, year):
 num_machines = int(sys.argv[1])
 num_runs = int(sys.argv[2])
 search_year = str(sys.argv[3])
-if num_machines < 1:
-    print("MUST RUN ON AT LEAST ONE MACHINE")
+if num_machines < 1 or num_machines > 4:
+    print("MUST RUN ON AT LEAST ONE MACHINE AND NOT MORE THAN 4")
+    sys.exit()
 if num_runs < 3:
     print("must run atleast 3 runs")
-
+    sys.exit()
 print("ASPIRIN TEST")
 time_values = []
 run_test(num_machines, num_runs, make_asprin_query, search_year)
