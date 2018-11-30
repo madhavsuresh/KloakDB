@@ -99,6 +99,7 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
 void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
   // TODO(madhavsuresh): would prefer this to be on the stack
   tuple_size_breach = 0;
+  int null_tuples = 0;
   for (auto psql_row : res) {
     // Don't want to jump on the first tuple
     if (check_add_tuple_page(tb)) {
@@ -106,11 +107,17 @@ void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
     }
     tb->table->num_tuples++;
     // build_tuple_from_pq adds the tuple to the
-    build_tuple_from_pq(psql_row, get_tuple(tb->curr_tuple, tb->table),
-                        &tb->table->schema, tb);
+    try {
+      build_tuple_from_pq(psql_row, get_tuple(tb->curr_tuple, tb->table),
+                          &tb->table->schema, tb);
+    } catch (std::domain_error &e){
+      memset(get_tuple(tb->curr_tuple, tb->table), '\0', tb->size_of_tuple);
+      null_tuples++;
+      continue;
+    }
     tb->curr_tuple++;
-    fflush(stdin);
   }
+  LOG(PQXX) << "NUM NULL TUPLES: " << null_tuples;
   LOG(PQXX) << "TUPLE SIZE BREACHED: " << tuple_size_breach;
 }
 
