@@ -34,6 +34,7 @@ DEFINE_string(hl_query, "aspirin", "healthlnk query name");
 
 DEFINE_int32(gen_level, 5, "generalization level");
 
+DEFINE_string(year, "", "year for healthlnk queries");
 DEFINE_string(db, "smcql_testDB", "database name");
 DEFINE_string(di_table, "diagnoses", "table name for diagnoses");
 DEFINE_string(meds_table, "medications", "table name for medications");
@@ -154,7 +155,7 @@ int main(int argc, char **argv) {
     }
     case 7: {
       if (FLAGS_hl_query == "aspirin") {
-        aspirin_profile(p,FLAGS_db, FLAGS_di_table, FLAGS_vit_table, FLAGS_meds_table, FLAGS_dem_table);
+        aspirin_profile(p,FLAGS_db, FLAGS_di_table, FLAGS_vit_table, FLAGS_meds_table, FLAGS_dem_table, FLAGS_year);
       }
 
       break;

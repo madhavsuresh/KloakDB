@@ -4,12 +4,17 @@
 #include "distributed_aspirin_profile.h"
 
 void aspirin_profile(HonestBrokerPrivate *p, std::string database, std::string diagnoses_table, std::string vitals_table, std::string medications_table,
-                     std::string demographics_table) {
+                     std::string demographics_table, std::string year) {
+
+  std::string year_append = "";
+  if (year != "") {
+    year_append = " where year=" + year;
+  }
   p->SetControlFlowColName("patient_id");
   auto diagnoses_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table);
+          "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table + year_append);
   auto vitals_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                         "SELECT patient_id, pulse from " + vitals_table);
+                                         "SELECT patient_id, pulse from " + vitals_table + year_append);
   auto diagnoses_repart = p->Repartition(diagnoses_scan);
   auto vitals_repart = p->Repartition(vitals_scan);
 
