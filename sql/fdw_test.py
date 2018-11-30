@@ -97,10 +97,11 @@ def run_test(num_machines, num_runs,query_function, year):
     query = query_function(num_machines, year)
     for i in range(num_runs):
         c = cur.execute(query)
-    time_values.pop(0) # remove the first one b/c takes a long time
+    time_values.remove(max(time_values))
+    time_values.remove(min(time_values))
     avg = statistics.mean(time_values)
     standard_dev = statistics.stdev(time_values)
-    print("removed first timed run")
+    print("removed longest and shortest timed runs")
     print("the average is: " + str(avg))
     print("the stdev is: " + str(standard_dev))
 
@@ -110,9 +111,10 @@ search_year = str(sys.argv[3])
 if num_machines < 1 or num_machines > 4:
     print("MUST RUN ON AT LEAST ONE MACHINE AND NOT MORE THAN 4")
     sys.exit()
-if num_runs < 3:
-    print("must run atleast 3 runs")
+if num_runs < 4:
+    print("must run atleast 4 runs (for std dev)")
     sys.exit()
+
 print("ASPIRIN TEST")
 time_values = []
 run_test(num_machines, num_runs, make_asprin_query, search_year)

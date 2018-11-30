@@ -13,7 +13,7 @@ WITH medications_all AS (
 ),
 
 diagnoses_all AS (
-	SELECT patient_id FROM vdb1_diagnoses where year = {0}
+	SELECT patient_id FROM vdb1_diagnoses where year = {0} -- and where diag_src = 'hd'
 	UNION ALL
 	SELECT patient_id FROM vdb2_diagnoses where year = {0}
 	UNION ALL
