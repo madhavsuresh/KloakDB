@@ -56,21 +56,20 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   auto pmp2 = jd_pm2.add_project_list();
   pmp2->set_side(JoinColID_RelationSide_LEFT);
   pmp2->set_colname("pulse");
-  auto meds_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT patient_id, medication from " +
-  medications_table + year_append);
+  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database,
+                                       "SELECT patient_id, medication from " +
+                                           medications_table + year_append);
 
   auto meds_repart = p->Repartition(meds_scan);
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
-  auto out_pm_join = p->Join(to_join2, jd_pm2, false );
+  auto out_pm_join = p->Join(to_join2, jd_pm2, false);
 
-  //p->FreeTables(meds_repart);
-
+  // p->FreeTables(meds_repart);
 
   auto demographics_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from "
-  + demographics_table + year_append); auto demographics_repart =
-  p->Repartition(demographics_scan);
+      "dbname=" + database,
+      "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+  auto demographics_repart = p->Repartition(demographics_scan);
   // join def second join "plus demographics"
   JoinDef jd_pd3;
   jd_pd3.set_l_col_name("patient_id");
