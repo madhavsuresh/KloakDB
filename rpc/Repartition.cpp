@@ -40,6 +40,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   // If there is only one host, we do not want to reparition.
   if (num_hosts == 1) {
     // TODO(madhavsuresh): better error handling and logging
+    LOG(FATAL) << "Cannot repartition on just one host";
     throw;
     return {};
   }
@@ -85,6 +86,7 @@ uint32_t hash_fields_to_int_sgx(uint8_t f[], uint32_t len) {
 int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t,
                  table_t *table) {
   if (cf.cf_name_strings_size() > 20) {
+    LOG(FATAL) << "Too many control flow attributes";
     throw;
   }
   uint8_t f[MAX_FIELDS*FIXEDCHAR_LEN];
@@ -103,6 +105,7 @@ int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t,
         break;
       }
      default :{
+       LOG(FATAL) << "Unsupported type for hash_to_host";
         throw;
       }
     }
@@ -120,6 +123,7 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   }
 
   if (num_hosts > MAX_NUM_HOSTS) {
+    LOG(FATAL) << "Repartition: num_hosts > MAX_NUM_HOSTS";
     throw;
   }
   table_builder_t host_tb[MAX_NUM_HOSTS];

@@ -23,8 +23,11 @@ FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
     return DOUBLE;
   case TIMESTAMPOID:
     return TIMESTAMP;
-  default:
+  default: {
+    LOG(PQXX) << "ERROR: Unsupported Column Type";
+
     throw std::invalid_argument("Unsupported column type");
+  }
     // return UNSUPPORTED;
   }
 }
@@ -74,6 +77,7 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
         tuple->field_list[field_counter].type = TIMESTAMP;
       } else {
         printf("\n**\n%s\n**\n", field.c_str());
+        LOG(PQXX) << "ERROR Parsing timezone failed";
         throw std::invalid_argument("Parsing timezone failed");
       }
       break;
@@ -86,9 +90,11 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
       break;
     }
     case UNSUPPORTED: {
+      LOG(PQXX) << "ERROR Type not supported in tuple builder";
       throw std::invalid_argument("Type not supported in tuple builder");
     }
     default: {
+      LOG(PQXX) << "ERROR Type not supported in tuple builder";
       throw std::invalid_argument("Type not supported in tuple builder");
     }
     }
@@ -141,6 +147,7 @@ schema_t get_schema_from_query(table_builder_t *tb, pqxx::result res) {
   schema_t schema;
   schema.num_fields = res.columns();
   if (schema.num_fields > MAX_FIELDS) {
+    LOG(PQXX) << "KloakDB does not support the number of columns in your schema. See the MAX_FIELDS constant.";
     throw std::range_error("KloakDB does not support the number of columns in "
                            "your schema. See the MAX_FIELDS constant.");
   }
