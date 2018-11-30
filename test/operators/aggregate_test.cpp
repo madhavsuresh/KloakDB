@@ -77,6 +77,31 @@ TEST_F(aggregate_test, avg_aggregate) {
   free_table(t2);
 }
 
+TEST_F(aggregate_test, multi_col_avg) {
+
+  query("DROP TABLE IF EXISTS multi_col", dbname);
+  query("create table multi_col (a INT, b INT, c INT)", dbname);
+  std::string query1 =
+          "INSERT INTO multi_col (a,b,c) VALUES (1,7,8), (1,7,9), (3,4,5)";
+  query("INSERT INTO multi_col (a,b,c) VALUES (1,7,8), (1,7,9), (3,4,5)",dbname);
+  table_t *t = get_table("SELECT * FROM multi_col", dbname);
+  groupby_def_t gbd;
+  gbd.type = AVG;
+  gbd.colno = 2;
+  gbd.num_cols = 2;
+  gbd.gb_colnos[0] = 1;
+  gbd.gb_colnos[1] = 0;
+  table_t *t2 = aggregate(t, &gbd);
+  printf("aggregate num columsn: %d\n", t2->num_tuples);
+  printf("input num columsn: %d\n", t->num_tuples);
+  for (int i = 0; i < t->num_tuples; i++) {
+    std::cout << tuple_string(get_tuple(i, t)) << std::endl;
+  }
+  for (int i = 0; i < t2->num_tuples; i++) {
+    std::cout << tuple_string(get_tuple(i, t2)) << std::endl;
+  }
+}
+
 TEST_F(aggregate_test, sgx_avg_aggregate) {
   std::string query1 =
       "INSERT INTO simple_agg (a,b) VALUES (1,7), (2,7), (3,4)";

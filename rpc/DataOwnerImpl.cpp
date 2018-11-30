@@ -480,6 +480,13 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
   table_t *in = p->GetTable(request->tid().tableid());
   groupby_def_t gbd = make_groupby_def_t(in, request->def());
   table_t *out;
+  LOG(OP) << "Aggregate on 0" << in->schema.fields[gbd.gb_colnos[0]].field_name;
+  LOG(OP) << "Aggregate on 1" << in->schema.fields[gbd.gb_colnos[1]].field_name;
+  LOG(OP) << "Aggregate on FIELD" << in->schema.fields[gbd.colno].field_name;
+  LOG(OP) << "TOP 10 TUPLES into AGGREGATE";
+  for (int i = 0; i < 10; i++) {
+    LOG(OP) << tuple_string(get_tuple(i, in));
+  }
   if (request->in_sgx()) {
     LOG(DO_IMPL) << "SGX Aggregate";
     START_TIMER(sgx_aggregate_inner);

@@ -205,28 +205,6 @@ table_t *kaggregate_count(table_t * t, int colno, int kanon_col) {
 }
 
 table_t *aggregate(table_t *t, groupby_def_t *def) {
-  if (def->kanon_col == def->colno) {
-    switch (def->type) {
-      case COUNT: {
-        return kaggregate_count(t, def->colno, def->kanon_col);
-        break;
-      }
-      case AVG: {
-        //return kaggregate_avg(t, def);
-        throw;
-        break;
-      }
-      case MINX: {
-        throw;
-        // printf("UNIMPLEMENTED");
-      }
-      case GROUPBY_UNSUPPORTED: {
-        throw;
-        // printf("UNSUPPORTED");
-      }
-    }
-    return nullptr;
-  }
   switch (def->type) {
   case COUNT: {
     return aggregate_count(t, def->colno);
