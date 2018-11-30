@@ -8,6 +8,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
                      std::string medications_table,
                      std::string demographics_table, std::string year,
                      bool sgx) {
+  std::string random_query = " ORDER BY random() LIMIT 1000";
 
   std::string year_append = "";
   if (year != "") {
@@ -57,7 +58,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   pmp2->set_colname("pulse");
   auto meds_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT patient_id, medication from " +
-  medications_table);
+  medications_table + year_append);
 
   auto meds_repart = p->Repartition(meds_scan);
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
@@ -68,7 +69,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
 
   auto demographics_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from "
-  + demographics_table); auto demographics_repart =
+  + demographics_table + year_append); auto demographics_repart =
   p->Repartition(demographics_scan);
   // join def second join "plus demographics"
   JoinDef jd_pd3;
