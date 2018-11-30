@@ -62,7 +62,7 @@ set(REPART_SRCS
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/rpc)
 include_directories(${CMAKE_CURRENT_BINARY_DIR}/logger)
 
-add_executable(vaultdb VaultDB.cpp test/experiments/exp5.cpp test/experiments/exp3.cpp test/experiments/exp4.cpp)
+add_executable(vaultdb VaultDB.cpp test/experiments/exp5.cpp test/experiments/exp3.cpp test/experiments/exp4.cpp test/experiments/distributed_aspirin_profile.cpp test/experiments/distributed_aspirin_profile.h)
 
 target_link_libraries(vaultdb gflags dl pthread krpc g3logger pqxxcompat dataformat operators klogger vaultdb_sgx_app)
 

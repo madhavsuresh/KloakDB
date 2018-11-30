@@ -12,6 +12,7 @@
 #include "test/experiments/exp3.h"
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp5.h"
+#include "test/experiments/distributed_aspirin_profile.h"
 #include <future>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
@@ -29,15 +30,16 @@ DEFINE_string(
     honest_broker_address, "",
     "IPV4 Address for honest broker instance (set by non-honest broker)");
 DEFINE_int32(experiment, 1, "experiment number");
+DEFINE_string(hl_query, "aspirin", "healthlnk query name");
 
 DEFINE_int32(gen_level, 5, "generalization level");
 
-DEFINE_string(database, "smcql_testDB", "database name");
-DEFINE_string(diagnoses_table, "diagnoses", "table name for diagnoses");
-DEFINE_string(medications_table, "medications", "table name for medications");
-DEFINE_string(demographics_table, "demographics",
+DEFINE_string(db, "smcql_testDB", "database name");
+DEFINE_string(di_table, "diagnoses", "table name for diagnoses");
+DEFINE_string(meds_table, "medications", "table name for medications");
+DEFINE_string(dem_table, "demographics",
               "table name for demographics");
-DEFINE_string(vitals_table, "vitals", "table name for vitals");
+DEFINE_string(vit_table, "vitals", "table name for vitals");
 DEFINE_string(cdiff_cohort_diag_table, "cdiff_cohort_diagnoses",
               "table name for cdiff cohort diagnoses");
 DEFINE_string(logger_host_name, "guinea-pig.cs.northwestern.edu:60000",
@@ -73,86 +75,12 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
   return ret;
 }
 
-void aspirin_profile(HonestBrokerPrivate *p) {
-  auto meds_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_database, "SELECT patient_id, medication from " + FLAGS_medications_table);
-  auto demographics_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_database, "SELECT DISTINCT patient_id, gender, race from " + FLAGS_demographics_table);
-  auto diagnoses_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_database, "SELECT icd9, patient_id from " + FLAGS_diagnoses_table);
-  auto vitals_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_database,
-                                         "SELECT patient_id, pulse from " + FLAGS_vitals_table);
-  auto meds_repart = p->Repartition(meds_scan);
-  auto demographics_repart = p->Repartition(demographics_scan);
-  auto diagnoses_repart = p->Repartition(diagnoses_scan);
-  auto vitals_repart = p->Repartition(vitals_scan);
-
-  p->SetControlFlowColName("patient_id");
-  // join def vitals-diagnoses
-  JoinDef jd_vd;
-  jd_vd.set_l_col_name("patient_id");
-  jd_vd.set_r_col_name("patient_id");
-  jd_vd.set_project_len(2);
-  // vitals-diagnoses-join project 1
-  auto vdjp1 = jd_vd.add_project_list();
-  vdjp1->set_side(JoinColID_RelationSide_LEFT);
-  vdjp1->set_colname("patient_id");
-  auto vdjp2 = jd_vd.add_project_list();
-  vdjp2->set_side(JoinColID_RelationSide_LEFT);
-  vdjp2->set_colname("pulse");
-  auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
-  auto out_vd_join = p->Join(to_join1, jd_vd, false /* in_sgx */);
-
-  // join def first join "plus medications"
-  // join between output of vitals/diagnonses join and medications
-  JoinDef jd_pm2;
-  jd_pm2.set_l_col_name("patient_id");
-  jd_pm2.set_r_col_name("patient_id");
-  jd_pm2.set_project_len(2);
-  // plus medications project 1
-  auto pmp1 = jd_pm2.add_project_list();
-  pmp1->set_side(JoinColID_RelationSide_LEFT);
-  pmp1->set_colname("patient_id");
-  auto pmp2 = jd_pm2.add_project_list();
-  pmp2->set_side(JoinColID_RelationSide_LEFT);
-  pmp2->set_colname("pulse");
-  auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
-  auto out_pm_join = p->Join(to_join2, jd_pm2, false /* in_sgx */);
-
-  // join def second join "plus demographics"
-  JoinDef jd_pd3;
-  jd_pd3.set_l_col_name("patient_id");
-  jd_pd3.set_r_col_name("patient_id");
-  jd_pd3.set_project_len(3);
-  auto pdp1 = jd_pd3.add_project_list();
-  pdp1->set_side(JoinColID_RelationSide_LEFT);
-  pdp1->set_colname("pulse");
-  auto pdp2 = jd_pd3.add_project_list();
-  pdp2->set_side(JoinColID_RelationSide_RIGHT);
-  pdp2->set_colname("gender");
-  auto pdp3 = jd_pd3.add_project_list();
-  pdp3->set_side(JoinColID_RelationSide_RIGHT);
-  pdp3->set_colname("race");
-  auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
-  auto out_pd_join = p->Join(to_join3, jd_pd3, false /* in_sgx */);
-
-  GroupByDef gbd;
-  gbd.set_type(GroupByDef_GroupByType_AVG);
-  gbd.set_col_name("pulse");
-  gbd.add_gb_col_names("gender");
-  gbd.add_gb_col_names("race");
-  vector<string> cfids;
-  cfids.emplace_back("gender");
-  cfids.emplace_back("race");
-  p->SetControlFlowColName("patient_id");
-  auto final_avg = p->Aggregate(out_pd_join, gbd, false);
-}
 
 void dosage_study(HonestBrokerPrivate *p) {
   auto diag_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_diagnoses_table);
+      "dbname=" + FLAGS_db, "SELECT * from " + FLAGS_di_table);
   auto med_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_database, "SELECT * from " + FLAGS_medications_table);
+      "dbname=" + FLAGS_db, "SELECT * from " + FLAGS_meds_table);
   // auto to_join = zip_join_tables(diag_scan, med_scan);
   p->SetControlFlowColName("patient_id");
   auto diag_repart = p->Repartition(diag_scan);
@@ -225,7 +153,10 @@ int main(int argc, char **argv) {
       break;
     }
     case 7: {
-      aspirin_profile(p);
+      if (FLAGS_hl_query == "aspirin") {
+        aspirin_profile(p,FLAGS_db, FLAGS_di_table, FLAGS_vit_table, FLAGS_meds_table, FLAGS_dem_table);
+      }
+
       break;
     }
     default: { printf("NOTHING HAPPENS HERE\n"); }
