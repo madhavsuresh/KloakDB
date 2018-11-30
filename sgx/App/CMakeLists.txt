@@ -15,12 +15,12 @@ add_library(vaultdb_sgx_app VaultDBSGXApp.cpp "${CMAKE_CURRENT_BINARY_DIR}/Vault
 enable_language(ASM)
 include_directories("${CMAKE_CURRENT_BINARY_DIR}")
 
-if(NOT "$ENV{SGX_MODE}" EQUAL "HW")
-	message("SOFTWARE SIM MODE")
-  target_link_libraries(vaultdb_sgx_app sgx_urts_sim sgx_uae_service_sim)
-else()
+if(NOT "$ENV{SGX_MODE}" EQUAL "SW")
 	message("HARDWARE MODE")
   target_link_libraries(vaultdb_sgx_app sgx_urts sgx_uae_service)
+else()
+	message("SOFTWARE SIM MODE")
+  target_link_libraries(vaultdb_sgx_app sgx_urts_sim sgx_uae_service_sim)
 endif()
 target_link_libraries(vaultdb_sgx_app gflags)
 

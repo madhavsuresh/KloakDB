@@ -21,12 +21,13 @@ find_library(VAULTDB_OPERATORS operators)
 
 include_directories("${CMAKE_SOURCE_DIR}/lib/sgxsdk/include/libcxx" "${CMAKE_SOURCE_DIR}/lib/sgxsdk/include/tlibc")
 get_property(dirs DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY INCLUDE_DIRECTORIES)
-if(NOT "$ENV{SGX_MODE}" EQUAL "HW")
-    set(Trts_Library_Path "${TRTS_SIM_LIB}")
-	set(Service_Library_Path "${SERVICE_SIM_LIB}")
-else()
+if(NOT "$ENV{SGX_MODE}" EQUAL "SW")
+	message("HARDWARE SGX MODE")
 	set(Trts_Library_Path "${TRTS_LIB}")
 	set(Service_Library_Path "${SERVICE_LIB}")
+else()
+    set(Trts_Library_Path "${TRTS_SIM_LIB}")
+	set(Service_Library_Path "${SERVICE_SIM_LIB}")
 endif()
 
 
