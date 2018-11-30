@@ -494,6 +494,9 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
     LOG_TIMER(plain_aggregate_inner);
   }
   LOG(OP) << "Aggregate Number of Output Tuples :[" << out->num_tuples << "]";
+  for (int i = 0; i < out->num_tuples; i++) {
+    LOG(DO_IMPL) << tuple_string(get_tuple(i, out));
+  }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out));
