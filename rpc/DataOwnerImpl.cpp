@@ -484,9 +484,12 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
   LOG(OP) << "Aggregate on 1" << in->schema.fields[gbd.gb_colnos[1]].field_name;
   LOG(OP) << "Aggregate on FIELD" << in->schema.fields[gbd.colno].field_name;
   LOG(OP) << "TOP 10 TUPLES into AGGREGATE";
+  LOG(OP) << "Num fields " << in->schema.num_fields;
+  /*
   for (int i = 0; i < 10; i++) {
     LOG(OP) << tuple_string(get_tuple(i, in));
   }
+   */
   if (request->in_sgx()) {
     LOG(DO_IMPL) << "SGX Aggregate";
     START_TIMER(sgx_aggregate_inner);
