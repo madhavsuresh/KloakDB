@@ -38,6 +38,7 @@ table_t *get_table(std::string query_string, std::string dbname) {
 
 void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_builder_t * tb) {
   int field_counter = 0;
+  int tuple_size_breach = 0;
   tuple->num_fields = s->num_fields;
   for (auto field : tup) {
     // TODO(madhavsuresh): do better than this!
@@ -50,7 +51,7 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
     switch (s->fields[field_counter].type) {
     case FIXEDCHAR:
       if (field.size() > FIXEDCHAR_LEN) {
-        LOG(PQXX) << "TUPLE SIZE BREACHED: " << field ;
+        tuple_size_breach++;
       }
       strncpy(tuple->field_list[field_counter].f.fixed_char_field.val,
               field.c_str(), FIXEDCHAR_LEN);
@@ -93,6 +94,7 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
     }
     field_counter++;
   }
+  LOG(PQXX) << "TUPLE SIZE BREACHED: " << tuple_size_breach ;
 }
 
 void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
