@@ -461,6 +461,7 @@ groupby_def_t make_groupby_def_t(table_t *t, ::vaultdb::GroupByDef def) {
     def_t.type = AVG;
     def_t.colno = colno_from_name(t, def.col_name());
     LOG(OP) << "AVG COL NO" << def_t.colno << " NAME:" << def.col_name();
+    LOG(OP) << "AVG NUM GBCOLS" <<  def.gb_col_names_size();
     for (int i = 0; i < def.gb_col_names_size(); i++) {
       def_t.gb_colnos[i] =
           static_cast<uint8_t>(colno_from_name(t, def.gb_col_names(i)));
