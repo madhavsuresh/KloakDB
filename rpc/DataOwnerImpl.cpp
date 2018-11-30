@@ -467,7 +467,7 @@ groupby_def_t make_groupby_def_t(table_t *t, ::vaultdb::GroupByDef def) {
           static_cast<uint8_t>(colno_from_name(t, def.gb_col_names(i)));
       LOG(OP) << " GB NAMES:" << def.gb_col_names(i) << ", NO" << def_t.gb_colnos[i];
     }
-    def_t.num_cols = def.gb_col_nos_size();
+    def_t.num_cols = def.gb_col_names_size();
     break;
   }
   default: { throw; }

@@ -179,7 +179,6 @@ message GroupByDef {
     }
     GroupByType type = 1;
     int32 col_no = 2;
-    repeated int32 gb_col_nos = 3;
     string col_name = 4;
     repeated string gb_col_names = 5;
     int32 kanon_col = 6;
