@@ -92,6 +92,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   gbd.set_col_name("pulse");
   gbd.add_gb_col_names("gender");
   gbd.add_gb_col_names("race");
+  LOG(INFO) << "GB LEN" << gbd.gb_col_names_size()
   vector<string> cfids;
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
