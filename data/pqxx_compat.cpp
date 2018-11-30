@@ -110,7 +110,7 @@ void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
     try {
       build_tuple_from_pq(psql_row, get_tuple(tb->curr_tuple, tb->table),
                           &tb->table->schema, tb);
-    } catch (std::domain_error &e){
+    } catch (...){
       memset(get_tuple(tb->curr_tuple, tb->table), '\0', tb->size_of_tuple);
       null_tuples++;
       continue;
