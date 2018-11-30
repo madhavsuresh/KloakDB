@@ -8,6 +8,7 @@
 #include <iomanip>
 #include <iostream>
 #include <logger/LoggerDefs.h>
+int tuple_size_breach;
 
 FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
   switch (oid) {
@@ -38,7 +39,6 @@ table_t *get_table(std::string query_string, std::string dbname) {
 
 void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_builder_t * tb) {
   int field_counter = 0;
-  int tuple_size_breach = 0;
   tuple->num_fields = s->num_fields;
   for (auto field : tup) {
     // TODO(madhavsuresh): do better than this!
@@ -94,11 +94,11 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
     }
     field_counter++;
   }
-  LOG(PQXX) << "TUPLE SIZE BREACHED: " << tuple_size_breach ;
 }
 
 void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
   // TODO(madhavsuresh): would prefer this to be on the stack
+  tuple_size_breach = 0;
   for (auto psql_row : res) {
     // Don't want to jump on the first tuple
     if (check_add_tuple_page(tb)) {
@@ -111,6 +111,7 @@ void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
     tb->curr_tuple++;
     fflush(stdin);
   }
+  LOG(PQXX) << "TUPLE SIZE BREACHED: " << tuple_size_breach;
 }
 
 table_builder_t *table_builder_init(std::string query_string,
