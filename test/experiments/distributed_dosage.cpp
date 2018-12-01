@@ -33,7 +33,7 @@ void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname,
   join_project->set_col_no(JoinColID_RelationSide_LEFT);
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
-  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_encrypted, "debug");
+  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_encrypted, "release");
   LOG(EXP7_DOS) << "ENDING DOSAGE STUDY ENCRYPTED";
 }
 
@@ -44,6 +44,8 @@ void dosage_obliv(HonestBrokerPrivate *p, std::string dbname,
     year_append = " where year=" + year;
   }
 
+  LOG(EXP7_DOS) << "STARTING DOSAGE STUDY ENCRYPTED";
+  START_TIMER(dosage_study_obli);
   auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
                                        "SELECT * from " + diag + year_append + " AND icd9 LIKE '997%'");
   auto med_scan = p->ClusterDBMSQuery("dbname=" + dbname,
@@ -67,5 +69,7 @@ void dosage_obliv(HonestBrokerPrivate *p, std::string dbname,
   join_project->set_col_no(JoinColID_RelationSide_LEFT);
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
+  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_obli, "release");
+  LOG(EXP7_DOS) << "ENDING DOSAGE STUDY ENCRYPTED";
 }
 
