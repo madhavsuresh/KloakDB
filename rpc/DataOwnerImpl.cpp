@@ -268,11 +268,13 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
 }
 
 expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
+  LOG(DO_IMPL) << "Making filter expression";
   expr_t ex;
   ex.colno = colno_from_name(t, expr.colname());
   switch (expr.type()) {
   case vaultdb::Expr_ExprType_EQ_EXPR: {
     ex.expr_type = EQ_EXPR;
+    LOG(DO_IMPL) << "EQ filter expression";
     break;
   }
   case Expr_ExprType_NEQ_EXPR: {
@@ -280,10 +282,13 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
     break;
   }
   case Expr_ExprType_LIKE_EXPR: {
+    LOG(DO_IMPL) << "LIKE filter expression";
     ex.expr_type = LIKE_EXPR;
     break;
   }
-  default: { throw; }
+  default: {
+    LOG(DO_IMPL) << "THROW UNSUPPORTED filter expression";
+    throw; }
   }
 
   switch (expr.desc().field_type()) {
@@ -299,6 +304,7 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
     break;
   }
   default:
+    LOG(DO_IMPL) << "THROW UNSUPPORTED filter desc type";
     throw;
   }
   return ex;
