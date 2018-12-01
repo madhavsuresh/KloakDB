@@ -384,7 +384,7 @@ table_t *generalize_table_fast(
     int top_end = min_val+1;
     bool append = true;
     while (!all_realtions_in_range_kanon(rc_map, relation_num, k, min_val, top_end)) {
-      top_end+=k;
+      top_end+=k+4;
       if (top_end >= final_range) {
         for (int scan = min_val; scan < final_range; scan++) {
           int64_t original_table_val = internal_gen_to_input[scan];
