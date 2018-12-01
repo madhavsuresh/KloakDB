@@ -87,8 +87,29 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
   auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
                                        "SELECT * from " + diag + year_append); //;+ " AND icd9 LIKE '997%'");
   auto med_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                      "SELECT * from " + meds + year_append + "); // AND medication LIKE 'ASPIRIN%' AND dosage = '325 MG'");
+                                      "SELECT * from " + meds + year_append); // AND medication LIKE 'ASPIRIN%' AND dosage = '325 MG'");
   // auto to_join = zip_join_tables(diag_scan, med_scan);
+  ::vaultdb::Expr expr_med;
+  expr_med.set_colname("medication");
+  expr_med.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldMed =  expr_med.mutable_desc();
+  fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_med.set_charfield("ASPIRIN");
+
+  ::vaultdb::Expr expr_dosage;
+  expr_dosage.set_colname("dosage");
+  expr_dosage.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldDosage =  expr_dosage.mutable_desc();
+  fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_dosage.set_charfield("325 MG");
+
+  ::vaultdb::Expr expr_icd9;
+  expr_dosage.set_colname("icd9");
+  expr_dosage.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldIcd9 =  expr_dosage.mutable_desc();
+  fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_dosage.set_charfield("997");
+
   to_gen_t meds_gen;
   meds_gen.column = "patient_id";
   meds_gen.dbname = "healthlnk";
@@ -105,7 +126,10 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
 
   p->SetControlFlowColName("patient_id");
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
-  auto med_repart = p->Repartition(gen_zipped_map["medications"]);
+  auto filtered_meds =  p->Filter(gen_zipped_map["medications"], expr_med, false);
+  auto filtered_dosage =  p->Filter(filtered_meds, expr_dosage, false);
+  auto filtered_diag =  p->Filter(gen_zipped_map["diagnoses"], expr_icd9, false);
+  auto med_repart = p->Repartition(filtered_dosage);
   auto diag_repart = p->Repartition(gen_zipped_map["diagnoses"]);
   auto to_join = zip_join_tables(diag_repart, med_repart);
 
