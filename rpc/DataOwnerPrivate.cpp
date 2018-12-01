@@ -40,9 +40,8 @@ DataOwnerPrivate::DataOwnerPrivate(std::string host_name,
 
   this->hb_host_name = hb_host_name;
   this->num_hosts = 0;
-  auto channel_creds = grpc::SslCredentials(grpc::SslCredentialsOptions());
   client = new HonestBrokerClient(grpc::CreateChannel(
-      this->hb_host_name, channel_creds));
+      this->hb_host_name, grpc::InsecureChannelCredentials()));
   this->table_counter = 0;
 
 }
@@ -53,10 +52,9 @@ void DataOwnerPrivate::DeleteDataOwnerClient(int host_num) {
 }
 
 void DataOwnerPrivate::SetDataOwnerClient(int host_num, std::string host_name) {
-  auto channel_creds = grpc::SslCredentials(grpc::SslCredentialsOptions());
   data_owner_clients[host_num] = new DataOwnerClient(
       host_name, host_num,
-      grpc::CreateChannel(host_name, channel_creds));
+      grpc::CreateChannel(host_name, grpc::InsecureChannelCredentials()));
 }
 
 table_t *DataOwnerPrivate::GetTable(int table_id) {

@@ -166,11 +166,9 @@ int HonestBrokerPrivate::RegisterHost(string hostName) {
   int host_num = this->num_hosts;
   remoteHostnames.push_back(hostName);
   numToHostMap[host_num] = hostName;
-  auto channel_creds = grpc::SslCredentials(grpc::SslCredentialsOptions());
-
   do_clients[host_num] = new DataOwnerClient(
       hostName, host_num,
-      grpc::CreateChannel(hostName, channel_creds));
+      grpc::CreateChannel(hostName, grpc::InsecureChannelCredentials()));
   this->registrationMutex.unlock();
   this->num_hosts++;
   LOG(INFO) << "registered host: [" << hostName << "] at hostnum : ["
