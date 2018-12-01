@@ -12,14 +12,15 @@ void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname,
   }
 
   auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                       "SELECT * from " + diag + year_append);
+                                       "SELECT * from " + diag + year_append + " AND icd9 LIKE '997%'");
   auto med_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                      "SELECT * from " + meds + year_append);
+                                      "SELECT * from " + meds + year_append + " AND medication LIKE 'ASPIRIN%' AND dosage = '325 MG'");
   // auto to_join = zip_join_tables(diag_scan, med_scan);
   p->SetControlFlowColName("patient_id");
   auto diag_repart = p->RepartitionJustHash(diag_scan);
   auto med_repart = p->RepartitionJustHash(med_scan);
   auto to_join = zip_join_tables(diag_repart, med_repart);
+
 
   JoinDef jd;
   jd.set_l_col_name("patient_id");
