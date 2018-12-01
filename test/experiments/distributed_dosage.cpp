@@ -1,10 +1,11 @@
 //
 // Created by madhav on 12/1/18.
 //
-#include <VaultDB.h>
 #include "distributed_dosage.h"
+#include <VaultDB.h>
 
-void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname, std::string diag, std::string meds, std::string year) {
+void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname,
+                      std::string diag, std::string meds, std::string year) {
   std::string year_append = "";
   if (year != "") {
     year_append = " where year=" + year;
@@ -16,8 +17,8 @@ void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname, std::string di
                                       "SELECT * from " + meds + year_append);
   // auto to_join = zip_join_tables(diag_scan, med_scan);
   p->SetControlFlowColName("patient_id");
-  auto diag_repart = p->Repartition(diag_scan);
-  auto med_repart = p->Repartition(med_scan);
+  auto diag_repart = p->RepartitionJustHash(diag_scan);
+  auto med_repart = p->RepartitionJustHash(med_scan);
   auto to_join = zip_join_tables(diag_repart, med_repart);
 
   JoinDef jd;
@@ -29,6 +30,4 @@ void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname, std::string di
   join_project->set_col_no(JoinColID_RelationSide_LEFT);
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
-
 }
-
