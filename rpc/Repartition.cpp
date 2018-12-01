@@ -65,7 +65,6 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   for (auto &h : threads_send) {
     host_and_ID.push_back(h.get());
   }
-  free_table(t);
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_data_movement);
   return host_and_ID;
 }
