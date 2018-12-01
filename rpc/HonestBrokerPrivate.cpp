@@ -326,6 +326,10 @@ void HonestBrokerPrivate::SetControlFlowColName(string name) {
   cf.add_cf_name_strings(name);
 }
 
+void HonestBrokerPrivate::ResetControlFlowCols() {
+  cf.Clear();
+}
+
 void HonestBrokerPrivate::SetControlFlowColNames(vector<string> names) {
   for (auto &name : names) {
     cf.add_cf_name_strings(name);
