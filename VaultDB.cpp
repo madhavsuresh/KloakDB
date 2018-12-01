@@ -9,10 +9,11 @@
 #include "rpc/DataOwnerPrivate.h"
 #include "rpc/HonestBrokerClient.h"
 #include "rpc/HonestBrokerImpl.h"
+#include "test/experiments/distributed_aspirin_profile.h"
+#include "test/experiments/distributed_comorb.h"
 #include "test/experiments/exp3.h"
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp5.h"
-#include "test/experiments/distributed_aspirin_profile.h"
 #include <future>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
@@ -32,14 +33,13 @@ DEFINE_string(
 DEFINE_int32(experiment, 1, "experiment number");
 DEFINE_string(hl_query, "aspirin", "healthlnk query name");
 
-DEFINE_int32(gen_level, 5, "generalization level");
+DEFINE_int32(gen_level, 0, "generalization level");
 
 DEFINE_string(year, "", "year for healthlnk queries");
 DEFINE_string(db, "smcql_testDB", "database name");
 DEFINE_string(di_table, "diagnoses", "table name for diagnoses");
 DEFINE_string(meds_table, "medications", "table name for medications");
-DEFINE_string(dem_table, "demographics",
-              "table name for demographics");
+DEFINE_string(dem_table, "demographics", "table name for demographics");
 DEFINE_string(vit_table, "vitals", "table name for vitals");
 DEFINE_string(cdiff_cohort_diag_table, "cdiff_cohort_diagnoses",
               "table name for cdiff cohort diagnoses");
@@ -76,12 +76,11 @@ zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
   return ret;
 }
 
-
 void dosage_study(HonestBrokerPrivate *p) {
-  auto diag_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_db, "SELECT * from " + FLAGS_di_table);
-  auto med_scan = p->ClusterDBMSQuery(
-      "dbname=" + FLAGS_db, "SELECT * from " + FLAGS_meds_table);
+  auto diag_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_db,
+                                       "SELECT * from " + FLAGS_di_table);
+  auto med_scan = p->ClusterDBMSQuery("dbname=" + FLAGS_db,
+                                      "SELECT * from " + FLAGS_meds_table);
   // auto to_join = zip_join_tables(diag_scan, med_scan);
   p->SetControlFlowColName("patient_id");
   auto diag_repart = p->Repartition(diag_scan);
@@ -155,9 +154,14 @@ int main(int argc, char **argv) {
     }
     case 7: {
       if (FLAGS_hl_query == "aspirin") {
-        aspirin_profile(p,FLAGS_db, FLAGS_di_table, FLAGS_vit_table, FLAGS_meds_table, FLAGS_dem_table, FLAGS_year, FLAGS_sgx, FLAGS_gen_level);
+        aspirin_profile(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
+                        FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
+                        FLAGS_sgx, FLAGS_gen_level);
+      } else if (FLAGS_hl_query == "com") {
+        if (FLAGS_gen_level == 0) {
+          comorbidity_encrypted(p, FLAGS_db);
+        }
       }
-
       break;
     }
     default: { printf("NOTHING HAPPENS HERE\n"); }

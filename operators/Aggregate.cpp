@@ -140,12 +140,17 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
   init_table_builder(agg_map.size(), s.num_fields /*num_columns*/, &s, &tb);
   tuple_t *tup = (tuple_t *)malloc(tb.size_of_tuple);
   tup->is_dummy = false;
+  int num_dummy = 0;
   for (const auto &agg_pair : agg_map) {
     double avg_total = 0;
     for (auto tup_no : agg_pair.second) {
-      avg_total += get_num_field(t, tup_no, def->colno);
+      if (get_tuple(tup_no, t)->is_dummy) {
+        num_dummy++;
+      } else {
+        avg_total += get_num_field(t, tup_no, def->colno);
+      }
     }
-    avg_total = avg_total / agg_pair.second.size();
+    avg_total = avg_total / (agg_pair.second.size() - num_dummy);
 
     tup->field_list[s.num_fields - 1].type = DOUBLE;
     tup->field_list[s.num_fields - 1].f.double_field.val = avg_total;
