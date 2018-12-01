@@ -47,8 +47,7 @@ string count_star_query(string table_name, string column) {
     return "SELECT " + column + ", count(*) FROM " + table_name + " WHERE year=2008 GROUP BY " +
            column + " ORDER BY " + column;
   } else {
-    return "SELECT " + column + ", count(*) FROM " + table_name +
-           column + " ORDER BY " + column;
+    return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " + column + " ORDER BY " + column;
   }
 }
 
