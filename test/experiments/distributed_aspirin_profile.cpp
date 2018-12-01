@@ -184,7 +184,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
 
   auto demographics_scan = p->ClusterDBMSQuery(
           "dbname=" + database,
-          "SELECT DISTINCT patient_id, gender, race from " + demographics_table + random_query);
+          "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
 
