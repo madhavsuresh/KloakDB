@@ -95,6 +95,14 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
   meds_gen.scan_tables.insert(meds_gen.scan_tables.end(), med_scan.begin(),
                               med_scan.end());
   gen_in["medications"] = meds_gen;
+
+  to_gen_t diag_gen;
+  diag_gen.column = "patient_id";
+  diag_gen.dbname = "healthlnk";
+  diag_gen.scan_tables.insert(diag_gen.scan_tables.end(), diag_scan.begin(),
+                              diag_scan.end());
+  gen_in["diagnoses"] = diag_gen;
+
   p->SetControlFlowColName("patient_id");
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
   auto med_repart = p->Repartition(gen_zipped_map["medications"]);
