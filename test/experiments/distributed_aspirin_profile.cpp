@@ -16,6 +16,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
     year_append = " where year=" + year;
   }
   START_TIMER(aspirin_profile_full);
+  START_TIMER(postgres_read);
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
   auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + database,
@@ -58,14 +59,20 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
                                demographics_scan.end());
   gen_in["demographics"] = dem_gen;
 
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
+  START_TIMER(generalize);
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(generalize, "full");
 
+  START_TIMER(repartition);
   auto diagnoses_repart = p->Repartition(gen_zipped_map["diagnoses"]);
   auto vitals_repart = p->Repartition(gen_zipped_map["vitals"]);
   auto meds_repart = p->Repartition(gen_zipped_map["medications"]);
   auto demographics_repart = p->Repartition(gen_zipped_map["demographics"]);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
 
   // join def vitals-diagnoses
+  START_TIMER(join_one);
   JoinDef jd_vd;
   jd_vd.set_l_col_name("patient_id");
   jd_vd.set_r_col_name("patient_id");
@@ -79,6 +86,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
   auto out_vd_join = p->Join(to_join1, jd_vd, false /* in_sgx */);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
   /*
   p->FreeTables(vitals_repart);
   p->FreeTables(diagnoses_repart);
@@ -86,6 +94,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
 
   // join def first join "plus medications"
   // join between output of vitals/diagnonses join and medications
+  START_TIMER(join_two);
   JoinDef jd_pm2;
   jd_pm2.set_l_col_name("patient_id");
   jd_pm2.set_r_col_name("patient_id");
@@ -100,10 +109,12 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
 
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, false);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
 
   // p->FreeTables(meds_repart);
 
   // join def second join "plus demographics"
+  START_TIMER(join_three);
   JoinDef jd_pd3;
   jd_pd3.set_l_col_name("patient_id");
   jd_pd3.set_r_col_name("patient_id");
@@ -119,15 +130,19 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   pdp3->set_colname("race");
   auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
   auto out_pd_join = p->Join(to_join3, jd_pd3, false);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
 
+  START_TIMER(repartition_two);
   vector<string> cfnames;
   cfnames.emplace_back("gender");
   cfnames.emplace_back("race");
   p->ResetControlFlowCols();
   p->SetControlFlowColNames(cfnames);
   auto out_repart_2 = p->Repartition(out_pd_join);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition_two, "full");
 
   GroupByDef gbd;
+  START_TIMER(aggregate);
   gbd.set_type(GroupByDef_GroupByType_AVG);
   gbd.set_col_name("pulse");
   gbd.add_gb_col_names("gender");
@@ -137,5 +152,6 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
   auto final_avg = p->Aggregate(out_repart_2, gbd, false);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }
