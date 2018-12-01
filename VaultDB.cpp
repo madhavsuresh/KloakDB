@@ -155,9 +155,15 @@ int main(int argc, char **argv) {
     }
     case 7: {
       if (FLAGS_hl_query == "aspirin") {
-        aspirin_profile(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
-                        FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
-                        FLAGS_sgx, FLAGS_gen_level);
+        if (FLAGS_gen_level ==0 ) {
+          aspirin_profile_encrypt(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
+                          FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
+                          FLAGS_sgx);
+        } else {
+          aspirin_profile(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
+                          FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
+                          FLAGS_sgx, FLAGS_gen_level);
+        }
       } else if (FLAGS_hl_query == "com") {
         if (FLAGS_gen_level == 0) {
           comorbidity_encrypted(p, FLAGS_db, FLAGS_year);
