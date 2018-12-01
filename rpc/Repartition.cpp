@@ -66,6 +66,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
     host_and_ID.push_back(h.get());
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_data_movement);
+  free_table(t);
   return host_and_ID;
 }
 uint32_t hash_fields_to_int_sgx(uint8_t f[], uint32_t len) {
@@ -138,7 +139,9 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   for (int i = 0; i < num_hosts; i++) {
     init_table_builder(max_tuples, tables[0]->schema.num_fields,
                        &tables[0]->schema, &dummy_host_tb[i]);
+    append_tuple(&dummy_host_tb[i], get_tuple(0, tables[0]));
   }
+
 
   START_TIMER(repart_two_hashing);
   ::vaultdb::ControlFlowColumn control_flow_col = p->GetControlFlowColID();
@@ -149,7 +152,7 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
         if (j == host) {
           append_tuple(&host_tb[host], get_tuple(i, t));
         } else {
-          append_tuple(&dummy_host_tb[host], get_tuple(i, t));
+          copy_tuple_to_position(dummy_host_tb[i].table, 0, get_tuple(i,t));
         }
       }
     }

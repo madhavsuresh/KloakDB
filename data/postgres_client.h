@@ -87,7 +87,6 @@ typedef struct field_ts {
 
 typedef struct field_fixed_char {
   char val[FIXEDCHAR_LEN];
-  int32_t genval;
 } field_fixed_char_t;
 
 union field_union {
