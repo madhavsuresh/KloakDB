@@ -310,6 +310,7 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
 
   vector<tableid_ptr> joined_tables;
   vector<std::future<tableid_ptr>> threads;
+  LOG(HB_P) << "Join STARTING";
   for (auto &i : ids) {
     auto client = do_clients[i.first.get()->hostnum()];
     threads.push_back(async(launch::async, &DataOwnerClient::Join, client,

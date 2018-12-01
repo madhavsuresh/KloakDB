@@ -85,10 +85,31 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
   LOG(EXP7_DOS) << "STARTING DOSAGE STUDY K-ANONYMOUS";
   START_TIMER(dosage_study_k);
   auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                       "SELECT * from " + diag + year_append + " AND icd9 LIKE '997%'");
+                                       "SELECT icd9, patient_id from " + diag + year_append + "AND icd9 LIKE '997%'"); //;+ " AND icd9 LIKE '997%'");
   auto med_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                      "SELECT * from " + meds + year_append + " AND medication LIKE 'ASPIRIN%' AND dosage = '325 MG'");
+                                      "SELECT medication, dosage, patient_id from " + meds + year_append); // AND medication LIKE 'ASPIRIN%' AND dosage = '325 MG'");
   // auto to_join = zip_join_tables(diag_scan, med_scan);
+  ::vaultdb::Expr expr_med;
+  expr_med.set_colname("medication");
+  expr_med.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldMed =  expr_med.mutable_desc();
+  fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_med.set_charfield("ASPIRIN");
+
+  ::vaultdb::Expr expr_dosage;
+  expr_dosage.set_colname("dosage");
+  expr_dosage.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldDosage =  expr_dosage.mutable_desc();
+  fieldDosage->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_dosage.set_charfield("325 MG");
+
+  ::vaultdb::Expr expr_icd9;
+  expr_icd9.set_colname("icd9");
+  expr_icd9.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldIcd9 =  expr_icd9.mutable_desc();
+  fieldIcd9->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_icd9.set_charfield("997");
+
   to_gen_t meds_gen;
   meds_gen.column = "patient_id";
   meds_gen.dbname = "healthlnk";
@@ -105,8 +126,14 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
 
   p->SetControlFlowColName("patient_id");
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
-  auto med_repart = p->Repartition(gen_zipped_map["medications"]);
-  auto diag_repart = p->Repartition(gen_zipped_map["diagnoses"]);
+  LOG(EXP7_DOS) << "MEDICATIONS FILTER";
+  auto filtered_meds =  p->Filter(gen_zipped_map["medications"], expr_med, false);
+  LOG(EXP7_DOS) << "DOSAGE FILTER";
+  auto filtered_dosage =  p->Filter(filtered_meds, expr_dosage, false);
+  LOG(EXP7_DOS) << "DIAG FILTER";
+  auto filtered_diag =  p->Filter(gen_zipped_map["diagnoses"], expr_icd9, false);
+  auto med_repart = p->Repartition(filtered_meds);
+  auto diag_repart = p->Repartition(filtered_diag);
   auto to_join = zip_join_tables(diag_repart, med_repart);
 
 
@@ -120,6 +147,6 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
   END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_k, "release");
-  LOG(EXP7_DOS) << "ENDING DOSAGE STUDY ENCRYPTED";
+  LOG(EXP7_DOS) << "ENDING DOSAGE STUDY K-ANON";
 }
 
