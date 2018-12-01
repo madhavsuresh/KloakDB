@@ -91,6 +91,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   std::vector<std::pair<int32_t, int32_t>> info =
       repart_step_one(t, p->NumHosts(), p);
   END_TIMER(repart_step_one_inner);
+  p->FreeTable(request->tableid().tableid());
   for (auto i : info) {
     ::vaultdb::TableID *id = response->add_remoterepartitionids();
     id->set_hostnum(i.first);

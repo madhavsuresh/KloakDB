@@ -65,7 +65,6 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
     host_and_ID.push_back(h.get());
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_data_movement);
-  free_table(t);
   return host_and_ID;
 }
 uint32_t hash_fields_to_int_sgx(uint8_t f[], uint32_t len) {

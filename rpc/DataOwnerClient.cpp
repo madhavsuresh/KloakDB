@@ -270,10 +270,10 @@ int DataOwnerClient::SendTable(table_t *t, bool freeing) {
     pages.set_is_header(false);
     pages.set_page_no(i);
     pages.set_page((char *)t->tuple_pages[i], PAGE_SIZE);
+    writer->Write(pages);
     if (freeing) {
       free(t->tuple_pages[i]);
     }
-    writer->Write(pages);
   }
   writer->WritesDone();
   ::grpc::Status status = writer->Finish();

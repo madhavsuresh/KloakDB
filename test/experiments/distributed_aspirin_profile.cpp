@@ -7,7 +7,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
                      std::string diagnoses_table, std::string vitals_table,
                      std::string medications_table,
                      std::string demographics_table, std::string year,
-                     bool sgx) {
+                     bool sgx, int gen_level) {
   std::string random_query = " ORDER BY random() LIMIT 1000";
 
   std::string year_append = "";
@@ -15,14 +15,53 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
     year_append = " where year=" + year;
   }
   p->SetControlFlowColName("patient_id");
+  unordered_map<table_name, to_gen_t> gen_in;
   auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + database,
                                             "SELECT icd9, patient_id from " +
                                                 diagnoses_table + year_append);
+  to_gen_t diag_gen;
+  diag_gen.column = "patient_id";
+  diag_gen.dbname = "healthlnk";
+  diag_gen.scan_tables.insert(diag_gen.scan_tables.end(), diagnoses_scan.begin(),
+                                diagnoses_scan.end());
+  gen_in["diagnoses"] = diag_gen;
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table +
                                 year_append + " AND pulse IS NOT NULL");
-  auto diagnoses_repart = p->Repartition(diagnoses_scan);
-  auto vitals_repart = p->Repartition(vitals_scan);
+  to_gen_t vitals_gen;
+  vitals_gen.column = "patient_id";
+  vitals_gen.dbname = "healthlnk";
+  vitals_gen.scan_tables.insert(vitals_gen.scan_tables.end(), vitals_scan.begin(),
+                              vitals_scan.end());
+  gen_in["vitals"] = vitals_gen;
+  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database,
+                                       "SELECT patient_id, medication from " +
+                                       medications_table + year_append);
+
+  to_gen_t meds_gen;
+  meds_gen.column = "patient_id";
+  meds_gen.dbname = "healthlnk";
+  meds_gen.scan_tables.insert(meds_gen.scan_tables.end(), meds_scan.begin(),
+                             meds_scan.end());
+  gen_in["medications"] = meds_gen;
+
+  auto demographics_scan = p->ClusterDBMSQuery(
+          "dbname=" + database,
+          "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+
+  to_gen_t dem_gen;
+  dem_gen.column = "patient_id";
+  dem_gen.dbname = "healthlnk";
+  dem_gen.scan_tables.insert(dem_gen.scan_tables.end(), demographics_scan.begin(),
+                               demographics_scan.end());
+  gen_in["demographics"] = dem_gen;
+
+  auto gen_zipped_map = p->Generalize(gen_in, gen_level);
+
+  auto diagnoses_repart = p->Repartition(gen_zipped_map["diagnoses"]);
+  auto vitals_repart = p->Repartition(gen_zipped_map["vitals"]);
+  auto meds_repart = p->Repartition(gen_zipped_map["medications"]);
+  auto demographics_repart = p->Repartition(gen_zipped_map["demographics"]);
 
   // join def vitals-diagnoses
   JoinDef jd_vd;
@@ -56,20 +95,12 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   auto pmp2 = jd_pm2.add_project_list();
   pmp2->set_side(JoinColID_RelationSide_LEFT);
   pmp2->set_colname("pulse");
-  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                       "SELECT patient_id, medication from " +
-                                           medications_table + year_append);
 
-  auto meds_repart = p->Repartition(meds_scan);
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, false);
 
   // p->FreeTables(meds_repart);
 
-  auto demographics_scan = p->ClusterDBMSQuery(
-      "dbname=" + database,
-      "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
-  auto demographics_repart = p->Repartition(demographics_scan);
   // join def second join "plus demographics"
   JoinDef jd_pd3;
   jd_pd3.set_l_col_name("patient_id");
