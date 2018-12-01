@@ -103,6 +103,7 @@ message GetControlFlowColumnResponse{
 
 message ControlFlowColumn {
     repeated string cf_name_strings = 1;
+    bool not_anon = 2;
 }
 
 message RepartitionStepTwoRequest {

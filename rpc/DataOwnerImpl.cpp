@@ -401,8 +401,19 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
   START_TIMER(make_obli_full);
   table_t *t = p->GetTable(request->tid().tableid());
 
+
   for (int j = 0; j < t->num_tuples; j++) {
-    get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.int_field.genval = 0;
+    switch (t->schema.fields[colno_from_name(t, request->col_name())].type) {
+      case FIXEDCHAR: {
+        get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.fixed_char_field.genval = 0;
+      }
+      case INT : {
+        get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.int_field.genval = 0;
+      }
+      default: {
+        throw;
+      }
+    }
   }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());

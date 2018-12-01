@@ -352,6 +352,9 @@ vector<tableid_ptr> HonestBrokerPrivate::MakeObli(vector<tableid_ptr> &ids,
   }
   return obli_tables;
 }
+void  HonestBrokerPrivate::SetControlFlowNotAnon(bool not_anon) {
+  cf.set_not_anon(not_anon);
+}
 
 void HonestBrokerPrivate::SetControlFlowColName(string name) {
   cf.add_cf_name_strings(name);

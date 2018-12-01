@@ -88,18 +88,28 @@ int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t,
     LOG(FATAL) << "Too many control flow attributes";
     throw;
   }
+  bool not_anon = cf.not_anon();
   uint8_t f[MAX_FIELDS*FIXEDCHAR_LEN];
   uint32_t ptr = 0;
   for (int i = 0; i < cf.cf_name_strings_size(); i++) {
     int input_col = colno_from_name(table,cf.cf_name_strings(i));
     switch(t->field_list[input_col].type){
       case FIXEDCHAR : {
-        memcpy(&f[ptr], t->field_list[input_col].f.fixed_char_field.val, FIXEDCHAR_LEN);
-        ptr += FIXEDCHAR_LEN;
+        if (not_anon) {
+          memcpy(&f[ptr], t->field_list[input_col].f.fixed_char_field.val, FIXEDCHAR_LEN);
+          ptr += FIXEDCHAR_LEN;
+        } else {
+          memcpy(&f[ptr], &(t->field_list[input_col].f.fixed_char_field.genval), sizeof(uint64_t));
+          ptr += sizeof(uint64_t);
+        }
         break;
       }
       case INT: {
-        memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.genval), sizeof(uint64_t));
+        if (not_anon) {
+          memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.val), sizeof(uint64_t));
+        } else {
+          memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.genval), sizeof(uint64_t));
+        }
         ptr += sizeof(uint64_t);
         break;
       }
