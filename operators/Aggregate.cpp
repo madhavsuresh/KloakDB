@@ -25,7 +25,10 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
   std::unordered_map<std::string, int> agg_map;
   // This will always be the same.
   if (t->num_tuples == 0) {
-    throw;
+    schema_t schema = agg_schema(colno, t);
+    table_builder_t tb;
+    init_table_builder(1, 2 /*num_columns*/, &schema, &tb);
+    return tb.table;
   }
 
   FIELD_TYPE type = t->schema.fields[colno].type;
