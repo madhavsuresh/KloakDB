@@ -11,6 +11,7 @@
 #include "rpc/HonestBrokerImpl.h"
 #include "test/experiments/distributed_aspirin_profile.h"
 #include "test/experiments/distributed_comorb.h"
+#include "test/experiments/distributed_dosage.h"
 #include "test/experiments/exp3.h"
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp5.h"
@@ -162,6 +163,10 @@ int main(int argc, char **argv) {
           comorbidity_encrypted(p, FLAGS_db, FLAGS_year);
         } else if (FLAGS_gen_level == -1) {
           comorbidity_oliv(p, FLAGS_db, FLAGS_year);
+        }
+      } else if (FLAGS_hl_query == "dos") {
+        if (FLAGS_gen_level == 0) {
+          dosage_encrypted(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year);
         }
       }
       break;
