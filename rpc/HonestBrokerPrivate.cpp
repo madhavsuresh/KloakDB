@@ -201,7 +201,7 @@ tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
 
 vector<tableid_ptr> HonestBrokerPrivate::RepartitionJustHash(vector<tableid_ptr> &ids) {
   vector<std::future<vector<tableid_ptr>>> threads_repart2;
-  vector<tableid_ptr> hashed_tables;
+  map<int, vector<tableid_ptr>> hashed_table_fragments;
   for (auto &i : ids) {
     vector<tableid_ptr> tmp;
     tmp.push_back(i);
@@ -212,11 +212,23 @@ vector<tableid_ptr> HonestBrokerPrivate::RepartitionJustHash(vector<tableid_ptr>
 
   for (auto &f : threads_repart2) {
     auto out = f.get();
-    for (auto &j : out) {
-      hashed_tables.emplace_back(j);
+    for (auto j : out) {
+      hashed_table_fragments[j.get()->hostnum()].emplace_back(j);
     }
   }
-  return hashed_tables;
+  vector<tableid_ptr> coalesced_tables;
+  vector<std::future<tableid_ptr>> threads_coalesced;
+  START_TIMER(repartition_coalesce_outer_private);
+  for (int i = 0; i < num_hosts; i++) {
+    threads_coalesced.push_back(std::async(std::launch::async,
+                                           &HonestBrokerPrivate::Coalesce, this,
+                                           i, hashed_table_fragments[i]));
+  }
+  for (auto &f : threads_coalesced) {
+    auto out = f.get();
+    coalesced_tables.emplace_back(out);
+  }
+  return coalesced_tables;
 }
 vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
   map<int, vector<tableid_ptr>> table_fragments;

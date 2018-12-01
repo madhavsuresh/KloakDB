@@ -21,11 +21,11 @@ void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname, std::stri
   auto agg_out = p->Aggregate(cdiff_repart, gbd, true);
 
   p->SetControlFlowColName("count");
-  auto cnt_repartition = p->Repartition(agg_out);
+  //auto cnt_repartition = p->Repartition(agg_out);
   SortDef sort;
   sort.set_colname("count");
   sort.set_ascending(false);
-  auto sorted = p->Sort(cnt_repartition, sort, true);
+  auto sorted = p->Sort(agg_out, sort, true);
   END_AND_LOG_EXP7_COM_STAT_TIMER(comorbidity_encrypted_full, "insgx");
   LOG(EXP7_COM) << "ENDING COMORBIDITY QUERY";
 }
