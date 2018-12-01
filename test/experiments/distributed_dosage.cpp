@@ -120,6 +120,6 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
   END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_k, "release");
-  LOG(EXP7_DOS) << "ENDING DOSAGE STUDY ENCRYPTED";
+  LOG(EXP7_DOS) << "ENDING DOSAGE STUDY K-ANON";
 }
 
