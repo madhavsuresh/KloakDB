@@ -13,7 +13,6 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <future>
 
 void log_stats(
     std::unordered_map<cf_hash,
@@ -282,16 +281,12 @@ bool is_range_kanon(rc_t rc, int k, int64_t min, int64_t max) {
 }
 
 bool all_realtions_in_range_kanon(rc_t relations[], int num_relations, int k, int64_t min, int64_t max) {
-  vector<std::future<bool>> threads;
   for (int i = 0;i < num_relations;i++) {
-    threads.push_back(std::async(std::launch::async, is_range_kanon, relations[i], k, min, max));
-  }
-  for (auto &f : threads) {
-    auto tt = f.get();
-    if(!tt) {
-      return false;
+    if (!is_range_kanon(relations[i],k, min, max)) {
+        return false;
     }
   }
+  return true;
 }
 
 
