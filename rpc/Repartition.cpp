@@ -28,7 +28,6 @@ HostIDPair ship_off_repart_one(DataOwnerPrivate *p, int host,
     id = p->AddTable(output_table);
   } else {
     id = std::get<1>(p->SendTable(host, output_table));
-    free(output_table);
   }
   return std::make_pair(host, id);
 }
