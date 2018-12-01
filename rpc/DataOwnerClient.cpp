@@ -279,6 +279,9 @@ int DataOwnerClient::SendTable(table_t *t, bool freeing) {
   ::grpc::Status status = writer->Finish();
   END_AND_LOG_RPC_TIMER(send_table_rpc, host_name);
 
+  if (freeing) {
+    free(t);
+  }
   DOCLIENT_LOG_STATUS(send_table, status);
   return resp.tableid();
 }

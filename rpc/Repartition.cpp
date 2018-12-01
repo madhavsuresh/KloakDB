@@ -161,13 +161,13 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   for (auto t : tables) {
     free_table(t);
   }
+  for (int i = 0; i < num_hosts; i++) {
+    free_table(dummy_host_tb[i].table);
+  }
   std::vector<HostIDPair> host_and_ID;
   int myid = p->AddTable(host_tb[p->HostNum()].table);
   host_and_ID.push_back(std::make_pair(p->HostNum(), myid));
 
-  for (int i = 0; i < num_hosts; i++) {
-    free_table(dummy_host_tb[i].table);
-  }
   vector<std::future<HostIDPair>> threads_send;
   START_TIMER(repart_two_data_movement);
   for (int i = 0; i < num_hosts; i++) {
@@ -186,10 +186,5 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     host_and_ID.push_back(h.get());
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_two_data_movement);
-  for (int i = 0; i < num_hosts; i++) {
-    if (i != p->HostNum()) {
-      free(host_tb[i].table);
-    }
-  }
   return host_and_ID;
 }
