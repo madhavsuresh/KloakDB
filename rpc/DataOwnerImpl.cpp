@@ -406,9 +406,11 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
     switch (t->schema.fields[colno_from_name(t, request->col_name())].type) {
       case FIXEDCHAR: {
         get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.fixed_char_field.genval = 0;
+        break;
       }
       case INT : {
         get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.int_field.genval = 0;
+        break;
       }
       default: {
         throw;
