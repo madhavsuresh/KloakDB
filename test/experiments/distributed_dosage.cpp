@@ -100,15 +100,15 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
   expr_dosage.set_colname("dosage");
   expr_dosage.set_type(Expr_ExprType_LIKE_EXPR);
   auto fieldDosage =  expr_dosage.mutable_desc();
-  fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  fieldDosage->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
   expr_dosage.set_charfield("325 MG");
 
   ::vaultdb::Expr expr_icd9;
-  expr_dosage.set_colname("icd9");
-  expr_dosage.set_type(Expr_ExprType_LIKE_EXPR);
-  auto fieldIcd9 =  expr_dosage.mutable_desc();
-  fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
-  expr_dosage.set_charfield("997");
+  expr_icd9.set_colname("icd9");
+  expr_icd9.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldIcd9 =  expr_icd9.mutable_desc();
+  fieldIcd9->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_icd9.set_charfield("997");
 
   to_gen_t meds_gen;
   meds_gen.column = "patient_id";
@@ -128,8 +128,8 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
   LOG(EXP7_DOS) << "MEDICATIONS FILTER";
   auto filtered_meds =  p->Filter(gen_zipped_map["medications"], expr_med, false);
-  //LOG(EXP7_DOS) << "DOSAGE FILTER";
-  //auto filtered_dosage =  p->Filter(filtered_meds, expr_dosage, false);
+  LOG(EXP7_DOS) << "DOSAGE FILTER";
+  auto filtered_dosage =  p->Filter(filtered_meds, expr_dosage, false);
   LOG(EXP7_DOS) << "DIAG FILTER";
   auto filtered_diag =  p->Filter(gen_zipped_map["diagnoses"], expr_icd9, false);
   auto med_repart = p->Repartition(filtered_meds);
