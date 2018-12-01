@@ -126,8 +126,11 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
 
   p->SetControlFlowColName("patient_id");
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
+  LOG(EXP7_DOS) << "MEDICATIONS FILTER";
   auto filtered_meds =  p->Filter(gen_zipped_map["medications"], expr_med, false);
+  LOG(EXP7_DOS) << "DOSAGE FILTER";
   auto filtered_dosage =  p->Filter(filtered_meds, expr_dosage, false);
+  LOG(EXP7_DOS) << "DIAG FILTER";
   auto filtered_diag =  p->Filter(gen_zipped_map["diagnoses"], expr_icd9, false);
   auto med_repart = p->Repartition(filtered_dosage);
   auto diag_repart = p->Repartition(gen_zipped_map["diagnoses"]);
