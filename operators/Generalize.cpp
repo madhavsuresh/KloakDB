@@ -187,6 +187,237 @@ int get_min_range(gen_map_t gen_map, int min_value, int max_value,
   }
   return max_value;
 }
+table_t *generalize_table_fast_string(
+        std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs,
+        int num_hosts, int k) {
+  auto start = std::chrono::high_resolution_clock::now();
+  unordered_map<string, int> input_to_internal_gen;
+  unordered_map<string, int> counter;
+  for (auto &table_queries : table_map_host_table_pairs) {
+    for (auto &ht: table_queries.second) {
+      table_t * t = ht.second;
+      for (int i = 0; i < t->num_tuples; i++) {
+        tuple_t * tup = get_tuple(i, t);
+        string field_label;
+        switch (tup->field_list[0].type) {
+          case FIXEDCHAR: {
+            field_label = string(tup->field_list[0].f.fixed_char_field.val);
+            break;
+          }
+          case INT : {
+            field_label = to_string(tup->field_list[0].f.int_field.val);
+            break;
+          }
+
+        }
+        counter[field_label] += tup->field_list[1].f.int_field.val;
+      }
+    }
+  }
+
+  //Taken from https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
+  vector<pair<string,int>>sorted_counter;
+
+  for (auto &x : counter) {
+    sorted_counter.emplace_back(x);
+  }
+  sort(sorted_counter.begin(), sorted_counter.end(),
+       [](pair<string, int> elem1, pair<string, int> elem2) {
+           return elem1.second > elem2.second;
+       });
+
+  for (int i = 0; i < sorted_counter.size(); i++) {
+    input_to_internal_gen[sorted_counter[i].first] = i;
+  }
+
+  auto finish = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = finish - start;
+  std::cout <<" Total Elapsed time: " << elapsed.count() << " s\n";
+
+}
+typedef struct relation_count {
+    int64_t *arr;
+    int num_hosts;
+} rc_t;
+
+int64_t *rcget(rc_t rc, int64_t genval, int64_t host) {
+  return (rc.arr + genval * rc.num_hosts + host);
+}
+
+int64_t rcval(rc_t rc, int64_t genval, int64_t host) {
+  return *(rcget(rc, genval, host));
+}
+
+void rcset(rc_t rc, int64_t genval, int64_t host, int64_t val_to_set) {
+  *(rcget(rc, genval,host)) = val_to_set;
+}
+#define MAX_RELATION 10
+#define MAX_HOST_GEN 10
+//Is k anon up to NOT INCLUDING max. So max is new bottom_pointer;
+bool is_range_kanon(rc_t rc, int k, int64_t min, int64_t max) {
+  int64_t minus_host[MAX_HOST_GEN];
+  for (int64_t i = 0; i < rc.num_hosts; i++) {
+    minus_host[i] = 0;
+  }
+
+  for (int64_t gen = min; gen < max; gen++) {
+    int64_t total = 0;
+    for (int host_num = 0 ; host_num < rc.num_hosts; host_num++) {
+      total += rcval(rc, gen,host_num);
+    }
+
+    for (int host_num = 0 ; host_num < rc.num_hosts; host_num++) {
+      minus_host[host_num] += total - rcval(rc, gen,host_num);
+    }
+  }
+  bool is_kanon = true;
+  for (int64_t i = 0; i < rc.num_hosts; i++) {
+    if (minus_host[i] < k) {
+      is_kanon = false;
+    }
+  }
+  return is_kanon;
+}
+
+bool all_realtions_in_range_kanon(rc_t relations[], int num_relations, int k, int64_t min, int64_t max) {
+  for (int i = 0;i < num_relations;i++) {
+    if (!is_range_kanon(relations[i],k, min, max)) {
+        return false;
+    }
+  }
+  return true;
+}
+
+
+table_t *generalize_table_fast(
+        std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs,
+        int num_hosts, int k) {
+  unordered_map<int64_t, int64_t> input_to_internal_gen; // original input -> internal gen
+  unordered_map<int64_t, int64_t> internal_gen_to_input; // internal gen-> original input
+  unordered_map<int64_t, int> counter;
+  for (auto &table_queries : table_map_host_table_pairs) {
+    for (auto &ht: table_queries.second) {
+      table_t * t = ht.second;
+      for (int i = 0; i < t->num_tuples; i++) {
+        tuple_t * tup = get_tuple(i, t);
+        int64_t field_label;
+        switch (tup->field_list[0].type) {
+          case INT : {
+            field_label = tup->field_list[0].f.int_field.val;
+            break;
+          }
+          default: {
+            throw;
+            //field_label = string(tup->field_list[0].f.fixed_char_field.val);
+          }
+        }
+        counter[field_label] += tup->field_list[1].f.int_field.val;
+      }
+    }
+  }
+
+  //Taken from https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
+  vector<pair<int64_t,int>>sorted_counter;
+
+  for (auto &x : counter) {
+    sorted_counter.emplace_back(x);
+  }
+  sort(sorted_counter.begin(), sorted_counter.end(),
+       [](pair<int64_t, int> elem1, pair<int64_t, int> elem2) {
+         return elem1.second > elem2.second;
+       });
+
+  int range_of_tuples = 0;
+  for (int i = 0; i < sorted_counter.size(); i++) {
+    input_to_internal_gen[sorted_counter[i].first] = i;
+    range_of_tuples++;
+  }
+  const int final_range = range_of_tuples;
+
+  rc_t rc_map[MAX_RELATION];
+
+  int relation_num = 0;
+  for (auto &relation : table_map_host_table_pairs) {
+    rc_map[relation_num].arr = (int64_t *) malloc(final_range * num_hosts * sizeof(int64_t));
+    memset(rc_map[relation_num].arr, '\0', final_range * num_hosts * sizeof(int64_t));
+
+    rc_map[relation_num].num_hosts = num_hosts;
+    for (auto &table: relation.second) {
+      int host_num = table.first;
+      if (host_num >= num_hosts) {
+        //MAYBE ADD A LOGG DEF
+        LOG(FATAL) << "Gen host_num above number of hosts, host_num: ["
+                   << host_num << "]; num_hosts:[" << num_hosts << "]";
+        throw;
+      }
+      table_t * t = table.second;
+      for (int i = 0; i < t->num_tuples; i++) {
+        tuple_t * tup = get_tuple(i, t);
+        int64_t count = tup->field_list[1].f.int_field.val;
+        int64_t internal_gen = input_to_internal_gen[tup->field_list[0].f.int_field.val];
+        rcset(rc_map[relation_num], internal_gen, host_num, count);
+      }
+    }
+    relation_num++;
+  }
+   for (auto &i : input_to_internal_gen) {
+     internal_gen_to_input[i.second] = i.first;
+   }
+
+  table_builder_t tb;
+  schema_t schema;
+  schema.num_fields = 1;
+  schema.fields[0].col_no = 0;
+  schema.fields[0].type = INT;
+  strncpy(schema.fields[0].field_name, "cf_hash_orig\0", FIELD_NAME_LEN);
+  init_table_builder(final_range, 1 /* num_columns */, &schema, &tb);
+  auto *tup = (tuple_t *) malloc(tb.size_of_tuple);
+  tup->num_fields = 1;
+  tup->field_list[0].type = INT;
+
+
+  int min_val = 0;
+  int prev_min_val = 0;
+  while (min_val <= final_range) {
+    int top_end = min_val+1;
+    bool append = true;
+    while (!all_realtions_in_range_kanon(rc_map, relation_num, k, min_val, top_end)) {
+      top_end+=k;
+      if (top_end >= final_range) {
+        for (int scan = min_val; scan < final_range; scan++) {
+          int64_t original_table_val = internal_gen_to_input[scan];
+          tup->field_list[0].f.int_field.val = original_table_val;
+          tup->field_list[0].f.int_field.genval = prev_min_val;
+          append_tuple(&tb, tup);
+        }
+        top_end = final_range+1;
+        min_val = final_range+1;
+        append = false;
+        break;
+      }
+    }
+    //append to min val;
+    if (append) {
+      for (int scan = min_val; scan < top_end; scan++) {
+        int64_t original_table_val = internal_gen_to_input[scan];
+        tup->field_list[0].f.int_field.val = original_table_val;
+        tup->field_list[0].f.int_field.genval = min_val;
+        append_tuple(&tb, tup);
+      }
+    }
+
+    prev_min_val = min_val;
+    min_val = top_end;
+  }
+
+
+  free(tup);
+  return tb.table;
+}
+
+
 
 /*
  * This assume generalized values are integers.

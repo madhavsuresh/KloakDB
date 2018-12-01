@@ -126,3 +126,17 @@ TEST_F(gen_test, new_gen) {
   }
   printf("\nMIN: %d, MAX: %d, AVG: %f", min_val, max_val, (double)zipped->num_tuples/num_classes);
 }
+
+TEST_F(gen_test, gen_fast) {
+  table_t *t = get_table("SELECT b, count(b) FROM left_deep_joins_1024a group by b", "dbname=vaultdb_");
+  //table_t *actual_table = get_table("SELECT * FROM left_deep_joins_1024;", "dbname=vaultdb_");
+  std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+          tables;
+  tables["one"].emplace_back(0, t);
+  tables["one"].emplace_back(1,t);
+  tables["two"].emplace_back(0,t);
+  tables["two"].emplace_back(1,t);
+  tables["three"].emplace_back(0,t);
+  tables["three"].emplace_back(1,t);
+  auto out = generalize_table_fast(tables, 3, 6);
+}
