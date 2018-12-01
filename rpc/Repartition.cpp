@@ -56,7 +56,6 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_shuffle_assign);
 
   START_TIMER(repart_one_data_movement);
-  free_table(t);
   vector<std::future<HostIDPair>> threads_send;
   for (auto it = rand_assignment.begin(); it != rand_assignment.end(); it++) {
     HostIDPair hidp = ship_off_repart_one(p, it->first, it->second, t);
@@ -66,6 +65,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   for (auto &h : threads_send) {
     host_and_ID.push_back(h.get());
   }
+  free_table(t);
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_data_movement);
   return host_and_ID;
 }
