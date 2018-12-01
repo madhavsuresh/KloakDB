@@ -76,9 +76,6 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   END_TIMER(repart_step_two_full);
   LOG_TIMER(repart_step_two_full);
   LOG_TIMER(repart_step_two_inner);
-  for (int i = 0; i < request->tablefragments_size(); i++) {
-    p->FreeTable(request->tablefragments(i).tableid());
-  }
   LOG(DO_IMPL) << "Repartition Step Two OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }
@@ -102,7 +99,6 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   END_TIMER(repart_step_one_full);
   LOG_TIMER(repart_step_one_inner);
   LOG_TIMER(repart_step_one_full);
-  p->FreeTable(request->tableid().tableid());
   LOG(DO_IMPL) << "Repartition Step One OK (" << context->peer() << ")";
   return grpc::Status::OK;
 }

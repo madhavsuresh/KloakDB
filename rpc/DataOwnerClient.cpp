@@ -247,7 +247,7 @@ DataOwnerClient::GetTable(std::shared_ptr<const ::vaultdb::TableID> id_ptr) {
 
 // TODO(madhavsuresh): refactor this to return
 // tableid
-int DataOwnerClient::SendTable(table_t *t) {
+int DataOwnerClient::SendTable(table_t *t, bool freeing) {
   ::vaultdb::SendTableResponse resp;
   ::grpc::ClientContext context;
 
@@ -270,6 +270,9 @@ int DataOwnerClient::SendTable(table_t *t) {
     pages.set_is_header(false);
     pages.set_page_no(i);
     pages.set_page((char *)t->tuple_pages[i], PAGE_SIZE);
+    if (freeing) {
+      free(t->tuple_pages[i]);
+    }
     writer->Write(pages);
   }
   writer->WritesDone();

@@ -49,7 +49,7 @@ public:
     std::shared_ptr<const ::vaultdb::TableID>
     MakeObli(std::shared_ptr<const ::vaultdb::TableID> tid, std::string col_name);
   // TODO(madhavsuresh): this needs to be renamed to be consistent
-  int SendTable(table_t *t);
+  int SendTable(table_t *t, bool freeing);
 
 private:
   int host_num;

@@ -104,7 +104,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
   log_gen_stats(gen_map);
 
   for (int i = 0; i < num_hosts; i++) {
-    auto resp = do_clients[i]->SendTable(gen_map);
+    auto resp = do_clients[i]->SendTable(gen_map, false);
     ::vaultdb::TableID out;
     out.set_hostnum(i);
     out.set_tableid(resp);
@@ -143,7 +143,7 @@ HonestBrokerPrivate::Generalize(string table_name, string column, string dbname,
   }
   table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), gen_level);
   for (int i = 0; i < this->num_hosts; i++) {
-    auto resp = do_clients[i]->SendTable(gen_map);
+    auto resp = do_clients[i]->SendTable(gen_map, false);
     ::vaultdb::TableID out;
     out.set_hostnum(i);
     out.set_tableid(resp);

@@ -28,7 +28,7 @@ HostIDPair ship_off_repart_one(DataOwnerPrivate *p, int host,
     id = p->AddTable(output_table);
   } else {
     id = std::get<1>(p->SendTable(host, output_table));
-    free_table(output_table);
+    free(output_table);
   }
   return std::make_pair(host, id);
 }
@@ -56,6 +56,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_shuffle_assign);
 
   START_TIMER(repart_one_data_movement);
+  free_table(t);
   vector<std::future<HostIDPair>> threads_send;
   for (auto it = rand_assignment.begin(); it != rand_assignment.end(); it++) {
     HostIDPair hidp = ship_off_repart_one(p, it->first, it->second, t);
@@ -155,11 +156,16 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     }
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_two_hashing);
-
+  for (auto t : tables) {
+    free_table(t);
+  }
   std::vector<HostIDPair> host_and_ID;
   int myid = p->AddTable(host_tb[p->HostNum()].table);
   host_and_ID.push_back(std::make_pair(p->HostNum(), myid));
 
+  for (int i = 0; i < num_hosts; i++) {
+    free_table(dummy_host_tb[i].table);
+  }
   vector<std::future<HostIDPair>> threads_send;
   START_TIMER(repart_two_data_movement);
   for (int i = 0; i < num_hosts; i++) {
@@ -180,11 +186,8 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   END_AND_LOG_EXP3_STAT_TIMER(repart_two_data_movement);
   for (int i = 0; i < num_hosts; i++) {
     if (i != p->HostNum()) {
-      free_table(host_tb[i].table);
+      free(host_tb[i].table);
     }
-  }
-  for (int i = 0; i < num_hosts; i++) {
-    free_table(dummy_host_tb[i].table);
   }
   return host_and_ID;
 }

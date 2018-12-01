@@ -80,7 +80,7 @@ int DataOwnerPrivate::AddTable(table_t *t) {
 
 std::pair<int,int> DataOwnerPrivate::SendTable(int worker_host_num, table_t *t) {
   auto worker_client = this->data_owner_clients[worker_host_num];
-  int table_id = worker_client->SendTable(t);
+  int table_id = worker_client->SendTable(t, true);
   LOG(INFO) << "sent table to: [" << worker_host_num << "],received at:["
             << table_id << "]";
   return std::make_pair(worker_host_num, table_id);
