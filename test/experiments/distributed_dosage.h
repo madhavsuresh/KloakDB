@@ -9,4 +9,6 @@
 void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname,
                       std::string diag, std::string meds, std::string year);
 
+void dosage_obliv(HonestBrokerPrivate *p, std::string dbname,
+                  std::string diag, std::string meds, std::string year);
 #endif // PROJECT_DISTRIBUTED_DOSAGE_H

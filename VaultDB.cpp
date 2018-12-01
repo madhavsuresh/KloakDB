@@ -167,6 +167,8 @@ int main(int argc, char **argv) {
       } else if (FLAGS_hl_query == "dos") {
         if (FLAGS_gen_level == 0) {
           dosage_encrypted(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year);
+        } else if (FLAGS_gen_level == -1) {
+          dosage_obliv(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year);
         }
       }
       break;
