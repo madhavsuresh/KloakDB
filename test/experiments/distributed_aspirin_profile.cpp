@@ -2,6 +2,7 @@
 // Created by madhav on 11/29/18.
 //
 #include "distributed_aspirin_profile.h"
+#include "logger/LoggerDefs.h"
 
 void aspirin_profile(HonestBrokerPrivate *p, std::string database,
                      std::string diagnoses_table, std::string vitals_table,
@@ -14,6 +15,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   if (year != "") {
     year_append = " where year=" + year;
   }
+  START_TIMER(aspirin_profile_full);
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
   auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + database,
@@ -135,4 +137,5 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
   auto final_avg = p->Aggregate(out_repart_2, gbd, false);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }

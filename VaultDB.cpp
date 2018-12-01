@@ -169,6 +169,8 @@ int main(int argc, char **argv) {
           dosage_encrypted(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year);
         } else if (FLAGS_gen_level == -1) {
           dosage_obliv(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year);
+        } else {
+          dosage_k(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year, FLAGS_gen_level);
         }
       }
       break;
