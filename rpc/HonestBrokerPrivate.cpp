@@ -315,11 +315,9 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
     auto client = do_clients[i.first.get()->hostnum()];
     threads.push_back(async(launch::async, &DataOwnerClient::Join, client,
                             i.first, i.second, join, in_sgx));
-    LOG(HB_P) << "Join STARTING on " << i.first.get()->hostnum();
   }
   for (auto &j : threads) {
     joined_tables.emplace_back(j.get());
-    LOG(HB_P) << "Join Ended on " << j.get()->hostnum();
   }
   return joined_tables;
 }
