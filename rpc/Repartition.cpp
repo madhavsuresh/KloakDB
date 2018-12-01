@@ -152,7 +152,7 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
         if (j == host) {
           append_tuple(&host_tb[host], get_tuple(i, t));
         } else {
-          copy_tuple_to_position(dummy_host_tb[i].table, 0, get_tuple(i,t));
+          copy_tuple_to_position(dummy_host_tb[j].table, 0, get_tuple(i,t));
         }
       }
     }
