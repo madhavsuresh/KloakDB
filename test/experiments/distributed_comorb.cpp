@@ -30,7 +30,31 @@ void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname, std::stri
   LOG(EXP7_COM) << "ENDING COMORBIDITY QUERY";
 }
 
-void comorbidity_oliv(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
+void comorbidity_oliv(HonestBrokerPrivate *p, std::string dbname, std::string year) {
+  std::string year_append = "";
+  if (year != "") {
+    year_append = " where year=" + year;
+  }
+  LOG(EXP7_COM) << "STARTING COMORBIDITY QUERY OBLIV";
+  START_TIMER(comorbidity_obliv_full);
+  p->SetControlFlowColName("major_icd9");
+  auto cdiff_cohort_scan = p->ClusterDBMSQuery(
+          "dbname=" + dbname, "SELECT major_icd9 from cdiff_cohort_diagnoses" + year_append);
+  auto obliv = p->MakeObli(cdiff_cohort_scan, "major_icd9");
+  auto cdiff_repart = p->RepartitionJustHash(obliv);
+  GroupByDef gbd;
+  gbd.set_col_name("major_icd9");
+  gbd.set_type(GroupByDef_GroupByType_COUNT);
+  auto agg_out = p->Aggregate(cdiff_repart, gbd, true);
+
+  p->SetControlFlowColName("count");
+  //auto cnt_repartition = p->Repartition(agg_out);
+  SortDef sort;
+  sort.set_colname("count");
+  sort.set_ascending(false);
+  auto sorted = p->Sort(agg_out, sort, true);
+  END_AND_LOG_EXP7_COM_STAT_TIMER(comorbidity_obliv_full, "insgx");
+  LOG(EXP7_COM) << "ENDING COMORBIDITY QUERY";
 }
 
 void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname) {
