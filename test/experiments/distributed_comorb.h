@@ -8,5 +8,5 @@
 #include <rpc/HonestBrokerPrivate.h>
 #include "logger/LoggerDefs.h"
 
-void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname);
+void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname, std::string year);
 #endif //PROJECT_DISTRIBUTED_COMORB_H

@@ -4,11 +4,15 @@
 #include "distributed_comorb.h"
 
 
-void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname) {
+void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname, std::string year) {
+  std::string year_append = "";
+  if (year != "") {
+    year_append = " where year=" + year;
+  }
   START_TIMER(comorbidity_encrypted_full);
   p->SetControlFlowColName("major_icd9");
   auto cdiff_cohort_scan = p->ClusterDBMSQuery(
-          "dbname=" + dbname, "SELECT major_icd9 from cdiff_cohort_diagnoses");
+          "dbname=" + dbname, "SELECT major_icd9 from cdiff_cohort_diagnoses" + year_append);
   GroupByDef gbd;
   gbd.set_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);

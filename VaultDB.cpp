@@ -159,7 +159,7 @@ int main(int argc, char **argv) {
                         FLAGS_sgx, FLAGS_gen_level);
       } else if (FLAGS_hl_query == "com") {
         if (FLAGS_gen_level == 0) {
-          comorbidity_encrypted(p, FLAGS_db);
+          comorbidity_encrypted(p, FLAGS_db, FLAGS_year);
         }
       }
       break;
