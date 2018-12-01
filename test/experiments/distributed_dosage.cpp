@@ -133,7 +133,7 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
   LOG(EXP7_DOS) << "DIAG FILTER";
   auto filtered_diag =  p->Filter(gen_zipped_map["diagnoses"], expr_icd9, false);
   auto med_repart = p->Repartition(filtered_meds);
-  auto diag_repart = p->Repartition(gen_zipped_map["diagnoses"]);
+  auto diag_repart = p->Repartition(filtered_diag);
   auto to_join = zip_join_tables(diag_repart, med_repart);
 
 
