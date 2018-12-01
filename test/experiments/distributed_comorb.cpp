@@ -9,6 +9,7 @@ void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname, std::stri
   if (year != "") {
     year_append = " where year=" + year;
   }
+  LOG(EXP7_COM) << "STARTING COMORBIDITY QUERY";
   START_TIMER(comorbidity_encrypted_full);
   p->SetControlFlowColName("major_icd9");
   auto cdiff_cohort_scan = p->ClusterDBMSQuery(
@@ -25,6 +26,7 @@ void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname, std::stri
   sort.set_ascending(false);
   auto sorted = p->Sort(cnt_repartition, sort, true);
   END_AND_LOG_EXP7_COM_STAT_TIMER(comorbidity_encrypted_full, "insgx");
+  LOG(EXP7_COM) << "ENDING COMORBIDITY QUERY";
 }
 
 void comorbidity_oliv(HonestBrokerPrivate *p, std::string dbname, int gen_level) {
