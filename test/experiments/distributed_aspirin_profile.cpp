@@ -92,7 +92,7 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   cfnames.emplace_back("race");
   p->ResetControlFlowCols();
   p->SetControlFlowColNames(cfnames);
-  p->Repartition(out_pd_join);
+  auto out_repart_2 = p->Repartition(out_pd_join);
 
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
@@ -103,5 +103,5 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   vector<string> cfids;
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
-  auto final_avg = p->Aggregate(out_pd_join, gbd, false);
+  auto final_avg = p->Aggregate(out_repart_2, gbd, false);
 }
