@@ -14,10 +14,11 @@ void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname, std::stri
   p->SetControlFlowColName("major_icd9");
   auto cdiff_cohort_scan = p->ClusterDBMSQuery(
           "dbname=" + dbname, "SELECT major_icd9 from cdiff_cohort_diagnoses" + year_append);
+  auto cdiff_repart = p->RepartitionJustHash(cdiff_cohort_scan);
   GroupByDef gbd;
   gbd.set_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);
-  auto agg_out = p->Aggregate(cdiff_cohort_scan, gbd, true);
+  auto agg_out = p->Aggregate(cdiff_repart, gbd, true);
 
   p->SetControlFlowColName("count");
   auto cnt_repartition = p->Repartition(agg_out);

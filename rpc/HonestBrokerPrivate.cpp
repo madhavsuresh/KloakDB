@@ -199,6 +199,25 @@ tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
   return this->do_clients[host_num]->DBMSQuery(dbname, query);
 }
 
+vector<tableid_ptr> HonestBrokerPrivate::RepartitionJustHash(vector<tableid_ptr> &ids) {
+  vector<std::future<vector<tableid_ptr>>> threads_repart2;
+  vector<tableid_ptr> hashed_tables;
+  for (auto &i : ids) {
+    vector<tableid_ptr> tmp;
+    tmp.push_back(i);
+    threads_repart2.push_back(
+            std::async(std::launch::async, &HonestBrokerPrivate::RepartitionStepTwo,
+                       this, i.get()->hostnum(), tmp));
+  }
+
+  for (auto &f : threads_repart2) {
+    auto out = f.get();
+    for (auto &j : out) {
+      hashed_tables.emplace_back(j);
+    }
+  }
+  return hashed_tables;
+}
 vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
   map<int, vector<tableid_ptr>> table_fragments;
   START_TIMER(repartition_step_one_outer_private);

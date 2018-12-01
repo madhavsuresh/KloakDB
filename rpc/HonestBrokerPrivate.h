@@ -34,6 +34,7 @@ public:
   void Shutdown();
   int RegisterHost(string hostName);
   int NumHosts();
+  vector<tableid_ptr> RepartitionJustHash(vector<tableid_ptr> &ids);
   vector<shared_ptr<const TableID>>
   Repartition(vector<std::shared_ptr<const TableID>> &ids);
   vector<shared_ptr<const TableID>>
