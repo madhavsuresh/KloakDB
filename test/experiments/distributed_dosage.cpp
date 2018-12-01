@@ -85,7 +85,7 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname,
   LOG(EXP7_DOS) << "STARTING DOSAGE STUDY K-ANONYMOUS";
   START_TIMER(dosage_study_k);
   auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                       "SELECT icd9, patient_id from " + diag + year_append); //;+ " AND icd9 LIKE '997%'");
+                                       "SELECT icd9, patient_id from " + diag + year_append + "AND icd9 LIKE '997%'"); //;+ " AND icd9 LIKE '997%'");
   auto med_scan = p->ClusterDBMSQuery("dbname=" + dbname,
                                       "SELECT medication, dosage, patient_id from " + meds + year_append); // AND medication LIKE 'ASPIRIN%' AND dosage = '325 MG'");
   // auto to_join = zip_join_tables(diag_scan, med_scan);
