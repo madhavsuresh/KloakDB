@@ -252,6 +252,10 @@ int64_t rcval(rc_t rc, int64_t genval, int64_t host) {
 void rcset(rc_t rc, int64_t genval, int64_t host, int64_t val_to_set) {
   *(rcget(rc, genval,host)) = val_to_set;
 }
+
+void rcadd(rc_t rc, int64_t genval, int64_t host, int64_t val_to_add) {
+  rcset(rc, genval,host, val_to_add+rcval(rc, genval, host));
+}
 #define MAX_RELATION 10
 #define MAX_HOST_GEN 10
 //Is k anon up to NOT INCLUDING max. So max is new bottom_pointer;
@@ -280,6 +284,43 @@ bool is_range_kanon(rc_t rc, int k, int64_t min, int64_t max) {
   return is_kanon;
 }
 
+int64_t find_min_range(rc_t rc, int num_relations, int k, int64_t min) {
+  int max = min;
+  int64_t minus_host[MAX_HOST_GEN];
+  for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
+  }
+}
+
+/*
+int64_t find_min_range(rc_t rc, int num_relations, int k, int64_t min) {
+  uint64_t min_range = 0;
+  for (int i = 0; i < num_relations;i++) {
+    bool not_kanon = true;
+    rc_t rc =rc_list[i];
+    int64_t minus_host[MAX_HOST_GEN];
+    for (int64_t i = 0; i < rc.num_hosts; i++) {
+      minus_host[i] = 0;
+    }
+    int64_t total = 0;
+    uint64_t gen = min;
+    while (not_kanon) {
+      for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
+        total += rcval(rc, gen, host_num);
+      }
+
+      for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
+        minus_host[host_num] += total - rcval(rc, gen, host_num);
+      }
+      for (int64_t i = 0; i < rc.num_hosts; i++) {
+        if (minus_host[i] < k) {
+          not_kanon = true;
+        }
+      }
+    }
+  }
+}
+ */
+
 bool all_realtions_in_range_kanon(rc_t relations[], int num_relations, int k, int64_t min, int64_t max) {
   for (int i = 0;i < num_relations;i++) {
     if (!is_range_kanon(relations[i],k, min, max)) {
@@ -289,19 +330,15 @@ bool all_realtions_in_range_kanon(rc_t relations[], int num_relations, int k, in
   return true;
 }
 
+unordered_map<int64_t, int> union_counts(std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs) {
 
-table_t *generalize_table_fast(
-        std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
-        table_map_host_table_pairs,
-        int num_hosts, int k) {
-  unordered_map<int64_t, int64_t> input_to_internal_gen; // original input -> internal gen
-  unordered_map<int64_t, int64_t> internal_gen_to_input; // internal gen-> original input
   unordered_map<int64_t, int> counter;
   for (auto &table_queries : table_map_host_table_pairs) {
     for (auto &ht: table_queries.second) {
-      table_t * t = ht.second;
+      table_t *t = ht.second;
       for (int i = 0; i < t->num_tuples; i++) {
-        tuple_t * tup = get_tuple(i, t);
+        tuple_t *tup = get_tuple(i, t);
         int64_t field_label;
         switch (tup->field_list[0].type) {
           case INT : {
@@ -310,23 +347,26 @@ table_t *generalize_table_fast(
           }
           default: {
             throw;
-            //field_label = string(tup->field_list[0].f.fixed_char_field.val);
           }
         }
         counter[field_label] += tup->field_list[1].f.int_field.val;
       }
     }
   }
-
+  return counter;
+}
+tuple<uint64_t, unordered_map<int64_t, int64_t>>  get_range(unordered_map<int64_t, int> counter) {
   //Taken from https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
+  unordered_map<int64_t, int64_t> input_to_internal_gen; // original input -> internal gen
   vector<pair<int64_t,int>>sorted_counter;
 
+  //Taken from https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
   for (auto &x : counter) {
     sorted_counter.emplace_back(x);
   }
   sort(sorted_counter.begin(), sorted_counter.end(),
        [](pair<int64_t, int> elem1, pair<int64_t, int> elem2) {
-         return elem1.second > elem2.second;
+           return elem1.second > elem2.second;
        });
 
   int range_of_tuples = 0;
@@ -335,9 +375,12 @@ table_t *generalize_table_fast(
     range_of_tuples++;
   }
   const int final_range = range_of_tuples;
+  return make_tuple(range_of_tuples, input_to_internal_gen);
 
-  rc_t rc_map[MAX_RELATION];
+}
 
+int populate_rc_map(rc_t *rc_map, std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs, unordered_map<int64_t, int64_t> input_to_internal_gen, uint64_t final_range, int num_hosts) {
   int relation_num = 0;
   for (auto &relation : table_map_host_table_pairs) {
     rc_map[relation_num].arr = (int64_t *) malloc(final_range * num_hosts * sizeof(int64_t));
@@ -357,15 +400,19 @@ table_t *generalize_table_fast(
         tuple_t * tup = get_tuple(i, t);
         int64_t count = tup->field_list[1].f.int_field.val;
         int64_t internal_gen = input_to_internal_gen[tup->field_list[0].f.int_field.val];
-        rcset(rc_map[relation_num], internal_gen, host_num, count);
+        for (int j = 0; j < num_hosts; j++) {
+          if (j != host_num) {
+            rcadd(rc_map[relation_num], internal_gen, j, count);
+
+          }
+        }
       }
     }
     relation_num++;
   }
-   for (auto &i : input_to_internal_gen) {
-     internal_gen_to_input[i.second] = i.first;
-   }
-
+  return relation_num;
+}
+table_builder_t get_gen_tb(uint64_t final_range) {
   table_builder_t tb;
   schema_t schema;
   schema.num_fields = 1;
@@ -373,18 +420,41 @@ table_t *generalize_table_fast(
   schema.fields[0].type = INT;
   strncpy(schema.fields[0].field_name, "cf_hash_orig\0", FIELD_NAME_LEN);
   init_table_builder(final_range, 1 /* num_columns */, &schema, &tb);
+}
+
+table_t *generalize_table_fast(
+        std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs,
+        int num_hosts, int k) {
+  unordered_map<int64_t, int64_t> input_to_internal_gen; // original input -> internal gen
+  unordered_map<int64_t, int64_t> internal_gen_to_input; // internal gen-> original input
+  unordered_map<int64_t, int> counter = union_counts(table_map_host_table_pairs);
+
+  uint64_t range_of_tuples = 0;
+  auto range_info = get_range(counter);
+  range_of_tuples = std::get<0>(range_info);
+  input_to_internal_gen = std::get<1>(range_info);
+  // Get Reverse Map
+  for (auto &i : input_to_internal_gen) {
+    internal_gen_to_input[i.second] = i.first;
+  }
+  const uint64_t final_range = range_of_tuples;
+  rc_t rc_map[MAX_RELATION];
+  int num_relations  = populate_rc_map(rc_map, table_map_host_table_pairs, input_to_internal_gen, final_range, num_hosts);
+  table_builder_t tb = get_gen_tb(final_range);
   auto *tup = (tuple_t *) malloc(tb.size_of_tuple);
   tup->num_fields = 1;
   tup->field_list[0].type = INT;
 
-
+  printf("Here in view generator: num unique elements: %d\n", final_range);
   int min_val = 0;
   int prev_min_val = 0;
   while (min_val <= final_range) {
     int top_end = min_val+1;
     bool append = true;
-    while (!all_realtions_in_range_kanon(rc_map, relation_num, k, min_val, top_end)) {
-      top_end+=k+4;
+    uint64_t top_end = get_min_range(rc_map, num_relations, k, min_val);
+    while (!all_realtions_in_range_kanon(rc_map, num_relations, k, min_val, top_end)) {
+      top_end+=k+4000;
       if (top_end >= final_range) {
         for (int scan = min_val; scan < final_range; scan++) {
           int64_t original_table_val = internal_gen_to_input[scan];
@@ -396,6 +466,10 @@ table_t *generalize_table_fast(
         min_val = final_range+1;
         append = false;
         break;
+      }
+      if (top_end % 1100000 == 0) {
+        printf("INSIDE top end: %d\n", top_end);
+        exit(0);
       }
     }
     //append to min val;
@@ -414,6 +488,7 @@ table_t *generalize_table_fast(
 
 
   free(tup);
+  printf("finished with geneeralizer\n");
   return tb.table;
 }
 
