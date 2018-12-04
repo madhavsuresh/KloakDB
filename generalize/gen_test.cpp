@@ -17,15 +17,9 @@ public:
 
 protected:
     void SetUp() override {
-      xdbname = "kloak_testing_gen";
-      std::string command = "createdb " + xdbname;
-      system(command.c_str());
-      dbname = "dbname=" + xdbname;
     }
 
     void TearDown() override{
-      std::string command = "dropdb " + xdbname;
-      system(command.c_str());
     };
 
 };
@@ -128,15 +122,60 @@ TEST_F(gen_test, new_gen) {
 }
 
 TEST_F(gen_test, gen_fast) {
-  table_t *t = get_table("SELECT b, count(b) FROM left_deep_joins_1024a group by b", "dbname=vaultdb_");
-  //table_t *actual_table = get_table("SELECT * FROM left_deep_joins_1024;", "dbname=vaultdb_");
   std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
           tables;
-  tables["one"].emplace_back(0, t);
-  tables["one"].emplace_back(1,t);
-  tables["two"].emplace_back(0,t);
-  tables["two"].emplace_back(1,t);
-  tables["three"].emplace_back(0,t);
-  tables["three"].emplace_back(1,t);
-  auto out = generalize_table_fast(tables, 3, 6);
+  table_t *r1h1 = get_table("SELECT b, count(b) FROM gen_test_a_h1 group by b", "dbname=vaultdb_");
+  printf("Table 1\n");
+  table_t *r1h2 = get_table("SELECT b, count(b) FROM gen_test_a_h2 group by b", "dbname=vaultdb_");
+  printf("Table 2\n");
+  table_t *r1h3 = get_table("SELECT b, count(b) FROM gen_test_a_h3 group by b", "dbname=vaultdb_");
+  printf("Table 3\n");
+  table_t *r1h4 = get_table("SELECT b, count(b) FROM gen_test_a_h4 group by b", "dbname=vaultdb_");
+  printf("Table 4\n");
+  tables["one"].emplace_back(0,r1h1);
+  tables["one"].emplace_back(1,r1h2);
+  tables["one"].emplace_back(2,r1h3);
+  tables["one"].emplace_back(3,r1h4);
+
+  table_t *r2h1 = get_table("SELECT b, count(b) FROM gen_test_b_h1 group by b", "dbname=vaultdb_");
+  printf("Table 5\n");
+  tables["one"].emplace_back(0,r1h1);
+  table_t *r2h2 = get_table("SELECT b, count(b) FROM gen_test_b_h2 group by b", "dbname=vaultdb_");
+  printf("Table 6\n");
+  table_t *r2h3 = get_table("SELECT b, count(b) FROM gen_test_b_h3 group by b", "dbname=vaultdb_");
+  printf("Table 7\n");
+  table_t *r2h4 = get_table("SELECT b, count(b) FROM gen_test_b_h4 group by b", "dbname=vaultdb_");
+  printf("Table 8\n");
+  tables["two"].emplace_back(0,r2h1);
+  tables["two"].emplace_back(1,r2h2);
+  tables["two"].emplace_back(2,r2h3);
+  tables["two"].emplace_back(3,r2h4);
+
+  table_t *r3h1 = get_table("SELECT b, count(b) FROM gen_test_c_h1 group by b", "dbname=vaultdb_");
+  printf("Table 9\n");
+  table_t *r3h2 = get_table("SELECT b, count(b) FROM gen_test_c_h2 group by b", "dbname=vaultdb_");
+  printf("Table 10\n");
+  table_t *r3h3 = get_table("SELECT b, count(b) FROM gen_test_c_h3 group by b", "dbname=vaultdb_");
+  printf("Table 11\n");
+  table_t *r3h4 = get_table("SELECT b, count(b) FROM gen_test_c_h4 group by b", "dbname=vaultdb_");
+  printf("Table 12\n");
+  tables["three"].emplace_back(0,r3h1);
+  tables["three"].emplace_back(1,r3h2);
+  tables["three"].emplace_back(2,r3h3);
+  tables["three"].emplace_back(3,r3h4);
+
+  table_t *r4h1 = get_table("SELECT b, count(b) FROM gen_test_d_h1 group by b", "dbname=vaultdb_");
+  printf("Table 13\n");
+  table_t *r4h2 = get_table("SELECT b, count(b) FROM gen_test_d_h2 group by b", "dbname=vaultdb_");
+  printf("Table 14\n");
+  table_t *r4h3 = get_table("SELECT b, count(b) FROM gen_test_d_h3 group by b", "dbname=vaultdb_");
+  printf("Table 15\n");
+  table_t *r4h4 = get_table("SELECT b, count(b) FROM gen_test_d_h4 group by b", "dbname=vaultdb_");
+  printf("Table 16\n");
+  tables["four"].emplace_back(0,r4h1);
+  tables["four"].emplace_back(1,r4h2);
+  tables["four"].emplace_back(2,r4h3);
+  tables["four"].emplace_back(3,r4h4);
+
+  auto out = generalize_table_fast(tables, 4, 6);
 }
