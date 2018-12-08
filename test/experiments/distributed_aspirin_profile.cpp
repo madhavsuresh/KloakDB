@@ -7,8 +7,8 @@
 void aspirin_profile(HonestBrokerPrivate *p, std::string database,
                      std::string diagnoses_table, std::string vitals_table,
                      std::string medications_table,
-                     std::string demographics_table, std::string year,
-                     bool sgx, int gen_level) {
+                     std::string demographics_table, std::string year, bool sgx,
+                     int gen_level) {
   std::string random_query = " ORDER BY random() LIMIT 1000";
 
   std::string year_append = "";
@@ -19,44 +19,46 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
   START_TIMER(postgres_read);
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
-  auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                            "SELECT icd9, patient_id from " +
-                                                diagnoses_table + year_append + random_query);
+  auto diagnoses_scan = p->ClusterDBMSQuery(
+      "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table +
+                                year_append + random_query);
   to_gen_t diag_gen;
   diag_gen.column = "patient_id";
   diag_gen.dbname = "healthlnk";
-  diag_gen.scan_tables.insert(diag_gen.scan_tables.end(), diagnoses_scan.begin(),
-                                diagnoses_scan.end());
+  diag_gen.scan_tables.insert(diag_gen.scan_tables.end(),
+                              diagnoses_scan.begin(), diagnoses_scan.end());
   gen_in["diagnoses"] = diag_gen;
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table +
-                                year_append + " AND pulse IS NOT NULL" + random_query);
+                                year_append + " AND pulse IS NOT NULL" +
+                                random_query);
   to_gen_t vitals_gen;
   vitals_gen.column = "patient_id";
   vitals_gen.dbname = "healthlnk";
-  vitals_gen.scan_tables.insert(vitals_gen.scan_tables.end(), vitals_scan.begin(),
-                              vitals_scan.end());
+  vitals_gen.scan_tables.insert(vitals_gen.scan_tables.end(),
+                                vitals_scan.begin(), vitals_scan.end());
   gen_in["vitals"] = vitals_gen;
-  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                       "SELECT patient_id, medication from " +
-                                       medications_table + year_append + random_query);
+  auto meds_scan = p->ClusterDBMSQuery(
+      "dbname=" + database, "SELECT patient_id, medication from " +
+                                medications_table + year_append + random_query);
 
   to_gen_t meds_gen;
   meds_gen.column = "patient_id";
   meds_gen.dbname = "healthlnk";
   meds_gen.scan_tables.insert(meds_gen.scan_tables.end(), meds_scan.begin(),
-                             meds_scan.end());
+                              meds_scan.end());
   gen_in["medications"] = meds_gen;
 
   auto demographics_scan = p->ClusterDBMSQuery(
-          "dbname=" + database,
-          "SELECT DISTINCT patient_id, gender, race from " + demographics_table + random_query);
+      "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
+                                demographics_table + random_query);
 
   to_gen_t dem_gen;
   dem_gen.column = "patient_id";
   dem_gen.dbname = "healthlnk";
-  dem_gen.scan_tables.insert(dem_gen.scan_tables.end(), demographics_scan.begin(),
-                               demographics_scan.end());
+  dem_gen.scan_tables.insert(dem_gen.scan_tables.end(),
+                             demographics_scan.begin(),
+                             demographics_scan.end());
   gen_in["demographics"] = dem_gen;
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
@@ -157,10 +159,11 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
 }
 
 void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
-                     std::string diagnoses_table, std::string vitals_table,
-                     std::string medications_table,
-                     std::string demographics_table, std::string year,
-                     bool sgx) {
+                             std::string diagnoses_table,
+                             std::string vitals_table,
+                             std::string medications_table,
+                             std::string demographics_table, std::string year,
+                             bool sgx) {
   std::string random_query = " ORDER BY random() LIMIT 1000";
 
   std::string year_append = "";
@@ -171,20 +174,20 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   START_TIMER(postgres_read);
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
-  auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                            "SELECT icd9, patient_id from " +
-                                            diagnoses_table + year_append + random_query);
+  auto diagnoses_scan = p->ClusterDBMSQuery(
+      "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table +
+                                year_append + random_query);
   auto vitals_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table +
-                                year_append + " AND pulse IS NOT NULL" + random_query);
-  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                       "SELECT patient_id, medication from " +
-                                       medications_table + year_append + random_query);
-
+      "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table +
+                                year_append + " AND pulse IS NOT NULL" +
+                                random_query);
+  auto meds_scan = p->ClusterDBMSQuery(
+      "dbname=" + database, "SELECT patient_id, medication from " +
+                                medications_table + year_append + random_query);
 
   auto demographics_scan = p->ClusterDBMSQuery(
-          "dbname=" + database,
-          "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+      "dbname=" + database,
+      "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
 
@@ -281,37 +284,38 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
 }
 
 void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
-                             std::string diagnoses_table, std::string vitals_table,
-                             std::string medications_table,
-                             std::string demographics_table,
-                             bool sgx) {
+                          std::string diagnoses_table, std::string vitals_table,
+                          std::string medications_table,
+                          std::string demographics_table, bool sgx) {
 
   START_TIMER(aspirin_profile_full);
   START_TIMER(postgres_read);
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
-  auto diagnoses_scan = p->ClusterDBMSQuery("dbname=" + database,
-                                            "SELECT icd9, patient_id from " +
-                                            diagnoses_table);
+  auto diagnoses_scan = p->ClusterDBMSQuery(
+      "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table);
+  p->MakeObli(diagnoses_scan, "patient_id");
   auto vitals_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
+      "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
+  p->MakeObli(vitals_scan, "patient_id");
 
   auto meds_scan = p->ClusterDBMSQuery("dbname=" + database,
                                        "SELECT patient_id, medication from " +
-                                       medications_table)
-
+                                           medications_table);
+  p->MakeObli(meds_scan, "patient_id");
 
   auto demographics_scan = p->ClusterDBMSQuery(
-          "dbname=" + database,
-          "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+      "dbname=" + database,
+      "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+  p->MakeObli(demographics_scan, "patient_id");
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
 
   START_TIMER(repartition);
-  auto diagnoses_repart = p->Repartition(diagnoses_scan);
-  auto vitals_repart = p->Repartition(vitals_scan);
-  auto meds_repart = p->Repartition(meds_scan);
-  auto demographics_repart = p->Repartition(demographics_scan);
+  auto diagnoses_repart = p->RepartitionJustHash(diagnoses_scan);
+  auto vitals_repart = p->RepartitionJustHash(vitals_scan);
+  auto meds_repart = p->RepartitionJustHash(meds_scan);
+  auto demographics_repart = p->RepartitionJustHash(demographics_scan);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
 
   // join def vitals-diagnoses
