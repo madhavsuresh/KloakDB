@@ -23,21 +23,25 @@ protected:
 
 TEST_F(vdb3, demographics) {
   table_t *t = get_table("SELECT * FROM demographics", dbname);
+  printf("Demo: Num Tuple Pages: %d", t->num_tuple_pages);
   free_table(t);
 }
 
 TEST_F(vdb3, vitals) {
-  table_t *t = get_table("SELECT * FROM vitals", dbname);
+  table_t *t = get_table("SELECT * FROM vitals where year = 2008", dbname);
+  printf("Vitals: Num Tuple Pages: %d", t->num_tuple_pages);
   free_table(t);
 }
 
 TEST_F(vdb3, diagnoses) {
-  table_t *t = get_table("SELECT * FROM diagnoses", dbname);
+  table_t *t = get_table("SELECT * FROM diagnoses where year = 2008", dbname);
+  printf("Diag: Num Tuple Pages: %d", t->num_tuple_pages);
   free_table(t);
 }
 
 TEST_F(vdb3, medications) {
-  table_t *t = get_table("SELECT * FROM medications", dbname);
+  table_t *t = get_table("SELECT * FROM medications where year = 2008", dbname);
+  printf("Meds: Num Tuple Pages: %d", t->num_tuple_pages);
   free_table(t);
 }
 
