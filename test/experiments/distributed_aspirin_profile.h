@@ -19,4 +19,10 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
                              std::string demographics_table, std::string year,
                              bool sgx);
 
+void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
+                          std::string diagnoses_table, std::string vitals_table,
+                          std::string medications_table,
+                          std::string demographics_table,
+                          bool sgx);
+
 #endif // PROJECT_DISTRIBUTED_ASPIRIN_PROFILE_H
