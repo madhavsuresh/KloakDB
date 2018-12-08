@@ -91,7 +91,6 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
   std::vector<std::pair<int32_t, int32_t>> info =
       repart_step_one(t, p->NumHosts(), p);
   END_TIMER(repart_step_one_inner);
-  p->FreeTable(request->tableid().tableid());
   for (auto i : info) {
     ::vaultdb::TableID *id = response->add_remoterepartitionids();
     id->set_hostnum(i.first);
@@ -458,8 +457,8 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
   tid->set_tableid(p->AddTable(out_join));
   END_TIMER(join_full);
   LOG_TIMER(join_full);
-   p->FreeTable(request->left_tid().tableid());
-  p->FreeTable(request->right_tid().tableid());
+   //p->FreeTable(request->left_tid().tableid());
+  //p->FreeTable(request->right_tid().tableid());
   LOG(DO_IMPL) << "Join OK";
   return ::grpc::Status::OK;
 }
