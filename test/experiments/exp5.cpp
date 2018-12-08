@@ -25,9 +25,9 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   LOG(EXEC) << "======End Generalize====";
   auto gen_zipped = gen_zipped_map["left_deep_joins_1024"];
   into_repart = gen_zipped;
-} else if (gen_level == -1) {
-    into_repart = scan;
 } else if (gen_level == 0) {
+    into_repart = scan;
+} else if (gen_level == -1) {
     auto obli = p->MakeObli(scan, "b");
     into_repart = obli;
   }
@@ -49,6 +49,9 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   LOG(EXEC) << "======Start Join 1====";
   START_TIMER(join1);
   auto out1 = p->Join(to_join1, jd, sgx);
+  p->FreeTables(repart);
+  p->FreeTables(out1);
+  /*
   END_AND_LOG_EXP5_STAT_TIMER(join1, gen_level);
   LOG(EXEC) << "======END Join 1====";
   auto to_join2 = zip_join_tables(repart, out1);
@@ -71,4 +74,5 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
     END_AND_LOG_EXP5_STAT_TIMER(join4, gen_level);
     LOG(EXEC) << "======END Join 4====";
   }
+   */
 }
