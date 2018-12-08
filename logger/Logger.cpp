@@ -48,6 +48,8 @@ void RemoteSink::send_log_to_server(std::string log) {
   req.set_logmessage("(" + host_short + ")" + log);
   auto status = stub_->Log(&context, req, &resp);
   if (!status.ok()) {
-    throw;
+    printf("%s\n", log.c_str());
+    fflush(0);
+    //throw;
   }
 }
