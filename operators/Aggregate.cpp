@@ -4,6 +4,7 @@
 #include <cstring>
 #include <map>
 #include <unordered_map>
+#include <math.h>
 using namespace std;
 
 schema_t agg_schema(int32_t colno, table_t *t) {
@@ -101,11 +102,13 @@ schema_t agg_schema_avg(groupby_def_t *def, table_t *t) {
   return agg_schema;
 }
 
+// In lieu of optimizing this, we will assumee that the group by columns
+// are integers, and are in the range 0-16
 table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
-  std::unordered_map<std::string, std::vector<int>> agg_map;
+  std::unordered_map<int, std::vector<int>> agg_map;
   for (int i = 0; i < t->num_tuples; i++) {
     tuple_t *tup = get_tuple(i, t);
-    std::string key = "";
+    int key = 0;
     for (int j = 0; j < def->num_cols; j++) {
       int colno = def->gb_colnos[j];
       // TODO(madhavsuresh): this is ugly, assume that $, is not present in any
@@ -113,21 +116,17 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
       // this should be enforced when reading the data from postgres
       switch (t->schema.fields[colno].type) {
       case INT: {
-        key += std::to_string(tup->field_list[colno].f.int_field.val) + "$,";
+        key += tup->field_list[colno].f.int_field.val * (int)pow(10,j +1);
         break;
       }
       case DOUBLE: {
-        key += std::to_string(tup->field_list[colno].f.double_field.val) + "$,";
-        break;
+        throw;
       }
       case TIMESTAMP: {
-        key += std::to_string(tup->field_list[colno].f.ts_field.val) + "$,";
-        break;
+          throw;
       }
       case FIXEDCHAR: {
-        key +=
-            std::string(tup->field_list[colno].f.fixed_char_field.val) + "$,";
-        break;
+          throw;
       }
       case UNSUPPORTED: {
         throw;
@@ -143,12 +142,12 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
   init_table_builder(agg_map.size(), s.num_fields /*num_columns*/, &s, &tb);
   tuple_t *tup = (tuple_t *)malloc(tb.size_of_tuple);
   tup->is_dummy = false;
-  int num_dummy = 0;
+  double num_dummy = 0;
   for (const auto &agg_pair : agg_map) {
     double avg_total = 0;
     for (auto tup_no : agg_pair.second) {
       if (get_tuple(tup_no, t)->is_dummy) {
-        num_dummy++;
+        num_dummy+= get_num_field(t, tup_no, def->colno);
       } else {
         avg_total += get_num_field(t, tup_no, def->colno);
       }
