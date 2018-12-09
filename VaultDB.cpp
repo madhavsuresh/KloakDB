@@ -38,7 +38,7 @@ DEFINE_int32(gen_level, 0, "generalization level");
 
 DEFINE_string(year, "", "year for healthlnk queries");
 DEFINE_string(db, "smcql_testDB", "database name");
-DEFINE_string(di_table, "diag_ex", "table name for diagnoses");
+DEFINE_string(di_table, "hd_cohort_dist", "table name for diagnoses");
 DEFINE_string(meds_table, "meds_ex", "table name for medications");
 DEFINE_string(dem_table, "dem_ex", "table name for demographics");
 DEFINE_string(vit_table, "vit_ex", "table name for vitals");
@@ -161,8 +161,12 @@ int main(int argc, char **argv) {
                           FLAGS_sgx);
         }  else if (FLAGS_gen_level == -1) {
           aspirin_profile_obli(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
-                                  FLAGS_meds_table, FLAGS_dem_table,
-                                  FLAGS_sgx);
+                               FLAGS_meds_table, FLAGS_dem_table,
+                               FLAGS_sgx);
+        } else if (FLAGS_gen_level == 17) {
+          aspirin_profile_gen(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
+                          FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
+                          FLAGS_sgx, FLAGS_gen_level);
         } else {
           aspirin_profile(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
                           FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,

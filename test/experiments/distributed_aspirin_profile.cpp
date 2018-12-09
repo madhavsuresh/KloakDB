@@ -171,7 +171,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
   auto diagnoses_scan = p->ClusterDBMSQuery(
-      "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table);
+      "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
   auto meds_scan = p->ClusterDBMSQuery("dbname=" + database, "SELECT patient_id, medication from " + medications_table);
@@ -388,5 +388,104 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   cfids.emplace_back("race");
   auto final_avg = p->Aggregate(out_repart_2, gbd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
+}
+
+void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
+                     std::string diagnoses_table, std::string vitals_table,
+                     std::string medications_table,
+                     std::string demographics_table, std::string year, bool sgx,
+                     int gen_level) {
+  std::string random_query = " ORDER BY random() LIMIT 1000";
+
+  std::string year_append = "";
+  if (year != "") {
+    year_append = " where year=" + year;
+  }
+  START_TIMER(aspirin_profile_full);
+  START_TIMER(postgres_read);
+  p->SetControlFlowColName("patient_id");
+  unordered_map<table_name, to_gen_t> gen_in;
+  auto diagnoses_scan = p->ClusterDBMSQuery(
+          "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
+  to_gen_t diag_gen;
+  diag_gen.column = "patient_id";
+  diag_gen.dbname = "healthlnk";
+  diag_gen.scan_tables.insert(diag_gen.scan_tables.end(),
+                              diagnoses_scan.begin(), diagnoses_scan.end());
+  gen_in[diagnoses_table] = diag_gen;
+  auto vitals_scan = p->ClusterDBMSQuery(
+          "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
+  to_gen_t vitals_gen;
+  vitals_gen.column = "patient_id";
+  vitals_gen.dbname = "healthlnk";
+  vitals_gen.scan_tables.insert(vitals_gen.scan_tables.end(),
+                                vitals_scan.begin(), vitals_scan.end());
+  gen_in[vitals_table] = vitals_gen;
+  auto meds_scan = p->ClusterDBMSQuery(
+          "dbname=" + database, "SELECT patient_id, medication from " +
+                                medications_table);
+
+  to_gen_t meds_gen;
+  meds_gen.column = "patient_id";
+  meds_gen.dbname = "healthlnk";
+  meds_gen.scan_tables.insert(meds_gen.scan_tables.end(), meds_scan.begin(),
+                              meds_scan.end());
+  gen_in[medications_table] = meds_gen;
+
+  auto demographics_scan = p->DBMSQuery(0,
+                                        "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
+                                                              demographics_table);
+
+  to_gen_t dem_gen;
+  dem_gen.column = "patient_id";
+  dem_gen.dbname = "healthlnk";
+  dem_gen.scan_tables.emplace_back(demographics_scan);
+  gen_in[demographics_table] = dem_gen;
+
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
+  START_TIMER(generalize);
+  auto gen_zipped_map = p->Generalize(gen_in, 5);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(generalize, "full");
+  START_TIMER(repartition);
+  auto diagnoses_repart = p->Repartition(gen_zipped_map[diagnoses_table]);
+  auto vitals_repart = p->Repartition(gen_zipped_map[vitals_table]);
+  auto meds_repart = p->Repartition(gen_zipped_map[medications_table]);
+  auto demographics_repart = p->Repartition(gen_zipped_map[demographics_table]);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
+
+  START_TIMER(join_one);
+  JoinDef jd_vd;
+  jd_vd.set_l_col_name("patient_id");
+  jd_vd.set_r_col_name("patient_id");
+  jd_vd.set_project_len(2);
+  // vitals-diagnoses-join project 1
+  auto vdjp1 = jd_vd.add_project_list();
+  vdjp1->set_side(JoinColID_RelationSide_LEFT);
+  vdjp1->set_colname("patient_id");
+  auto vdjp2 = jd_vd.add_project_list();
+  vdjp2->set_side(JoinColID_RelationSide_LEFT);
+  vdjp2->set_colname("pulse");
+  auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
+  auto out_vd_join = p->Join(to_join1, jd_vd, false);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
+  /*
+  START_TIMER(join_two);
+  JoinDef jd_pm2;
+  jd_pm2.set_l_col_name("patient_id");
+  jd_pm2.set_r_col_name("patient_id");
+  jd_pm2.set_project_len(2);
+  // plus medications project 1
+  auto pmp1 = jd_pm2.add_project_list();
+  pmp1->set_side(JoinColID_RelationSide_LEFT);
+  pmp1->set_colname("patient_id");
+  auto pmp2 = jd_pm2.add_project_list();
+  pmp2->set_side(JoinColID_RelationSide_LEFT);
+  pmp2->set_colname("pulse");
+
+  auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
+  auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
+   */
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }

@@ -20,6 +20,7 @@ public:
   int NumHosts();
   void Register();
   int AddTable(table_t *t);
+  int AddBatch(table_batch_t *batch);
   std::pair<int,int> SendTable(int worker_host_num, table_t *t);
   void SetDataOwnerClient(int host_num, std::string host_name);
   void DeleteDataOwnerClient(int host_num);
@@ -27,6 +28,7 @@ public:
   void FreeAllTables();
   ::vaultdb::ControlFlowColumn GetControlFlowColID();
   table_t *GetTable(int table_id);
+  table_batch_t *GetBatch(int batch_id);
 
 private:
   // TODO(madhavsuresh): should this be a managed pointer
@@ -40,6 +42,9 @@ private:
   std::mutex table_catalog_mutex;
   int table_counter;
   std::map<int, table_t *> table_catalog;
+    std::mutex table_catalog_batch_mutex;
+    int table_batch_counter;
+    std::map<int, table_batch_t *> table_batch_catalog;
 };
 
 void proto_schema_to_table_schema(table_t *t, const vaultdb::Schema &s);
