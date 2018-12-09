@@ -65,7 +65,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR}/logger)
 
 add_executable(vaultdb VaultDB.cpp test/experiments/exp5.cpp test/experiments/exp3.cpp test/experiments/exp4.cpp test/experiments/distributed_aspirin_profile.cpp test/experiments/distributed_aspirin_profile.h test/experiments/distributed_comorb.cpp test/experiments/distributed_comorb.h test/experiments/distributed_dosage.cpp test/experiments/distributed_dosage.h)
 
-target_link_libraries(vaultdb gflags dl pthread krpc g3logger pqxxcompat dataformat operators klogger vaultdb_sgx_app)
+target_link_libraries(vaultdb asan gflags dl pthread krpc g3logger pqxxcompat dataformat operators klogger vaultdb_sgx_app)
 
 add_subdirectory(rpc)
 add_subdirectory(data)

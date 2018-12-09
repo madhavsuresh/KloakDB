@@ -183,6 +183,7 @@ TEST_F(gen_test, gen_fast) {
 
   auto start = std::chrono::high_resolution_clock::now();
   auto out = generalize_table_fast(tables, 4, 5);
+  std::cout << "Size of gen table" << out->num_tuples;
   auto end= std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = end - start;
   std::cout << "Gen Fast Time: " << elapsed.count() << " s\n";
