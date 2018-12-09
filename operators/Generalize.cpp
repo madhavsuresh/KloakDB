@@ -449,6 +449,8 @@ table_t *generalize_table_fast(
   unordered_map<int64_t, int64_t> input_to_internal_gen; // original input -> internal gen
   unordered_map<int64_t, int64_t> internal_gen_to_input; // internal gen-> original input
   unordered_map<int64_t, int> counter = union_counts(table_map_host_table_pairs);
+  int tup_append = 0;
+  int main_tup_append = 0;
 
   uint64_t range_of_tuples = 0;
   auto range_info = get_range(counter);
@@ -482,6 +484,7 @@ table_t *generalize_table_fast(
         tup->field_list[0].f.int_field.val = original_table_val;
         tup->field_list[0].f.int_field.genval = prev_min_val;
         append_tuple(&tb, tup);
+        tup_append++;
       }
     } else {
       for (int scan = min_val; scan < max_top; scan++) {
@@ -489,6 +492,7 @@ table_t *generalize_table_fast(
         tup->field_list[0].f.int_field.val = original_table_val;
         tup->field_list[0].f.int_field.genval = min_val;
         append_tuple(&tb, tup);
+        main_tup_append++;
       }
     }
     prev_min_val = min_val;
@@ -496,6 +500,7 @@ table_t *generalize_table_fast(
   }
   free(tup);
   printf("finished with geneeralizer\n");
+  printf("Main Appended Tuples %d, not main: %d", main_tup_append, tup_append);
   return tb.table;
 }
 

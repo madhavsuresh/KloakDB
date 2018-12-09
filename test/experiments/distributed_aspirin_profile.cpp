@@ -46,16 +46,14 @@ void aspirin_profile(HonestBrokerPrivate *p, std::string database,
                               meds_scan.end());
   gen_in[medications_table] = meds_gen;
 
-  auto demographics_scan = p->ClusterDBMSQuery(
+  auto demographics_scan = p->DBMSQuery(0,
       "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
                                 demographics_table);
 
   to_gen_t dem_gen;
   dem_gen.column = "patient_id";
   dem_gen.dbname = "healthlnk";
-  dem_gen.scan_tables.insert(dem_gen.scan_tables.end(),
-                             demographics_scan.begin(),
-                             demographics_scan.end());
+  dem_gen.scan_tables.emplace_back(demographics_scan);
   gen_in[demographics_table] = dem_gen;
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
