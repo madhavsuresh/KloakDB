@@ -284,11 +284,30 @@ bool is_range_kanon(rc_t rc, int k, int64_t min, int64_t max) {
   return is_kanon;
 }
 
-int64_t find_min_range(rc_t rc, int num_relations, int k, int64_t min) {
-  int max = min;
+int64_t find_min_range(rc_t rc, int num_relations, int k, int64_t min, int64_t final_range) {
+  int64_t max = min;
   int64_t minus_host[MAX_HOST_GEN];
-  for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
+  for (int i = 0; i < rc.num_hosts; i++) {
+    minus_host[i] = 0;
   }
+
+  bool not_k_anon = true;
+  while (not_k_anon) {
+    for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
+      minus_host[host_num] += rcval(rc, max, host_num);
+    }
+    not_k_anon = false;
+    for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
+      if (minus_host[host_num] < k) {
+        not_k_anon = true;
+      }
+    }
+    if (max >= final_range) {
+      return -1;
+    }
+    max++;
+  }
+  return max;
 }
 
 /*
@@ -355,7 +374,7 @@ unordered_map<int64_t, int> union_counts(std::unordered_map<table_name, std::vec
   }
   return counter;
 }
-tuple<uint64_t, unordered_map<int64_t, int64_t>>  get_range(unordered_map<int64_t, int> counter) {
+std::tuple<uint64_t, unordered_map<int64_t, int64_t>>  get_range(unordered_map<int64_t, int> counter) {
   //Taken from https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
   unordered_map<int64_t, int64_t> input_to_internal_gen; // original input -> internal gen
   vector<pair<int64_t,int>>sorted_counter;
@@ -420,6 +439,7 @@ table_builder_t get_gen_tb(uint64_t final_range) {
   schema.fields[0].type = INT;
   strncpy(schema.fields[0].field_name, "cf_hash_orig\0", FIELD_NAME_LEN);
   init_table_builder(final_range, 1 /* num_columns */, &schema, &tb);
+  return tb;
 }
 
 table_t *generalize_table_fast(
@@ -450,43 +470,30 @@ table_t *generalize_table_fast(
   int min_val = 0;
   int prev_min_val = 0;
   while (min_val <= final_range) {
-    int top_end = min_val+1;
-    bool append = true;
-    uint64_t top_end = get_min_range(rc_map, num_relations, k, min_val);
-    while (!all_realtions_in_range_kanon(rc_map, num_relations, k, min_val, top_end)) {
-      top_end+=k+4000;
-      if (top_end >= final_range) {
-        for (int scan = min_val; scan < final_range; scan++) {
-          int64_t original_table_val = internal_gen_to_input[scan];
-          tup->field_list[0].f.int_field.val = original_table_val;
-          tup->field_list[0].f.int_field.genval = prev_min_val;
-          append_tuple(&tb, tup);
-        }
-        top_end = final_range+1;
-        min_val = final_range+1;
-        append = false;
-        break;
-      }
-      if (top_end % 1100000 == 0) {
-        printf("INSIDE top end: %d\n", top_end);
-        exit(0);
-      }
+    vector<int> min_ks;
+    for (int rel = 0; rel < num_relations; rel++) {
+      min_ks.emplace_back(find_min_range(rc_map[rel], num_relations, k, min_val, final_range));
     }
-    //append to min val;
-    if (append) {
-      for (int scan = min_val; scan < top_end; scan++) {
+    int max_top = *max_element(std::begin(min_ks), std::end(min_ks));
+    int min_top = *min_element(std::begin(min_ks), std::end(min_ks));
+    if (min_top == -1) {
+      for (int scan = min_val; scan < final_range; scan++) {
+        int64_t original_table_val = internal_gen_to_input[scan];
+        tup->field_list[0].f.int_field.val = original_table_val;
+        tup->field_list[0].f.int_field.genval = prev_min_val;
+        append_tuple(&tb, tup);
+      }
+    } else {
+      for (int scan = min_val; scan < max_top; scan++) {
         int64_t original_table_val = internal_gen_to_input[scan];
         tup->field_list[0].f.int_field.val = original_table_val;
         tup->field_list[0].f.int_field.genval = min_val;
         append_tuple(&tb, tup);
       }
     }
-
     prev_min_val = min_val;
-    min_val = top_end;
+    min_val = max_top;
   }
-
-
   free(tup);
   printf("finished with geneeralizer\n");
   return tb.table;
