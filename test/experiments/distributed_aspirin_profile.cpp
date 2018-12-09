@@ -445,7 +445,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
   START_TIMER(generalize);
-  auto gen_zipped_map = p->Generalize(gen_in, gen_level);
+  auto gen_zipped_map = p->Generalize(gen_in, 5);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(generalize, "full");
   START_TIMER(repartition);
   auto diagnoses_repart = p->Repartition(gen_zipped_map[diagnoses_table]);
