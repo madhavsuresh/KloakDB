@@ -471,14 +471,24 @@ table_t *generalize_table_fast(
   printf("Here in view generator: num unique elements: %d\n", final_range);
   int min_val = 0;
   int prev_min_val = 0;
+  bool range_exceeded[MAX_RELATION];
+  for (int r = 0; r < num_relations; r++) {
+    range_exceeded[r] = false;
+  }
   while (min_val <= final_range) {
     vector<int> min_ks;
     for (int rel = 0; rel < num_relations; rel++) {
-      min_ks.emplace_back(find_min_range(rc_map[rel], num_relations, k, min_val, final_range));
+      if (!range_exceeded[rel]) {
+        int mr = find_min_range(rc_map[rel], num_relations, k, min_val, final_range);
+        if (mr == -1) {
+          range_exceeded[rel] = true;
+        }
+        min_ks.emplace_back(mr);
+      }
     }
     int max_top = *max_element(std::begin(min_ks), std::end(min_ks));
     int min_top = *min_element(std::begin(min_ks), std::end(min_ks));
-    if (min_top == -1) {
+    if (min_top == -1 && max_top == -1) {
       for (int scan = min_val; scan < final_range; scan++) {
         int64_t original_table_val = internal_gen_to_input[scan];
         tup->field_list[0].f.int_field.val = original_table_val;
