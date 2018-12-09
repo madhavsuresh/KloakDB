@@ -435,6 +435,10 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
   START_TIMER(join_full);
   table_t *left = p->GetTable(request->left_tid().tableid());
   table_t *right = p->GetTable(request->right_tid().tableid());
+  auto left_num_tuples = left->num_tuples;
+  auto left_num_pages = left->num_tuple_pages;
+  auto right_num_tuples = right->num_tuples;
+  auto right_num_pages = right->num_tuple_pages;
   join_def_t def = make_join_def_t(left, right, request->def());
   table_t *out_join;
   if (request->in_sgx()) {
@@ -450,15 +454,17 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
     END_TIMER(plain_join_inner);
     LOG_TIMER(plain_join_inner);
   }
-  LOG(OP) << "Join Number of Output Tuples :[" << out_join->num_tuples << "]";
-  LOG(OP) << "Join Number of Tuples Pages:[" << out_join->num_tuple_pages << "]";
+  LOG(OP) << "Join Input L:(Tup,Pag)[" << left_num_tuples << ","
+          << left_num_pages << "R:(Tup,Pag)" << right_num_tuples << ","
+          << right_num_pages << "|Output Tuples :[" << out_join->num_tuples
+          << "]; Pages:[" << out_join->num_tuple_pages << "]";
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out_join));
   END_TIMER(join_full);
   LOG_TIMER(join_full);
-   //p->FreeTable(request->left_tid().tableid());
-  //p->FreeTable(request->right_tid().tableid());
+  // p->FreeTable(request->left_tid().tableid());
+  // p->FreeTable(request->right_tid().tableid());
   LOG(DO_IMPL) << "Join OK";
   return ::grpc::Status::OK;
 }
