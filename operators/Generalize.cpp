@@ -486,6 +486,7 @@ table_t *generalize_table_fast(
         append_tuple(&tb, tup);
         tup_append++;
       }
+      max_top = final_range + 1;
     } else {
       for (int scan = min_val; scan < max_top; scan++) {
         int64_t original_table_val = internal_gen_to_input[scan];
