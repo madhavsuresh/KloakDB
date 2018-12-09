@@ -71,6 +71,7 @@ unordered_map<table_name, vector<tableid_ptr>>
 HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
                                 int gen_level) {
 
+  string wow_column;
   unordered_map<table_name, vector<tableid_ptr>> out_map;
   std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
       gen_input;
@@ -84,6 +85,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
   for (auto &table : in) {
     vector<tableid_ptr> tids;
     string column = table.second.column;
+    wow_column = column;
     auto query = count_star_query(table.first, column);
     auto dbname = table.second.dbname;
     for (int i = 0; i < this->num_hosts; i++) {
@@ -103,6 +105,38 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
   LOG(EXEC) << "END OF GENERALIZATION";
   END_AND_LOG_TIMER(generalize_inner);
   log_gen_stats(gen_map);
+
+  std::unordered_map<cf_hash, cf_gen> gen_z;
+  for (int i = 0; i < gen_map->num_tuples; i++) {
+    tuple_t *tup = get_tuple(i, gen_map);
+    gen_z[tup->field_list[0].f.int_field.val] = tup->field_list[0].f.int_field.genval;
+  }
+  for (auto &table : gen_input) {
+    unordered_map<int, int> gen_val_to_count;
+    for (auto &t : table.second) {
+      table_t * z_table = t.second;
+      for (int i = 0 ; i < z_table->num_tuples; i++) {
+        tuple_t *tup = get_tuple(i, z_table);
+        gen_val_to_count[gen_z[tup->field_list[0].f.int_field.val]] += tup->field_list[1].f.int_field.val;
+      }
+    }
+    int max = 0;
+    int total = 0;
+    int num = 0;
+    int moment = 15;
+    int above_moment = 0;
+    for (auto &cc : gen_val_to_count) {
+      num++;
+      total+= cc.second;
+      if (max < cc.second) {
+        max = cc.second;
+      }
+      if (cc.second > moment) {
+        above_moment++;
+      }
+    }
+    printf("Gen for %s: AVG: %f, TOTAL NUM: %d, ABOVE_MOMENT: %d\n", table.first.c_str(), (double)total/num, num, above_moment);
+  }
 
   for (int i = 0; i < num_hosts; i++) {
     auto resp = do_clients[i]->SendTable(gen_map, false);
