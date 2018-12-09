@@ -500,7 +500,7 @@ table_t *generalize_table_fast(
   }
   free(tup);
   printf("finished with geneeralizer\n");
-  printf("Main Appended Tuples %d, not main: %d", main_tup_append, tup_append);
+  printf("Main Appended Tuples %d, not main: %d\n", main_tup_append, tup_append);
   return tb.table;
 }
 
