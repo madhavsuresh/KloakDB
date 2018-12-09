@@ -447,6 +447,12 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   START_TIMER(generalize);
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(generalize, "full");
+  START_TIMER(repartition);
+  auto diagnoses_repart = p->Repartition(gen_zipped_map[diagnoses_table]);
+  auto vitals_repart = p->Repartition(gen_zipped_map[vitals_table]);
+  auto meds_repart = p->Repartition(gen_zipped_map[medications_table]);
+  auto demographics_repart = p->Repartition(gen_zipped_map[demographics_table]);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }
