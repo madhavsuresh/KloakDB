@@ -13,8 +13,3 @@ SELECT * INTO diag_125 FROM (SELECT * FROM diagnoses ORDER BY random()) t LIMIT 
 SELECT * INTO vitals_125 FROM (SELECT * FROM vitals WHERE pulse is NOT NULL ORDER BY random()) t LIMIT 125;
 SELECT * INTO medications_125 FROM (SELECT * FROM medications ORDER BY random()) t LIMIT 125;
 
-DROP TABLE IF EXISTS dem_ex, diag_ex, vit_ex, meds_ex;
-SELECT * INTO dem_ex FROM (SELECT * FROM demographics)
-SELECT * INTO diag_ex FROM (SELECT * FROM diagnoses WHERE year=2008);
-SELECT * INTO vit_ex FROM (SELECT * FROM vitals WHERE year=2008 AND pulse IS NOT NULL);
-SELECT * INTO meds_ex FROM (SELECT * FROM medications WHERE year=2008);
