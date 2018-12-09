@@ -207,10 +207,6 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
   auto out_vd_join = p->Join(to_join1, jd_vd, sgx /* in_sgx */);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
-  /*
-  p->FreeTables(vitals_repart);
-  p->FreeTables(diagnoses_repart);
-   */
 
   // join def first join "plus medications"
   // join between output of vitals/diagnonses join and medications
@@ -258,7 +254,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   cfnames.emplace_back("race");
   p->ResetControlFlowCols();
   p->SetControlFlowColNames(cfnames);
-  auto out_repart_2 = p->Repartition(out_pd_join);
+  auto out_repart_2 = p->RepartitionJustHash(out_pd_join);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition_two, "full");
 
   GroupByDef gbd;
