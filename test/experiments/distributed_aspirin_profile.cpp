@@ -390,3 +390,65 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }
+
+void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
+                     std::string diagnoses_table, std::string vitals_table,
+                     std::string medications_table,
+                     std::string demographics_table, std::string year, bool sgx,
+                     int gen_level) {
+  std::string random_query = " ORDER BY random() LIMIT 1000";
+
+  std::string year_append = "";
+  if (year != "") {
+    year_append = " where year=" + year;
+  }
+  START_TIMER(aspirin_profile_full);
+  START_TIMER(postgres_read);
+  p->SetControlFlowColName("patient_id");
+  unordered_map<table_name, to_gen_t> gen_in;
+  auto diagnoses_scan = p->ClusterDBMSQuery(
+          "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table);
+  to_gen_t diag_gen;
+  diag_gen.column = "patient_id";
+  diag_gen.dbname = "healthlnk";
+  diag_gen.scan_tables.insert(diag_gen.scan_tables.end(),
+                              diagnoses_scan.begin(), diagnoses_scan.end());
+  gen_in[diagnoses_table] = diag_gen;
+  /*
+  auto vitals_scan = p->ClusterDBMSQuery(
+          "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
+  to_gen_t vitals_gen;
+  vitals_gen.column = "patient_id";
+  vitals_gen.dbname = "healthlnk";
+  vitals_gen.scan_tables.insert(vitals_gen.scan_tables.end(),
+                                vitals_scan.begin(), vitals_scan.end());
+  gen_in[vitals_table] = vitals_gen;
+  auto meds_scan = p->ClusterDBMSQuery(
+          "dbname=" + database, "SELECT patient_id, medication from " +
+                                medications_table);
+
+  to_gen_t meds_gen;
+  meds_gen.column = "patient_id";
+  meds_gen.dbname = "healthlnk";
+  meds_gen.scan_tables.insert(meds_gen.scan_tables.end(), meds_scan.begin(),
+                              meds_scan.end());
+  gen_in[medications_table] = meds_gen;
+
+  auto demographics_scan = p->DBMSQuery(0,
+                                        "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
+                                                              demographics_table);
+
+  to_gen_t dem_gen;
+  dem_gen.column = "patient_id";
+  dem_gen.dbname = "healthlnk";
+  dem_gen.scan_tables.emplace_back(demographics_scan);
+  gen_in[demographics_table] = dem_gen;
+  */
+
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
+  START_TIMER(generalize);
+  auto gen_zipped_map = p->Generalize(gen_in, gen_level);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(generalize, "full");
+
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
+}
