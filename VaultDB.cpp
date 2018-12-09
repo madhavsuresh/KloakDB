@@ -38,10 +38,10 @@ DEFINE_int32(gen_level, 0, "generalization level");
 
 DEFINE_string(year, "", "year for healthlnk queries");
 DEFINE_string(db, "smcql_testDB", "database name");
-DEFINE_string(di_table, "diagnoses", "table name for diagnoses");
-DEFINE_string(meds_table, "medications", "table name for medications");
-DEFINE_string(dem_table, "demographics", "table name for demographics");
-DEFINE_string(vit_table, "vitals", "table name for vitals");
+DEFINE_string(di_table, "diag_ex", "table name for diagnoses");
+DEFINE_string(meds_table, "meds_ex", "table name for medications");
+DEFINE_string(dem_table, "dem_ex", "table name for demographics");
+DEFINE_string(vit_table, "vit_ex", "table name for vitals");
 DEFINE_string(cdiff_cohort_diag_table, "cdiff_cohort_diagnoses",
               "table name for cdiff cohort diagnoses");
 DEFINE_string(logger_host_name, "guinea-pig.cs.northwestern.edu:60000",
