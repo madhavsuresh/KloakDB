@@ -414,7 +414,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   diag_gen.scan_tables.insert(diag_gen.scan_tables.end(),
                               diagnoses_scan.begin(), diagnoses_scan.end());
   gen_in[diagnoses_table] = diag_gen;
-  /*
   auto vitals_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
   to_gen_t vitals_gen;
@@ -423,6 +422,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   vitals_gen.scan_tables.insert(vitals_gen.scan_tables.end(),
                                 vitals_scan.begin(), vitals_scan.end());
   gen_in[vitals_table] = vitals_gen;
+  /*
   auto meds_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT patient_id, medication from " +
                                 medications_table);
