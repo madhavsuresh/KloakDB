@@ -433,7 +433,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
                               meds_scan.end());
   gen_in[medications_table] = meds_gen;
 
-  /*
   auto demographics_scan = p->DBMSQuery(0,
                                         "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
                                                               demographics_table);
@@ -443,7 +442,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   dem_gen.dbname = "healthlnk";
   dem_gen.scan_tables.emplace_back(demographics_scan);
   gen_in[demographics_table] = dem_gen;
-  */
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
   START_TIMER(generalize);

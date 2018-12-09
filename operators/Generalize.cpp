@@ -481,6 +481,7 @@ table_t *generalize_table_fast(
       if (!range_exceeded[rel]) {
         int mr = find_min_range(rc_map[rel], num_relations, k, min_val, final_range);
         if (mr == -1) {
+          printf("At min_val %d, rel %d limit exceeded", min_val, rel);
           range_exceeded[rel] = true;
         }
         min_ks.emplace_back(mr);
