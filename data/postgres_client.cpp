@@ -193,6 +193,7 @@ void init_table_builder(uint64_t expected_tuples, int num_columns,
 
   tb->expected_tuples = expected_tuples;
   tb->num_columns = num_columns;
+  tb->num_pages_allocated = 0;
   // DLOG_IF(INFO, tb->num_columns > MAX_FIELDS) << "Max fields exceeded num
   // columns:" << tb->num_columns;
   tb->size_of_tuple = sizeof(tuple) + tb->num_columns * (sizeof(field_t));
