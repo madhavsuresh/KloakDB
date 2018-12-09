@@ -454,5 +454,20 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto demographics_repart = p->Repartition(gen_zipped_map[demographics_table]);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
 
+  START_TIMER(join_one);
+  JoinDef jd_vd;
+  jd_vd.set_l_col_name("patient_id");
+  jd_vd.set_r_col_name("patient_id");
+  jd_vd.set_project_len(2);
+  // vitals-diagnoses-join project 1
+  auto vdjp1 = jd_vd.add_project_list();
+  vdjp1->set_side(JoinColID_RelationSide_LEFT);
+  vdjp1->set_colname("patient_id");
+  auto vdjp2 = jd_vd.add_project_list();
+  vdjp2->set_side(JoinColID_RelationSide_LEFT);
+  vdjp2->set_colname("pulse");
+  auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
+  auto out_vd_join = p->Join(to_join1, jd_vd, false /* in_sgx */);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }
