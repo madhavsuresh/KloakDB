@@ -43,12 +43,7 @@ int HonestBrokerPrivate::RegisterPeerHosts() {
 }
 
 string count_star_query(string table_name, string column) {
-  if (table_name != "demographics") {
-    return "SELECT " + column + ", count(*) FROM " + table_name + " WHERE year=2008 GROUP BY " +
-           column + " ORDER BY " + column;
-  } else {
     return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " + column + " ORDER BY " + column;
-  }
 }
 
 void log_gen_stats(table_t *gen_map) {
