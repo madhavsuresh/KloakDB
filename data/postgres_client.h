@@ -128,9 +128,15 @@ typedef struct table {
   uint32_t num_tuple_pages;
   uint64_t num_tuples;
   uint32_t size_of_tuple;
+  uint64_t gen_val;
   schema_t schema;
   tuple_page_t *tuple_pages[];
 } table_t;
+
+typedef struct table_batch{
+    int64_t batches;
+    table_t *batch[10000000];
+} table_batch_t;
 
 typedef struct table_builder {
   uint32_t num_pages_allocated;

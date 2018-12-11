@@ -71,7 +71,6 @@ unordered_map<table_name, vector<tableid_ptr>>
 HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
                                 int gen_level) {
 
-  string wow_column;
   unordered_map<table_name, vector<tableid_ptr>> out_map;
   std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
       gen_input;
@@ -85,7 +84,6 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
   for (auto &table : in) {
     vector<tableid_ptr> tids;
     string column = table.second.column;
-    wow_column = column;
     auto query = count_star_query(table.first, column);
     auto dbname = table.second.dbname;
     for (int i = 0; i < this->num_hosts; i++) {
