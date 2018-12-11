@@ -476,9 +476,10 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
         for (int i = 0; i < num_hosts; i++) {
           if (i == curr_host) {
             continue;
-          }
-          if (host_id_counter[i][c.first] > 0) {
-            uniq = false;
+          } else {
+            if (host_id_counter[i][c.first] > 0) {
+              uniq = false;
+            }
           }
         }
         if (uniq) {
