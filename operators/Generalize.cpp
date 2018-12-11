@@ -463,10 +463,10 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
           if (i !=j) {
             table_t *scan_table = jj.second[j].second;
             for (int ii = 0; ii < curr_table->num_tuples; ii++) {
-              int64_t id = get_tuple(i, curr_table)->field_list[0].f.int_field.val;
+              int64_t id = get_tuple(ii, curr_table)->field_list[0].f.int_field.val;
               bool uniq = true;
               for (int kk = 0; kk < scan_table->num_tuples; kk++) {
-                int64_t id_comp = get_tuple(i, scan_table)->field_list[0].f.int_field.val;
+                int64_t id_comp = get_tuple(kk, scan_table)->field_list[0].f.int_field.val;
                 if (id == id_comp) {
                   uniq = false;
                 }
