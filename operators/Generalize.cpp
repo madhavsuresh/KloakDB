@@ -492,11 +492,12 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
     }
     int non_uniq_count = 0;
     for (auto u: non_uniq) {
-      non_uniq_count++;
-      if (non_uniq_count < 100) {
-        std::cout << u.first << ", " << u.second << endl;
+      if (u.second > 1) {
+        non_uniq_count++;
+        if (non_uniq_count < 100) {
+          std::cout << u.first << ", " << u.second << endl;
+        }
       }
-
     }
     std::cout << "Num non-uniq: " << non_uniq_count <<  endl;
 
