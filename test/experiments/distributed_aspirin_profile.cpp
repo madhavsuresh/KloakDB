@@ -171,7 +171,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
   auto diagnoses_scan = p->ClusterDBMSQuery(
-      "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table);
+      "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
   auto meds_scan = p->ClusterDBMSQuery("dbname=" + database, "SELECT patient_id, medication from " + medications_table);
