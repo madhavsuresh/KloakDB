@@ -451,56 +451,36 @@ table_builder_t get_gen_tb(uint64_t final_range) {
 void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
         table_map_host_table_pairs, int num_hosts) {
 
-  std::unordered_map<int, unordered_map<int, int>> host_id_counter;
-  std::unordered_map<int,int> non_uniq;
+  int shared = 0;
     for (auto &jj : table_map_host_table_pairs) {
       if (jj.first != "hd_cohort") {
         std::cout << jj.first << std::endl;
         continue;
       }
-      for (auto &j: jj.second) {
-        int host_num = j.first;
-        table_t * t = j.second;
-        for (int i =0; i < t->num_tuples; i++) {
-          tuple_t *tup = get_tuple(i, t);
-          int64_t field_label = tup->field_list[0].f.int_field.val;
-          host_id_counter[host_num][field_label]++;
-        }
-      }
-    }
-    for (auto &h: host_id_counter) {
-      int curr_host = h.first;
-      int num_unique = 0;
-      for (auto &c : h.second) {
-        bool uniq = true;
-        for (int i = 0; i < num_hosts; i++) {
-          if (i == curr_host) {
-            continue;
-          } else {
-            if (host_id_counter[i][c.first] > 0) {
-              uniq = false;
+      for (int i = 0; i < jj.second.size(); i++) {
+        table_t * curr_table = jj.second[i].second;
+        for (int j = 0; j < jj.second.size(); j++) {
+          if (i !=j) {
+            table_t *scan_table = jj.second[j].second;
+            for (int ii = 0; ii < curr_table->num_tuples; ii++) {
+              int64_t id = get_tuple(ii, curr_table)->field_list[0].f.int_field.val;
+              bool uniq = true;
+              for (int kk = 0; kk < scan_table->num_tuples; kk++) {
+                int64_t id_comp = get_tuple(kk, scan_table)->field_list[0].f.int_field.val;
+                if (id == id_comp) {
+                  uniq = false;
+                }
+              }
+              if (!uniq) {
+                shared++;
+              }
             }
           }
         }
-        if (uniq) {
-          num_unique ++;
-        } else {
-          non_uniq[c.first]++;
-        }
-      }
-      printf("Host: %d, num_unique ids: %d\n", curr_host, num_unique);
-    }
-    int non_uniq_count = 0;
-    for (auto u: non_uniq) {
-      if (u.second > 1) {
-        non_uniq_count++;
-        if (non_uniq_count < 100) {
-          std::cout << u.first << ", " << u.second << endl;
-        }
-      }
-    }
-    std::cout << "Num non-uniq: " << non_uniq_count <<  endl;
 
+      }
+    }
+    cout << "Num Shared: " << shared;
 }
 
 table_t *generalize_table_fast(

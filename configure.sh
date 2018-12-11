@@ -37,7 +37,7 @@ if [ ! -d "grpc" ]; then
 	cd grpc
 	git submodule update --init
 	make HAS_SYSTEM_PROTOBUF=true -j10
-	#make prefix=$BASEDIR/lib install
+	make prefix=$BASEDIR/lib install
 	#cd third_party/protobuf
 	#make prefix=$BASEDIR/lib install
 	# back in external
