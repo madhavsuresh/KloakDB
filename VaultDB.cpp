@@ -201,10 +201,23 @@ int main(int argc, char **argv) {
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address);
     //auto enclave = get_enclave();
     p->Register();
-
     DataOwnerImpl d(p);
     grpc::ServerBuilder builder;
-    builder.AddListeningPort(p->HostName(), grpc::InsecureServerCredentials());
+
+    std::string key;
+    std::string cert;
+    std::string root;
+    read("server.crt", cert);
+    read("server.key", key);
+    read("ca.crt", root);
+
+    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {key, cert};
+    grpc::SslServerCredentialsOptions sslOps;
+    sslOps.pem_root_certs = root;
+    sslOps.pem_key_cert_pairs.push_back (keycert);
+    auto channel_creds = grpc::SslServerCredentials(sslOps);
+    builder.AddListeningPort(server_address, channel_creds);
+    
     builder.RegisterService(&d);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     auto serveFn = [&]() { server->Wait(); };
