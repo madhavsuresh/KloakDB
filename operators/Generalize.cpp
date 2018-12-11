@@ -477,7 +477,7 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
           if (i == curr_host) {
             continue;
           } else {
-            if (host_id_counter[i][c.first] > 0) {
+            if (host_id_counter[i][c.first] != 0) {
               uniq = false;
             }
           }
@@ -495,7 +495,7 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
       if (u.second > 1) {
         non_uniq_count++;
         if (non_uniq_count < 100) {
-          std::cout << u.first << ", " << u.second << endl;
+          //std::cout << u.first << ", " << u.second << endl;
         }
       }
     }
