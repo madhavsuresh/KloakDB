@@ -469,6 +469,8 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
       }
     }
     for (auto &h: host_id_counter) {
+      int non_uniq_wat = 0;
+      int total = 0;
       int curr_host = h.first;
       int num_unique = 0;
       for (auto &c : h.second) {
@@ -485,10 +487,12 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
         if (uniq) {
           num_unique ++;
         } else {
+          non_uniq_wat++;
           non_uniq[c.first]++;
         }
+        total++;
       }
-      printf("Host: %d, num_unique ids: %d\n", curr_host, num_unique);
+      printf("Host: %d, num_unique ids: %d, total: %d, non_uniq_wat: %d\n", curr_host, num_unique, total, non_uniq_wat);
     }
     int non_uniq_count = 0;
     for (auto u: non_uniq) {
