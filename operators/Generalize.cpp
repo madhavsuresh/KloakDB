@@ -370,6 +370,7 @@ unordered_map<int64_t, int> union_counts(
   }
   return counter;
 }
+
 std::tuple<uint64_t, unordered_map<int64_t, int64_t>>
 get_range(unordered_map<int64_t, int> counter) {
   // Taken from
@@ -447,6 +448,42 @@ table_builder_t get_gen_tb(uint64_t final_range) {
   return tb;
 }
 
+void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs, int num_hosts) {
+
+  std::unordered_map<int, unordered_map<int, int>> host_id_counter;
+    for (auto &jj : table_map_host_table_pairs) {
+      for (auto &j: jj.second) {
+        int host_num = j.first;
+        table_t * t = j.second;
+        for (int i =0; i < t->num_tuples; i++) {
+          tuple_t *tup = get_tuple(i, t);
+          int64_t field_label = tup->field_list[0].f.int_field.val;
+          host_id_counter[host_num][field_label]++;
+        }
+      }
+    }
+    for (auto &h: host_id_counter) {
+      int curr_host = h.first;
+      int num_unique = 0;
+      for (auto &c : h.second) {
+        bool uniq = true;
+        for (int i = 0; i < num_hosts; i++) {
+          if (i == curr_host) {
+            continue;
+          }
+          if (host_id_counter[i][c.first] == 0) {
+            uniq = false;
+          }
+        }
+        if (uniq) {
+          num_unique ++;
+        }
+      }
+      printf("Host: %d, num_unique ids: %d\n", curr_host, num_unique);
+    }
+}
+
 table_t *generalize_table_fast(
     std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
         table_map_host_table_pairs,
@@ -462,6 +499,7 @@ table_t *generalize_table_fast(
     num_relations++;
   }
 
+  get_multi_host_cf(table_map_host_table_pairs, num_hosts);
   unordered_map<int64_t, int> counter =
       union_counts(table_map_host_table_pairs);
   int tup_append = 0;
