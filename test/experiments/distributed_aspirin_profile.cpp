@@ -414,7 +414,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   diag_gen.scan_tables.insert(diag_gen.scan_tables.end(),
                               diagnoses_scan.begin(), diagnoses_scan.end());
   gen_in[diagnoses_table] = diag_gen;
-  /*
   auto vitals_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
   to_gen_t vitals_gen;
@@ -423,7 +422,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   vitals_gen.scan_tables.insert(vitals_gen.scan_tables.end(),
                                 vitals_scan.begin(), vitals_scan.end());
   gen_in[vitals_table] = vitals_gen;
-  */
   auto meds_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT patient_id, medication from " +
                                 medications_table);
@@ -435,7 +433,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
                               meds_scan.end());
   gen_in[medications_table] = meds_gen;
 
-  /*
   auto demographics_scan = p->DBMSQuery(0,
                                         "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
                                                               demographics_table);
@@ -445,7 +442,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   dem_gen.dbname = "healthlnk";
   dem_gen.scan_tables.emplace_back(demographics_scan);
   gen_in[demographics_table] = dem_gen;
-  */
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
   START_TIMER(generalize);
