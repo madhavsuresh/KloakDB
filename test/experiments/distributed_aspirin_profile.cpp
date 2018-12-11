@@ -407,7 +407,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
   auto diagnoses_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT icd9, patient_id from " + diagnoses_table);
+          "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   to_gen_t diag_gen;
   diag_gen.column = "patient_id";
   diag_gen.dbname = "healthlnk";
