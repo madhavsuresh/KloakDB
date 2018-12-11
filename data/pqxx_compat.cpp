@@ -118,6 +118,7 @@ void write_table_from_postgres(pqxx::result res, table_builder_t *tb) {
                           &tb->table->schema, tb);
     } catch (...){
       memset(get_tuple(tb->curr_tuple, tb->table), '\0', tb->size_of_tuple);
+      tb->table->num_tuples--;
       null_tuples++;
       continue;
     }

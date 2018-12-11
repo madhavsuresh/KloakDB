@@ -29,5 +29,9 @@ table_t *generalize_table(
         table_map_host_table_pairs,
         int num_hosts, int k);
 
+table_t *generalize_table_fast(
+        std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs,
+        int num_hosts, int k);
 table_t * generalize_zip(table_t * t, table_t * gen_map_table, int col_no);
 #endif //PROJECT_GENERALIZE_H

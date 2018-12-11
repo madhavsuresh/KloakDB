@@ -4,6 +4,7 @@
 #include <cstring>
 #include <map>
 #include <unordered_map>
+#include <math.h>
 using namespace std;
 
 schema_t agg_schema(int32_t colno, table_t *t) {
@@ -25,7 +26,10 @@ table_t *aggregate_count(table_t *t, uint32_t colno) {
   std::unordered_map<std::string, int> agg_map;
   // This will always be the same.
   if (t->num_tuples == 0) {
-    throw;
+    schema_t schema = agg_schema(colno, t);
+    table_builder_t tb;
+    init_table_builder(1, 2 /*num_columns*/, &schema, &tb);
+    return tb.table;
   }
 
   FIELD_TYPE type = t->schema.fields[colno].type;
@@ -98,11 +102,13 @@ schema_t agg_schema_avg(groupby_def_t *def, table_t *t) {
   return agg_schema;
 }
 
+// In lieu of optimizing this, we will assumee that the group by columns
+// are integers, and are in the range 0-16
 table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
-  std::unordered_map<std::string, std::vector<int>> agg_map;
+  std::unordered_map<int, std::vector<int>> agg_map;
   for (int i = 0; i < t->num_tuples; i++) {
     tuple_t *tup = get_tuple(i, t);
-    std::string key = "";
+    int key = 0;
     for (int j = 0; j < def->num_cols; j++) {
       int colno = def->gb_colnos[j];
       // TODO(madhavsuresh): this is ugly, assume that $, is not present in any
@@ -110,21 +116,17 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
       // this should be enforced when reading the data from postgres
       switch (t->schema.fields[colno].type) {
       case INT: {
-        key += std::to_string(tup->field_list[colno].f.int_field.val) + "$,";
+        key += tup->field_list[colno].f.int_field.val * (int)pow(10,j +1);
         break;
       }
       case DOUBLE: {
-        key += std::to_string(tup->field_list[colno].f.double_field.val) + "$,";
-        break;
+        throw;
       }
       case TIMESTAMP: {
-        key += std::to_string(tup->field_list[colno].f.ts_field.val) + "$,";
-        break;
+          throw;
       }
       case FIXEDCHAR: {
-        key +=
-            std::string(tup->field_list[colno].f.fixed_char_field.val) + "$,";
-        break;
+          throw;
       }
       case UNSUPPORTED: {
         throw;
@@ -140,12 +142,17 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
   init_table_builder(agg_map.size(), s.num_fields /*num_columns*/, &s, &tb);
   tuple_t *tup = (tuple_t *)malloc(tb.size_of_tuple);
   tup->is_dummy = false;
+  double num_dummy = 0;
   for (const auto &agg_pair : agg_map) {
     double avg_total = 0;
     for (auto tup_no : agg_pair.second) {
-      avg_total += get_num_field(t, tup_no, def->colno);
+      if (get_tuple(tup_no, t)->is_dummy) {
+        num_dummy+= get_num_field(t, tup_no, def->colno);
+      } else {
+        avg_total += get_num_field(t, tup_no, def->colno);
+      }
     }
-    avg_total = avg_total / agg_pair.second.size();
+    avg_total = avg_total / (agg_pair.second.size() - num_dummy);
 
     tup->field_list[s.num_fields - 1].type = DOUBLE;
     tup->field_list[s.num_fields - 1].f.double_field.val = avg_total;
@@ -205,28 +212,6 @@ table_t *kaggregate_count(table_t * t, int colno, int kanon_col) {
 }
 
 table_t *aggregate(table_t *t, groupby_def_t *def) {
-  if (def->kanon_col == def->colno) {
-    switch (def->type) {
-      case COUNT: {
-        return kaggregate_count(t, def->colno, def->kanon_col);
-        break;
-      }
-      case AVG: {
-        //return kaggregate_avg(t, def);
-        throw;
-        break;
-      }
-      case MINX: {
-        throw;
-        // printf("UNIMPLEMENTED");
-      }
-      case GROUPBY_UNSUPPORTED: {
-        throw;
-        // printf("UNSUPPORTED");
-      }
-    }
-    return nullptr;
-  }
   switch (def->type) {
   case COUNT: {
     return aggregate_count(t, def->colno);

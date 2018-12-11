@@ -60,6 +60,9 @@ void DataOwnerPrivate::SetDataOwnerClient(int host_num, std::string host_name) {
 table_t *DataOwnerPrivate::GetTable(int table_id) {
   return table_catalog[table_id];
 }
+table_batch_t *DataOwnerPrivate::GetBatch(int table_batch_id) {
+  return table_batch_catalog[table_batch_id];
+}
 
 void DataOwnerPrivate::Register() {
   this->host_num = client->Register(this->HostName());
@@ -78,9 +81,19 @@ int DataOwnerPrivate::AddTable(table_t *t) {
   return table_id;
 }
 
+int DataOwnerPrivate::AddBatch(table_batch_t *batch) {
+  int table_batch_id;
+  table_catalog_batch_mutex.lock();
+  table_batch_id = table_batch_counter;
+  table_batch_catalog[table_batch_id] = batch;
+  table_counter++;
+  table_catalog_batch_mutex.unlock();
+  return table_batch_id;
+}
+
 std::pair<int,int> DataOwnerPrivate::SendTable(int worker_host_num, table_t *t) {
   auto worker_client = this->data_owner_clients[worker_host_num];
-  int table_id = worker_client->SendTable(t);
+  int table_id = worker_client->SendTable(t, true);
   LOG(INFO) << "sent table to: [" << worker_host_num << "],received at:["
             << table_id << "]";
   return std::make_pair(worker_host_num, table_id);

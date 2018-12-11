@@ -34,6 +34,7 @@ public:
   void Shutdown();
   int RegisterHost(string hostName);
   int NumHosts();
+  vector<tableid_ptr> RepartitionJustHash(vector<tableid_ptr> &ids);
   vector<shared_ptr<const TableID>>
   Repartition(vector<std::shared_ptr<const TableID>> &ids);
   vector<shared_ptr<const TableID>>
@@ -54,8 +55,10 @@ public:
   Aggregate(vector<shared_ptr<const TableID>> &ids, GroupByDef &groupby, bool in_sgx);
   ControlFlowColumn GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
+   void  SetControlFlowNotAnon(bool is_anon);
   void SetControlFlowColName(string name);
   void SetControlFlowColNames(vector<string> name);
+  void ResetControlFlowCols();
   int RegisterPeerHosts();
   vector<shared_ptr<const TableID>>
   Generalize(string table_name, string column, string dbname,

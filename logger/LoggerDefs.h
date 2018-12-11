@@ -21,7 +21,10 @@ const LEVELS EXEC_STATS {INFO.value-50, "EXEC-STATS"};
 const LEVELS EXP_DATA {INFO.value- 51, "EXP-DATA"};
 const LEVELS DEBUG_AGG {INFO.value- 53, "DEBUG-AGG"};
 const LEVELS EXP3_STAT {INFO.value- 54, "EXP3-STAT"};
-const LEVELS EXP5_STAT {INFO.value- 54, "EXP5-STAT"};
+const LEVELS EXP5_STAT {INFO.value- 55, "EXP5-STAT"};
+const LEVELS EXP7_COM {INFO.value- 56, "EXP7-COM"};
+const LEVELS EXP7_DOS {INFO.value- 56, "EXP7-DOS"};
+const LEVELS EXP7_ASP {INFO.value- 57, "EXP7-ASP"};
 const LEVELS PQXX {INFO.value + 10, "PQXX"};
 
 #define START_TIMER(timer_name)                                                \
@@ -83,6 +86,23 @@ const LEVELS PQXX {INFO.value + 10, "PQXX"};
     LOG_EXEC_TIMER(timer_name);                                                     \
   } while (0)
 
+#define END_AND_LOG_EXP7_COM_STAT_TIMER(timer_name, tag)                                          \
+  do {                                                                         \
+    END_TIMER(timer_name);                                                     \
+    LOG_EXP7_COM_STAT_TIMER(timer_name, tag);                                                     \
+  } while (0)
+
+#define END_AND_LOG_EXP7_DOS_STAT_TIMER(timer_name, tag)                                          \
+  do {                                                                         \
+    END_TIMER(timer_name);                                                     \
+    LOG_EXP7_DOS_STAT_TIMER(timer_name, tag);                                                     \
+  } while (0)
+
+#define END_AND_LOG_EXP7_ASP_STAT_TIMER(timer_name, tag)                                          \
+  do {                                                                         \
+    END_TIMER(timer_name);                                                     \
+    LOG_EXP7_ASP_STAT_TIMER(timer_name, tag);                                                     \
+  } while (0)
 
 #define END_AND_LOG_EXP3_STAT_TIMER(timer_name)                                          \
   do {                                                                         \
@@ -123,6 +143,24 @@ const LEVELS PQXX {INFO.value + 10, "PQXX"};
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
   LOG(EXP3_STAT) << "|" << #timer_name << ","                               \
+             << elapsed_##timer_name.count() << ""
+
+#define LOG_EXP7_COM_STAT_TIMER(timer_name, tag) \
+  std::chrono::duration<double> elapsed_##timer_name =                         \
+      end_##timer_name - start_##timer_name;                                   \
+  LOG(EXP7_COM) << "|" << #timer_name << ","<<  tag <<  ","                               \
+             << elapsed_##timer_name.count() << ""
+
+#define LOG_EXP7_ASP_STAT_TIMER(timer_name, tag) \
+  std::chrono::duration<double> elapsed_##timer_name =                         \
+      end_##timer_name - start_##timer_name;                                   \
+  LOG(EXP7_ASP) << "|" << #timer_name << ","<<  tag <<  ","                               \
+             << elapsed_##timer_name.count() << ""
+
+#define LOG_EXP7_DOS_STAT_TIMER(timer_name, tag) \
+  std::chrono::duration<double> elapsed_##timer_name =                         \
+      end_##timer_name - start_##timer_name;                                   \
+  LOG(EXP7_DOS) << "|" << #timer_name << ","<<  tag <<  ","                               \
              << elapsed_##timer_name.count() << ""
 
 #define LOG_EXP5_STAT_TIMER(timer_name, k) \

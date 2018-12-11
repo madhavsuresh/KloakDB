@@ -28,7 +28,7 @@ HostIDPair ship_off_repart_one(DataOwnerPrivate *p, int host,
     id = p->AddTable(output_table);
   } else {
     id = std::get<1>(p->SendTable(host, output_table));
-    free_table(output_table);
+    // Free happens inside of SendTable
   }
   return std::make_pair(host, id);
 }
@@ -58,7 +58,6 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   START_TIMER(repart_one_data_movement);
   vector<std::future<HostIDPair>> threads_send;
   for (auto it = rand_assignment.begin(); it != rand_assignment.end(); it++) {
-    HostIDPair hidp = ship_off_repart_one(p, it->first, it->second, t);
     threads_send.push_back(std::async(std::launch::async, ship_off_repart_one,
                                       p, it->first, it->second, t));
   }
@@ -66,6 +65,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
     host_and_ID.push_back(h.get());
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_one_data_movement);
+  free_table(t);
   return host_and_ID;
 }
 uint32_t hash_fields_to_int_sgx(uint8_t f[], uint32_t len) {
@@ -89,18 +89,28 @@ int hash_to_host(::vaultdb::ControlFlowColumn &cf, int num_hosts, tuple_t *t,
     LOG(FATAL) << "Too many control flow attributes";
     throw;
   }
+  bool not_anon = cf.not_anon();
   uint8_t f[MAX_FIELDS*FIXEDCHAR_LEN];
   uint32_t ptr = 0;
   for (int i = 0; i < cf.cf_name_strings_size(); i++) {
     int input_col = colno_from_name(table,cf.cf_name_strings(i));
     switch(t->field_list[input_col].type){
       case FIXEDCHAR : {
-        memcpy(&f[ptr], t->field_list[input_col].f.fixed_char_field.val, FIXEDCHAR_LEN);
-        ptr += FIXEDCHAR_LEN;
+        if (not_anon) {
+          memcpy(&f[ptr], t->field_list[input_col].f.fixed_char_field.val, FIXEDCHAR_LEN);
+          ptr += FIXEDCHAR_LEN;
+        } else {
+          memcpy(&f[ptr], &(t->field_list[input_col].f.fixed_char_field.genval), sizeof(uint64_t));
+          ptr += sizeof(uint64_t);
+        }
         break;
       }
       case INT: {
-        memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.genval), sizeof(uint64_t));
+        if (not_anon) {
+          memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.val), sizeof(uint64_t));
+        } else {
+          memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.genval), sizeof(uint64_t));
+        }
         ptr += sizeof(uint64_t);
         break;
       }
@@ -138,7 +148,9 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
   for (int i = 0; i < num_hosts; i++) {
     init_table_builder(max_tuples, tables[0]->schema.num_fields,
                        &tables[0]->schema, &dummy_host_tb[i]);
+    append_tuple(&dummy_host_tb[i], get_tuple(0, tables[0]));
   }
+
 
   START_TIMER(repart_two_hashing);
   ::vaultdb::ControlFlowColumn control_flow_col = p->GetControlFlowColID();
@@ -149,13 +161,18 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
         if (j == host) {
           append_tuple(&host_tb[host], get_tuple(i, t));
         } else {
-          append_tuple(&dummy_host_tb[host], get_tuple(i, t));
+          copy_tuple_to_position(dummy_host_tb[j].table, 0, get_tuple(i,t));
         }
       }
     }
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_two_hashing);
-
+  for (auto t : tables) {
+    free_table(t);
+  }
+  for (int i = 0; i < num_hosts; i++) {
+    free_table(dummy_host_tb[i].table);
+  }
   std::vector<HostIDPair> host_and_ID;
   int myid = p->AddTable(host_tb[p->HostNum()].table);
   host_and_ID.push_back(std::make_pair(p->HostNum(), myid));
@@ -178,13 +195,5 @@ repartition_step_two(std::vector<table_t *> tables, int num_hosts,
     host_and_ID.push_back(h.get());
   }
   END_AND_LOG_EXP3_STAT_TIMER(repart_two_data_movement);
-  for (int i = 0; i < num_hosts; i++) {
-    if (i != p->HostNum()) {
-      free_table(host_tb[i].table);
-    }
-  }
-  for (int i = 0; i < num_hosts; i++) {
-    free_table(dummy_host_tb[i].table);
-  }
   return host_and_ID;
 }

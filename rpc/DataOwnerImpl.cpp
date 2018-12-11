@@ -267,11 +267,13 @@ DataOwnerImpl::CoalesceTables(::grpc::ServerContext *context,
 }
 
 expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
+  LOG(DO_IMPL) << "Making filter expression";
   expr_t ex;
   ex.colno = colno_from_name(t, expr.colname());
   switch (expr.type()) {
   case vaultdb::Expr_ExprType_EQ_EXPR: {
     ex.expr_type = EQ_EXPR;
+    LOG(DO_IMPL) << "EQ filter expression";
     break;
   }
   case Expr_ExprType_NEQ_EXPR: {
@@ -279,10 +281,13 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
     break;
   }
   case Expr_ExprType_LIKE_EXPR: {
+    LOG(DO_IMPL) << "LIKE filter expression";
     ex.expr_type = LIKE_EXPR;
     break;
   }
-  default: { throw; }
+  default: {
+    LOG(DO_IMPL) << "THROW UNSUPPORTED filter expression";
+    throw; }
   }
 
   switch (expr.desc().field_type()) {
@@ -298,6 +303,7 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
     break;
   }
   default:
+    LOG(DO_IMPL) << "THROW UNSUPPORTED filter desc type";
     throw;
   }
   return ex;
@@ -400,8 +406,21 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
   START_TIMER(make_obli_full);
   table_t *t = p->GetTable(request->tid().tableid());
 
+
   for (int j = 0; j < t->num_tuples; j++) {
-    get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.int_field.genval = 0;
+    switch (t->schema.fields[colno_from_name(t, request->col_name())].type) {
+      case FIXEDCHAR: {
+        get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.fixed_char_field.genval = 0;
+        break;
+      }
+      case INT : {
+        get_tuple(j, t)->field_list[colno_from_name(t, request->col_name())].f.int_field.genval = 0;
+        break;
+      }
+      default: {
+        throw;
+      }
+    }
   }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
@@ -416,6 +435,10 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
   START_TIMER(join_full);
   table_t *left = p->GetTable(request->left_tid().tableid());
   table_t *right = p->GetTable(request->right_tid().tableid());
+  auto left_num_tuples = left->num_tuples;
+  auto left_num_pages = left->num_tuple_pages;
+  auto right_num_tuples = right->num_tuples;
+  auto right_num_pages = right->num_tuple_pages;
   join_def_t def = make_join_def_t(left, right, request->def());
   table_t *out_join;
   if (request->in_sgx()) {
@@ -431,13 +454,17 @@ join_def_t make_join_def_t(table_t *left, table_t *right,
     END_TIMER(plain_join_inner);
     LOG_TIMER(plain_join_inner);
   }
-  LOG(OP) << "Join Number of Output Tuples :[" << out_join->num_tuples << "]";
-  LOG(OP) << "Join Number of Tuples Pages:[" << out_join->num_tuple_pages << "]";
+  LOG(OP) << "Join Input L:(Tup,Pag)[" << left_num_tuples << ","
+          << left_num_pages << "R:(Tup,Pag)" << right_num_tuples << ","
+          << right_num_pages << "|Output Tuples :[" << out_join->num_tuples
+          << "]; Pages:[" << out_join->num_tuple_pages << "]";
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out_join));
   END_TIMER(join_full);
   LOG_TIMER(join_full);
+  // p->FreeTable(request->left_tid().tableid());
+  // p->FreeTable(request->right_tid().tableid());
   LOG(DO_IMPL) << "Join OK";
   return ::grpc::Status::OK;
 }
@@ -459,12 +486,15 @@ groupby_def_t make_groupby_def_t(table_t *t, ::vaultdb::GroupByDef def) {
   }
   case ::vaultdb::GroupByDef_GroupByType_AVG: {
     def_t.type = AVG;
-    def_t.colno = def.col_no();
-    for (int i = 0; i < def.gb_col_nos_size(); i++) {
+    def_t.colno = colno_from_name(t, def.col_name());
+    LOG(OP) << "AVG COL NO" << def_t.colno << " NAME:" << def.col_name();
+    LOG(OP) << "AVG NUM GBCOLS" <<  def.gb_col_names_size();
+    for (int i = 0; i < def.gb_col_names_size(); i++) {
       def_t.gb_colnos[i] =
           static_cast<uint8_t>(colno_from_name(t, def.gb_col_names(i)));
+      LOG(OP) << " GB NAMES:" << def.gb_col_names(i) << ", NO" << def_t.gb_colnos[i];
     }
-    def_t.num_cols = def.gb_col_nos_size();
+    def_t.num_cols = def.gb_col_names_size();
     break;
   }
   default: { throw; }
@@ -494,9 +524,6 @@ DataOwnerImpl::KAggregate(::grpc::ServerContext *context,
     LOG_TIMER(plain_aggregate_inner);
   }
   LOG(OP) << "Aggregate Number of Output Tuples :[" << out->num_tuples << "]";
-  for (int i = 0; i < out->num_tuples; i++) {
-    LOG(DO_IMPL) << tuple_string(get_tuple(i, out));
-  }
   auto tid = response->mutable_tid();
   tid->set_hostnum(p->HostNum());
   tid->set_tableid(p->AddTable(out));

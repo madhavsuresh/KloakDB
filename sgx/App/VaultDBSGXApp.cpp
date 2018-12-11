@@ -187,7 +187,7 @@ table_t *sort_sgx(table_t *t, sort_t *s) {
   int table_id, output_table_id;
   table_id = load_table_into_sgx(eid, &tm, t);
   START_TIMER(sort_inner);
-  ecall_filter(eid, &tm, table_id, s, sizeof(sort_t), &output_table_id);
+  ecall_sort(eid, &tm, table_id, s, sizeof(sort_t), &output_table_id);
   END_AND_LOG_SGX_TIMER(sort_inner);
   auto out_t = get_table_sgx(eid, tm, output_table_id);
   END_AND_LOG_SGX_TIMER(sort_op);

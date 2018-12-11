@@ -43,8 +43,7 @@ int HonestBrokerPrivate::RegisterPeerHosts() {
 }
 
 string count_star_query(string table_name, string column) {
-  return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " +
-         column + " ORDER BY " + column;
+    return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " + column + " ORDER BY " + column;
 }
 
 void log_gen_stats(table_t *gen_map) {
@@ -99,12 +98,46 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     gen_input[table.first] = count_tables;
   }
   START_TIMER(generalize_inner);
-  table_t *gen_map = generalize_table(gen_input, num_hosts, gen_level);
+  table_t *gen_map = generalize_table_fast(gen_input, num_hosts, gen_level);//generalize_table(gen_input, num_hosts, gen_level);
+  LOG(EXEC) << "Size of Generalize: " << gen_map->num_tuple_pages << " num tuples: " << gen_map->num_tuples << " size: " << gen_map->num_tuples*gen_map->size_of_tuple/(1000*1000);
+  LOG(EXEC) << "END OF GENERALIZATION";
   END_AND_LOG_TIMER(generalize_inner);
   log_gen_stats(gen_map);
 
+  std::unordered_map<cf_hash, cf_gen> gen_z;
+  for (int i = 0; i < gen_map->num_tuples; i++) {
+    tuple_t *tup = get_tuple(i, gen_map);
+    gen_z[tup->field_list[0].f.int_field.val] = tup->field_list[0].f.int_field.genval;
+  }
+  for (auto &table : gen_input) {
+    unordered_map<int, int> gen_val_to_count;
+    for (auto &t : table.second) {
+      table_t * z_table = t.second;
+      for (int i = 0 ; i < z_table->num_tuples; i++) {
+        tuple_t *tup = get_tuple(i, z_table);
+        gen_val_to_count[gen_z[tup->field_list[0].f.int_field.val]] += tup->field_list[1].f.int_field.val;
+      }
+    }
+    int max = 0;
+    int total = 0;
+    int num = 0;
+    int moment = 15;
+    int above_moment = 0;
+    for (auto &cc : gen_val_to_count) {
+      num++;
+      total+= cc.second;
+      if (max < cc.second) {
+        max = cc.second;
+      }
+      if (cc.second > moment) {
+        above_moment++;
+      }
+    }
+    printf("Gen for %s: AVG: %f, TOTAL NUM: %d, ABOVE_MOMENT: %d\n", table.first.c_str(), (double)total/num, num, above_moment);
+  }
+
   for (int i = 0; i < num_hosts; i++) {
-    auto resp = do_clients[i]->SendTable(gen_map);
+    auto resp = do_clients[i]->SendTable(gen_map, false);
     ::vaultdb::TableID out;
     out.set_hostnum(i);
     out.set_tableid(resp);
@@ -143,7 +176,7 @@ HonestBrokerPrivate::Generalize(string table_name, string column, string dbname,
   }
   table_t *gen_map = generalize_table(gen_tables, this->NumHosts(), gen_level);
   for (int i = 0; i < this->num_hosts; i++) {
-    auto resp = do_clients[i]->SendTable(gen_map);
+    auto resp = do_clients[i]->SendTable(gen_map, false);
     ::vaultdb::TableID out;
     out.set_hostnum(i);
     out.set_tableid(resp);
@@ -199,6 +232,37 @@ tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
   return this->do_clients[host_num]->DBMSQuery(dbname, query);
 }
 
+vector<tableid_ptr> HonestBrokerPrivate::RepartitionJustHash(vector<tableid_ptr> &ids) {
+  vector<std::future<vector<tableid_ptr>>> threads_repart2;
+  map<int, vector<tableid_ptr>> hashed_table_fragments;
+  for (auto &i : ids) {
+    vector<tableid_ptr> tmp;
+    tmp.push_back(i);
+    threads_repart2.push_back(
+            std::async(std::launch::async, &HonestBrokerPrivate::RepartitionStepTwo,
+                       this, i.get()->hostnum(), tmp));
+  }
+
+  for (auto &f : threads_repart2) {
+    auto out = f.get();
+    for (auto j : out) {
+      hashed_table_fragments[j.get()->hostnum()].emplace_back(j);
+    }
+  }
+  vector<tableid_ptr> coalesced_tables;
+  vector<std::future<tableid_ptr>> threads_coalesced;
+  START_TIMER(repartition_coalesce_outer_private);
+  for (int i = 0; i < num_hosts; i++) {
+    threads_coalesced.push_back(std::async(std::launch::async,
+                                           &HonestBrokerPrivate::Coalesce, this,
+                                           i, hashed_table_fragments[i]));
+  }
+  for (auto &f : threads_coalesced) {
+    auto out = f.get();
+    coalesced_tables.emplace_back(out);
+  }
+  return coalesced_tables;
+}
 vector<tableid_ptr> HonestBrokerPrivate::Repartition(vector<tableid_ptr> &ids) {
   map<int, vector<tableid_ptr>> table_fragments;
   START_TIMER(repartition_step_one_outer_private);
@@ -274,6 +338,7 @@ HonestBrokerPrivate::Join(vector<pair<tableid_ptr, tableid_ptr>> &ids,
 
   vector<tableid_ptr> joined_tables;
   vector<std::future<tableid_ptr>> threads;
+  LOG(HB_P) << "Join STARTING";
   for (auto &i : ids) {
     auto client = do_clients[i.first.get()->hostnum()];
     threads.push_back(async(launch::async, &DataOwnerClient::Join, client,
@@ -321,9 +386,16 @@ vector<tableid_ptr> HonestBrokerPrivate::MakeObli(vector<tableid_ptr> &ids,
   }
   return obli_tables;
 }
+void  HonestBrokerPrivate::SetControlFlowNotAnon(bool not_anon) {
+  cf.set_not_anon(not_anon);
+}
 
 void HonestBrokerPrivate::SetControlFlowColName(string name) {
   cf.add_cf_name_strings(name);
+}
+
+void HonestBrokerPrivate::ResetControlFlowCols() {
+  cf.Clear();
 }
 
 void HonestBrokerPrivate::SetControlFlowColNames(vector<string> names) {

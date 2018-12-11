@@ -112,6 +112,75 @@ CREATE TABLE left_deep_joins_1024 (
 	b INT
 );
 
+CREATE TABLE gen_test_a_h1 (
+	a INT,
+	b INT
+);
+
+CREATE TABLE gen_test_a_h2 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_a_h3 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_a_h4 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_b_h1 (
+	a INT,
+	b INT
+);
+
+CREATE TABLE gen_test_b_h2 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_b_h3 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_b_h4 (
+	a INT,
+	b INT
+);
+
+CREATE TABLE gen_test_c_h1 (
+	a INT,
+	b INT
+);
+
+CREATE TABLE gen_test_c_h2 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_c_h3 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_c_h4 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_d_h1 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_d_h2 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_d_h3 (
+	a INT,
+	b INT
+);
+CREATE TABLE gen_test_d_h4 (
+	a INT,
+	b INT
+);
+
 CREATE TABLE left_deep_joins_4096 (
 	a INT,
 	b INT
