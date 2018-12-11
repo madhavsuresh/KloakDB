@@ -452,6 +452,7 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
         table_map_host_table_pairs, int num_hosts) {
 
   int shared = 0;
+  unordered_map<int, int> shared_seen;
     for (auto &jj : table_map_host_table_pairs) {
       if (jj.first != "hd_cohort") {
         std::cout << jj.first << std::endl;
@@ -472,7 +473,10 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
                 }
               }
               if (!uniq) {
-                shared++;
+                shared_seen[id]++;
+                if (shared_seen[id] == 1) {
+                  shared++;
+                }
               }
             }
           }
