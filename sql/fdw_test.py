@@ -42,47 +42,50 @@ cur = conn.cursor()
 def make_comorbidity_query(num,year):
     # 0 is for the current host
     selects = ""
-    for i in range(1,num): 
-        selects+= "\n UNION ALL\n"
-        selects+="select major_icd9 from {0}_cdiff_cohort_diagnoses where year = {1}".format("vdb" + str(i), year)
+    year_filter = ""
+    if year == None:
+        year_filter = ""
+    else: 
+        year_filter = "where year = {0}".format(year)
+    for i in range(1,num+1): 
+        selects+="select major_icd9 from {0}.cdiff_cohort_diagnoses {1} ".format("vdb" + str(i), year_filter)
+        if i != num:
+            selects+= "\n UNION ALL\n"
         
     query = "select d.major_icd9, count(*)\
-          FROM( select major_icd9 from cdiff_cohort_diagnoses where year = {1} {0}\
+          FROM({0}\
           ) as d\
             group by major_icd9\
             order by count(*) DESC\
-            limit 10;".format(selects, year)
+            limit 10;".format(selects, year_filter)
 
     return query
 
 
+def gen_union_dosage(num,year):
+    med_tables = ""
+    diag_tables = ""
+    if year == None:
+        year_filter = ""
+    else: 
+        year_filter = "and year = {0}".format(year)
 
-
-def gen_one_dosage_query(num, year):
-
-    if num == 0:
-        machine = ""
-    else:
-        machine = "vdb" + str(num) + "_"
-    return "select d{0}.patient_id \
-            from {0}diagnoses d{0}, {0}medications m{0} \
-                where d{0}.patient_id=m{0}.patient_id and \
-                medication like '%ASPIRIN%' and \
-                icd9 like '414%' and \
-                dosage='325 MG' and \
-                d{0}.year = {1} and m{0}.year = {1}".format(machine, year)
+    for i in range(1,num+1):
+        med_tables += "SELECT patient_id FROM {0}.medications where medication like '%ASPIRIN' and dosage='325 MG' {1}".format("vdb"+str(i),year_filter)
+        diag_tables += "SELECT patient_id FROM {0}.diagnoses where icd9 like '414%' {1}".format("vdb"+str(i), year_filter)
+        if i != num:
+            med_tables += " UNION ALL "
+            diag_tables += " UNION ALL "
+    return med_tables,diag_tables
 
 def make_dosage_query(num,year):
-    query = ""
-    if num_machines == 1:
-        query = query_function(0)
-    else:
-        for i in range(num_machines):
-            query += gen_one_dosage_query(i, year)
-            if i != num_machines - 1: # don't union on the last time
-                query += "\n UNION ALL\n"
-    query += ";"
+    m_tables,d_tables = gen_union_dosage(num,year)
+    query = "WITH medications_all AS ({0}),\
+            diagnoses_all AS ({1})\
+            SELECT m.patient_id FROM medications_all m, diagnoses_all di WHERE \
+                    m.patient_id = di.patient_id;".format(m_tables,d_tables)
     return query
+
 
 def make_asprin_query(num,year):
     file = open("aspirin_fdw.sql", "r")
@@ -105,9 +108,22 @@ def run_test(num_machines, num_runs,query_function, year):
     print("the average is: " + str(avg))
     print("the stdev is: " + str(standard_dev))
 
-num_machines = int(sys.argv[1])
-num_runs = int(sys.argv[2])
-search_year = str(sys.argv[3])
+import argparse
+
+parser=argparse.ArgumentParser()
+parser.add_argument('-num_machines', help='number of machines you want the query to run on. Must be between 1 and 4. Default is 4')
+parser.add_argument('-num_runs', help='number of times you want to run the query. Must be be at least 4 for accurate statistics. Default is 4')
+parser.add_argument('-search_year', help='year to filter query on, if blank no filtering')
+parser.add_argument('-query', help='aspirin, comorbidity, or dosage. Default runs all queries') 
+
+args = parser.parse_args()
+
+all_queries = ['comorbidity', 'dosage', 'aspirin']
+
+num_machines = 4 if args.num_machines == None else int(args.num_machines)
+num_runs = 4 if args.num_runs == None else int(args.num_runs)
+search_year = args.search_year
+query = all_queries if args.query == None else [args.query]
 if num_machines < 1 or num_machines > 4:
     print("MUST RUN ON AT LEAST ONE MACHINE AND NOT MORE THAN 4")
     sys.exit()
@@ -115,16 +131,21 @@ if num_runs < 4:
     print("must run atleast 4 runs (for std dev)")
     sys.exit()
 
-print("ASPIRIN TEST")
-time_values = []
-run_test(num_machines, num_runs, make_asprin_query, search_year)
+for test in query:
+    if test == 'aspirin':
+        print("ASPIRIN TEST")
+        time_values = []
+        run_test(num_machines, num_runs, make_asprin_query, search_year)
+    elif test == 'comorbidity':
+        print("COMORBIDITY TEST")
+        time_values = []
+        run_test(num_machines,num_runs, make_comorbidity_query, search_year)
 
-print("COMORBIDITY TEST")
-time_values = []
-run_test(num_machines,num_runs, make_comorbidity_query, search_year)
+    elif test == 'dosage':
+        print("DOSAGE TEST")
+        time_values = []
+        run_test(num_machines, num_runs, make_dosage_query, search_year)
 
-print("DOSAGE TEST")
-time_values = []
-run_test(num_machines, num_runs, make_dosage_query, search_year)
-
+    else:
+        print("You passed an incorrect value to query")
 
