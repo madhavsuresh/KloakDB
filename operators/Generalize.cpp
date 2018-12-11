@@ -481,6 +481,7 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
           }
         }
         if (uniq) {
+          std::cout << "uniq:" << c.first << std::endl;
           num_unique ++;
         }
       }
