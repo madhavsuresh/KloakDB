@@ -452,6 +452,7 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
         table_map_host_table_pairs, int num_hosts) {
 
   std::unordered_map<int, unordered_map<int, int>> host_id_counter;
+  std::unordered_map<int,int> non_uniq;
     for (auto &jj : table_map_host_table_pairs) {
       if (jj.first != "hd_cohort") {
         std::cout << jj.first << std::endl;
@@ -481,12 +482,18 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
           }
         }
         if (uniq) {
-          //std::cout << "uniq:" << c.first << std::endl;
           num_unique ++;
+        } else {
+          non_uniq[c.first]++;
         }
       }
       printf("Host: %d, num_unique ids: %d\n", curr_host, num_unique);
     }
+    std::cout << "Num non-uniq: " << non_uniq.size() << std::endl;
+    for (auto &i : non_uniq) {
+      std::cout << i.first << endl;
+    }
+
 }
 
 table_t *generalize_table_fast(
