@@ -453,6 +453,9 @@ void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hos
 
   std::unordered_map<int, unordered_map<int, int>> host_id_counter;
     for (auto &jj : table_map_host_table_pairs) {
+      if (jj.first != "hd_cohort") {
+        continue;
+      }
       for (auto &j: jj.second) {
         int host_num = j.first;
         table_t * t = j.second;
