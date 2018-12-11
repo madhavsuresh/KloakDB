@@ -25,6 +25,10 @@
 #include <grpcpp/server_builder.h>
 #include <sgx/App/VaultDBSGXApp.h>
 #include <thread>
+#include <iostream>
+#include <sstream>
+#include <fstream>
+
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
 DEFINE_string(address, "", "IPV4 Address for current instance");
@@ -50,6 +54,18 @@ DEFINE_string(host_short, "vaultdb", "short host name");
 DEFINE_bool(sgx, false, "Use SGX for queries");
 
 std::promise<void> exit_requested;
+void read(const std::string& filename, std::string& data){
+	std::ifstream file ( filename.c_str (), std::ios::in );
+	if ( file.is_open () )
+	{
+		std::stringstream ss;
+		ss << file.rdbuf ();
+		file.close ();
+		data = ss.str ();
+	}
+	return;
+}
+
 
 vector<pair<shared_ptr<const TableID>, shared_ptr<const TableID>>>
 zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
@@ -109,14 +125,28 @@ int main(int argc, char **argv) {
                               grpc::InsecureChannelCredentials())),
       &RemoteSink::ReceiveLogMessage);
   g3::initializeLogging(logworker.get());
-
   if (FLAGS_honest_broker == true) {
     LOG(INFO) << "Starting Vaultdb Sesssion";
     // auto defaultHandler = logworker->addDefaultLogger("HB", "logs");
+    
     HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address);
     HonestBrokerImpl hb(p);
     grpc::ServerBuilder builder;
-    builder.AddListeningPort(p->HostName(), grpc::InsecureServerCredentials());
+    std::string key;
+    std::string cert;
+    std::string root;
+    read("server.crt", cert);
+    read("server.key", key);
+    read("ca.crt", root);
+
+    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {key, cert};
+    grpc::SslServerCredentialsOptions sslOps;
+    sslOps.pem_root_certs = root;
+    sslOps.pem_key_cert_pairs.push_back (keycert);
+    auto channel_creds = grpc::SslServerCredentials(sslOps);
+    builder.AddListeningPort(p->HostName(), channel_creds);
+    //builder.AddListeningPort(p->HostName(),grpc::InsecureServerCredentials());
+   
     builder.RegisterService(&hb);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     auto serveFn = [&]() { server->Wait(); };
@@ -216,7 +246,7 @@ int main(int argc, char **argv) {
     sslOps.pem_root_certs = root;
     sslOps.pem_key_cert_pairs.push_back (keycert);
     auto channel_creds = grpc::SslServerCredentials(sslOps);
-    builder.AddListeningPort(server_address, channel_creds);
+    builder.AddListeningPort(p->HostName(), channel_creds);
     
     builder.RegisterService(&d);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
