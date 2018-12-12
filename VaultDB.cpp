@@ -129,17 +129,25 @@ int main(int argc, char **argv) {
     LOG(INFO) << "Starting Vaultdb Sesssion";
     // auto defaultHandler = logworker->addDefaultLogger("HB", "logs");
     
-    HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address);
-    HonestBrokerImpl hb(p);
     grpc::ServerBuilder builder;
-    std::string key;
-    std::string cert;
+
+    std::string server_key;
+    std::string server_cert;
     std::string root;
-    read("server.crt", cert);
-    read("server.key", key);
+    std::string client_key;
+    std::string client_cert;
+
+    read("server.key", server_key);
+    read("server.crt", server_cert);
     read("ca.crt", root);
 
-    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {key, cert};
+    read("client.key", client_key);
+    read("client.crt", client_cert);
+    
+    HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address, client_key, client_cert, root);
+    HonestBrokerImpl hb(p);
+
+    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {server_key, server_cert};
     grpc::SslServerCredentialsOptions sslOps;
     sslOps.pem_root_certs = root;
     sslOps.pem_key_cert_pairs.push_back (keycert);

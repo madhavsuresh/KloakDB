@@ -11,8 +11,8 @@ DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
 using namespace vaultdb;
 
-HonestBrokerPrivate::HonestBrokerPrivate(string honest_broker_address)
-    : InfoPrivate(honest_broker_address) {
+HonestBrokerPrivate::HonestBrokerPrivate(string honest_broker_address, const std::string& key, const std::string& cert, const std::string& root)
+    : InfoPrivate(honest_broker_address), key(key),cert(cert),root(root) {
   this->num_hosts = 0;
   this->expected_num_hosts = FLAGS_expected_num_hosts;
 }
@@ -194,14 +194,19 @@ HonestBrokerPrivate::Generalize(string table_name, string column, string dbname,
   return out_vec;
 }
 
-int HonestBrokerPrivate::RegisterHost(string hostName) {
+int HonestBrokerPrivate::RegisterHost(string hostName,
+						const std::string& key,
+						const std::string& cert,
+						const std::string& root) {
+  grpc::SslCredentialsOptions opts = {root,key,cert};
+
   this->registrationMutex.lock();
   int host_num = this->num_hosts;
   remoteHostnames.push_back(hostName);
   numToHostMap[host_num] = hostName;
   do_clients[host_num] = new DataOwnerClient(
       hostName, host_num,
-      grpc::CreateChannel(hostName, grpc::InsecureChannelCredentials()));
+      grpc::CreateChannel(hostName, grpc::SslCredentials(opts)));
   this->registrationMutex.unlock();
   this->num_hosts++;
   LOG(INFO) << "registered host: [" << hostName << "] at hostnum : ["
