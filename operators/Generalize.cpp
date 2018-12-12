@@ -325,7 +325,7 @@ unordered_map<int64_t, pair<int,int>> tuple_val_to_occurences(
     unordered_map<table_name, int> relation_name_to_num, int num_hosts) {
   unordered_map<int64_t, pair<int,int>> counter;
   for (auto &table_queries : table_map_host_table_pairs) {
-    int host_num = relation_name_to_num[table_queries.first];
+    int relation_num = relation_name_to_num[table_queries.first];
     for (auto &ht : table_queries.second) {
       table_t *t = ht.second;
       for (int i = 0; i < t->num_tuples; i++) {
@@ -338,14 +338,14 @@ unordered_map<int64_t, pair<int,int>> tuple_val_to_occurences(
           }
           default: { throw; }
         }
-        counter[field_label].first |= 1 << (host_num +1);
+        counter[field_label].first |= 1 << (relation_num +1);
         counter[field_label].second += tup->field_list[1].f.int_field.val;
       }
 
     }
   }
   int max_hosts = 0;
-  for (int i = 0; i <num_hosts; i++) {
+  for (int i = 0; i <relation_name_to_num.size(); i++) {
     max_hosts |= 1 << (i+1);
   }
   int all_hosts = 0;
