@@ -83,11 +83,14 @@ fi
 
 #ssl certs installation
 cd $BASEDIR/build
-cp ../ca.crt .
-cp ../ca.key .
-cp ../gen-certs.sh .
-./gen-certs.sh
-
+if [ -f "ca.crt" ]  && [ -f "ca.key" ] ; then
+	cp ../ca.crt .
+	cp ../ca.key .
+	cp ../gen-certs.sh .
+	./gen-certs.sh
+else
+	echo "ROOT CERT OR KEY DOES NOT EXIST, DID NOT CREATE OTHER SSL CERTS"
+fi
 
 
 cd $BASEDIR
