@@ -348,12 +348,14 @@ unordered_map<int64_t, int> tuple_val_to_occurences(
     max_hosts |= 1 << (i+1);
   }
   int all_hosts = 0;
+  int all_tuples = 0;
   for (auto &k : counter) {
     if (k.second == max_hosts) {
       all_hosts++;
     }
+    all_tuples++;
   }
-  printf("\n**tuples across all relations: %d**", all_hosts);
+  printf("\n**tuples across all relations: %d, out of %d tuples**", all_hosts, all_tuples);
   return counter;
 }
 
@@ -514,7 +516,7 @@ table_t *generalize_table_fast(
   }
   tuple_val_to_occurences(table_map_host_table_pairs, relation_name_to_num, num_hosts);
 
-  get_multi_host_cf(table_map_host_table_pairs, num_hosts);
+  //get_multi_host_cf(table_map_host_table_pairs, num_hosts);
   unordered_map<int64_t, int> counter =
       union_counts(table_map_host_table_pairs);
   int tup_append = 0;
