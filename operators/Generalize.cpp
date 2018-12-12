@@ -295,7 +295,27 @@ int64_t find_min_range(rc_t rc, int num_relations, int k, int64_t min,
   while (not_k_anon) {
     for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
       minus_host[host_num] += rcval(rc, max, host_num);
+      if (rcval(rc,max,host_num) == 0) {
+        bool single_host = true;
+        int64_t val;
+        if (host_num ==0) {
+          val = rcval(rc, max, 1);
+        } else {
+          val = rcval(rc, max, 0);
+        }
+        for (int i = 0; i < rc.num_hosts; i++) {
+          if (host_num != i) {
+            if (val != rcval(rc, max, i)) {
+              single_host = false;
+            }
+          }
+        }
+        if (single_host) {
+          minus_host[host_num] += val;
+        }
+      }
     }
+
     not_k_anon = false;
     for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
       if (minus_host[host_num] < k) {
