@@ -593,6 +593,13 @@ table_t *generalize_table_fast(
     int max_top = *max_element(std::begin(min_ks), std::end(min_ks));
     int min_top = *min_element(std::begin(min_ks), std::end(min_ks));
     if (min_top == -1 && max_top == -1) {
+      if (min_val == 0) {
+        printf("MIN KS: ");
+        for (auto &kz: min_ks) {
+          printf("%d\t", kz);
+        }
+        printf("\n");
+      }
       for (int scan = min_val; scan < final_range; scan++) {
         int64_t original_table_val = internal_gen_to_input[scan];
         tup->field_list[0].f.int_field.val = original_table_val;
