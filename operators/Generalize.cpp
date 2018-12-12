@@ -322,7 +322,7 @@ bool all_realtions_in_range_kanon(rc_t relations[], int num_relations, int k,
 unordered_map<int64_t, int> tuple_val_to_occurences(
     std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
         table_map_host_table_pairs,
-    unordered_map<table_name, int> relation_name_to_num) {
+    unordered_map<table_name, int> relation_name_to_num, int num_hosts) {
   unordered_map<int64_t, int> counter;
   for (auto &table_queries : table_map_host_table_pairs) {
     int host_num = relation_name_to_num[table_queries.first];
@@ -343,7 +343,18 @@ unordered_map<int64_t, int> tuple_val_to_occurences(
 
     }
   }
-
+  int max_hosts = 0;
+  for (int i = 0; i <num_hosts; i++) {
+    max_hosts |= 1 << (i+1);
+  }
+  int all_hosts = 0;
+  for (auto &k : counter) {
+    if (k.second == max_hosts) {
+      all_hosts++;
+    }
+  }
+  printf("\n**tuples across all relations: %d**", all_hosts);
+  return counter;
 }
 
 unordered_map<int64_t, int> union_counts(
@@ -501,6 +512,7 @@ table_t *generalize_table_fast(
     relation_name_to_num[get_name.first] = num_relations;
     num_relations++;
   }
+  tuple_val_to_occurences(table_map_host_table_pairs, relation_name_to_num, num_hosts);
 
   get_multi_host_cf(table_map_host_table_pairs, num_hosts);
   unordered_map<int64_t, int> counter =
