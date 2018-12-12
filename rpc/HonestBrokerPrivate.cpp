@@ -119,6 +119,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
       }
     }
     int max = 0;
+    int max_val = 0;
     int total = 0;
     int num = 0;
     int moment = 15;
@@ -128,12 +129,13 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
       total+= cc.second;
       if (max < cc.second) {
         max = cc.second;
+        max_val = cc.first;
       }
       if (cc.second > moment) {
         above_moment++;
       }
     }
-    printf("Gen for %s: AVG: %f, TOTAL NUM: %d, ABOVE_MOMENT: %d, max: %d\n", table.first.c_str(), (double)total/num, num, above_moment, max);
+    printf("Gen for %s: AVG: %f, TOTAL NUM: %d, ABOVE_MOMENT: %d, max: %d, max_val: %d\n", table.first.c_str(), (double)total/num, num, above_moment, max, max_val);
   }
 
   for (int i = 0; i < num_hosts; i++) {
