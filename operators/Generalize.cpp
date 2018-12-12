@@ -390,13 +390,17 @@ unordered_map<int64_t, int> union_counts(
 }
 
 std::tuple<uint64_t, unordered_map<int64_t, int64_t>>
-get_range(unordered_map<int64_t, int> counter) {
+get_range(unordered_map<int64_t, int> counter, unordered_map<int64_t, pair<int,int>> tuple_val, int num_relations) {
   // Taken from
   // https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
   unordered_map<int64_t, int64_t>
       input_to_internal_gen; // original input -> internal gen
   vector<pair<int64_t, int>> sorted_counter;
 
+  int max_relations = 0;
+  for (int i = 0; i <num_relations; i++) {
+    max_relations |= 1 << (i+1);
+  }
   // Taken from
   // https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
   for (auto &x : counter) {
@@ -407,13 +411,15 @@ get_range(unordered_map<int64_t, int> counter) {
          return elem1.second > elem2.second;
        });
 
-  int range_of_tuples = 0;
+  int all_counter = 0;
   for (int i = 0; i < sorted_counter.size(); i++) {
-    input_to_internal_gen[sorted_counter[i].first] = i;
-    range_of_tuples++;
+    if (tuple_val[sorted_counter[i].first].first == max_relations) {
+      input_to_internal_gen[sorted_counter[i].first] = all_counter;
+      all_counter++;
+    }
   }
-  const int final_range = range_of_tuples;
-  return make_tuple(range_of_tuples, input_to_internal_gen);
+  const int final_range = all_counter;
+  return make_tuple(final_range, input_to_internal_gen);
 }
 
 int populate_rc_map(
@@ -528,7 +534,7 @@ table_t *generalize_table_fast(
   int main_tup_append = 0;
 
   uint64_t range_of_tuples = 0;
-  auto range_info = get_range(counter);
+  auto range_info = get_range(counter, tvo, num_relations);
   range_of_tuples = std::get<0>(range_info);
   input_to_internal_gen = std::get<1>(range_info);
   // Get Reverse Map
