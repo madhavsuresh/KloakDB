@@ -84,6 +84,7 @@ fi
 #ssl certs installation
 cd $BASEDIR/build
 cp ../ca.crt .
+cp ../ca.key .
 cp ../gen-certs.sh .
 ./gen-certs.sh
 
