@@ -82,8 +82,9 @@ if [ ! -d "linux-sgx" ]; then
 fi
 
 #ssl certs installation
-cd $BASEDIR/build
+cd $BASEDIR
 if [ -f "ca.crt" ]  && [ -f "ca.key" ] ; then
+	cd $BASEDIR/build
 	cp ../ca.crt .
 	cp ../ca.key .
 	cp ../gen-certs.sh .
