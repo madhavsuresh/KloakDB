@@ -36,9 +36,9 @@ public:
   table_t *GetTable(int table_id);
   table_batch_t *GetBatch(int batch_id);
 
-  std::string key;
-  std::string cert;
-  std::string root;
+  const std::string& key;
+  const std::string& cert;
+  const std::string& root;
 
 private:
   // TODO(madhavsuresh): should this be a managed pointer
