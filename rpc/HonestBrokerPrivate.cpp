@@ -136,6 +136,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
       }
     }
     printf("Gen for %s: AVG: %f, TOTAL NUM: %d, ABOVE_MOMENT: %d, max: %d, max_val: %d\n", table.first.c_str(), (double)total/num, num, above_moment, max, max_val);
+    printf("Gen MAP 0 %s 0, %d", table.first.c_str(), gen_val_to_count[0]);
   }
 
   for (int i = 0; i < num_hosts; i++) {
