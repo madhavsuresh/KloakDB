@@ -344,23 +344,23 @@ unordered_map<int64_t, pair<int,int>> tuple_val_to_occurences(
 
     }
   }
-  int max_hosts = 0;
+  int max_relations = 0;
   for (int i = 0; i <relation_name_to_num.size(); i++) {
-    max_hosts |= 1 << (i+1);
+    max_relations |= 1 << (i+1);
   }
-  int all_hosts = 0;
+  int all_relations = 0;
   int total_count = 0;
   int all_tuples = 0;
   int all_tuple_count = 0;
   for (auto &k : counter) {
-    if (k.second.first == max_hosts) {
-      all_hosts++;
+    if (k.second.first == max_relations) {
+      all_relations++;
       total_count += k.second.second;
     }
     all_tuple_count += k.second.second;
     all_tuples++;
   }
-  printf("\n**tuples across all relations: %d, out of %d unique vals, total tuples restricted: %d, out of total tuples: %d**", all_hosts, all_tuples, total_count, all_tuple_count);
+  printf("\n**tuples across all relations: %d, out of %d unique vals, total tuples restricted: %d, out of total tuples: %d**", all_relations, all_tuples, total_count, all_tuple_count);
   return counter;
 }
 
@@ -519,7 +519,7 @@ table_t *generalize_table_fast(
     relation_name_to_num[get_name.first] = num_relations;
     num_relations++;
   }
-  tuple_val_to_occurences(table_map_host_table_pairs, relation_name_to_num, num_hosts);
+  auto tvo = tuple_val_to_occurences(table_map_host_table_pairs, relation_name_to_num, num_hosts);
 
   //get_multi_host_cf(table_map_host_table_pairs, num_hosts);
   unordered_map<int64_t, int> counter =
@@ -536,6 +536,7 @@ table_t *generalize_table_fast(
     internal_gen_to_input[i.second] = i.first;
   }
   const uint64_t final_range = range_of_tuples;
+  printf("Final range: %d\n", final_range);
   rc_t rc_map[MAX_RELATION];
   populate_rc_map(rc_map, table_map_host_table_pairs, input_to_internal_gen,
                   final_range, num_hosts);
