@@ -227,25 +227,33 @@ int main(int argc, char **argv) {
     delete p;
     hb_thread.join();
   } else {
-    DataOwnerPrivate *p =
-        new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address);
-    //auto enclave = get_enclave();
-    p->Register();
-    DataOwnerImpl d(p);
-    grpc::ServerBuilder builder;
 
-    std::string key;
-    std::string cert;
+    std::string server_key;
+    std::string server_cert;
     std::string root;
-    read("server.crt", cert);
-    read("server.key", key);
+    std::string client_key;
+    std::string client_cert;
+
+    read("server.key", server_key);
+    read("server.crt", server_cert);
     read("ca.crt", root);
 
-    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {key, cert};
+    read("client.key", client_key);
+    read("client.crt", client_cert);
+
+    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {server_key, server_cert};
     grpc::SslServerCredentialsOptions sslOps;
     sslOps.pem_root_certs = root;
     sslOps.pem_key_cert_pairs.push_back (keycert);
     auto channel_creds = grpc::SslServerCredentials(sslOps);
+    
+    DataOwnerPrivate *p =
+        new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address, client_key, client_cert, root);
+    //auto enclave = get_enclave();
+    p->Register();
+    DataOwnerImpl d(p);
+    
+    grpc::ServerBuilder builder;
     builder.AddListeningPort(p->HostName(), channel_creds);
     
     builder.RegisterService(&d);

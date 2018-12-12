@@ -14,7 +14,10 @@
 class DataOwnerPrivate : public InfoPrivate {
 
 public:
-  DataOwnerPrivate(std::string hostname, std::string hb_host_name);
+  DataOwnerPrivate(std::string hostname, std::string hb_host_name,
+				   const std::string& key,
+				   const std::string& cert,
+				   const std::string& root);
   ~DataOwnerPrivate();
   int HostNum();
   int NumHosts();
@@ -22,13 +25,20 @@ public:
   int AddTable(table_t *t);
   int AddBatch(table_batch_t *batch);
   std::pair<int,int> SendTable(int worker_host_num, table_t *t);
-  void SetDataOwnerClient(int host_num, std::string host_name);
+  void SetDataOwnerClient(int host_num, std::string host_name, 
+						   	 const std::string& key,
+						   	 const std::string& cert,
+							 const std::string& root);
   void DeleteDataOwnerClient(int host_num);
   void FreeTable(int i);
   void FreeAllTables();
   ::vaultdb::ControlFlowColumn GetControlFlowColID();
   table_t *GetTable(int table_id);
   table_batch_t *GetBatch(int batch_id);
+
+  std::string key;
+  std::string cert;
+  std::string root;
 
 private:
   // TODO(madhavsuresh): should this be a managed pointer
