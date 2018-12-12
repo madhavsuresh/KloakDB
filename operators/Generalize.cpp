@@ -611,10 +611,16 @@ table_t *generalize_table_fast(
     } else {
       for (int scan = min_val; scan < max_top; scan++) {
         int64_t original_table_val = internal_gen_to_input[scan];
+        if (min_val == 0) {
+          printf("MIN VAL = 0 %d\t", original_table_val);
+        }
         tup->field_list[0].f.int_field.val = original_table_val;
         tup->field_list[0].f.int_field.genval = min_val;
         append_tuple(&tb, tup);
         main_tup_append++;
+      }
+      if (min_val == 0) {
+        printf("\n");
       }
     }
     prev_min_val = min_val;
