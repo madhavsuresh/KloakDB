@@ -360,7 +360,7 @@ unordered_map<int64_t, pair<int,int>> tuple_val_to_occurences(
     all_tuple_count += k.second.second;
     all_tuples++;
   }
-  printf("\n**tuples across all relations: %d, out of %d tuples, total tuples restricted: %d, out of total tuples: %d**", all_hosts, all_tuples, total_count, all_tuple_count);
+  printf("\n**tuples across all relations: %d, out of %d unique vals, total tuples restricted: %d, out of total tuples: %d**", all_hosts, all_tuples, total_count, all_tuple_count);
   return counter;
 }
 

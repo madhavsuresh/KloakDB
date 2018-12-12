@@ -38,7 +38,7 @@ DEFINE_int32(gen_level, 0, "generalization level");
 
 DEFINE_string(year, "", "year for healthlnk queries");
 DEFINE_string(db, "smcql_testDB", "database name");
-DEFINE_string(di_table, "hd_cohort", "table name for diagnoses");
+DEFINE_string(di_table, "hd_cohort_dist", "table name for diagnoses");
 DEFINE_string(meds_table, "meds_ex", "table name for medications");
 DEFINE_string(dem_table, "dem_ex", "table name for demographics");
 DEFINE_string(vit_table, "vit_ex", "table name for vitals");
