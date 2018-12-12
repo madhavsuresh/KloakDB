@@ -1,14 +1,14 @@
 WITH medications_all AS (
-	SELECT patient_id FROM vdb1.med_ex where medication like '%ASPIRIN%' and
+	SELECT patient_id FROM vdb1.meds_ex where medication like '%ASPIRIN%' and
 					year = {0}
 	UNION ALL
-	SELECT patient_id FROM vdb2.med_ex where medication like '%ASPIRIN%' and
+	SELECT patient_id FROM vdb2.meds_ex where medication like '%ASPIRIN%' and
 					year = {0}
 	UNION ALL
-	SELECT patient_id FROM vdb3.med_ex where medication like '%ASPIRIN%' and
+	SELECT patient_id FROM vdb3.meds_ex where medication like '%ASPIRIN%' and
 					year = {0}
 	UNION ALL
-	SELECT patient_id FROM vdb4.med_ex where medication like '%ASPIRIN%' and
+	SELECT patient_id FROM vdb4.meds_ex where medication like '%ASPIRIN%' and
 					year = {0}
 ),
 
