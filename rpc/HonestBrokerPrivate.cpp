@@ -122,7 +122,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     int max_val = 0;
     int total = 0;
     int num = 0;
-    int moment = 35;
+    int moment = 1000;
     int above_moment = 0;
     for (auto &cc : gen_val_to_count) {
       num++;
