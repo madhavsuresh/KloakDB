@@ -19,7 +19,7 @@ HonestBrokerImpl::NumHosts(::grpc::ServerContext *context,
 HonestBrokerImpl::Register(::grpc::ServerContext *context,
                            const ::vaultdb::RegisterRequest *request,
                            ::vaultdb::RegisterResponse *response) {
-  int num = this->p->RegisterHost(request->hostname());
+  int num = this->p->RegisterHost(request->hostname(), this->p->key, this->p->cert, this->p->root);
   printf("Registering Host: %d, %s\n", num, request->hostname().c_str());
   response->set_host_num(num);
   return ::grpc::Status::OK;

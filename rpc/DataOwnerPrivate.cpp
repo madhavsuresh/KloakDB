@@ -35,13 +35,18 @@ void proto_schema_to_table_schema(table_t *t, const vaultdb::Schema &s) {
   }
 }
 DataOwnerPrivate::DataOwnerPrivate(std::string host_name,
-                                   std::string hb_host_name)
-    : InfoPrivate(host_name) {
+                                   std::string hb_host_name,
+				   const std::string& key,
+				   const std::string& cert,
+				   const std::string& root)
+    : InfoPrivate(host_name), key(key), cert(cert), root(root) {
+
+  grpc::SslCredentialsOptions opts = { root,key,cert};
 
   this->hb_host_name = hb_host_name;
   this->num_hosts = 0;
   client = new HonestBrokerClient(grpc::CreateChannel(
-      this->hb_host_name, grpc::InsecureChannelCredentials()));
+      this->hb_host_name, grpc::SslCredentials(opts)));
   this->table_counter = 0;
 
 }
@@ -51,10 +56,15 @@ void DataOwnerPrivate::DeleteDataOwnerClient(int host_num) {
   delete this->data_owner_clients[host_num];
 }
 
-void DataOwnerPrivate::SetDataOwnerClient(int host_num, std::string host_name) {
+void DataOwnerPrivate::SetDataOwnerClient(int host_num, std::string host_name,
+						   	 const std::string& key,
+						   	 const std::string& cert,
+							 const std::string& root)
+{
+  grpc::SslCredentialsOptions opts = { root,key,cert};
   data_owner_clients[host_num] = new DataOwnerClient(
       host_name, host_num,
-      grpc::CreateChannel(host_name, grpc::InsecureChannelCredentials()));
+      grpc::CreateChannel(host_name, grpc::SslCredentials(opts)));
 }
 
 table_t *DataOwnerPrivate::GetTable(int table_id) {

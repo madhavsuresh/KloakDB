@@ -81,6 +81,17 @@ if [ ! -d "linux-sgx" ]; then
 	(echo no; echo $BASEDIR/lib) | ./linux-sgx/linux/installer/bin/sgx_linux_x64_sdk*
 fi
 
+#ssl certs installation
+cd $BASEDIR/build
+if [ -f "ca.crt" ]  && [ -f "ca.key" ] ; then
+	cp ../ca.crt .
+	cp ../ca.key .
+	cp ../gen-certs.sh .
+	./gen-certs.sh
+else
+	echo "ROOT CERT OR KEY DOES NOT EXIST, DID NOT CREATE OTHER SSL CERTS"
+fi
+
 
 cd $BASEDIR
 cd build

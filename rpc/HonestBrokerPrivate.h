@@ -29,10 +29,10 @@ typedef struct to_gen {
 class HonestBrokerPrivate : public InfoPrivate {
 
 public:
-  HonestBrokerPrivate(string address);
+  HonestBrokerPrivate(string address, const std::string& key, const std::string& cert, const std::string& root);
   ~HonestBrokerPrivate();
   void Shutdown();
-  int RegisterHost(string hostName);
+  int RegisterHost(string hostName, const std::string& key, const std::string& cert, const std::string& root);
   int NumHosts();
   vector<tableid_ptr> RepartitionJustHash(vector<tableid_ptr> &ids);
   vector<shared_ptr<const TableID>>
@@ -72,6 +72,10 @@ public:
                                       string query);
   void FreeTables(vector<tableid_ptr> &ids);
   void WaitForAllHosts();
+  
+  const std::string& key;
+  const std::string& cert;
+  const std::string& root;
 
 private:
   mutex registrationMutex;
