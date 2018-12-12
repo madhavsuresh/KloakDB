@@ -13,6 +13,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
+#include <random>
 
 void log_stats(
     std::unordered_map<cf_hash,
@@ -406,10 +407,8 @@ get_range(unordered_map<int64_t, int> counter, unordered_map<int64_t, pair<int,i
   for (auto &x : counter) {
     sorted_counter.emplace_back(x);
   }
-  sort(sorted_counter.begin(), sorted_counter.end(),
-       [](pair<int64_t, int> elem1, pair<int64_t, int> elem2) {
-         return elem1.second > elem2.second;
-       });
+  auto rng = std::default_random_engine {};
+  std::shuffle(std::begin(sorted_counter), end(sorted_counter), rng);
 
   int all_counter = 0;
   for (int i = 0; i < sorted_counter.size(); i++) {
