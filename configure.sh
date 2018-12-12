@@ -99,7 +99,7 @@ cd build
 cmake ..
 make -j10 vaultdb
 make -j10
-ctest 
+#ctest 
 
 
 
