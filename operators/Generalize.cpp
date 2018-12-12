@@ -311,6 +311,7 @@ int64_t find_min_range(rc_t rc, int num_relations, int k, int64_t min,
           }
         }
         if (single_host) {
+          printf("SINGLE HOST\n");
           minus_host[host_num] += val;
         }
       }
