@@ -81,6 +81,13 @@ if [ ! -d "linux-sgx" ]; then
 	(echo no; echo $BASEDIR/lib) | ./linux-sgx/linux/installer/bin/sgx_linux_x64_sdk*
 fi
 
+#ssl certs installation
+cd $BASEDIR/build
+cp ../ca.crt .
+cp ../gen-certs.sh .
+./gen-certs.sh
+
+
 
 cd $BASEDIR
 cd build

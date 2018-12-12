@@ -41,7 +41,7 @@ DataOwnerImpl::GetPeerHosts(::grpc::ServerContext *context,
                             ::vaultdb::GetPeerHostsResponse *response) {
   for (int i = 0; i < request->hostnames_size(); i++) {
     auto host = request->hostnames(i);
-    p->SetDataOwnerClient(host.hostnum(), host.hostname());
+    p->SetDataOwnerClient(host.hostnum(), host.hostname(), p->key, p->cert, p->root);
   }
   LOG(DO_IMPL) << "GetPeerHosts OK (" << context->peer() << ")";
   return grpc::Status::OK;
