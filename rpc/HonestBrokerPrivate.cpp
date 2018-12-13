@@ -125,6 +125,8 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     int moment = 100;
     int above_moment = 0;
     for (auto &cc : gen_val_to_count) {
+      if (cc.first == -1) { continue;}
+
       num++;
       total+= cc.second;
       if (max < cc.second) {
