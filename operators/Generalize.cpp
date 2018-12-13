@@ -410,13 +410,14 @@ unordered_map<int64_t, int> union_counts(
   return counter;
 }
 
-std::tuple<uint64_t, unordered_map<int64_t, int64_t>>
+std::tuple<uint64_t, unordered_map<int64_t, int64_t>, vector<int64_t>>
 get_range(unordered_map<int64_t, int> counter, unordered_map<int64_t, pair<int,int>> tuple_val, int num_relations) {
   // Taken from
   // https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
   unordered_map<int64_t, int64_t>
       input_to_internal_gen; // original input -> internal gen
   vector<pair<int64_t, int>> sorted_counter;
+  vector<int64_t> discard_pile;
 
   int max_relations = 0;
   for (int i = 0; i <num_relations; i++) {
@@ -435,10 +436,12 @@ get_range(unordered_map<int64_t, int> counter, unordered_map<int64_t, pair<int,i
     if (tuple_val[sorted_counter[i].first].first == max_relations) {
       input_to_internal_gen[sorted_counter[i].first] = all_counter;
       all_counter++;
+    } else {
+      discard_pile.emplace_back(sorted_counter[i].first);
     }
   }
   const int final_range = all_counter;
-  return make_tuple(final_range, input_to_internal_gen);
+  return make_tuple(final_range, input_to_internal_gen, discard_pile);
 }
 
 int populate_rc_map(
@@ -556,6 +559,7 @@ table_t *generalize_table_fast(
   auto range_info = get_range(counter, tvo, num_relations);
   range_of_tuples = std::get<0>(range_info);
   input_to_internal_gen = std::get<1>(range_info);
+  auto discard_pile = std::get<2>(range_info);
   // Get Reverse Map
   for (auto &i : input_to_internal_gen) {
     internal_gen_to_input[i.second] = i.first;
@@ -592,21 +596,11 @@ table_t *generalize_table_fast(
     }
     int max_top = *max_element(std::begin(min_ks), std::end(min_ks));
     int min_top = *min_element(std::begin(min_ks), std::end(min_ks));
-    if (min_val == 0) {
-      printf("MIN KS: ");
-      for (auto &kz: min_ks) {
-        printf("%d\t", kz);
-      }
-      printf("\n");
-    }
     if (min_top == -1 && max_top == -1) {
       for (int scan = min_val; scan < final_range; scan++) {
         int64_t original_table_val = internal_gen_to_input[scan];
         tup->field_list[0].f.int_field.val = original_table_val;
         tup->field_list[0].f.int_field.genval = prev_min_val;
-        if (tup->field_list[0].f.int_field.genval == 0) {
-          printf("WOW\n");
-        }
         append_tuple(&tb, tup);
         tup_append++;
       }
@@ -614,28 +608,26 @@ table_t *generalize_table_fast(
     } else {
       for (int scan = min_val; scan < max_top; scan++) {
         int64_t original_table_val = internal_gen_to_input[scan];
-        if (min_val == 0) {
-          printf("MIN VAL = 0 %d\t", original_table_val);
-        }
         tup->field_list[0].f.int_field.val = original_table_val;
         tup->field_list[0].f.int_field.genval = min_val;
-        if (tup->field_list[0].f.int_field.genval == 0) {
-          printf("WOW\n");
-        }
         append_tuple(&tb, tup);
         main_tup_append++;
-      }
-      if (min_val == 0) {
-        printf("\n");
       }
     }
     prev_min_val = min_val;
     min_val = max_top;
   }
+  int zero_append = 0;
+  for (auto &discard: discard_pile) {
+    tup->field_list[0].f.int_field.val = discard;
+    tup->field_list[0].f.int_field.genval = -1;
+    append_tuple(&tb, tup);
+    zero_append++;
+  }
   free(tup);
-  printf("finished with geneeralizer\n");
-  printf("Main Appended Tuples %d, not main: %d\n", main_tup_append,
-         tup_append);
+  printf("finished with generalizer\n");
+  printf("Main Appended Tuples %d, not main: %d, zero: %d\n", main_tup_append,
+         tup_append, zero_append);
   return tb.table;
 }
 
@@ -818,10 +810,18 @@ table_t *generalize_zip(table_t *t, table_t *gen_map_table, int col_no) {
     gen_map[tup->field_list[0].f.int_field.val] =
         tup->field_list[0].f.int_field.genval;
   }
+  int expected_tuples = t->num_tuples;
+  int num_columns = t->schema.num_fields;
+  table_builder_t tb;
+  init_table_builder(t->num_tuples, t->schema.num_fields, &t->schema, &tb);
   for (int i = 0; i < t->num_tuples; i++) {
     tuple_t *tup = get_tuple(i, t);
     auto gen_val = gen_map[tup->field_list[col_no].f.int_field.val];
-    tup->field_list[col_no].f.int_field.genval = gen_val;
+    if (gen_val != -1) {
+      tup->field_list[col_no].f.int_field.genval = gen_val;
+      append_tuple(&tb, tup);
+    }
   }
-  return t;
+  free_table(t);
+  return tb.table;
 }
