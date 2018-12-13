@@ -149,7 +149,7 @@ import argparse
 
 parser=argparse.ArgumentParser()
 parser.add_argument('-num_machines', help='number of machines you want the query to run on. Must be between 1 and 4. Default is 4')
-parser.add_argument('-num_runs', help='number of times you want to run the query. Must be be at least 6 for accurate statistics. Default is 4')
+parser.add_argument('-num_runs', help='number of times you want to run the query. Must be be at least 4 for accurate statistics. Default is 4')
 parser.add_argument('-search_year', help='year to filter query on, if blank no filtering')
 parser.add_argument('-query', help='aspirin, comorbidity, or dosage. Default runs all queries') 
 
