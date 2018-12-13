@@ -6,6 +6,20 @@ import logging
 import sys
 import statistics
 
+'''TODO: assumption for this is that tables on vaultdb04 are in the schema vdb4. Changes to tables on vaultdb04
+must be copied over to this schema for this to produce accurate results''' 
+
+table = {
+    "med_aspirin" : "meds_ex",
+    "diag_aspirin": "diagnoses",
+    "demos_aspirin": "dem_ex",
+    "vit_aspirin": "vit_ex",
+    "comorbidity": "cdiff_cohort_diagnoses",
+    "med_dosage": "medications",
+    "diag_dosage": "diagnoses",
+    }
+
+
 logging.basicConfig(level=logging.NOTSET)
 logger = logging.getLogger(__name__)
 
@@ -42,13 +56,10 @@ cur = conn.cursor()
 def make_comorbidity_query(num,year):
     # 0 is for the current host
     selects = ""
-    year_filter = ""
-    if year == None:
-        year_filter = ""
-    else: 
-        year_filter = "where year = {0}".format(year)
+    year_filter = make_year_filter(year)
+    
     for i in range(1,num+1): 
-        selects+="select major_icd9 from {0}.cdiff_cohort_diagnoses {1} ".format("vdb" + str(i), year_filter)
+        selects+="select major_icd9 from {0}.{2} where {1} ".format("vdb" + str(i), year_filter, table['comorbidity'])
         if i != num:
             selects+= "\n UNION ALL\n"
         
@@ -57,7 +68,7 @@ def make_comorbidity_query(num,year):
           ) as d\
             group by major_icd9\
             order by count(*) DESC\
-            limit 10;".format(selects, year_filter)
+            limit 10;".format(selects)
 
     return query
 
@@ -65,14 +76,11 @@ def make_comorbidity_query(num,year):
 def gen_union_dosage(num,year):
     med_tables = ""
     diag_tables = ""
-    if year == None:
-        year_filter = ""
-    else: 
-        year_filter = "and year = {0}".format(year)
+    year_filter = make_year_filter(year)
 
     for i in range(1,num+1):
-        med_tables += "SELECT patient_id FROM {0}.medications where medication like '%ASPIRIN' and dosage='325 MG' {1}".format("vdb"+str(i),year_filter)
-        diag_tables += "SELECT patient_id FROM {0}.diagnoses where icd9 like '414%' {1}".format("vdb"+str(i), year_filter)
+        med_tables += "SELECT patient_id FROM {0}.{2} where medication like '%ASPIRIN' and dosage='325 MG' and {1}".format("vdb"+str(i),year_filter, table['med_dosage'])
+        diag_tables += "SELECT patient_id FROM {0}.{2} where icd9 like '414%' and {1}".format("vdb"+str(i), year_filter, table["diag_dosage"])
         if i != num:
             med_tables += " UNION ALL "
             diag_tables += " UNION ALL "
@@ -86,11 +94,40 @@ def make_dosage_query(num,year):
                     m.patient_id = di.patient_id;".format(m_tables,d_tables)
     return query
 
+'''Makes the year filter given a year string or None'''
+def make_year_filter(year):
+    if year == None:
+        return "1 = 1" # for valid sql will get optimized out
+    else:
+        return "year = {0}".format(year)
+
+def gen_union_aspirin(num,year):
+    med_tables = ""
+    diag_tables = ""
+    demo_tables = ""
+    vit_tables = ""   
+    year_filter = make_year_filter(year)
+    for i in range(1,num+1):
+        schema = "vdb"+str(i)
+        med_tables += "SELECT patient_id FROM {0}.{2} WHERE medication like '%ASPIRIN%' and {1}".format(schema,year_filter, table['med_aspirin'])
+        diag_tables += "SELECT patient_id FROM {0}.{2} WHERE icd9 like '414%' and {1}".format(schema,year_filter, table['diag_aspirin'])
+        demo_tables += "SELECT patient_id, race, gender FROM {0}.{1}".format(schema,table['demos_aspirin'])
+        vit_tables += "SELECT pulse, patient_id FROM {0}.{2} WHERE {1}".format(schema,year_filter,table['vit_aspirin'])
+        if i != num:
+            med_tables += " UNION ALL "
+            diag_tables += " UNION ALL "
+            demo_tables += " UNION ALL "
+            vit_tables += " UNION ALL "
+    return med_tables,diag_tables,demo_tables,vit_tables
 
 def make_asprin_query(num,year):
-    file = open("aspirin_fdw.sql", "r")
-    query = file.read()
-    query = query.format(year)
+    m_tables,di_tables,dem_tables,vi_tables = gen_union_aspirin(num,year)
+    query = "WITH med_all AS ({0}), diag_all AS ({1}), demo_all AS ({2}), vit_all AS ({3})\
+            SELECT gender, race, avg(pulse) FROM med_all m, diag_all di, demo_all de, vit_all vi WHERE\
+            di.patient_id = de.patient_id and\
+            di.patient_id = vi.patient_id and\
+            di.patient_id = m.patient_id\
+            GROUP BY gender, race;".format(m_tables,di_tables,dem_tables,vi_tables)
     return query
 
 
@@ -112,7 +149,7 @@ import argparse
 
 parser=argparse.ArgumentParser()
 parser.add_argument('-num_machines', help='number of machines you want the query to run on. Must be between 1 and 4. Default is 4')
-parser.add_argument('-num_runs', help='number of times you want to run the query. Must be be at least 4 for accurate statistics. Default is 4')
+parser.add_argument('-num_runs', help='number of times you want to run the query. Must be be at least 6 for accurate statistics. Default is 4')
 parser.add_argument('-search_year', help='year to filter query on, if blank no filtering')
 parser.add_argument('-query', help='aspirin, comorbidity, or dosage. Default runs all queries') 
 
