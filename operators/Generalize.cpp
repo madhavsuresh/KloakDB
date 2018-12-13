@@ -295,6 +295,7 @@ int64_t find_min_range(rc_t rc, int num_relations, int k, int64_t min,
   while (not_k_anon) {
     for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
       minus_host[host_num] += rcval(rc, max, host_num);
+
       /*
       if (rcval(rc,max,host_num) == 0) {
         bool single_host = true;
@@ -315,8 +316,8 @@ int64_t find_min_range(rc_t rc, int num_relations, int k, int64_t min,
           minus_host[host_num] += val;
         }
       }
+      */
     }
-       */
 
     not_k_anon = false;
     for (int host_num = 0; host_num < rc.num_hosts; host_num++) {
