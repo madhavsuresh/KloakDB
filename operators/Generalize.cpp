@@ -604,6 +604,9 @@ table_t *generalize_table_fast(
         int64_t original_table_val = internal_gen_to_input[scan];
         tup->field_list[0].f.int_field.val = original_table_val;
         tup->field_list[0].f.int_field.genval = prev_min_val;
+        if (tup->field_list[0].f.int_field.genval == 0) {
+          printf("WOW\n");
+        }
         append_tuple(&tb, tup);
         tup_append++;
       }
@@ -616,6 +619,9 @@ table_t *generalize_table_fast(
         }
         tup->field_list[0].f.int_field.val = original_table_val;
         tup->field_list[0].f.int_field.genval = min_val;
+        if (tup->field_list[0].f.int_field.genval == 0) {
+          printf("WOW\n");
+        }
         append_tuple(&tb, tup);
         main_tup_append++;
       }
