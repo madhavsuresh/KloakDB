@@ -116,6 +116,9 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
       for (int i = 0 ; i < z_table->num_tuples; i++) {
         tuple_t *tup = get_tuple(i, z_table);
         gen_val_to_count[gen_z[tup->field_list[0].f.int_field.val]] += tup->field_list[1].f.int_field.val;
+        if (gen_z[tup->field_list[0].f.int_field.val] == 0) {
+          cout << tuple_string(tup) << endl;
+        }
       }
     }
     int max = 0;
