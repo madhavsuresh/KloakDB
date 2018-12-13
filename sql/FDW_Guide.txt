@@ -1,0 +1,25 @@
+https://www.percona.com/blog/2018/08/21/foreign-data-wrappers-postgresql-postgres_fdw/
+
+
+1. CREATE USER fdw_user WITH ENCRYPTED PASSWORD 'secret'; # set up a fdw user on the server 
+
+2. setup the pg_hba.conf. To find this file use SHOW hba_file; I added: 
+	  host all all destination_server_ip/32 md5 # EXAMPLE
+	  host all all 129.105.61.200/32 md5 # vaultdb01   # WHAT I ACTUALLY DID.. do on both machines I believe 
+3. psql -h hr -U fdw_user postgres # to test on other machine
+
+4. create extension postgres_fdw; # this probably works was already installed
+
+5. grant usage on FOREIGN DATA WRAPPER postgres_fdw to app_user; # again on other computer with the user that you will be using. I think postgres users are different from system so I had to create my netID user on all postgres instances. Default login with psql healthlnk logs you into your netID. 
+
+6. GRANT USAGE ON FOREIGN SERVER hr TO app_user; # app_user is my netID. 
+
+7. CREATE SERVER hr
+ FOREIGN DATA WRAPPER postgres_fdw
+ OPTIONS (dbname 'postgres', host 'hr', port '5432'); # create server (hr) is the name you want to refer to the connection as. it could be anyting. host 'hr' is the actual hostname, port can be anything
+
+8. CREATE USER MAPPING for app_user
+SERVER hr
+OPTIONS (user 'fdw_user', password 'secret'); # App_user is on the current server, fdw_user is the account on the other machine you set up before
+
+9. IMPORT FOREIGN SCHEMA "public" limit to (employee) FROM SERVER hr INTO public; # gets from schema public on the server the table employee and puts it into your schema named public (default). You can create your own schema first and import it there too if you don't want public. 
