@@ -485,5 +485,46 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
+  START_TIMER(join_three);
+  JoinDef jd_pd3;
+  jd_pd3.set_l_col_name("patient_id");
+  jd_pd3.set_r_col_name("patient_id");
+  jd_pd3.set_project_len(3);
+  auto pdp1 = jd_pd3.add_project_list();
+  pdp1->set_side(JoinColID_RelationSide_LEFT);
+  pdp1->set_colname("pulse");
+  auto pdp2 = jd_pd3.add_project_list();
+  pdp2->set_side(JoinColID_RelationSide_RIGHT);
+  pdp2->set_colname("gender");
+  auto pdp3 = jd_pd3.add_project_list();
+  pdp3->set_side(JoinColID_RelationSide_RIGHT);
+  pdp3->set_colname("race");
+  auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
+  auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
+
+  START_TIMER(repartition_two);
+  vector<string> cfnames;
+  cfnames.emplace_back("gender");
+  cfnames.emplace_back("race");
+  p->ResetControlFlowCols();
+  p->SetControlFlowColNames(cfnames);
+  auto out_repart_2 = p->RepartitionJustHash(out_pd_join);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition_two, "full");
+
+  GroupByDef gbd;
+  START_TIMER(aggregate);
+  gbd.set_type(GroupByDef_GroupByType_AVG);
+  gbd.set_col_name("pulse");
+  gbd.add_gb_col_names("gender");
+  gbd.add_gb_col_names("race");
+  LOG(INFO) << "GB LEN" << gbd.gb_col_names_size();
+  vector<string> cfids;
+  cfids.emplace_back("gender");
+  cfids.emplace_back("race");
+  auto final_avg = p->Aggregate(out_repart_2, gbd, sgx);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
+  LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }
