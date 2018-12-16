@@ -120,3 +120,27 @@ TEST_F(aggregate_test, sgx_avg_aggregate) {
   free_table(t);
   free_table(t2);
 }
+
+TEST_F(aggregate_test, obliv_aggregate) {
+  std::string query1 =
+          "INSERT INTO simple_agg (a,b) VALUES (1,7), (2,7), (3,4)";
+  query(query1, dbname);
+  query1 = "SELECT * FROM simple_agg";
+  table_t *t = get_table(query1, dbname);
+  groupby_def_t gbd;
+  gbd.secure = false;
+  gbd.type = AVG;
+  gbd.colno = 0;
+  gbd.num_cols = 1;
+  gbd.gb_colnos[0] = 1;
+  gbd.kanon_col = 0;
+  for (int i = 0; i < t->num_tuples; i++) {
+    get_tuple(i,t)->field_list[0].f.int_field.genval=0;
+  }
+  table_t *t1 = aggregate(t, &gbd);
+  std::cout << std::endl;
+  for (int i = 0; i < t1->num_tuples; i++) {
+    std::cout << tuple_string(get_tuple(i, t1)) << std::endl;
+  }
+
+}
