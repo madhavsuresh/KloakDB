@@ -68,6 +68,7 @@ repart_step_one(table_t *t, int num_hosts, DataOwnerPrivate *p) {
   free_table(t);
   return host_and_ID;
 }
+
 uint32_t hash_fields_to_int_sgx(uint8_t f[], uint32_t len) {
   sgx_sha256_hash_t hash;
   union {
@@ -78,7 +79,7 @@ uint32_t hash_fields_to_int_sgx(uint8_t f[], uint32_t len) {
   out.u8[0] = hash[0];
   out.u8[1] = hash[1];
   out.u8[2] = hash[2];
-  out.u8[3] = hash[4];
+  out.u8[3] = hash[3];
   return out.u;
 }
 

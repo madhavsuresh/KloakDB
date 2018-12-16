@@ -473,6 +473,7 @@ groupby_def_t make_groupby_def_t(table_t *t, ::vaultdb::GroupByDef def) {
   groupby_def_t def_t;
 
   // TODO(madhavsuresh): this needs to be fixed, the API is inconsistent.
+  def_t.secure = def.secure();
   switch (def.type()) {
   case ::vaultdb::GroupByDef_GroupByType_COUNT: {
     def_t.type = COUNT;
