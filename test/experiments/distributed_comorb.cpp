@@ -44,7 +44,10 @@ void comorbidity_oliv(HonestBrokerPrivate *p, std::string dbname, std::string ye
   auto cdiff_repart = p->RepartitionJustHash(obliv);
   GroupByDef gbd;
   gbd.set_col_name("major_icd9");
+  gbd.add_gb_col_names("major_icd9");
+  gbd.set_kanon_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);
+  gbd.set_secure(true);
   auto agg_out = p->Aggregate(cdiff_repart, gbd, true);
 
   p->SetControlFlowColName("count");
