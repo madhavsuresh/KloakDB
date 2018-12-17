@@ -439,6 +439,20 @@ get_range(unordered_map<int64_t, int> counter, unordered_map<int64_t, pair<int,i
   return make_tuple(final_range, input_to_internal_gen, discard_pile);
 }
 
+int64_t input_val(field_t f) {
+  switch (f.type) {
+    case INT: {
+      return f.f.int_field.val;
+      break;
+    }
+    case FIXEDCHAR : {
+      return hash_char(f.f.fixed_char_field.val);
+      break;
+    }
+    default : {throw;}
+  }
+}
+
 int populate_rc_map(
     rc_t *rc_map,
     std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
@@ -462,8 +476,7 @@ int populate_rc_map(
       for (int i = 0; i < t->num_tuples; i++) {
         tuple_t *tup = get_tuple(i, t);
         int64_t count = tup->field_list[1].f.int_field.val;
-        int64_t internal_gen =
-            input_to_internal_gen[tup->field_list[0].f.int_field.val];
+        int64_t internal_gen = input_to_internal_gen[input_val(tup->field_list[0])];
         for (int j = 0; j < num_hosts; j++) {
           if (j != host_num) {
             rcadd(rc_map[relation_num], internal_gen, j, count);
