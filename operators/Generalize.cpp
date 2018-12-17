@@ -4,8 +4,6 @@
 
 // Typedefs to make code easier to read without using classes.
 #include "Generalize.h"
-#include "logger/Logger.h"
-#include "logger/LoggerDefs.h"
 #include <algorithm>
 #include <cstring>
 #include <iostream>
@@ -15,35 +13,6 @@
 #include <unordered_map>
 #include <random>
 
-void log_stats(
-    std::unordered_map<cf_hash,
-                       std::vector<std::tuple<hostnum, tup_count, cf_hash>>>
-        gen_map,
-    int k) {
-  int max_size = 0;
-  cf_hash _max = 0;
-  double total_size = 0;
-  double avg_num = 0;
-  for (auto &i : gen_map) {
-    int curr_size = 0;
-    avg_num += i.second.size();
-    for (auto &j : i.second) {
-      curr_size += std::get<1>(j);
-    }
-    if (max_size < curr_size) {
-      max_size = curr_size;
-      _max = i.first;
-    }
-    if (curr_size < k) {
-      // std::cout << "THIS IS BAD!!" << std::endl;
-    }
-    total_size += curr_size;
-  }
-  LOG(OP) << "max key: [" << _max << "] : len:(" << gen_map[_max].size()
-          << ") max size: " << max_size << "average size "
-          << total_size / gen_map.size() << " num cf_per class"
-          << avg_num / gen_map.size();
-}
 
 bool is_kanon(std::vector<std::tuple<hostnum, tup_count, cf_hash>> equiv_class,
               int num_hosts, int k) {
@@ -191,7 +160,6 @@ table_t *generalize_table_fast_string(
     std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
         table_map_host_table_pairs,
     int num_hosts, int k) {
-  auto start = std::chrono::high_resolution_clock::now();
   unordered_map<string, int> input_to_internal_gen;
   unordered_map<string, int> counter;
   for (auto &table_queries : table_map_host_table_pairs) {
@@ -231,9 +199,6 @@ table_t *generalize_table_fast_string(
     input_to_internal_gen[sorted_counter[i].first] = i;
   }
 
-  auto finish = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<double> elapsed = finish - start;
-  std::cout << " Total Elapsed time: " << elapsed.count() << " s\n";
 }
 typedef struct relation_count {
   int64_t *arr;
@@ -382,7 +347,6 @@ unordered_map<int64_t, pair<int,int>> tuple_val_to_occurences(
     all_tuple_count += k.second.second;
     all_tuples++;
   }
-  printf("\n**tuples across all relations: %d, out of %d unique vals, total tuples restricted: %d, out of total tuples: %d**", all_relations, all_tuples, total_count, all_tuple_count);
   return counter;
 }
 
@@ -429,8 +393,10 @@ get_range(unordered_map<int64_t, int> counter, unordered_map<int64_t, pair<int,i
   for (auto &x : counter) {
     sorted_counter.emplace_back(x);
   }
-  auto rng = std::default_random_engine {};
+  /*
+  auto rng = std::default_random_engine{};
   std::shuffle(std::begin(sorted_counter), end(sorted_counter), rng);
+   */
 
   int all_counter = 0;
   for (int i = 0; i < sorted_counter.size(); i++) {
@@ -462,9 +428,6 @@ int populate_rc_map(
     for (auto &table : relation.second) {
       int host_num = table.first;
       if (host_num >= num_hosts) {
-        // MAYBE ADD A LOGG DEF
-        LOG(FATAL) << "Gen host_num above number of hosts, host_num: ["
-                   << host_num << "]; num_hosts:[" << num_hosts << "]";
         throw;
       }
       table_t *t = table.second;
@@ -566,7 +529,6 @@ table_t *generalize_table_fast(
     internal_gen_to_input[i.second] = i.first;
   }
   const uint64_t final_range = range_of_tuples;
-  printf("Final range: %d\n", final_range);
   rc_t rc_map[MAX_RELATION];
   populate_rc_map(rc_map, table_map_host_table_pairs, input_to_internal_gen,
                   final_range, num_hosts);
@@ -575,7 +537,6 @@ table_t *generalize_table_fast(
   tup->num_fields = 1;
   tup->field_list[0].type = INT;
 
-  printf("Here in view generator: num unique elements: %d\n", final_range);
   int min_val = 0;
   int prev_min_val = 0;
   bool range_exceeded[MAX_RELATION];
@@ -589,7 +550,6 @@ table_t *generalize_table_fast(
         int mr =
             find_min_range(rc_map[rel], num_relations, k, min_val, final_range);
         if (mr == -1) {
-          printf("At min_val %d, rel %d limit exceeded", min_val, rel);
           range_exceeded[rel] = true;
         }
         min_ks.emplace_back(mr);
@@ -626,9 +586,6 @@ table_t *generalize_table_fast(
     zero_append++;
   }
   free(tup);
-  printf("finished with generalizer\n");
-  printf("Main Appended Tuples %d, not main: %d, zero: %d\n", main_tup_append,
-         tup_append, zero_append);
   return tb.table;
 }
 
@@ -800,7 +757,6 @@ generalize_table(std::vector<std::pair<hostnum, table_t *>> host_table_pairs,
       needs_merging = false;
     }
   }
-  log_stats(gen_map, k);
   return generate_genmap_table(gen_map);
 }
 

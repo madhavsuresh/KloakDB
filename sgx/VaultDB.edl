@@ -11,7 +11,9 @@ enclave {
 
         public void ecall_hash_join([user_check] void *table_manager, int left_table_id,int right_table_id,[in, size=jd_len] void *join_def,
         size_t jd_len, [out] int *output_table_id);
-
+    public void ecall_initialize_gen();
+    public void ecall_insert_into_gen_map([in, string]const char *relation, int host_num, [user_check] void *table_manager, int table_id);
+    public void ecall_gen_fast([user_check] void *table_manager, int num_hosts, int k, [out] int *output_table_id);
 	public void ecall_sort([user_check] void *table_manager, int table_id, [in, size=sd_len] void *sort_def, size_t sd_len, [out] int *output_table_id);
 	public void ecall_filter([user_check] void *table_manager, int table_id, [in, size=eb_len] void *expr_buf, size_t eb_len, [out] int *output_table_id);
 	public void ecall_aggregate([user_check] void *table_manager, int table_id, [in, size=gbd_len] void *gb_def, size_t gbd_len, 
