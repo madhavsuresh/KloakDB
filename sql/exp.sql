@@ -5,5 +5,5 @@ SELECT * INTO vit_ex FROM (SELECT * FROM vitals WHERE pulse IS NOT NULL AND (yea
 SELECT * INTO meds_ex FROM (SELECT * FROM medications WHERE (year=2008) AND patient_id in (SELECT * from hd_cohort_dist)) t; ---AND medication ILIKE '%aspirin%') t;
 
 DROP TABLE IF EXISTS dosage_cohort, meds_dosage_ex, dosage_cohort_dist;
-SELECT * INTO dosage_cohort FROM (SELECT DISTINCT patient_id from diagnoses WHERE icd9 LIKE '997%' AND (year=2008 OR year=2009))t;
+SELECT * INTO dosage_cohort FROM (SELECT DISTINCT patient_id from diagnoses WHERE icd9 LIKE '997%')t;
 SELECT * INTO meds_dosage_ex FROM (SELECT DISTINCT patient_id from medications WHERE patient_id in (SELECT * from dosage_cohort_dist)) t;
