@@ -156,50 +156,6 @@ int get_min_range(gen_map_t gen_map, int min_value, int max_value,
   }
   return max_value;
 }
-table_t *generalize_table_fast_string(
-    std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
-        table_map_host_table_pairs,
-    int num_hosts, int k) {
-  unordered_map<string, int> input_to_internal_gen;
-  unordered_map<string, int> counter;
-  for (auto &table_queries : table_map_host_table_pairs) {
-    for (auto &ht : table_queries.second) {
-      table_t *t = ht.second;
-      for (int i = 0; i < t->num_tuples; i++) {
-        tuple_t *tup = get_tuple(i, t);
-        string field_label;
-        switch (tup->field_list[0].type) {
-        case FIXEDCHAR: {
-          field_label = string(tup->field_list[0].f.fixed_char_field.val);
-          break;
-        }
-        case INT: {
-          field_label = to_string(tup->field_list[0].f.int_field.val);
-          break;
-        }
-        }
-        counter[field_label] += tup->field_list[1].f.int_field.val;
-      }
-    }
-  }
-
-  // Taken from
-  // https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
-  vector<pair<string, int>> sorted_counter;
-
-  for (auto &x : counter) {
-    sorted_counter.emplace_back(x);
-  }
-  sort(sorted_counter.begin(), sorted_counter.end(),
-       [](pair<string, int> elem1, pair<string, int> elem2) {
-         return elem1.second > elem2.second;
-       });
-
-  for (int i = 0; i < sorted_counter.size(); i++) {
-    input_to_internal_gen[sorted_counter[i].first] = i;
-  }
-
-}
 typedef struct relation_count {
   int64_t *arr;
   int num_hosts;

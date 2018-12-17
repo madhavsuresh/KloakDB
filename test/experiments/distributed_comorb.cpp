@@ -67,6 +67,7 @@ void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string ye
   }
   START_TIMER(comorbidity_kanon_full);
   p->SetControlFlowColName("major_icd9");
+  p->SetControlFlowNotAnon(false);
   auto cdiff_cohort_scan = p->ClusterDBMSQuery(
           "dbname=" + dbname, "SELECT major_icd9 from cdiff_cohort_diagnoses" + year_append);
   unordered_map<string, to_gen_t> gen_in;
@@ -79,6 +80,7 @@ void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string ye
   START_TIMER(generalize);
   auto gen_out = p->Generalize(gen_in, 5);
   END_AND_LOG_EXEC_TIMER(generalize);
+  /*
   START_TIMER(repartition);
   auto cdiff_cohort_repart = p->Repartition(cdiff_cohort_scan);
   END_AND_LOG_EXEC_TIMER(repartition);
@@ -103,5 +105,6 @@ void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string ye
   START_TIMER(sort);
   auto sorted = p->Sort(cnt_repartition, sort, false);
   END_AND_LOG_EXEC_TIMER(sort);
+   */
   END_AND_LOG_EXP7_COM_STAT_TIMER(comorbidity_kanon_full, "insgx");
 }
