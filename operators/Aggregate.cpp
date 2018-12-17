@@ -6,6 +6,8 @@
 #include <unordered_map>
 #include <math.h>
 #include <sgx_tcrypto.h>
+#include <future>
+
 using namespace std;
 
 schema_t agg_schema(int32_t colno, table_t *t) {
@@ -305,8 +307,13 @@ table_t *kpartial_aggregate_avg(table_t * t, groupby_def_t *def) {
 
   vector<unordered_map<int64_t, pair<int,int>>> partials; //first in pair is count, second is field value sum
   partials.reserve(gen_values_to_index.size());
+  vector<std::future<unordered_map<int64_t, pair<int,int>>>> partials_t;
+  partials_t.reserve(gen_values_to_index.size());
   for (auto &g: gen_values_to_index) {
-    partials.emplace_back(oblivious_partial_aggregate(gb_to_tuple, g.second, def, t));
+    partials_t.push_back(std::async(std::launch::async, oblivious_partial_aggregate,gb_to_tuple, g.second, def, t));
+  }
+  for (auto &pt: partials_t) {
+    partials.push_back(pt.get());
   }
   merge_partials(partials, def, tb, gb_to_tuple);
   return tb.table;
