@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <operators/Generalize.h>
 
-DEFINE_string(enclave_path, "/home/madhav/DB/vaultdb_operators/cmake-build-debug/sgx/Enclave/libvaultdb_trusted_signed.so",
+DEFINE_string(enclave_path, "./sgx/Enclave/libvaultdb_trusted_signed.so",
               "path for built enclave");
 
 sgx_enclave_id_t global_eid = 0;
