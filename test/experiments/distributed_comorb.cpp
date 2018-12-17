@@ -17,6 +17,9 @@ void comorbidity_encrypted(HonestBrokerPrivate *p, std::string dbname, std::stri
   auto cdiff_repart = p->RepartitionJustHash(cdiff_cohort_scan);
   GroupByDef gbd;
   gbd.set_col_name("major_icd9");
+  gbd.set_secure(false);
+  gbd.add_gb_col_names("major_icd9");
+  gbd.set_kanon_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);
   auto agg_out = p->Aggregate(cdiff_repart, gbd, true);
 
