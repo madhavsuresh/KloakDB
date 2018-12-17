@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 #include <unordered_map>
-#include <random>
+#include <sgx_tcrypto.h>
 
 
 bool is_kanon(std::vector<std::tuple<hostnum, tup_count, cf_hash>> equiv_class,
@@ -306,6 +306,25 @@ bool all_realtions_in_range_kanon(rc_t relations[], int num_relations, int k,
   return true;
 }
 
+int64_t hash_char(char *c) {
+
+  sgx_sha256_hash_t hash;
+  sgx_sha256_msg((uint8_t *)c, FIXEDCHAR_LEN, &hash);
+  union {
+      uint64_t u;
+      unsigned char u8[sizeof(uint64_t)];
+  } out;
+  out.u8[0] = hash[0];
+  out.u8[1] = hash[1];
+  out.u8[2] = hash[2];
+  out.u8[3] = hash[3];
+  out.u8[4] = hash[4];
+  out.u8[5] = hash[5];
+  out.u8[6] = hash[6];
+  out.u8[7] = hash[7];
+  return out.u;
+}
+
 unordered_map<int64_t, pair<int,int>> tuple_val_to_occurences(
     std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
         table_map_host_table_pairs,
@@ -321,6 +340,10 @@ unordered_map<int64_t, pair<int,int>> tuple_val_to_occurences(
         switch (tup->field_list[0].type) {
           case INT: {
             field_label = tup->field_list[0].f.int_field.val;
+            break;
+          }
+          case FIXEDCHAR :{
+            field_label = hash_char(tup->field_list[0].f.fixed_char_field.val);
             break;
           }
           default: { throw; }
@@ -362,11 +385,15 @@ unordered_map<int64_t, int> union_counts(
         tuple_t *tup = get_tuple(i, t);
         int64_t field_label;
         switch (tup->field_list[0].type) {
-        case INT: {
-          field_label = tup->field_list[0].f.int_field.val;
-          break;
-        }
-        default: { throw; }
+          case INT: {
+            field_label = tup->field_list[0].f.int_field.val;
+            break;
+          }
+          case FIXEDCHAR :{
+            field_label = hash_char(tup->field_list[0].f.fixed_char_field.val);
+            break;
+          }
+          default: { throw; }
         }
         counter[field_label] += tup->field_list[1].f.int_field.val;
       }
@@ -390,6 +417,7 @@ get_range(unordered_map<int64_t, int> counter, unordered_map<int64_t, pair<int,i
   }
   // Taken from
   // https://www.quora.com/How-can-one-sort-a-map-using-its-value-in-ascending-order
+  sorted_counter.reserve(counter.size());
   for (auto &x : counter) {
     sorted_counter.emplace_back(x);
   }
@@ -399,12 +427,12 @@ get_range(unordered_map<int64_t, int> counter, unordered_map<int64_t, pair<int,i
    */
 
   int all_counter = 0;
-  for (int i = 0; i < sorted_counter.size(); i++) {
-    if (tuple_val[sorted_counter[i].first].first == max_relations) {
-      input_to_internal_gen[sorted_counter[i].first] = all_counter;
+  for (auto &i : sorted_counter) {
+    if (tuple_val[i.first].first == max_relations) {
+      input_to_internal_gen[i.first] = all_counter;
       all_counter++;
     } else {
-      discard_pile.emplace_back(sorted_counter[i].first);
+      discard_pile.emplace_back(i.first);
     }
   }
   const int final_range = all_counter;
@@ -458,44 +486,6 @@ table_builder_t get_gen_tb(uint64_t final_range) {
   return tb;
 }
 
-void get_multi_host_cf( std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
-        table_map_host_table_pairs, int num_hosts) {
-
-  int shared = 0;
-  unordered_map<int, int> shared_seen;
-    for (auto &jj : table_map_host_table_pairs) {
-      if (jj.first != "hd_cohort") {
-        std::cout << jj.first << std::endl;
-        continue;
-      }
-      for (int i = 0; i < jj.second.size(); i++) {
-        table_t * curr_table = jj.second[i].second;
-        for (int j = 0; j < jj.second.size(); j++) {
-          if (i !=j) {
-            table_t *scan_table = jj.second[j].second;
-            for (int ii = 0; ii < curr_table->num_tuples; ii++) {
-              int64_t id = get_tuple(ii, curr_table)->field_list[0].f.int_field.val;
-              bool uniq = true;
-              for (int kk = 0; kk < scan_table->num_tuples; kk++) {
-                int64_t id_comp = get_tuple(kk, scan_table)->field_list[0].f.int_field.val;
-                if (id == id_comp) {
-                  uniq = false;
-                }
-              }
-              if (!uniq) {
-                shared_seen[id]++;
-                if (shared_seen[id] == 1) {
-                  shared++;
-                }
-              }
-            }
-          }
-        }
-
-      }
-    }
-    cout << "Num Shared: " << shared;
-}
 
 table_t *generalize_table_fast(
     std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
@@ -771,11 +761,33 @@ table_t *generalize_zip(table_t *t, table_t *gen_map_table, int col_no) {
   int num_columns = t->schema.num_fields;
   table_builder_t tb;
   init_table_builder(t->num_tuples, t->schema.num_fields, &t->schema, &tb);
+  FIELD_TYPE ty = t->schema.fields[col_no].type;
   for (int i = 0; i < t->num_tuples; i++) {
     tuple_t *tup = get_tuple(i, t);
-    auto gen_val = gen_map[tup->field_list[col_no].f.int_field.val];
+    int64_t gen_val;
+    switch (ty) {
+      case INT: {
+        gen_val = gen_map[tup->field_list[col_no].f.int_field.val];
+        break;
+      }
+      case FIXEDCHAR : {
+        gen_val = gen_map[hash_char(tup->field_list[col_no].f.fixed_char_field.val)];
+        break;
+      }
+      default: {throw;}
+    }
     if (gen_val != -1) {
-      tup->field_list[col_no].f.int_field.genval = gen_val;
+      switch(ty) {
+        case INT: {
+          tup->field_list[col_no].f.int_field.genval = gen_val;
+          break;
+        }
+        case FIXEDCHAR : {
+          tup->field_list[col_no].f.fixed_char_field.genval = gen_val;
+          break;
+        }
+        default: {throw;}
+      }
       append_tuple(&tb, tup);
     }
   }

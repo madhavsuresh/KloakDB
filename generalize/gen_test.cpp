@@ -176,6 +176,33 @@ TEST_F(gen_test, gen_fast_single) {
   std::chrono::duration<double> elapsed = end - start;
   std::cout << "Gen Fast Time: " << elapsed.count() << " s\n";
 }
+TEST_F(gen_test, gen_fast_single_char) {
+  std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+          tables;
+  table_t *r1h1 = get_table("SELECT b, count(b) FROM gen_test_a_h1_c group by b", "dbname=vaultdb_");
+  printf("Table 1\n");
+  table_t *r1h2 = get_table("SELECT b, count(b) FROM gen_test_a_h2_c group by b", "dbname=vaultdb_");
+  printf("Table 2\n");
+  table_t *r1h3 = get_table("SELECT b, count(b) FROM gen_test_a_h3_c group by b", "dbname=vaultdb_");
+  printf("Table 3\n");
+  table_t *r1h4 = get_table("SELECT b, count(b) FROM gen_test_a_h4_c group by b", "dbname=vaultdb_");
+  printf("Table 4\n");
+  tables["one"].emplace_back(0,r1h1);
+  tables["one"].emplace_back(1,r1h2);
+  tables["one"].emplace_back(2,r1h3);
+  tables["one"].emplace_back(3,r1h4);
+  table_t *r1[4];
+  r1[0] = r1h1;
+  r1[1] = r1h2;
+  r1[2] = r1h3;
+  r1[3] = r1h4;
+  auto start = std::chrono::high_resolution_clock::now();
+  auto out = generalize_table_fast(tables, 4, 15);
+  std::cout << "Size of gen table" << out->num_tuples;
+  auto end= std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  std::cout << "Gen Fast Time: " << elapsed.count() << " s\n";
+}
 
 TEST_F(gen_test, gen_fast) {
   std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
