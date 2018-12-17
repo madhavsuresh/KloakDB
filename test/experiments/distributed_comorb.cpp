@@ -74,9 +74,9 @@ void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string ye
   to_gen_t tg;
   tg.column = "major_icd9";
   tg.dbname = "healthlnk";
-  gen_in["cdiff_cohort_diagnoses"] = tg;
   tg.scan_tables.insert(tg.scan_tables.end(), cdiff_cohort_scan.begin(),
                         cdiff_cohort_scan.end());
+  gen_in["cdiff_cohort_diagnoses"] = tg;
   START_TIMER(generalize);
   auto gen_out = p->Generalize(gen_in, 5);
   END_AND_LOG_EXEC_TIMER(generalize);

@@ -148,6 +148,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     out.set_tableid(resp);
     auto outptr = make_shared<const ::vaultdb::TableID>(out);
     for (auto &table : in) {
+      printf("In GenZIP\n");
       auto tup = table.second.scan_tables;
       for (auto &st : tup) {
         if (st.get()->hostnum() == i) {
