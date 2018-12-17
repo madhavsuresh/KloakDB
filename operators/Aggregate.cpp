@@ -227,21 +227,23 @@ unordered_map<int64_t, pair<int,int>> oblivious_partial_aggregate(
     unordered_map<int64_t, int> gb_to_tuple,
     vector<int> gen_tuple_indices, groupby_def_t *gb, table_t * t) {
   unordered_map<int64_t, pair<int, int>> hash_to_count_and_total;
-  for (auto &i : gen_tuple_indices) {
-    tuple_t * tup = get_tuple(i, t);
-    int64_t hashed = hash_field(gb, tup, t);
-    for (auto &h : gb_to_tuple) {
-      if (h.first == hashed && !tup->is_dummy) {
-        hash_to_count_and_total[hashed].first++;
-        if (gb->type != COUNT) {
-          hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
-        }
-      } else {
-        hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first - 1;
-        hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first + 1;
-        if (gb->type != COUNT) {
-          hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
-          hash_to_count_and_total[hashed].second -= tup->field_list[gb->colno].f.int_field.val;
+  for (auto &j : gen_tuple_indices) {
+    for (auto &i : gen_tuple_indices) {
+      tuple_t *tup = get_tuple(i, t);
+      int64_t hashed = hash_field(gb, tup, t);
+      for (auto &h : gb_to_tuple) {
+        if (h.first == hashed && !tup->is_dummy) {
+          hash_to_count_and_total[hashed].first++;
+          if (gb->type != COUNT) {
+            hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
+          }
+        } else {
+          hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first - 1;
+          hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first + 1;
+          if (gb->type != COUNT) {
+            hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
+            hash_to_count_and_total[hashed].second -= tup->field_list[gb->colno].f.int_field.val;
+          }
         }
       }
     }
