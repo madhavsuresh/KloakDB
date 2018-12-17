@@ -85,7 +85,7 @@ void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string ye
   gbd.set_col_name("major_icd9");
   gbd.set_type(GroupByDef_GroupByType_COUNT);
   START_TIMER(aggregate);
-  auto agg_out = p->Aggregate(cdiff_cohort_repart, gbd, true);
+  auto agg_out = p->Aggregate(cdiff_cohort_repart, gbd, false);
   END_AND_LOG_EXEC_TIMER(aggregate);
 
   p->SetControlFlowColName("count");
@@ -96,7 +96,7 @@ void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string ye
   sort.set_colname("count");
   sort.set_ascending(false);
   START_TIMER(sort);
-  auto sorted = p->Sort(cnt_repartition, sort, true);
+  auto sorted = p->Sort(cnt_repartition, sort, false);
   END_AND_LOG_EXEC_TIMER(sort);
   END_AND_LOG_EXP7_COM_STAT_TIMER(comorbidity_kanon_full, "insgx");
 }
