@@ -1,3 +1,4 @@
+#include <operators/Generalize.h>
 #include "sgx_trts.h"
 #include "VaultDB_t.h"
 #include "data/postgres_client.h"
@@ -6,9 +7,29 @@
 #include "operators/Filter.h"
 #include "operators/Sort.h"
 
+std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs;
 
 void ecall_load_table_enclave(void *table, size_t len) {
 
+}
+
+void ecall_insert_into_gen_map(const char *relation, int host_num, void *table_manager, int table_id) {
+  auto*tm = (table_manager_t*) table_manager;
+  std::string relation_std(relation);
+  table_t * t =  get_table_table_manager(tm, table_id);
+  table_map_host_table_pairs[relation_std].emplace_back(host_num,t);
+}
+
+void ecall_initialize_gen() {
+  table_map_host_table_pairs.clear();
+}
+
+void ecall_gen_fast(void * table_manager, int num_hosts, int k, int* output_table_id) {
+  auto *tm = (table_manager_t *) table_manager;
+  table_t * gen_map = generalize_table_fast(table_map_host_table_pairs, num_hosts, k);
+  auto tid = insert_into_table_manager(tm, gen_map);
+  *output_table_id = tid;
 }
 
 void ecall_load_table(void *table_manager, void *table, size_t table_t_len, int *output_table_id) {
