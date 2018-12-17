@@ -57,20 +57,23 @@ void comorbidity_oliv(HonestBrokerPrivate *p, std::string dbname, std::string ye
   LOG(EXP7_COM) << "ENDING COMORBIDITY QUERY";
 }
 
-void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname) {
+void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string year) {
+  std::string year_append = "";
+  if (year != "") {
+    year_append = " where year=" + year;
+  }
   p->SetControlFlowColName("major_icd9");
   auto cdiff_cohort_scan = p->ClusterDBMSQuery(
-          "dbname=" + dbname, "SELECT major_icd9 from cdiff_cohort_diagnoses");
+          "dbname=" + dbname, "SELECT major_icd9 from cdiff_cohort_diagnoses" + year_append);
   unordered_map<string, to_gen_t> gen_in;
   to_gen_t tg;
   tg.column = "major_icd9";
-  tg.dbname = "vaultdb_";
+  tg.dbname = "healthlnk";
   gen_in["cdiff_cohort_diagnoses"] = tg;
   tg.scan_tables.insert(tg.scan_tables.end(), cdiff_cohort_scan.begin(),
                         cdiff_cohort_scan.end());
   START_TIMER(generalize);
-  auto gen_out = p->Generalize("cdiff_cohort_diagnoses", "major_icd9",
-                               "vaultdb_", cdiff_cohort_scan, 10);
+  auto gen_out = p->Generalize(gen_in, 5);
   END_AND_LOG_EXEC_TIMER(generalize);
   START_TIMER(repartition);
   auto cdiff_cohort_repart = p->Repartition(cdiff_cohort_scan);

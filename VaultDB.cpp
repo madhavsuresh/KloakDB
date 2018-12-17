@@ -215,6 +215,8 @@ int main(int argc, char **argv) {
           comorbidity_encrypted(p, FLAGS_db, FLAGS_year);
         } else if (FLAGS_gen_level == -1) {
           comorbidity_oliv(p, FLAGS_db, FLAGS_year);
+        } else {
+          comorbidity_keq5(p, FLAGS_db, FLAGS_year);
         }
       } else if (FLAGS_hl_query == "dos") {
         if (FLAGS_gen_level == 0) {
