@@ -160,6 +160,7 @@ int main(int argc, char **argv) {
     auto serveFn = [&]() { server->Wait(); };
     std::thread hb_thread(serveFn);
 
+    auto enclave = get_enclave();
     p->WaitForAllHosts();
     p->RegisterPeerHosts();
     // dosage_study(p);
@@ -259,7 +260,7 @@ int main(int argc, char **argv) {
     
     DataOwnerPrivate *p =
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address, client_key, client_cert, root);
-    //auto enclave = get_enclave();
+    auto enclave = get_enclave();
     p->Register();
     DataOwnerImpl d(p);
     
