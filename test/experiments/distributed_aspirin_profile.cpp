@@ -266,6 +266,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
     year_append = " where year=" + year;
   }
 
+  /*
   vector<std::future<vector<tableid_ptr>>> semi_joined_tables;
   semi_joined_tables.emplace_back(std::async(
       std::launch::async, &HonestBrokerPrivate::ClusterDBMSQuery, p,
@@ -275,6 +276,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
       "WHERE m.medication ILIKE '%aspirin%'  AND de.patient_id = di.patient_id "
       "AND di.patient_id = v.patient_id AND m.patient_id = di.patient_id GROUP "
       "BY gender, race;"));
+      */
 
   START_TIMER(aspirin_profile_full);
   START_TIMER(postgres_read);
@@ -404,10 +406,12 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
   auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
+  /*
   vector<tableid_ptr> semi_joined_out;
   for (auto &s: semi_joined_tables) {
     semi_joined_out = s.get();
   }
+   */
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
   LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
