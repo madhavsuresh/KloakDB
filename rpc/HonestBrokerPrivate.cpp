@@ -378,10 +378,15 @@ vector<tableid_ptr> HonestBrokerPrivate::Sort(vector<tableid_ptr> &ids,
 vector<tableid_ptr>
 HonestBrokerPrivate::Aggregate(vector<tableid_ptr> &ids,
                                ::vaultdb::GroupByDef &groupby, bool in_sgx) {
+  vector<std::future<tableid_ptr>> threads;
   vector<tableid_ptr> aggregate_tables;
   for (auto &i : ids) {
-    aggregate_tables.emplace_back(
-        do_clients[i.get()->hostnum()]->Aggregate(i, groupby, in_sgx));
+    auto client = do_clients[i.get()->hostnum()];
+    threads.emplace_back(async(launch::async, &DataOwnerClient::Aggregate, client, i, groupby, in_sgx));
+  }
+
+  for (auto &t : threads) {
+    aggregate_tables.emplace_back(t.get());
   }
   return aggregate_tables;
 }
