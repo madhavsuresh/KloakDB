@@ -44,15 +44,12 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
 
   START_TIMER(repartition);
-  /*
   auto diagnoses_repart = p->RepartitionJustHash(diagnoses_scan);
   auto vitals_repart = p->RepartitionJustHash(vitals_scan);
   auto meds_repart = p->RepartitionJustHash(meds_scan);
-  */
   auto demographics_repart = p->RepartitionJustHash(demographics_scan);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
 
-  /*
   // join def vitals-diagnoses
   START_TIMER(join_one);
   JoinDef jd_vd;
@@ -72,6 +69,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
 
   // join def first join "plus medications"
   // join between output of vitals/diagnonses join and medications
+  /*
   START_TIMER(join_two);
   JoinDef jd_pm2;
   jd_pm2.set_l_col_name("patient_id");
