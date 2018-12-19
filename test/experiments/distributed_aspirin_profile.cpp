@@ -10,7 +10,6 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
                              std::string medications_table,
                              std::string demographics_table, std::string year,
                              bool sgx) {
-  std::string random_query = " ORDER BY random() LIMIT 1000";
 
   std::string year_append = "";
   if (year != "") {
@@ -261,7 +260,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
                      std::string medications_table,
                      std::string demographics_table, std::string year, bool sgx,
                      int gen_level) {
-  std::string random_query = " ORDER BY random() LIMIT 1000";
 
   std::string year_append = "";
   if (year != "") {
@@ -324,10 +322,10 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto gen_zipped_map = p->Generalize(gen_in, 5);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(generalize, "full");
   START_TIMER(repartition);
-  auto diagnoses_repart = p->RepartitionJustHash(gen_zipped_map[diagnoses_table]);
-  auto vitals_repart = p->RepartitionJustHash(gen_zipped_map[vitals_table]);
-  auto meds_repart = p->RepartitionJustHash(gen_zipped_map[medications_table]);
-  auto demographics_repart = p->RepartitionJustHash(gen_zipped_map[demographics_table]);
+  auto diagnoses_repart = p->Repartition(gen_zipped_map[diagnoses_table]);
+  auto vitals_repart = p->Repartition(gen_zipped_map[vitals_table]);
+  //auto meds_repart = p->Repartition(gen_zipped_map[medications_table]);
+  //auto demographics_repart = p->Repartition(gen_zipped_map[demographics_table]);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
 
   START_TIMER(join_one);
@@ -345,6 +343,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
   auto out_vd_join = p->Join(to_join1, jd_vd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
+  /*
   START_TIMER(join_two);
   JoinDef jd_pm2;
   jd_pm2.set_l_col_name("patient_id");
@@ -412,6 +411,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   }
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
+   */
   LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }
