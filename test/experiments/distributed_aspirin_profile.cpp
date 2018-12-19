@@ -252,7 +252,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   pdp3->set_side(JoinColID_RelationSide_RIGHT);
   pdp3->set_colname("race");
   auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
-  auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
+  auto out_pd_join = p->Join(to_join3, jd_pd3, false);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
 
   vector<string> cfnames;
@@ -273,7 +273,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   vector<string> cfids;
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
-  //auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
+ auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
   vector<tableid_ptr> semi_joined_out;
   for (auto &s: semi_joined_tables) {
     semi_joined_out = s.get();
