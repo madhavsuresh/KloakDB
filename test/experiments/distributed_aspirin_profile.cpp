@@ -273,7 +273,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   vector<string> cfids;
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
-  auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
+  //auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
   vector<tableid_ptr> semi_joined_out;
   for (auto &s: semi_joined_tables) {
     semi_joined_out = s.get();
