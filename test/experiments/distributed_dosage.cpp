@@ -50,12 +50,12 @@ void dosage_obliv(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   LOG(EXP7_DOS) << "STARTING DOSAGE STUDY ENCRYPTED";
   START_TIMER(dosage_study_obli);
   auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                       "SELECT * from " + diag + year_append +
-                                           " AND icd9 LIKE '997%'");
-  auto med_scan = p->ClusterDBMSQuery(
-      "dbname=" + dbname,
-      "SELECT * from " + meds + year_append +
-          " AND medication LIKE 'ASPIRIN%' AND dosage = '325 MG'");
+                                       "SELECT patient_id from " +
+                                       diag);
+  auto med_scan =
+          p->ClusterDBMSQuery("dbname=" + dbname,
+                              "SELECT medication, dosage, patient_id from " + meds +
+                              year_append);
   // auto to_join = zip_join_tables(diag_scan, med_scan);
   p->SetControlFlowColName("patient_id");
   auto obli_diag = p->MakeObli(diag_scan, "patient_id");
