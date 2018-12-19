@@ -369,7 +369,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   pdp4->set_colname("patient_id");
   auto to_join3 = zip_join_tables(demographics_repart,out_pm_join);
   LOG(EXP7_ASP) << "Join Input Table 3:";
-  auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
+  auto out_pd_join = p->Join(to_join3, jd_pd3, false);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
   LOG(EXP7_ASP) << "End Join Input Table 3:";
 
