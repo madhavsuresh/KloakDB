@@ -44,12 +44,15 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
 
   START_TIMER(repartition);
+  /*
   auto diagnoses_repart = p->RepartitionJustHash(diagnoses_scan);
   auto vitals_repart = p->RepartitionJustHash(vitals_scan);
   auto meds_repart = p->RepartitionJustHash(meds_scan);
+  */
   auto demographics_repart = p->RepartitionJustHash(demographics_scan);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
 
+  /*
   // join def vitals-diagnoses
   START_TIMER(join_one);
   JoinDef jd_vd;
@@ -64,7 +67,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
-  auto out_vd_join = p->Join(to_join1, jd_vd, sgx /* in_sgx */);
+  auto out_vd_join = p->Join(to_join1, jd_vd, sgx );
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
 
   // join def first join "plus medications"
@@ -131,6 +134,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
     semi_joined_out = s.get();
   }
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
+   */
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
   LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
 }
@@ -184,12 +188,8 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
-  auto out_vd_join = p->Join(to_join1, jd_vd, sgx /* in_sgx */);
+  auto out_vd_join = p->Join(to_join1, jd_vd, sgx );
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
-  /*
-  p->FreeTables(vitals_repart);
-  p->FreeTables(diagnoses_repart);
-   */
 
   // join def first join "plus medications"
   // join between output of vitals/diagnonses join and medications
