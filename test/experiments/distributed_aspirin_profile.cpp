@@ -325,7 +325,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto diagnoses_repart = p->Repartition(gen_zipped_map[diagnoses_table]);
   auto vitals_repart = p->Repartition(gen_zipped_map[vitals_table]);
   auto meds_repart = p->Repartition(gen_zipped_map[medications_table]);
-  //auto demographics_repart = p->Repartition(gen_zipped_map[demographics_table]);
+  auto demographics_repart = p->Repartition(gen_zipped_map[demographics_table]);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "full");
 
   START_TIMER(join_one);
@@ -343,7 +343,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
   auto out_vd_join = p->Join(to_join1, jd_vd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
-  /*
   START_TIMER(join_two);
   JoinDef jd_pm2;
   jd_pm2.set_l_col_name("patient_id");
@@ -360,8 +359,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
-   */
-  /*
   START_TIMER(join_three);
   JoinDef jd_pd3;
   jd_pd3.set_l_col_name("patient_id");
@@ -413,7 +410,6 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   }
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
-   */
   LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 }
