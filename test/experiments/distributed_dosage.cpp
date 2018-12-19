@@ -13,9 +13,10 @@ void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname,
 
   LOG(EXP7_DOS) << "STARTING DOSAGE STUDY ENCRYPTED";
   START_TIMER(dosage_study_encrypted);
-  auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                       "SELECT * from " + diag); // + year_append +
-                                           //" AND icd9 LIKE '997%'");
+  auto diag_scan =
+      p->ClusterDBMSQuery("dbname=" + dbname,
+                          "SELECT * from " + diag); // + year_append +
+                                                    //" AND icd9 LIKE '997%'");
   auto med_scan = p->ClusterDBMSQuery(
       "dbname=" + dbname,
       "SELECT * from " + meds + year_append +
@@ -117,27 +118,27 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   meds_gen.dbname = "healthlnk";
   meds_gen.scan_tables.insert(meds_gen.scan_tables.end(), med_scan.begin(),
                               med_scan.end());
-  gen_in["medications"] = meds_gen;
+  gen_in[meds] = meds_gen;
 
   to_gen_t diag_gen;
   diag_gen.column = "patient_id";
   diag_gen.dbname = "healthlnk";
   diag_gen.scan_tables.insert(diag_gen.scan_tables.end(), diag_scan.begin(),
                               diag_scan.end());
-  gen_in["diagnoses"] = diag_gen;
+  gen_in[diag] = diag_gen;
 
   p->SetControlFlowColName("patient_id");
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
   LOG(EXP7_DOS) << "MEDICATIONS FILTER";
   auto filtered_meds =
-      p->Filter(gen_zipped_map["medications"], expr_med, false);
+      p->Filter(gen_zipped_map[meds], expr_med, false);
   LOG(EXP7_DOS) << "DOSAGE FILTER";
   auto filtered_dosage = p->Filter(filtered_meds, expr_dosage, false);
   LOG(EXP7_DOS) << "DIAG FILTER";
   // auto filtered_diag =  p->Filter(gen_zipped_map["diagnoses"], expr_icd9,
   // false);
   auto med_repart = p->Repartition(filtered_dosage);
-  auto diag_repart = p->Repartition(gen_zipped_map["diagnoses"]);
+  auto diag_repart = p->Repartition(gen_zipped_map[diag]);
   auto to_join = zip_join_tables(diag_repart, med_repart);
 
   JoinDef jd;
