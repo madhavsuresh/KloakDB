@@ -4,6 +4,8 @@
 #include "logger/LoggerDefs.h"
 #include "sgx_urts.h"
 #include <gflags/gflags.h>
+#include <unordered_map>
+#include <operators/Generalize.h>
 
 DEFINE_string(enclave_path, "./sgx/Enclave/libvaultdb_trusted_signed.so",
               "path for built enclave");
@@ -123,6 +125,32 @@ int load_table_into_sgx(sgx_enclave_id_t eid, table_manager_t *tm, table_t *t) {
   return table_id;
 }
 
+table_t *generalize_table_fast_sgx(
+        std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+        table_map_host_table_pairs,
+        int num_hosts, int k) {
+
+  sgx_enclave_id_t eid = get_enclave();
+  ecall_initialize_gen(eid);
+  table_manager_t tm;
+  int output_table_id;
+  vector<int> count_star_tables_sgx;
+  for (auto &table: table_map_host_table_pairs) {
+    for (auto &tp: table.second) {
+      int table_id = load_table_into_sgx(eid, &tm, tp.second);
+      count_star_tables_sgx.emplace_back(table_id);
+      ecall_insert_into_gen_map(eid,table.first.c_str() , tp.first, &tm, table_id);
+    }
+  }
+  ecall_gen_fast(eid, &tm, num_hosts, k, &output_table_id);
+  auto out_t = get_table_sgx(eid, tm, output_table_id);
+  //ecall_free_table(eid, &tm, output_table_id);
+  for (auto &i : count_star_tables_sgx) {
+    //ecall_free_table(eid, &tm, i);
+  }
+  return out_t;
+}
+
 table_t *hash_join_sgx(table_t *left, table_t *right, join_def_t def) {
 
   START_TIMER(hash_join_op);
@@ -162,6 +190,14 @@ table_t *aggregate_sgx(table_t *t, groupby_def_t *gb) {
   ecall_free_table(eid, &tm, output_table_id);
   return out_t;
 }
+
+table_t *generalize_sgx(
+        std::unordered_map<std::string, std::vector<std::pair<int, table_t *>>>
+        table_map_host_table_pairs,
+        int num_hosts, int k) {
+
+}
+
 
 table_t *filter_sgx(table_t *t, expr_t *ex) {
   START_TIMER(filter_op);

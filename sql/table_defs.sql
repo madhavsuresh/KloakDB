@@ -111,6 +111,23 @@ CREATE TABLE left_deep_joins_1024 (
 	a INT,
 	b INT
 );
+CREATE TABLE gen_test_a_h1_c (
+	a VARCHAR,
+	b VARCHAR
+);
+
+CREATE TABLE gen_test_a_h2_c (
+	a VARCHAR,
+	b VARCHAR
+);
+CREATE TABLE gen_test_a_h3_c (
+	a VARCHAR,
+	b VARCHAR
+);
+CREATE TABLE gen_test_a_h4_c (
+	a VARCHAR,
+	b VARCHAR
+);
 
 CREATE TABLE gen_test_a_h1 (
 	a INT,

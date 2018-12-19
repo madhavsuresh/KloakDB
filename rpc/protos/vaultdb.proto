@@ -183,6 +183,8 @@ message GroupByDef {
     string col_name = 4;
     repeated string gb_col_names = 5;
     int32 kanon_col = 6;
+    bool secure = 7;
+    string kanon_col_name = 8;
 }
 
 message KAggregateRequest {

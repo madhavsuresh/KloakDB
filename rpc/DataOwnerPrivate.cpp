@@ -88,6 +88,7 @@ int DataOwnerPrivate::AddTable(table_t *t) {
   table_catalog[table_id] = t;
   table_counter++;
   table_catalog_mutex.unlock();
+  LOG(INFO) << "Adding table at :[" << table_id << "]";
   return table_id;
 }
 

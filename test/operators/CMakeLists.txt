@@ -1,5 +1,6 @@
+find_library(TCRYPTO_LIB sgx_tcrypto ${CMAKE_SOURCE_DIR}/lib/sgxsdk/lib64)
 add_executable(aggregate_test aggregate_test.cpp)
-target_link_libraries(aggregate_test gtest_main profiler tcmalloc operators dataformat pqxxcompat vaultdb_sgx_app)
+target_link_libraries(aggregate_test gtest_main profiler tcmalloc operators dataformat pqxxcompat vaultdb_sgx_app ${TCRYPTO_LIB})
 add_test(NAME aggregate_test COMMAND aggregate_test)
 
 add_executable(filter_test filter_test.cpp)

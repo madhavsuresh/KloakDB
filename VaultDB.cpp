@@ -160,6 +160,7 @@ int main(int argc, char **argv) {
     auto serveFn = [&]() { server->Wait(); };
     std::thread hb_thread(serveFn);
 
+    auto enclave = get_enclave();
     p->WaitForAllHosts();
     p->RegisterPeerHosts();
     // dosage_study(p);
@@ -215,6 +216,8 @@ int main(int argc, char **argv) {
           comorbidity_encrypted(p, FLAGS_db, FLAGS_year);
         } else if (FLAGS_gen_level == -1) {
           comorbidity_oliv(p, FLAGS_db, FLAGS_year);
+        } else {
+          comorbidity_keq5(p, FLAGS_db, FLAGS_year);
         }
       } else if (FLAGS_hl_query == "dos") {
         if (FLAGS_gen_level == 0) {
@@ -257,7 +260,7 @@ int main(int argc, char **argv) {
     
     DataOwnerPrivate *p =
         new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address, client_key, client_cert, root);
-    //auto enclave = get_enclave();
+    auto enclave = get_enclave();
     p->Register();
     DataOwnerImpl d(p);
     

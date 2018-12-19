@@ -9,6 +9,7 @@
 #include <unordered_map>
 #include <operators/Generalize.h>
 #include <logger/Logger.h>
+#include "sgx/App/VaultDBSGXApp.h"
 
 class gen_test : public ::testing::Test {
 public:
@@ -121,6 +122,88 @@ TEST_F(gen_test, new_gen) {
   printf("\nMIN: %d, MAX: %d, AVG: %f", min_val, max_val, (double)zipped->num_tuples/num_classes);
 }
 
+TEST_F(gen_test, gen_fast_single_sgx) {
+  std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+          tables;
+  table_t *r1h1 = get_table("SELECT b, count(b) FROM gen_test_a_h1 group by b", "dbname=vaultdb_");
+  printf("Table 1\n");
+  table_t *r1h2 = get_table("SELECT b, count(b) FROM gen_test_a_h2 group by b", "dbname=vaultdb_");
+  printf("Table 2\n");
+  table_t *r1h3 = get_table("SELECT b, count(b) FROM gen_test_a_h3 group by b", "dbname=vaultdb_");
+  printf("Table 3\n");
+  table_t *r1h4 = get_table("SELECT b, count(b) FROM gen_test_a_h4 group by b", "dbname=vaultdb_");
+  printf("Table 4\n");
+  tables["one"].emplace_back(0,r1h1);
+  tables["one"].emplace_back(1,r1h2);
+  tables["one"].emplace_back(2,r1h3);
+  tables["one"].emplace_back(3,r1h4);
+  table_t *r1[4];
+  r1[0] = r1h1;
+  r1[1] = r1h2;
+  r1[2] = r1h3;
+  r1[3] = r1h4;
+  auto start = std::chrono::high_resolution_clock::now();
+  auto out = generalize_table_fast_sgx(tables, 4, 15);
+  std::cout << "Size of gen table" << out->num_tuples;
+  auto end= std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  std::cout << "Gen Fast Time: " << elapsed.count() << " s\n";
+}
+TEST_F(gen_test, gen_fast_single) {
+  std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+          tables;
+  table_t *r1h1 = get_table("SELECT b, count(b) FROM gen_test_a_h1 group by b", "dbname=vaultdb_");
+  printf("Table 1\n");
+  table_t *r1h2 = get_table("SELECT b, count(b) FROM gen_test_a_h2 group by b", "dbname=vaultdb_");
+  printf("Table 2\n");
+  table_t *r1h3 = get_table("SELECT b, count(b) FROM gen_test_a_h3 group by b", "dbname=vaultdb_");
+  printf("Table 3\n");
+  table_t *r1h4 = get_table("SELECT b, count(b) FROM gen_test_a_h4 group by b", "dbname=vaultdb_");
+  printf("Table 4\n");
+  tables["one"].emplace_back(0,r1h1);
+  tables["one"].emplace_back(1,r1h2);
+  tables["one"].emplace_back(2,r1h3);
+  tables["one"].emplace_back(3,r1h4);
+  table_t *r1[4];
+  r1[0] = r1h1;
+  r1[1] = r1h2;
+  r1[2] = r1h3;
+  r1[3] = r1h4;
+  auto start = std::chrono::high_resolution_clock::now();
+  auto out = generalize_table_fast(tables, 4, 15);
+  std::cout << "Size of gen table" << out->num_tuples;
+  auto end= std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  std::cout << "Gen Fast Time: " << elapsed.count() << " s\n";
+}
+TEST_F(gen_test, gen_fast_single_char) {
+  std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
+          tables;
+  table_t *r1h1 = get_table("SELECT b, count(b) FROM gen_test_a_h1_c group by b", "dbname=vaultdb_");
+  printf("Table 1\n");
+  table_t *r1h2 = get_table("SELECT b, count(b) FROM gen_test_a_h2_c group by b", "dbname=vaultdb_");
+  printf("Table 2\n");
+  table_t *r1h3 = get_table("SELECT b, count(b) FROM gen_test_a_h3_c group by b", "dbname=vaultdb_");
+  printf("Table 3\n");
+  table_t *r1h4 = get_table("SELECT b, count(b) FROM gen_test_a_h4_c group by b", "dbname=vaultdb_");
+  printf("Table 4\n");
+  tables["one"].emplace_back(0,r1h1);
+  tables["one"].emplace_back(1,r1h2);
+  tables["one"].emplace_back(2,r1h3);
+  tables["one"].emplace_back(3,r1h4);
+  table_t *r1[4];
+  r1[0] = r1h1;
+  r1[1] = r1h2;
+  r1[2] = r1h3;
+  r1[3] = r1h4;
+  auto start = std::chrono::high_resolution_clock::now();
+  auto out = generalize_table_fast(tables, 4, 15);
+  std::cout << "Size of gen table" << out->num_tuples;
+  auto end= std::chrono::high_resolution_clock::now();
+  std::chrono::duration<double> elapsed = end - start;
+  std::cout << "Gen Fast Time: " << elapsed.count() << " s\n";
+}
+
 TEST_F(gen_test, gen_fast) {
   std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
           tables;
@@ -187,129 +270,42 @@ TEST_F(gen_test, gen_fast) {
   auto end= std::chrono::high_resolution_clock::now();
   std::chrono::duration<double> elapsed = end - start;
   std::cout << "Gen Fast Time: " << elapsed.count() << " s\n";
-  table_t * t1 = get_table("SELECT b FROM gen_test_a_h1", "dbname=vaultdb_");
-  table_t * t2 = get_table("SELECT b FROM gen_test_a_h2", "dbname=vaultdb_");
-  table_t * t3 = get_table("SELECT b FROM gen_test_a_h3", "dbname=vaultdb_");
-  table_t * t4 = get_table("SELECT b FROM gen_test_a_h4", "dbname=vaultdb_");
-  table_t *t[4];
-  t[0] = t1;
-  t[1] = t2;
-  t[2] = t3;
-  t[3] = t4;
-  unordered_map<int, int> k_map;
-  unordered_map<int, int> k_map1;
-  unordered_map<int, int> k_map2;
-  unordered_map<int, int> k_map3;
-  unordered_map<int, int> k_map4;
-  unordered_map<int, unordered_map<int,int>> k_maps;
 
-  unordered_map<int, int> o_map;
-  for (int i = 0; i < 4; i++) {
-    generalize_zip(t[i], out, 0);
+  std::unordered_map<cf_hash, cf_gen> gen_z;
+  for (int i = 0; i < out->num_tuples; i++) {
+    tuple_t *tup = get_tuple(i, out);
+    gen_z[tup->field_list[0].f.int_field.val] = tup->field_list[0].f.int_field.genval;
   }
-  for (int i = 0; i < 4; i++) {
-    for (int j = 0; j < t[i]->num_tuples; j++){
-      auto field = get_tuple(j, t[i])->field_list[0].f.int_field;
-      k_map[field.genval]++;
-      o_map[field.val]++;
-      for (int k = 0; k < 4; k++) {
-        if (k != i) {
-          k_maps[k][field.genval]++;
-        }
+  for (auto &table : tables) {
+    unordered_map<int, int> gen_val_to_count;
+    for (auto &t : table.second) {
+      table_t * z_table = t.second;
+      for (int i = 0 ; i < z_table->num_tuples; i++) {
+        tuple_t *tup = get_tuple(i, z_table);
+        gen_val_to_count[gen_z[tup->field_list[0].f.int_field.val]] += tup->field_list[1].f.int_field.val;
       }
     }
-  }
+    int max = 0;
+    int max_val = 0;
+    int total = 0;
+    int num = 0;
+    int moment = 100;
+    int above_moment = 0;
+    int bad = 0;
+    for (auto &cc : gen_val_to_count) {
+      if (cc.first == -1) { continue;}
 
-  int count = 0;
-  double num = 0;
-  for (auto &jj : k_map) {
-    count += jj.second;
-    num++;
-  }
-  std::cout << "Average Size Gen: " << count /num;
-  count = 0;
-  num = 0;
-  for (auto &jj : o_map) {
-    count += jj.second;
-    num++;
-  }
-  std::cout << "Average Size Reg: " << count /num << std::endl;
-
-  int moment = 25;
-  for (int i = 0; i < 4; i++) {
-    count = 0;
-    num = 0;
-    int max = 0;
-    int bad_count = 0;
-    int moment_counter = 0;
-    int lower_moment_counter = 0;
-    auto z = k_maps[i];
-    for (auto &jj : z) {
-      if (jj.second < 5) {
-        bad_count++;
-      }
-      if (jj.second > max) {
-        max = jj.second;
-      }
-      if (jj.second > moment) {
-        moment_counter++;
-      } else {
-        lower_moment_counter++;
-      }
-      count += jj.second;
       num++;
+      total+= cc.second;
+      if (max < cc.second) {
+        max = cc.second;
+        max_val = cc.first;
+      }
+      if (cc.second > moment) {
+        above_moment++;
+      }
     }
-    ASSERT_EQ(bad_count, 0);
-    std::cout << "Average Size Gen: " << i << "; "<<  count /num << " MAX:" << max << " Moment: " << moment_counter << " Lower moment: " << lower_moment_counter<< "Bad Count: " << bad_count << "\n";
-  }
-  moment = 20;
-  for (int i = 0; i < 4; i++) {
-    int max = 0;
-    int bad_count = 0;
-    int moment_counter = 0;
-    int lower_moment_counter = 0;
-    auto z = k_maps[i];
-    for (auto &jj : z) {
-      if (jj.second < 5) {
-        bad_count++;
-      }
-      if (jj.second > max) {
-        max = jj.second;
-      }
-      if (jj.second > moment) {
-        moment_counter++;
-      } else {
-        lower_moment_counter++;
-      }
-      count += jj.second;
-      num++;
-    }
-    ASSERT_EQ(bad_count, 0);
-    std::cout << "Average Size Gen: " << i << "; "<<  count /num << " MAX:" << max << " Moment: " << moment_counter << " Lower moment: " << lower_moment_counter<< "Bad Count: " << bad_count << "\n";
-  }
-  moment = 15;
-  for (int i = 0; i < 4; i++) {
-    int max = 0;
-    int bad_count = 0;
-    int moment_counter = 0;
-    int lower_moment_counter = 0;
-    auto z = k_maps[i];
-    for (auto &jj : z) {
-      if (jj.second < 5) {
-        bad_count++;
-      }
-      if (jj.second > max) {
-        max = jj.second;
-      }
-      if (jj.second > moment) {
-        moment_counter++;
-      } else {
-        lower_moment_counter++;
-      }
-      count += jj.second;
-      num++;
-    }
-    ASSERT_EQ(bad_count, 0);
-    std::cout << "Average Size Gen: " << i << "; "<<  count /num << " MAX:" << max << " Moment: " << moment_counter << " Lower moment: " << lower_moment_counter<< "Bad Count: " << bad_count << "\n";
+    printf("Gen for %s: AVG: %f, TOTAL NUM: %d, ABOVE_MOMENT: %d, max: %d, max_val: %d \n", table.first.c_str(), (double)total/num, num, above_moment, max, max_val);
+    printf("Gen MAP 0 %s 0, %d, 1: %d\n", table.first.c_str(), gen_val_to_count[0], gen_val_to_count[1]);
   }
 }

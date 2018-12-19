@@ -19,22 +19,26 @@ insert into oblivious_partitioning_1000000 (a,b) select floor(random()*1000+1)::
 
 insert into cdiff_cohort_diagnoses (major_icd9) select floor(random()*10000+1)::int from generate_series(1,100000) s(i);
 
-insert into gen_test_a_h1 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_a_h2 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_a_h3 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_a_h4 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
+insert into gen_test_a_h1 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_a_h2 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_a_h3 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_a_h4 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_a_h1_c (a,b) (select * from gen_test_a_h1);
+insert into gen_test_a_h2_c (a,b) (select * from gen_test_a_h2);
+insert into gen_test_a_h3_c (a,b) (select * from gen_test_a_h3);
+insert into gen_test_a_h4_c (a,b) (select * from gen_test_a_h4);
 
-insert into gen_test_b_h1 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_b_h2 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_b_h3 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_b_h4 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
+insert into gen_test_b_h1 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_b_h2 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_b_h3 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_b_h4 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
 
-insert into gen_test_c_h1 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_c_h2 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_c_h3 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_c_h4 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
+insert into gen_test_c_h1 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_c_h2 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_c_h3 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_c_h4 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
 
-insert into gen_test_d_h1 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_d_h2 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_d_h3 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
-insert into gen_test_d_h4 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,1800000) s(i);
+insert into gen_test_d_h1 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_d_h2 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_d_h3 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
+insert into gen_test_d_h4 (a,b) select floor(random()*10000+1)::int, floor(random()*1800000+1)::int from generate_series(1,180000) s(i);
