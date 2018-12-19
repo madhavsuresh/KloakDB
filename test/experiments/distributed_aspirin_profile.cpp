@@ -500,7 +500,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   JoinDef jd_pd3;
   jd_pd3.set_l_col_name("patient_id");
   jd_pd3.set_r_col_name("patient_id");
-  jd_pd3.set_project_len(3);
+  jd_pd3.set_project_len(4);
   auto pdp1 = jd_pd3.add_project_list();
   pdp1->set_side(JoinColID_RelationSide_LEFT);
   pdp1->set_colname("pulse");
@@ -510,6 +510,9 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto pdp3 = jd_pd3.add_project_list();
   pdp3->set_side(JoinColID_RelationSide_RIGHT);
   pdp3->set_colname("race");
+  auto pdp4 = jd_pd3.add_project_list();
+  pdp4->set_side(JoinColID_RelationSide_RIGHT);
+  pdp4->set_colname("patient_id");
   auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
   auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
