@@ -185,9 +185,9 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
   auto meds_scan = p->ClusterDBMSQuery("dbname=" + database, "SELECT patient_id, medication from " + medications_table);
 
-  auto demographics_scan = p->ClusterDBMSQuery(
-      "dbname=" + database,
-      "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+  auto demographics_scan = p->DBMSQuery(0,
+                                        "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
+                                                              demographics_table);
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
 
@@ -526,8 +526,10 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   pdp4->set_side(JoinColID_RelationSide_LEFT);
   pdp4->set_colname("patient_id");
   auto to_join3 = zip_join_tables(demographics_repart,out_pm_join);
+  LOG(EXP7_ASP) << "Join Input Table 3:";
   auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
+  LOG(EXP7_ASP) << "End Join Input Table 3:";
 
   START_TIMER(repartition_two);
   vector<string> cfnames;
