@@ -89,7 +89,6 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   // p->FreeTables(meds_repart);
 
   // join def second join "plus demographics"
-  /*
   START_TIMER(join_three);
   JoinDef jd_pd3;
   jd_pd3.set_l_col_name("patient_id");
@@ -108,6 +107,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
 
+  /*
   vector<string> cfnames;
   cfnames.emplace_back("gender");
   cfnames.emplace_back("race");
