@@ -91,7 +91,7 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   semi_joined_tables.emplace_back(std::async(
       std::launch::async, &HonestBrokerPrivate::ClusterDBMSQuery, p,
       "dbname=" + dbname,
-      "SELECT distinct(patient_id) from meds_ex_local m, hd_cohort_local h "
+      "SELECT distinct(m.patient_id) from meds_ex_local m, hd_cohort_local h "
       "where h.patient_id=m.patient_id and m.medication iLIKE '%ASPIRIN%' and "
       "m.dosage ILIKE '%325MG%'"));
   START_TIMER(dosage_study_k);
