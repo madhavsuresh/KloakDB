@@ -520,12 +520,13 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   cfnames.emplace_back("race");
   p->ResetControlFlowCols();
   p->SetControlFlowColNames(cfnames);
-  auto out_repart_2 = p->RepartitionJustHash(out_pd_join);
+  //auto out_repart_2 = p->RepartitionJustHash(out_pd_join);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition_two, "full");
 
   GroupByDef gbd;
   START_TIMER(aggregate);
   gbd.set_type(GroupByDef_GroupByType_AVG);
+  gbd.set_secure(true);
   gbd.set_col_name("pulse");
   gbd.add_gb_col_names("gender");
   gbd.add_gb_col_names("race");
@@ -533,7 +534,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   vector<string> cfids;
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
-  auto final_avg = p->Aggregate(out_repart_2, gbd, sgx);
+  auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
   vector<tableid_ptr> semi_joined_out;
   for (auto &s: semi_joined_tables) {
     semi_joined_out = s.get();
