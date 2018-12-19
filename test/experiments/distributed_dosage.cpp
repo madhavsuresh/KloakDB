@@ -87,6 +87,13 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   }
 
   LOG(EXP7_DOS) << "STARTING DOSAGE STUDY K-ANONYMOUS";
+  vector<std::future<vector<tableid_ptr>>> semi_joined_tables;
+  semi_joined_tables.emplace_back(std::async(
+      std::launch::async, &HonestBrokerPrivate::ClusterDBMSQuery, p,
+      "dbname=" + dbname,
+      "SELECT distinct(patient_id) from meds_ex_local m, hd_cohort_local h "
+      "where h.patient_id=m.patient_id and m.medication iLIKE '%ASPIRIN%' and "
+      "m.dosage ILIKE '%325MG%'"));
   START_TIMER(dosage_study_k);
   auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
                                        "SELECT patient_id from " +
@@ -150,6 +157,10 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   join_project->set_col_no(JoinColID_RelationSide_LEFT);
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
+  vector<tableid_ptr> semi_joined_out;
+  for (auto &s: semi_joined_tables) {
+    semi_joined_out = s.get();
+  }
   END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_k, "release");
   LOG(EXP7_DOS) << "ENDING DOSAGE STUDY K-ANON";
 }
