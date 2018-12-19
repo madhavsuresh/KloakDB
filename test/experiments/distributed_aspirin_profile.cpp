@@ -243,15 +243,15 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   jd_pd3.set_r_col_name("patient_id");
   jd_pd3.set_project_len(3);
   auto pdp1 = jd_pd3.add_project_list();
-  pdp1->set_side(JoinColID_RelationSide_LEFT);
+  pdp1->set_side(JoinColID_RelationSide_RIGHT);
   pdp1->set_colname("pulse");
   auto pdp2 = jd_pd3.add_project_list();
-  pdp2->set_side(JoinColID_RelationSide_RIGHT);
+  pdp2->set_side(JoinColID_RelationSide_LEFT);
   pdp2->set_colname("gender");
   auto pdp3 = jd_pd3.add_project_list();
-  pdp3->set_side(JoinColID_RelationSide_RIGHT);
+  pdp3->set_side(JoinColID_RelationSide_LEFT);
   pdp3->set_colname("race");
-  auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
+  auto to_join3 = zip_join_tables(demographics_repart, out_pm_join);
   auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
 
