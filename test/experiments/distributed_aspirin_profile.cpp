@@ -69,7 +69,6 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
 
   // join def first join "plus medications"
   // join between output of vitals/diagnonses join and medications
-  /*
   START_TIMER(join_two);
   JoinDef jd_pm2;
   jd_pm2.set_l_col_name("patient_id");
@@ -90,6 +89,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   // p->FreeTables(meds_repart);
 
   // join def second join "plus demographics"
+  /*
   START_TIMER(join_three);
   JoinDef jd_pd3;
   jd_pd3.set_l_col_name("patient_id");
