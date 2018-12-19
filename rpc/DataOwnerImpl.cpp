@@ -475,7 +475,9 @@ groupby_def_t make_groupby_def_t(table_t *t, ::vaultdb::GroupByDef def) {
   // TODO(madhavsuresh): this needs to be fixed, the API is inconsistent.
   def_t.secure = def.secure();
   def_t.colno = colno_from_name(t, def.col_name());
-  def_t.kanon_col = colno_from_name(t, def.kanon_col_name());
+  if (def_t.secure) {
+    def_t.kanon_col = colno_from_name(t, def.kanon_col_name());
+  }
   for (int i = 0; i < def.gb_col_names_size(); i++) {
     def_t.gb_colnos[i] =
             static_cast<uint8_t>(colno_from_name(t, def.gb_col_names(i)));
