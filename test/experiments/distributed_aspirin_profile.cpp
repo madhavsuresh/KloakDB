@@ -402,6 +402,17 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   if (year != "") {
     year_append = " where year=" + year;
   }
+
+  vector<std::future<vector<tableid_ptr>>> semi_joined_tables;
+  semi_joined_tables.emplace_back(std::async(
+      std::launch::async, &HonestBrokerPrivate::ClusterDBMSQuery, p,
+      "dbname=" + database,
+      "SELECT gender,race, sum(pulse) AS sum, count(*) AS count FROM  "
+      "dem_ex_local de, hd_cohort_local di, vit_ex_local v, meds_ex_local m "
+      "WHERE m.medication ILIKE '%aspirin%'  AND de.patient_id = di.patient_id "
+      "AND di.patient_id = v.patient_id AND m.patient_id = di.patient_id GROUP "
+      "BY gender, race;"));
+
   START_TIMER(aspirin_profile_full);
   START_TIMER(postgres_read);
   p->SetControlFlowColName("patient_id");
@@ -523,6 +534,10 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
   auto final_avg = p->Aggregate(out_repart_2, gbd, sgx);
+  vector<tableid_ptr> semi_joined_out;
+  for (auto &s: semi_joined_tables) {
+    semi_joined_out = s.get();
+  }
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
   LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
