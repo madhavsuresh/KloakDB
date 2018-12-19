@@ -4,6 +4,9 @@ SELECT * INTO dem_ex FROM (SELECT * FROM demographics where patient_id in (SELEC
 SELECT * INTO vit_ex FROM (SELECT * FROM vitals WHERE pulse IS NOT NULL AND (year=2008) AND patient_id in (SELECT * from hd_cohort_dist)) t;
 SELECT * INTO meds_ex FROM (SELECT * FROM medications WHERE (year=2008) AND patient_id in (SELECT * from hd_cohort_dist)) t; ---AND medication ILIKE '%aspirin%') t;
 
-DROP TABLE IF EXISTS dosage_cohort, meds_dosage_ex;
-SELECT * INTO dosage_cohort FROM (SELECT DISTINCT patient_id from diagnoses WHERE icd9 LIKE '414%' AND year=2008)t;
-SELECT * INTO meds_dosage_ex FROM (SELECT DISTINCT patient_id from medications WHERE patient_id in (SELECT * from dosage_cohort_dist) AND year=2008) t;
+--- LOCAL, used for semi-join optimization
+DROP TABLE IF EXISTS dem_ex_local, diag_ex_local, vit_ex_local, meds_ex_local, hd_cohort_local;
+SELECT * into hd_cohort_local FROM (SELECT patient_id FROM hd_cohort WHERE patient_id NOT IN (SELECT * FROM hd_cohort_dist)) t;
+SELECT * INTO dem_ex_local FROM (SELECT * FROM demographics where patient_id in (SELECT * from hd_cohort_local)) t;
+SELECT * INTO vit_ex_local FROM (SELECT * FROM vitals WHERE pulse IS NOT NULL AND (year=2008) AND patient_id in (SELECT * from hd_cohort_local)) t;
+SELECT * INTO meds_ex_local FROM (SELECT * FROM medications WHERE (year=2008) AND patient_id in (SELECT * from hd_cohort_local)) t; ---AND medication ILIKE '%aspirin%') t;
