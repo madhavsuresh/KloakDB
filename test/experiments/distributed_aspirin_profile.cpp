@@ -343,6 +343,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
   auto out_vd_join = p->Join(to_join1, jd_vd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
+  /*
   START_TIMER(join_two);
   JoinDef jd_pm2;
   jd_pm2.set_l_col_name("patient_id");
@@ -359,6 +360,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
+   */
   /*
   START_TIMER(join_three);
   JoinDef jd_pd3;
