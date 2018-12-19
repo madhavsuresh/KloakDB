@@ -246,14 +246,12 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
 
-  START_TIMER(repartition_two);
   vector<string> cfnames;
   cfnames.emplace_back("gender");
   cfnames.emplace_back("race");
   p->ResetControlFlowCols();
   p->SetControlFlowColNames(cfnames);
-  auto out_repart_2 = p->RepartitionJustHash(out_pd_join);
-  END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition_two, "full");
+  //auto out_repart_2 = p->RepartitionJustHash(out_pd_join);
 
   GroupByDef gbd;
   START_TIMER(aggregate);
@@ -261,11 +259,12 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   gbd.set_col_name("pulse");
   gbd.add_gb_col_names("gender");
   gbd.add_gb_col_names("race");
+  gbd.set_secure(false);
   LOG(INFO) << "GB LEN" << gbd.gb_col_names_size();
   vector<string> cfids;
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
-  auto final_avg = p->Aggregate(out_repart_2, gbd, sgx);
+  auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
   LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
