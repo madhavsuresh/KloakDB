@@ -185,9 +185,11 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
   auto meds_scan = p->ClusterDBMSQuery("dbname=" + database, "SELECT patient_id, medication from " + medications_table);
 
-  auto demographics_scan = p->DBMSQuery(0,
+  auto demographics_single_scan = p->DBMSQuery(0,
                                         "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
                                                               demographics_table);
+  vector<tableid_ptr> demographics_scan;
+  demographics_scan.emplace_back(demographics_single_scan);
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
 
