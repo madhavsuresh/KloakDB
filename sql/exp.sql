@@ -10,3 +10,8 @@ SELECT * into hd_cohort_local FROM (SELECT patient_id FROM hd_cohort WHERE patie
 SELECT * INTO dem_ex_local FROM (SELECT * FROM demographics where patient_id in (SELECT * from hd_cohort_local)) t;
 SELECT * INTO vit_ex_local FROM (SELECT * FROM vitals WHERE pulse IS NOT NULL AND (year=2008) AND patient_id in (SELECT * from hd_cohort_local)) t;
 SELECT * INTO meds_ex_local FROM (SELECT * FROM medications WHERE (year=2008) AND patient_id in (SELECT * from hd_cohort_local)) t; ---AND medication ILIKE '%aspirin%') t;
+
+-- FDW, used for FDW queries
+SELECT * INTO dem_ex FROM (SELECT * FROM demographics where patient_id in (SELECT * from hd_cohort)) t;
+SELECT * INTO vit_ex FROM (SELECT * FROM vitals WHERE pulse IS NOT NULL AND (year=2008) AND patient_id in (SELECT * from hd_cohort)) t;
+SELECT * INTO meds_ex FROM (SELECT * FROM medications WHERE (year=2008) AND patient_id in (SELECT * from hd_cohort)) t; ---AND medication ILIKE '%aspirin%') t;
