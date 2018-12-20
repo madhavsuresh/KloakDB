@@ -33,7 +33,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
       "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
-  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database, "SELECT patient_id, medication from " + medications_table);
+  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database, "SELECT patient_id, medication from " + medications_table + " WHERE medication ILIKE '%ASPIRIN%'");
 
   auto demographics_single_scan = p->DBMSQuery(0,
                                         "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
@@ -310,10 +310,22 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   START_TIMER(generalize);
   auto gen_zipped_map = p->Generalize(gen_in, 5);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(generalize, "k5");
+
+  START_TIMER(medications_filter);
+  ::vaultdb::Expr expr_med;
+  expr_med.set_colname("medication");
+  expr_med.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldMed = expr_med.mutable_desc();
+  fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_med.set_charfield("ASPIRIN");
+  auto filtered_meds =
+          p->Filter(gen_zipped_map[medications_table], expr_med, false);
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(medications_filter, "k5");
+
   START_TIMER(repartition);
   auto diagnoses_repart = p->Repartition(gen_zipped_map[diagnoses_table]);
   auto vitals_repart = p->Repartition(gen_zipped_map[vitals_table]);
-  auto meds_repart = p->Repartition(gen_zipped_map[medications_table]);
+  auto meds_repart = p->Repartition(filtered_meds);
   auto demographics_repart = p->Repartition(gen_zipped_map[demographics_table]);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "k5");
 
