@@ -180,6 +180,7 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   auto out_vd_join = p->Join(to_join1, jd_vd, sgx );
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
 
+  /*
   // join def first join "plus medications"
   // join between output of vitals/diagnonses join and medications
   START_TIMER(join_two);
@@ -241,7 +242,9 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   cfids.emplace_back("race");
   auto final_avg = p->Aggregate(out_repart_2, gbd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
+   */
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
+
 }
 
 void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
