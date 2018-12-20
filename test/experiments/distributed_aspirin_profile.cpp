@@ -332,7 +332,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
-  auto out_vd_join = p->Join(to_join1, jd_vd, false);
+  auto out_vd_join = p->Join(to_join1, jd_vd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
   START_TIMER(join_two);
   JoinDef jd_pm2;
@@ -348,7 +348,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   pmp2->set_colname("pulse");
 
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
-  auto out_pm_join = p->Join(to_join2, jd_pm2, false);
+  auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
   START_TIMER(join_three);
   JoinDef jd_pd3;
@@ -369,7 +369,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   pdp4->set_colname("patient_id");
   auto to_join3 = zip_join_tables(demographics_repart,out_pm_join);
   LOG(EXP7_ASP) << "Join Input Table 3:";
-  auto out_pd_join = p->Join(to_join3, jd_pd3, false);
+  auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
   LOG(EXP7_ASP) << "End Join Input Table 3:";
 
