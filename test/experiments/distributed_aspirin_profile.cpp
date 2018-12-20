@@ -194,7 +194,7 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   //auto pmp2 = jd_pm2.add_project_list();
   //pmp2->set_side(JoinColID_RelationSide_LEFT);
   //pmp2->set_colname("pulse");
-  auto to_join2 = zip_join_tables(out_vd_join, demographics_repart);
+  auto to_join2 = zip_join_tables(demographics_repart, out_vd_join);
   auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
 
