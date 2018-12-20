@@ -97,15 +97,17 @@ void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string ye
   auto agg_out = p->Aggregate(cdiff_cohort_repart, gbd, true);
   END_AND_LOG_EXEC_TIMER(aggregate);
 
+  /*
   p->SetControlFlowColName("count");
   START_TIMER(repartition2);
   auto cnt_repartition = p->Repartition(agg_out);
   END_AND_LOG_EXEC_TIMER(repartition2);
+   */
   SortDef sort;
   sort.set_colname("count");
   sort.set_ascending(false);
   START_TIMER(sort);
-  auto sorted = p->Sort(cnt_repartition, sort, true);
+  auto sorted = p->Sort(agg_out, sort, true);
   END_AND_LOG_EXEC_TIMER(sort);
   END_AND_LOG_EXP7_COM_STAT_TIMER(comorbidity_kanon_full, "insgx");
 }
