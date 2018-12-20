@@ -168,40 +168,39 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   JoinDef jd_vd;
   jd_vd.set_l_col_name("patient_id");
   jd_vd.set_r_col_name("patient_id");
-  jd_vd.set_project_len(2);
+  jd_vd.set_project_len(1);
   // vitals-diagnoses-join project 1
   auto vdjp1 = jd_vd.add_project_list();
   vdjp1->set_side(JoinColID_RelationSide_LEFT);
   vdjp1->set_colname("patient_id");
-  auto vdjp2 = jd_vd.add_project_list();
-  vdjp2->set_side(JoinColID_RelationSide_LEFT);
-  vdjp2->set_colname("pulse");
+  //auto vdjp2 = jd_vd.add_project_list();
+  //vdjp2->set_side(JoinColID_RelationSide_LEFT);
+  //vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
   auto out_vd_join = p->Join(to_join1, jd_vd, sgx );
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
 
-  /*
   // join def first join "plus medications"
   // join between output of vitals/diagnonses join and medications
   START_TIMER(join_two);
   JoinDef jd_pm2;
   jd_pm2.set_l_col_name("patient_id");
   jd_pm2.set_r_col_name("patient_id");
-  jd_pm2.set_project_len(2);
+  jd_pm2.set_project_len(1);
   // plus medications project 1
   auto pmp1 = jd_pm2.add_project_list();
   pmp1->set_side(JoinColID_RelationSide_LEFT);
   pmp1->set_colname("patient_id");
-  auto pmp2 = jd_pm2.add_project_list();
-  pmp2->set_side(JoinColID_RelationSide_LEFT);
-  pmp2->set_colname("pulse");
-
-  auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
+  //auto pmp2 = jd_pm2.add_project_list();
+  //pmp2->set_side(JoinColID_RelationSide_LEFT);
+  //pmp2->set_colname("pulse");
+  auto to_join2 = zip_join_tables(out_vd_join, demographics_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
 
   // p->FreeTables(meds_repart);
 
+  /*
   // join def second join "plus demographics"
   START_TIMER(join_three);
   JoinDef jd_pd3;
