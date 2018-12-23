@@ -16,3 +16,15 @@ DROP TABLE IF EXISTS dem_ex_fdw, vit_ex_fdw, meds_ex_fdw;
 SELECT * INTO dem_ex_fdw FROM (SELECT * FROM demographics where patient_id in (SELECT * from hd_cohort)) t;
 SELECT * INTO vit_ex_fdw FROM (SELECT * FROM vitals WHERE pulse IS NOT NULL AND (year=2008) AND patient_id in (SELECT * from hd_cohort)) t;
 SELECT * INTO meds_ex_fdw FROM (SELECT * FROM medications WHERE (year=2008) AND patient_id in (SELECT * from hd_cohort)) t; ---AND medication ILIKE '%aspirin%') t;
+
+insert into gen_test_r1000_s1000 (a,b) select floor(random()*10000+1)::int, floor(random()*1000+1)::int from generate_series(1,1000) s(i);
+insert into gen_test_r1000_s10000 (a,b) select floor(random()*10000+1)::int, floor(random()*1000+1)::int from generate_series(1,10000) s(i);
+insert into gen_test_r1000_s100000 (a,b) select floor(random()*10000+1)::int, floor(random()*1000+1)::int from generate_series(1,100000) s(i);
+
+insert into gen_test_r10000_s1000 (a,b) select floor(random()*10000+1)::int, floor(random()*10000+1)::int from generate_series(1,1000) s(i);
+insert into gen_test_r10000_s10000 (a,b) select floor(random()*10000+1)::int, floor(random()*10000+1)::int from generate_series(1,10000) s(i);
+insert into gen_test_r10000_s100000 (a,b) select floor(random()*10000+1)::int, floor(random()*10000+1)::int from generate_series(1,100000) s(i);
+
+insert into gen_test_r100000_s1000 (a,b) select floor(random()*10000+1)::int, floor(random()*100000+1)::int from generate_series(1,1000) s(i);
+insert into gen_test_r100000_s10000 (a,b) select floor(random()*10000+1)::int, floor(random()*100000+1)::int from generate_series(1,10000) s(i);
+insert into gen_test_r100000_s100000 (a,b) select floor(random()*10000+1)::int, floor(random()*100000+1)::int from generate_series(1,100000) s(i);
