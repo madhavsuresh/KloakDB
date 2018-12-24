@@ -12,6 +12,7 @@
 #include "test/experiments/distributed_aspirin_profile.h"
 #include "test/experiments/distributed_comorb.h"
 #include "test/experiments/distributed_dosage.h"
+#include "test/experiments/dist_gen_test.h"
 #include "test/experiments/exp3.h"
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp5.h"
@@ -51,6 +52,8 @@ DEFINE_string(cdiff_cohort_diag_table, "cdiff_cohort_diagnoses",
 DEFINE_string(logger_host_name, "guinea-pig.cs.northwestern.edu:60000",
               "port for logger");
 DEFINE_string(host_short, "vaultdb", "short host name");
+DEFINE_int32(gen_test_range, 1000, "range for gen test (exp8)");
+DEFINE_int32(gen_test_size, 1000, "range for gen test (exp8)");
 DEFINE_bool(sgx, false, "Use SGX for queries");
 
 std::promise<void> exit_requested;
@@ -227,6 +230,14 @@ int main(int argc, char **argv) {
         }
       }
       break;
+    }
+    case 8: {
+      auto size = to_string(FLAGS_gen_test_size);
+      auto range = to_string(FLAGS_gen_test_range);
+      string table = "gen_test_r" + range + "_s" + size + "_";
+      string table1 = table + "1";
+      string table2 =  table + "2";
+      gen_test_rand_table(p, FLAGS_db,table1, table2, FLAGS_gen_level, FLAGS_sgx, size + "," + range);
     }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
