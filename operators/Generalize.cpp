@@ -491,7 +491,7 @@ table_t *generalize_table_fast(
   rc_t rc_map[MAX_RELATION];
   populate_rc_map(rc_map, table_map_host_table_pairs, input_to_internal_gen,
                   final_range, num_hosts);
-  table_builder_t tb = get_gen_tb(final_range);
+  table_builder_t tb = get_gen_tb(final_range + discard_pile.size());
   auto *tup = (tuple_t *)malloc(tb.size_of_tuple);
   tup->num_fields = 1;
   tup->field_list[0].type = INT;
