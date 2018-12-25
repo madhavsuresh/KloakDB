@@ -238,6 +238,7 @@ int main(int argc, char **argv) {
       string table1 = table + "1";
       string table2 =  table + "2";
       gen_test_rand_table(p, FLAGS_db,table1, table2, FLAGS_gen_level, FLAGS_sgx, size + "," + range);
+      break;
     }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
