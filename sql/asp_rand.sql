@@ -23,3 +23,9 @@ SELECT * INTO hd_cohort_dist_25_7 FROM (SELECT * FROM hd_cohort_dist ORDER BY ra
 
 DROP TABLE IF EXISTS hd_cohort_dist_25_8;
 SELECT * INTO hd_cohort_dist_25_8 FROM (SELECT * FROM hd_cohort_dist ORDER BY random()) t LIMIT 25;
+
+DROP TABLE IF EXISTS hd_cohort_dist_25_9;
+SELECT * INTO hd_cohort_dist_25_9 FROM (SELECT * FROM hd_cohort_dist ORDER BY random()) t LIMIT 25;
+
+DROP TABLE IF EXISTS hd_cohort_dist_25_10;
+SELECT * INTO hd_cohort_dist_25_10 FROM (SELECT * FROM hd_cohort_dist ORDER BY random()) t LIMIT 25;
