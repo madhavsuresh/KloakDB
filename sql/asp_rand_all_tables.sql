@@ -32,3 +32,8 @@ DROP TABLE IF EXISTS dem_ex_asp_7, vit_ex_asp_7, meds_ex_asp_7;
 SELECT * INTO dem_ex_asp_7 FROM (SELECT * FROM dem_ex where patient_id in (SELECT * from hd_cohort_dist_25_7)) t;
 SELECT * INTO vit_ex_asp_7 FROM (SELECT * FROM vit_ex where patient_id in (SELECT * from hd_cohort_dist_25_7)) t;
 SELECT * INTO meds_ex_asp_7 FROM (SELECT * FROM meds_ex where patient_id in (SELECT * from hd_cohort_dist_25_7)) t;
+
+DROP TABLE IF EXISTS dem_ex_asp_8, vit_ex_asp_8, meds_ex_asp_8;
+SELECT * INTO dem_ex_asp_8 FROM (SELECT * FROM dem_ex where patient_id in (SELECT * from hd_cohort_dist_25_8)) t;
+SELECT * INTO vit_ex_asp_8 FROM (SELECT * FROM vit_ex where patient_id in (SELECT * from hd_cohort_dist_25_8)) t;
+SELECT * INTO meds_ex_asp_8 FROM (SELECT * FROM meds_ex where patient_id in (SELECT * from hd_cohort_dist_25_8)) t;
