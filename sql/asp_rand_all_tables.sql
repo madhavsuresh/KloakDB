@@ -37,3 +37,13 @@ DROP TABLE IF EXISTS dem_ex_asp_8, vit_ex_asp_8, meds_ex_asp_8;
 SELECT * INTO dem_ex_asp_8 FROM (SELECT * FROM dem_ex where patient_id in (SELECT * from hd_cohort_dist_25_8)) t;
 SELECT * INTO vit_ex_asp_8 FROM (SELECT * FROM vit_ex where patient_id in (SELECT * from hd_cohort_dist_25_8)) t;
 SELECT * INTO meds_ex_asp_8 FROM (SELECT * FROM meds_ex where patient_id in (SELECT * from hd_cohort_dist_25_8)) t;
+
+DROP TABLE IF EXISTS dem_ex_asp_9, vit_ex_asp_9, meds_ex_asp_9;
+SELECT * INTO dem_ex_asp_9 FROM (SELECT * FROM dem_ex where patient_id in (SELECT * from hd_cohort_dist_25_9)) t;
+SELECT * INTO vit_ex_asp_9 FROM (SELECT * FROM vit_ex where patient_id in (SELECT * from hd_cohort_dist_25_9)) t;
+SELECT * INTO meds_ex_asp_9 FROM (SELECT * FROM meds_ex where patient_id in (SELECT * from hd_cohort_dist_25_9)) t;
+
+DROP TABLE IF EXISTS dem_ex_asp_10, vit_ex_asp_10, meds_ex_asp_10;
+SELECT * INTO dem_ex_asp_10 FROM (SELECT * FROM dem_ex where patient_id in (SELECT * from hd_cohort_dist_25_10)) t;
+SELECT * INTO vit_ex_asp_10 FROM (SELECT * FROM vit_ex where patient_id in (SELECT * from hd_cohort_dist_25_10)) t;
+SELECT * INTO meds_ex_asp_10 FROM (SELECT * FROM meds_ex where patient_id in (SELECT * from hd_cohort_dist_25_10)) t;
