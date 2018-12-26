@@ -39,7 +39,7 @@ DEFINE_string(
 DEFINE_int32(experiment, 1, "experiment number");
 DEFINE_string(hl_query, "aspirin", "healthlnk query name");
 
-DEFINE_int32(gen_level, 0, "generalization level");
+DEFINE_int32(gen_level, 5, "generalization level");
 
 DEFINE_string(year, "", "year for healthlnk queries");
 DEFINE_string(db, "smcql_testDB", "database name");
