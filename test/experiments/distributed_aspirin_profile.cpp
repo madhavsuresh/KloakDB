@@ -90,7 +90,6 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   auto pmp2 = jd_pm2.add_project_list();
   pmp2->set_side(JoinColID_RelationSide_LEFT);
   pmp2->set_colname("pulse");
-
   auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "encrypted");
@@ -146,8 +145,16 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   START_TIMER(postgres_read);
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
-  auto diagnoses_scan = p->ClusterDBMSQuery(
+  vector<tableid_ptr> diagnoses_scan;
+  if (FLAGS_random_run) {
+    diagnoses_scan = p->ClusterDBMSQuery(
           "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
+  } else {
+    auto diagnoses_single_scan = p->DBMSQuery(0,
+                                                 "dbname=" + database, "SELECT patient_id from " +
+                                                                       diagnoses_table);
+    diagnoses_scan.emplace_back(diagnoses_single_scan);
+  }
   p->MakeObli(diagnoses_scan, "patient_id");
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
@@ -158,9 +165,18 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
                                            medications_table);
   p->MakeObli(meds_scan, "patient_id");
 
-  auto demographics_scan = p->ClusterDBMSQuery(
-      "dbname=" + database,
-      "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+
+  vector<tableid_ptr> demographics_scan;
+  if (FLAGS_random_run) {
+    demographics_scan = p->ClusterDBMSQuery(
+            "dbname=" + database,
+            "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+  } else {
+    auto demographics_single_scan = p->DBMSQuery(0,
+                                                 "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
+                                                                       demographics_table);
+    demographics_scan.emplace_back(demographics_single_scan);
+  }
   p->MakeObli(demographics_scan, "patient_id");
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
@@ -177,14 +193,14 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   JoinDef jd_vd;
   jd_vd.set_l_col_name("patient_id");
   jd_vd.set_r_col_name("patient_id");
-  jd_vd.set_project_len(1);
+  jd_vd.set_project_len(2);
   // vitals-diagnoses-join project 1
   auto vdjp1 = jd_vd.add_project_list();
   vdjp1->set_side(JoinColID_RelationSide_LEFT);
   vdjp1->set_colname("patient_id");
-  //auto vdjp2 = jd_vd.add_project_list();
-  //vdjp2->set_side(JoinColID_RelationSide_LEFT);
-  //vdjp2->set_colname("pulse");
+  auto vdjp2 = jd_vd.add_project_list();
+  vdjp2->set_side(JoinColID_RelationSide_LEFT);
+  vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
   auto out_vd_join = p->Join(to_join1, jd_vd, sgx );
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
@@ -195,18 +211,17 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   JoinDef jd_pm2;
   jd_pm2.set_l_col_name("patient_id");
   jd_pm2.set_r_col_name("patient_id");
-  jd_pm2.set_project_len(1);
+  jd_pm2.set_project_len(2);
   // plus medications project 1
   auto pmp1 = jd_pm2.add_project_list();
   pmp1->set_side(JoinColID_RelationSide_LEFT);
   pmp1->set_colname("patient_id");
-  //auto pmp2 = jd_pm2.add_project_list();
-  //pmp2->set_side(JoinColID_RelationSide_LEFT);
-  //pmp2->set_colname("pulse");
-  auto to_join2 = zip_join_tables(demographics_repart, out_vd_join);
+  auto pmp2 = jd_pm2.add_project_list();
+  pmp2->set_side(JoinColID_RelationSide_LEFT);
+  pmp2->set_colname("pulse");
+  auto to_join2 = zip_join_tables(out_vd_join, meds_repart);
   auto out_pm_join = p->Join(to_join2, jd_pm2, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_two, "full");
-
   // p->FreeTables(meds_repart);
 
   // join def second join "plus demographics"
@@ -216,26 +231,18 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   jd_pd3.set_r_col_name("patient_id");
   jd_pd3.set_project_len(3);
   auto pdp1 = jd_pd3.add_project_list();
-  pdp1->set_side(JoinColID_RelationSide_LEFT);
+  pdp1->set_side(JoinColID_RelationSide_RIGHT);
   pdp1->set_colname("pulse");
   auto pdp2 = jd_pd3.add_project_list();
-  pdp2->set_side(JoinColID_RelationSide_RIGHT);
+  pdp2->set_side(JoinColID_RelationSide_LEFT);
   pdp2->set_colname("gender");
   auto pdp3 = jd_pd3.add_project_list();
-  pdp3->set_side(JoinColID_RelationSide_RIGHT);
+  pdp3->set_side(JoinColID_RelationSide_LEFT);
   pdp3->set_colname("race");
-  auto to_join3 = zip_join_tables(out_pm_join, demographics_repart);
+  auto to_join3 = zip_join_tables(demographics_repart, out_pm_join);
   auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
 
-  START_TIMER(repartition_two);
-  vector<string> cfnames;
-  cfnames.emplace_back("gender");
-  cfnames.emplace_back("race");
-  p->ResetControlFlowCols();
-  p->SetControlFlowColNames(cfnames);
-  auto out_repart_2 = p->Repartition(out_pd_join);
-  END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition_two, "full");
 
   GroupByDef gbd;
   START_TIMER(aggregate);
@@ -243,11 +250,12 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   gbd.set_col_name("pulse");
   gbd.add_gb_col_names("gender");
   gbd.add_gb_col_names("race");
+  gbd.set_secure(false);
   LOG(INFO) << "GB LEN" << gbd.gb_col_names_size();
   vector<string> cfids;
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
-  auto final_avg = p->Aggregate(out_repart_2, gbd, sgx);
+  auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
 
