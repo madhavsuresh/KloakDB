@@ -133,7 +133,7 @@ DataOwnerImpl::GeneralizeZip(::grpc::ServerContext *context,
   START_TIMER(gen_zip_inner);
   table_t *output_table = generalize_zip(
       scan_table, gen_table, colno_from_name(scan_table, request->colname()));
-  log_gen_zip(output_table, colno_from_name(scan_table, request->colname()));
+  //log_gen_zip(output_table, colno_from_name(scan_table, request->colname()));
   END_TIMER(gen_zip_inner);
 
   auto tid = response->mutable_generalizedscantable();
