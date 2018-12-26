@@ -10,13 +10,13 @@ import statistics
 must be copied over to this schema for this to produce accurate results''' 
 
 table = {
-    "med_aspirin" : "meds_ex",
-    "diag_aspirin": "diagnoses",
-    "demos_aspirin": "dem_ex",
-    "vit_aspirin": "vit_ex",
+    "med_aspirin" : "meds_ex_fdw",
+    "diag_aspirin": "hd_cohort",
+    "demos_aspirin": "dem_ex_fdw",
+    "vit_aspirin": "vit_ex_fdw",
     "comorbidity": "cdiff_cohort_diagnoses",
-    "med_dosage": "medications",
-    "diag_dosage": "diagnoses",
+    "med_dosage": "meds_ex_fdw",
+    "diag_dosage": "hd_cohort",
     }
 
 
@@ -70,6 +70,7 @@ def make_comorbidity_query(num,year):
             order by count(*) DESC\
             limit 10;".format(selects)
 
+    print(query)
     return query
 
 
@@ -80,7 +81,8 @@ def gen_union_dosage(num,year):
 
     for i in range(1,num+1):
         med_tables += "SELECT patient_id FROM {0}.{2} where medication like '%ASPIRIN' and dosage='325 MG' and {1}".format("vdb"+str(i),year_filter, table['med_dosage'])
-        diag_tables += "SELECT patient_id FROM {0}.{2} where icd9 like '414%' and {1}".format("vdb"+str(i), year_filter, table["diag_dosage"])
+        #diag_tables += "SELECT patient_id FROM {0}.{2} where icd9 like '414%' and {1}".format("vdb"+str(i), year_filter, table["diag_dosage"])
+        diag_tables += "SELECT patient_id FROM {0}.{1}".format("vdb"+str(i), table["diag_dosage"])
         if i != num:
             med_tables += " UNION ALL "
             diag_tables += " UNION ALL "
@@ -110,7 +112,8 @@ def gen_union_aspirin(num,year):
     for i in range(1,num+1):
         schema = "vdb"+str(i)
         med_tables += "SELECT patient_id FROM {0}.{2} WHERE medication like '%ASPIRIN%' and {1}".format(schema,year_filter, table['med_aspirin'])
-        diag_tables += "SELECT patient_id FROM {0}.{2} WHERE icd9 like '414%' and {1}".format(schema,year_filter, table['diag_aspirin'])
+        #diag_tables += "SELECT patient_id FROM {0}.{2} WHERE icd9 like '414%' and {1}".format(schema,year_filter, table['diag_aspirin'])
+        diag_tables += "SELECT patient_id FROM {0}.{1}".format(schema, table['diag_aspirin'])
         demo_tables += "SELECT patient_id, race, gender FROM {0}.{1}".format(schema,table['demos_aspirin'])
         vit_tables += "SELECT pulse, patient_id FROM {0}.{2} WHERE {1}".format(schema,year_filter,table['vit_aspirin'])
         if i != num:
@@ -149,7 +152,7 @@ import argparse
 
 parser=argparse.ArgumentParser()
 parser.add_argument('-num_machines', help='number of machines you want the query to run on. Must be between 1 and 4. Default is 4')
-parser.add_argument('-num_runs', help='number of times you want to run the query. Must be be at least 4 for accurate statistics. Default is 4')
+parser.add_argument('-num_runs', help='number of times you want to run the query. Must be be at least 4 for accurate statistics. Default is 7')
 parser.add_argument('-search_year', help='year to filter query on, if blank no filtering')
 parser.add_argument('-query', help='aspirin, comorbidity, or dosage. Default runs all queries') 
 
@@ -158,7 +161,7 @@ args = parser.parse_args()
 all_queries = ['comorbidity', 'dosage', 'aspirin']
 
 num_machines = 4 if args.num_machines == None else int(args.num_machines)
-num_runs = 4 if args.num_runs == None else int(args.num_runs)
+num_runs = 7 if args.num_runs == None else int(args.num_runs)
 search_year = args.search_year
 query = all_queries if args.query == None else [args.query]
 if num_machines < 1 or num_machines > 4:
