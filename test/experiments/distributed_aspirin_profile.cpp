@@ -147,13 +147,13 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   unordered_map<table_name, to_gen_t> gen_in;
   vector<tableid_ptr> diagnoses_scan;
   if (FLAGS_random_run) {
-    diagnoses_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
-  } else {
     auto diagnoses_single_scan = p->DBMSQuery(0,
-                                                 "dbname=" + database, "SELECT patient_id from " +
-                                                                       diagnoses_table);
+                                              "dbname=" + database, "SELECT patient_id from " +
+                                                                    diagnoses_table);
     diagnoses_scan.emplace_back(diagnoses_single_scan);
+  } else {
+    diagnoses_scan = p->ClusterDBMSQuery(
+            "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   }
   p->MakeObli(diagnoses_scan, "patient_id");
   auto vitals_scan = p->ClusterDBMSQuery(
@@ -168,14 +168,14 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
 
   vector<tableid_ptr> demographics_scan;
   if (FLAGS_random_run) {
-    demographics_scan = p->ClusterDBMSQuery(
-            "dbname=" + database,
-            "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
-  } else {
     auto demographics_single_scan = p->DBMSQuery(0,
                                                  "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
                                                                        demographics_table);
     demographics_scan.emplace_back(demographics_single_scan);
+  } else {
+    demographics_scan = p->ClusterDBMSQuery(
+            "dbname=" + database,
+            "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
   }
   p->MakeObli(demographics_scan, "patient_id");
 
