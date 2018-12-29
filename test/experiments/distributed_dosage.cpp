@@ -52,16 +52,33 @@ void dosage_obliv(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
                                        "SELECT * from " + diag + year_append +
                                            " AND icd9 LIKE '997%'");
-  auto med_scan = p->ClusterDBMSQuery(
-      "dbname=" + dbname,
-      "SELECT * from " + meds + year_append +
-          " AND medication LIKE 'ASPIRIN%' AND dosage = '325 MG'");
+  auto med_scan =
+          p->ClusterDBMSQuery("dbname=" + dbname,
+                              "SELECT medication, dosage, patient_id from " + meds +
+                              year_append); // AND medication LIKE 'ASPIRIN%'
+  // AND dosage = '325 MG'");
   // auto to_join = zip_join_tables(diag_scan, med_scan);
   p->SetControlFlowColName("patient_id");
   auto obli_diag = p->MakeObli(diag_scan, "patient_id");
   auto obli_med = p->MakeObli(med_scan, "patient_id");
+  ::vaultdb::Expr expr_med;
+  expr_med.set_colname("medication");
+  expr_med.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldMed = expr_med.mutable_desc();
+  fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_med.set_charfield("ASPIRIN");
+
+  ::vaultdb::Expr expr_dosage;
+  expr_dosage.set_colname("dosage");
+  expr_dosage.set_type(Expr_ExprType_LIKE_EXPR);
+  auto fieldDosage = expr_dosage.mutable_desc();
+  fieldDosage->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
+  expr_dosage.set_charfield("325 MG");
+  auto filtered_meds = p->Filter(obli_med, expr_med, false);
+  LOG(EXP7_DOS) << "DOSAGE FILTER";
+  auto filtered_dosage = p->Filter(filtered_meds, expr_dosage, false);
   auto diag_repart = p->RepartitionJustHash(obli_diag);
-  auto med_repart = p->RepartitionJustHash(obli_med);
+  auto med_repart = p->RepartitionJustHash(filtered_dosage);
 
   auto to_join = zip_join_tables(diag_repart, med_repart);
 
