@@ -13,10 +13,12 @@ void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname,
 
   LOG(EXP7_DOS) << "STARTING DOSAGE STUDY ENCRYPTED";
   START_TIMER(dosage_study_encrypted);
-  auto diag_scan =
-      p->ClusterDBMSQuery("dbname=" + dbname,
-                          "SELECT * from " + diag); // + year_append +
-                                                    //" AND icd9 LIKE '997%'");
+  vector<tableid_ptr> diag_scan;
+  auto diag_single_scan =
+          p->DBMSQuery(0,"dbname=" + dbname,
+                       "SELECT * from " + diag); // + year_append +
+  //" AND icd9 LIKE '997%'");
+  diag_scan.emplace_back(diag_single_scan);
   auto med_scan = p->ClusterDBMSQuery(
       "dbname=" + dbname,
       "SELECT * from " + meds + year_append +
@@ -49,9 +51,12 @@ void dosage_obliv(HonestBrokerPrivate *p, std::string dbname, std::string diag,
 
   LOG(EXP7_DOS) << "STARTING DOSAGE STUDY ENCRYPTED";
   START_TIMER(dosage_study_obli);
-  auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                       "SELECT patient_id from " +
-                                       diag);
+  vector<tableid_ptr> diag_scan;
+  auto diag_single_scan =
+          p->DBMSQuery(0,"dbname=" + dbname,
+                       "SELECT * from " + diag); // + year_append +
+  //" AND icd9 LIKE '997%'");
+  diag_scan.emplace_back(diag_single_scan);
   auto med_scan =
           p->ClusterDBMSQuery("dbname=" + dbname,
                               "SELECT medication, dosage, patient_id from " + meds +
@@ -95,11 +100,12 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
       "where h.patient_id=m.patient_id and m.medication iLIKE '%ASPIRIN%' and "
       "m.dosage ILIKE '%325MG%'"));
   START_TIMER(dosage_study_k);
-  auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                       "SELECT patient_id from " +
-                                           diag); // + year_append + "AND icd9
-                                                  // LIKE '997%'"); //;+ " AND
-                                                  // icd9 LIKE '997%'");
+  vector<tableid_ptr> diag_scan;
+  auto diag_single_scan =
+          p->DBMSQuery(0,"dbname=" + dbname,
+                       "SELECT * from " + diag); // + year_append +
+  //" AND icd9 LIKE '997%'");
+  diag_scan.emplace_back(diag_single_scan);
   auto med_scan =
       p->ClusterDBMSQuery("dbname=" + dbname,
                           "SELECT medication, dosage, patient_id from " + meds +
