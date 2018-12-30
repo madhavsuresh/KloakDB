@@ -1,1 +1,1 @@
-psql healthlnk -f exp5.sql
+psql vaultdb_ -f exp5.sql
