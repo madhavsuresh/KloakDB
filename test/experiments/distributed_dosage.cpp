@@ -2,7 +2,10 @@
 // Created by madhav on 12/1/18.
 //
 #include "distributed_dosage.h"
+#include <gflags/gflags.h>
 #include <VaultDB.h>
+
+DEFINE_int32(num_pids, 100, "number of pids in query");
 
 void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname,
                       std::string diag, std::string meds, std::string year) {
@@ -36,7 +39,7 @@ void dosage_encrypted(HonestBrokerPrivate *p, std::string dbname,
   join_project->set_col_no(JoinColID_RelationSide_LEFT);
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
-  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_encrypted, "release");
+  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_encrypted, FLAGS_num_pids);
   LOG(EXP7_DOS) << "ENDING DOSAGE STUDY ENCRYPTED";
 }
 
@@ -74,7 +77,7 @@ void dosage_obliv(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   join_project->set_col_no(JoinColID_RelationSide_LEFT);
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
-  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_obli, "release");
+  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_obli, FLAGS_num_pids);
   LOG(EXP7_DOS) << "ENDING DOSAGE STUDY ENCRYPTED";
 }
 
@@ -160,6 +163,6 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   for (auto &s: semi_joined_tables) {
     semi_joined_out = s.get();
   }
-  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_k, "release");
+  END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_k, FLAGS_num_pids);
   LOG(EXP7_DOS) << "ENDING DOSAGE STUDY K-ANON";
 }
