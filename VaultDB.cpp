@@ -188,7 +188,11 @@ int main(int argc, char **argv) {
       break;
     }
     case 5: {
-      exp5(p, FLAGS_gen_level, FLAGS_sgx);
+      if (FLAGS_gen_level == 0) {
+        exp5_plain(p,  FLAGS_sgx);
+      } else {
+        exp5(p, FLAGS_gen_level, FLAGS_sgx);
+      }
       break;
     }
     case 6: {
