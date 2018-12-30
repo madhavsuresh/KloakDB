@@ -1,3 +1,4 @@
+select setseed(.0001);
 DROP TABLE IF EXISTS left_deep_joins_512_a, left_deep_joins_512_b, left_deep_joins_512_c, left_deep_joins_512_d;
 
 CREATE TABLE left_deep_joins_512_a (
