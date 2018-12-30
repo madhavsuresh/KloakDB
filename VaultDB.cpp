@@ -166,7 +166,6 @@ int main(int argc, char **argv) {
     auto enclave = get_enclave();
     p->WaitForAllHosts();
     p->RegisterPeerHosts();
-    this_thread::sleep_for(chrono::milliseconds(1000));
     // dosage_study(p);
     // comorbidity(p);
     // aspirin_profile(p);
