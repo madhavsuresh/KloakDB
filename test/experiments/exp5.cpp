@@ -49,9 +49,6 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   LOG(EXEC) << "======Start Join 1====";
   START_TIMER(join1);
   auto out1 = p->Join(to_join1, jd, sgx);
-  p->FreeTables(repart);
-  p->FreeTables(out1);
-  /*
   END_AND_LOG_EXP5_STAT_TIMER(join1, gen_level);
   LOG(EXEC) << "======END Join 1====";
   auto to_join2 = zip_join_tables(repart, out1);
@@ -74,5 +71,4 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
     END_AND_LOG_EXP5_STAT_TIMER(join4, gen_level);
     LOG(EXEC) << "======END Join 4====";
   }
-   */
 }
