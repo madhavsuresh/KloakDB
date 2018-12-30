@@ -188,8 +188,7 @@ int main(int argc, char **argv) {
       break;
     }
     case 5: {
-      printf("HELLO WORLD");
-      //exp5(p, FLAGS_gen_level, FLAGS_sgx);
+      exp5(p, FLAGS_gen_level, FLAGS_sgx);
       break;
     }
     case 6: {
