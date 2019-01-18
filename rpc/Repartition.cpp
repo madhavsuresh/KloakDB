@@ -19,7 +19,9 @@ typedef std::pair<hostNum, tableID> HostIDPair;
 HostIDPair ship_off_repart_one(DataOwnerPrivate *p, int host,
                                std::vector<int> index_lst, table_t *t) {
 
+  START_TIMER(copy_table_by_index_step_one);
   table_t *output_table = copy_table_by_index(t, index_lst);
+  END_AND_LOG_EXP3_STAT_TIMER(copy_table_by_index_step_one);
   // TODO(madhavsuresh): have the argument to this be a function pointer to
   // this function.
   tableID id = 0;
