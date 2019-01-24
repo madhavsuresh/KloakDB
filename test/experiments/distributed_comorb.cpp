@@ -84,7 +84,7 @@ void comorbidity_keq5(HonestBrokerPrivate *p, std::string dbname, std::string ye
   auto gen_out = p->Generalize(gen_in, 5);
   END_AND_LOG_EXEC_TIMER(generalize);
   START_TIMER(repartition);
-  auto cdiff_cohort_repart = p->Repartition(gen_out["cdiff_cohort_diagnoses"]);
+  auto cdiff_cohort_repart = p->RepartitionJustHash(gen_out["cdiff_cohort_diagnoses"]);
   END_AND_LOG_EXEC_TIMER(repartition);
 
   GroupByDef gbd;
