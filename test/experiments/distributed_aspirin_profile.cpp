@@ -348,10 +348,10 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   END_AND_LOG_EXP7_ASP_STAT_TIMER(medications_filter, "k5");
 
   START_TIMER(repartition);
-  auto diagnoses_repart = p->Repartition(gen_zipped_map[diagnoses_table]);
-  auto vitals_repart = p->Repartition(gen_zipped_map[vitals_table]);
-  auto meds_repart = p->Repartition(filtered_meds);
-  auto demographics_repart = p->Repartition(gen_zipped_map[demographics_table]);
+  auto diagnoses_repart = p->RepartitionJustHash(gen_zipped_map[diagnoses_table]);
+  auto vitals_repart = p->RepartitionJustHash(gen_zipped_map[vitals_table]);
+  auto meds_repart = p->RepartitionJustHash(filtered_meds);
+  auto demographics_repart = p->RepartitionJustHash(gen_zipped_map[demographics_table]);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "k5");
 
   START_TIMER(join_one);
