@@ -237,11 +237,11 @@ unordered_map<int64_t, pair<int,int>> oblivious_partial_aggregate(
           hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
         }
       } else {
-        hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first - 1;
-        hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first + 1;
+        //hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first - 1;
+        //hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first + 1;
         if (gb->type != COUNT) {
-          hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
-          hash_to_count_and_total[hashed].second -= tup->field_list[gb->colno].f.int_field.val;
+          //hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
+          //hash_to_count_and_total[hashed].second -= tup->field_list[gb->colno].f.int_field.val;
         }
       }
     }
