@@ -3,17 +3,20 @@
 //
 
 #include "HonestBrokerPrivate.h"
+#include "sgx/App/VaultDBSGXApp.h"
 #include <future>
 #include <gflags/gflags.h>
 #include <logger/LoggerDefs.h>
-#include "sgx/App/VaultDBSGXApp.h"
 
 DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
 using namespace vaultdb;
 
-HonestBrokerPrivate::HonestBrokerPrivate(string honest_broker_address, const std::string& key, const std::string& cert, const std::string& root)
-    : InfoPrivate(honest_broker_address), key(key),cert(cert),root(root) {
+HonestBrokerPrivate::HonestBrokerPrivate(string honest_broker_address,
+                                         const std::string &key,
+                                         const std::string &cert,
+                                         const std::string &root)
+    : InfoPrivate(honest_broker_address), key(key), cert(cert), root(root) {
   this->num_hosts = 0;
   this->expected_num_hosts = FLAGS_expected_num_hosts;
 }
@@ -44,7 +47,8 @@ int HonestBrokerPrivate::RegisterPeerHosts() {
 }
 
 string count_star_query(string table_name, string column) {
-    return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " + column + " ORDER BY " + column;
+  return "SELECT " + column + ", count(*) FROM " + table_name + " GROUP BY " +
+         column + " ORDER BY " + column;
 }
 
 void log_gen_stats(table_t *gen_map) {
@@ -89,13 +93,13 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     auto dbname = table.second.dbname;
     vector<std::future<tableid_ptr>> threads;
     for (int i = 0; i < this->num_hosts; i++) {
-	threads.push_back(async(launch::async, &HonestBrokerPrivate::DBMSQuery ,this, i, "dbname="+dbname, query));
+      threads.push_back(async(launch::async, &HonestBrokerPrivate::DBMSQuery,
+                              this, i, "dbname=" + dbname, query));
 
-      //auto tid = this->DBMSQuery(i, "dbname=" + dbname, query);
+      // auto tid = this->DBMSQuery(i, "dbname=" + dbname, query);
     }
-    for (auto &tt: threads) {
+    for (auto &tt : threads) {
       tids.push_back(tt.get());
-
     }
     vector<pair<hostnum, table_t *>> count_tables;
     for (auto &t : tids) {
@@ -105,8 +109,12 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     gen_input[table.first] = count_tables;
   }
   START_TIMER(generalize_inner);
-  table_t *gen_map = generalize_table_fast_sgx(gen_input, num_hosts, gen_level);//generalize_table(gen_input, num_hosts, gen_level);
-  LOG(EXEC) << "Size of Generalize: " << gen_map->num_tuple_pages << " num tuples: " << gen_map->num_tuples << " size: " << gen_map->num_tuples*gen_map->size_of_tuple/(1000*1000);
+  table_t *gen_map = generalize_table_fast_sgx(
+      gen_input, num_hosts,
+      gen_level); // generalize_table(gen_input, num_hosts, gen_level);
+  LOG(EXEC) << "Size of Generalize: " << gen_map->num_tuple_pages
+            << " num tuples: " << gen_map->num_tuples << " size: "
+            << gen_map->num_tuples * gen_map->size_of_tuple / (1000 * 1000);
   LOG(EXEC) << "END OF GENERALIZATION";
   END_AND_LOG_TIMER(generalize_inner);
 
@@ -168,11 +176,10 @@ HonestBrokerPrivate::Generalize(string table_name, string column, string dbname,
   return out_vec;
 }
 
-int HonestBrokerPrivate::RegisterHost(string hostName,
-						const std::string& key,
-						const std::string& cert,
-						const std::string& root) {
-  grpc::SslCredentialsOptions opts = {root,key,cert};
+int HonestBrokerPrivate::RegisterHost(string hostName, const std::string &key,
+                                      const std::string &cert,
+                                      const std::string &root) {
+  grpc::SslCredentialsOptions opts = {root, key, cert};
 
   this->registrationMutex.lock();
   int host_num = this->num_hosts;
@@ -211,15 +218,16 @@ tableid_ptr HonestBrokerPrivate::DBMSQuery(int host_num, string dbname,
   return this->do_clients[host_num]->DBMSQuery(dbname, query);
 }
 
-vector<tableid_ptr> HonestBrokerPrivate::RepartitionJustHash(vector<tableid_ptr> &ids) {
+vector<tableid_ptr>
+HonestBrokerPrivate::RepartitionJustHash(vector<tableid_ptr> &ids) {
   vector<std::future<vector<tableid_ptr>>> threads_repart2;
   map<int, vector<tableid_ptr>> hashed_table_fragments;
   for (auto &i : ids) {
     vector<tableid_ptr> tmp;
     tmp.push_back(i);
     threads_repart2.push_back(
-            std::async(std::launch::async, &HonestBrokerPrivate::RepartitionStepTwo,
-                       this, i.get()->hostnum(), tmp));
+        std::async(std::launch::async, &HonestBrokerPrivate::RepartitionStepTwo,
+                   this, i.get()->hostnum(), tmp));
   }
 
   for (auto &f : threads_repart2) {
@@ -347,7 +355,8 @@ HonestBrokerPrivate::Aggregate(vector<tableid_ptr> &ids,
   vector<tableid_ptr> aggregate_tables;
   for (auto &i : ids) {
     auto client = do_clients[i.get()->hostnum()];
-    threads.emplace_back(async(launch::async, &DataOwnerClient::Aggregate, client, i, groupby, in_sgx));
+    threads.emplace_back(async(launch::async, &DataOwnerClient::Aggregate,
+                               client, i, groupby, in_sgx));
   }
 
   for (auto &t : threads) {
@@ -370,7 +379,7 @@ vector<tableid_ptr> HonestBrokerPrivate::MakeObli(vector<tableid_ptr> &ids,
   }
   return obli_tables;
 }
-void  HonestBrokerPrivate::SetControlFlowNotAnon(bool not_anon) {
+void HonestBrokerPrivate::SetControlFlowNotAnon(bool not_anon) {
   cf.set_not_anon(not_anon);
 }
 
@@ -378,9 +387,7 @@ void HonestBrokerPrivate::SetControlFlowColName(string name) {
   cf.add_cf_name_strings(name);
 }
 
-void HonestBrokerPrivate::ResetControlFlowCols() {
-  cf.Clear();
-}
+void HonestBrokerPrivate::ResetControlFlowCols() { cf.Clear(); }
 
 void HonestBrokerPrivate::SetControlFlowColNames(vector<string> names) {
   for (auto &name : names) {
