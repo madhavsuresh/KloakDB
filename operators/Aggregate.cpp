@@ -231,17 +231,17 @@ unordered_map<int64_t, pair<int,int>> oblivious_partial_aggregate(
     tuple_t * tup = get_tuple(i, t);
     int64_t hashed = hash_field(gb, tup, t);
     for (auto &h : gb_to_tuple) {
+	auto first = hash_to_count_and_total[hashed].first;
+	auto second = hash_to_count_and_total[hashed].second;
       if (h.first == hashed && !tup->is_dummy) {
-        hash_to_count_and_total[hashed].first++;
+        hash_to_count_and_total[hashed].first = first+1;
         if (gb->type != COUNT) {
-          hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
+          hash_to_count_and_total[hashed].second = second + tup->field_list[gb->colno].f.int_field.val;
         }
       } else {
-        hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first - 1;
-        hash_to_count_and_total[hashed].first = hash_to_count_and_total[hashed].first + 1;
+        hash_to_count_and_total[hashed].first = first;
         if (gb->type != COUNT) {
-          hash_to_count_and_total[hashed].second += tup->field_list[gb->colno].f.int_field.val;
-          hash_to_count_and_total[hashed].second -= tup->field_list[gb->colno].f.int_field.val;
+          hash_to_count_and_total[hashed].second = second;
         }
       }
     }
