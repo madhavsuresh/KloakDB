@@ -95,8 +95,6 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     for (int i = 0; i < this->num_hosts; i++) {
       threads.push_back(async(launch::async, &HonestBrokerPrivate::DBMSQuery,
                               this, i, "dbname=" + dbname, query));
-
-      // auto tid = this->DBMSQuery(i, "dbname=" + dbname, query);
     }
     for (auto &tt : threads) {
       tids.push_back(tt.get());
@@ -126,11 +124,17 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     auto outptr = make_shared<const ::vaultdb::TableID>(out);
     for (auto &table : in) {
       auto tup = table.second.scan_tables;
+      vector<std::future<tableid_ptr>> threads_zipped;
       for (auto &st : tup) {
         if (st.get()->hostnum() == i) {
-          auto zipped = do_clients[i]->GenZip(outptr, st, table.second.column);
-          out_map[table.first].emplace_back(zipped);
+          auto client = do_clients[i];
+          threads_zipped.push_back(async(launch::async,
+                                         &DataOwnerClient::GenZip, client,
+                                         outptr, st, table.second.column));
         }
+      }
+      for (auto &z : threads_zipped) {
+        out_map[table.first].emplace_back(z.get());
       }
     }
   }
