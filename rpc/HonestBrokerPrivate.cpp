@@ -87,9 +87,15 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     string column = table.second.column;
     auto query = count_star_query(table.first, column);
     auto dbname = table.second.dbname;
+    vector<std::future<tableid_ptr>> threads;
     for (int i = 0; i < this->num_hosts; i++) {
-      auto tid = this->DBMSQuery(i, "dbname=" + dbname, query);
-      tids.push_back(tid);
+	threads.push_back(async(launch::async, &HonestBrokerPrivate::DBMSQuery ,this, i, "dbname="+dbname, query));
+
+      //auto tid = this->DBMSQuery(i, "dbname=" + dbname, query);
+    }
+    for (auto &tt: threads) {
+      tids.push_back(tt.get());
+
     }
     vector<pair<hostnum, table_t *>> count_tables;
     for (auto &t : tids) {
