@@ -149,7 +149,7 @@ int64_t hash_field(groupby_def_t *def,tuple_t *t,
           memcpy(&f[ptr], t->field_list[input_col].f.fixed_char_field.val, FIXEDCHAR_LEN);
           ptr += FIXEDCHAR_LEN;
         } else {
-          memcpy(&f[ptr], &(t->field_list[input_col].f.fixed_char_field.genval), sizeof(uint64_t));
+          memcpy(&f[ptr], &(t->field_list[input_col].f.fixed_char_field.val), sizeof(uint64_t));
           ptr += sizeof(uint64_t);
         }
         break;
@@ -158,7 +158,7 @@ int64_t hash_field(groupby_def_t *def,tuple_t *t,
         if (input_col != def->kanon_col) {
           memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.val), sizeof(uint64_t));
         } else {
-          memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.genval), sizeof(uint64_t));
+          memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.val), sizeof(uint64_t));
         }
         ptr += sizeof(uint64_t);
         break;
