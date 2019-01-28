@@ -86,6 +86,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
                        to_gen.scan_tables.end());
   }
 
+  START_TIMER(stats_collection);
   for (auto &table : in) {
     vector<tableid_ptr> tids;
     string column = table.second.column;
@@ -106,6 +107,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     }
     gen_input[table.first] = count_tables;
   }
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_collection, "");
   START_TIMER(generalize_inner);
   table_t *gen_map = generalize_table_fast_sgx(
       gen_input, num_hosts,
@@ -116,6 +118,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
   LOG(EXEC) << "END OF GENERALIZATION";
   END_AND_LOG_TIMER(generalize_inner);
 
+  START_TIMER(view_generation);
   for (int i = 0; i < num_hosts; i++) {
     auto resp = do_clients[i]->SendTable(gen_map, false);
     ::vaultdb::TableID out;
@@ -138,6 +141,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
       }
     }
   }
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(view_generation, "");
   return out_map;
 }
 
