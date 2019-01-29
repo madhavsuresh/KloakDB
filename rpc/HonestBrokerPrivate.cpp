@@ -104,8 +104,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     vector<pair<hostnum, table_t *>> count_tables;
     vector<pair<hostnum, future<table_t *>>> count_tables_future;
     for (auto &t :tids) {
-	auto f = async(launch::async, &DataOwnerClient::GetTable, do_clients[t.get()->hostnum()],t);
-	count_tables_future.emplace_back(t.get()->hostnum(),f);
+	count_tables_future.emplace_back(t.get()->hostnum(),async(launch::async, &DataOwnerClient::GetTable, do_clients[t.get()->hostnum()],t));
     }
 
     for (auto &t : count_tables_future) {
