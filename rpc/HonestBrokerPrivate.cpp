@@ -129,6 +129,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
             << gen_map->num_tuples * gen_map->size_of_tuple / (1000 * 1000);
   LOG(EXEC) << "END OF GENERALIZATION";
   END_AND_LOG_TIMER(generalize_inner);
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(generalize_inner, global_tag);
 
   START_TIMER(view_generation);
   for (int i = 0; i < num_hosts; i++) {
