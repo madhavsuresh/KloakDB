@@ -110,7 +110,9 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     }
 
     for (auto &t : count_tables_future) {
+  START_TIMER(stats_get_single_table_future);
       count_tables.emplace_back(t.first, t.second.get());
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table_future, "");
     }
     gen_input[table.first] = count_tables;
   END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_table, "");
