@@ -11,6 +11,7 @@
 DEFINE_int32(expected_num_hosts, 2, "Expected number of hosts");
 using namespace std;
 using namespace vaultdb;
+extern string global_tag;
 
 HonestBrokerPrivate::HonestBrokerPrivate(string honest_broker_address,
                                          const std::string &key,
@@ -106,18 +107,19 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     for (auto &t :tids) {
   START_TIMER(stats_get_single_table);
 	count_tables_future.emplace_back(t.get()->hostnum(),async(launch::async, &DataOwnerClient::GetTable, do_clients[t.get()->hostnum()],t));
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table, "");
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table, global_tag);
     }
 
     for (auto &t : count_tables_future) {
   START_TIMER(stats_get_single_table_future);
       count_tables.emplace_back(t.first, t.second.get());
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table_future, "");
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table_future, global_tag);
     }
     gen_input[table.first] = count_tables;
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_table, "");
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_table, global_tag);
   }
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_collection, "");
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_collection, global_tag);
+  START_TIMER(generalize_full);
   START_TIMER(generalize_inner);
   table_t *gen_map = generalize_table_fast_sgx(
       gen_input, num_hosts,
@@ -151,7 +153,8 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
       }
     }
   }
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(view_generation, "");
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(view_generation, global_tag);
+  END_AND_LOG_EXP8_GEN_STAT_TIMER(generalize_full, global_tag);
   return out_map;
 }
 
