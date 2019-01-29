@@ -102,11 +102,14 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     }
   START_TIMER(stats_get_table);
     vector<pair<hostnum, table_t *>> count_tables;
-    for (auto &t : tids) {
-  START_TIMER(stats_get_table_single);
-      count_tables.emplace_back(t.get()->hostnum(),
-                                do_clients[t.get()->hostnum()]->GetTable(t));
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_table_single, "");
+    vector<pair<hostnum, future<table_t *>>> count_tables_future;
+    for (auto &t :tids) {
+	auto f = async(launch::async, &DataOwnerClient::GetTable, do_clients[t.get()->hostnum()],t);
+	count_tables_future.emplace_back(t.get()->hostnum(),f);
+    }
+
+    for (auto &t : count_tables_future) {
+      count_tables.emplace_back(t.first, t.second.get());
     }
     gen_input[table.first] = count_tables;
   END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_table, "");
