@@ -155,15 +155,12 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
     diagnoses_scan = p->ClusterDBMSQuery(
             "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   }
-  p->MakeObli(diagnoses_scan, "patient_id");
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
-  p->MakeObli(vitals_scan, "patient_id");
 
   auto meds_scan = p->ClusterDBMSQuery("dbname=" + database,
                                        "SELECT patient_id, medication from " +
                                            medications_table);
-  p->MakeObli(meds_scan, "patient_id");
 
 
   vector<tableid_ptr> demographics_scan;
@@ -177,9 +174,14 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
             "dbname=" + database,
             "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
   }
-  p->MakeObli(demographics_scan, "patient_id");
-
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
+  START_TIMER(make_obli);
+  p->MakeObli(diagnoses_scan, "patient_id");
+  p->MakeObli(vitals_scan, "patient_id");
+  p->MakeObli(meds_scan, "patient_id");
+  p->MakeObli(demographics_scan, "patient_id");
+  END_AND_LOG_EXP7_ASP_STAT_TIMER(make_obli, "full");
+
 
   START_TIMER(repartition);
   auto diagnoses_repart = p->RepartitionJustHash(diagnoses_scan);
