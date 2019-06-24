@@ -16,6 +16,7 @@
 #include "test/experiments/exp3.h"
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp5.h"
+#include "test/experiments/agg_two_party.h"
 #include <future>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
@@ -166,6 +167,7 @@ int main(int argc, char **argv) {
     auto enclave = get_enclave();
     p->WaitForAllHosts();
     p->RegisterPeerHosts();
+
     // dosage_study(p);
     // comorbidity(p);
     // aspirin_profile(p);
@@ -244,6 +246,10 @@ int main(int argc, char **argv) {
       gen_test_rand_table(p, FLAGS_db,table1, table2, FLAGS_gen_level, FLAGS_sgx, size + "," + range);
       break;
     }
+    case 9: {
+		agg_two_party(p, FLAGS_gen_level, FLAGS_sgx);
+
+	    }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
     p->Shutdown();
