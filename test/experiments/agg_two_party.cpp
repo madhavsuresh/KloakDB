@@ -7,7 +7,7 @@
 #include <rpc/HonestBrokerPrivate.h>
 
 void agg_two_party(HonestBrokerPrivate *p, int gen_level, bool sgx) {
-  string lda = "left_deep_joins_512_a";
+  string lda = "left_deep_joins_4096";
   auto scan_a = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + lda);
 
 
