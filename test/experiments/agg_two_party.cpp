@@ -32,7 +32,7 @@ void agg_two_party(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   START_TIMER(agg_two_party_t);
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
-  gbd.set_col_name("a");
+  gbd.set_col_name("b");
   gbd.set_secure(true);
   gbd.set_kanon_col_name("b");
   gbd.add_gb_col_names("b");
