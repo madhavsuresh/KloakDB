@@ -8,7 +8,9 @@
 
 void agg_two_party(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   string lda = "left_deep_joins_4096";
+  string ldb = "left_deep_joins_512_b";
   auto scan_a = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + lda);
+  auto scan_b = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + ldb);
 
 
   unordered_map<table_name, to_gen_t> gen_in;
@@ -18,6 +20,13 @@ void agg_two_party(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   to_gen_a.scan_tables.insert(to_gen_a.scan_tables.end(), scan_a.begin(),
                                scan_a.end());
   gen_in[lda] = to_gen_a;
+  to_gen_t to_gen_b;
+  to_gen_b.column = "b";
+  to_gen_b.dbname = "vaultdb_";
+  to_gen_b.scan_tables.insert(to_gen_b.scan_tables.end(), scan_b.begin(),
+                              scan_b.end());
+  gen_in[ldb] = to_gen_b;
+
 
 
   LOG(EXEC) << "======Start Generalize====";
