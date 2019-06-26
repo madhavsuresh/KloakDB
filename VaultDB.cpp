@@ -9,15 +9,16 @@
 #include "rpc/DataOwnerPrivate.h"
 #include "rpc/HonestBrokerClient.h"
 #include "rpc/HonestBrokerImpl.h"
+#include "test/experiments/agg_two_party.h"
+#include "test/experiments/dist_gen_test.h"
 #include "test/experiments/distributed_aspirin_profile.h"
 #include "test/experiments/distributed_comorb.h"
 #include "test/experiments/distributed_dosage.h"
-#include "test/experiments/dist_gen_test.h"
 #include "test/experiments/exp3.h"
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp5.h"
-#include "test/experiments/agg_two_party.h"
 #include "test/experiments/join_two_party.h"
+#include <fstream>
 #include <future>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
@@ -26,12 +27,10 @@
 #include <grpcpp/security/credentials.h>
 #include <grpcpp/security/server_credentials.h>
 #include <grpcpp/server_builder.h>
-#include <sgx/App/VaultDBSGXApp.h>
-#include <thread>
 #include <iostream>
+#include <sgx/App/VaultDBSGXApp.h>
 #include <sstream>
-#include <fstream>
-
+#include <thread>
 
 DEFINE_bool(honest_broker, false, "Setup as honest broker");
 DEFINE_string(address, "", "IPV4 Address for current instance");
@@ -59,18 +58,16 @@ DEFINE_int32(gen_test_size, 1000, "range for gen test (exp8)");
 DEFINE_bool(sgx, false, "Use SGX for queries");
 
 std::promise<void> exit_requested;
-void read(const std::string& filename, std::string& data){
-	std::ifstream file ( filename.c_str (), std::ios::in );
-	if ( file.is_open () )
-	{
-		std::stringstream ss;
-		ss << file.rdbuf ();
-		file.close ();
-		data = ss.str ();
-	}
-	return;
+void read(const std::string &filename, std::string &data) {
+  std::ifstream file(filename.c_str(), std::ios::in);
+  if (file.is_open()) {
+    std::stringstream ss;
+    ss << file.rdbuf();
+    file.close();
+    data = ss.str();
+  }
+  return;
 }
-
 
 vector<pair<shared_ptr<const TableID>, shared_ptr<const TableID>>>
 zip_join_tables(vector<shared_ptr<const TableID>> &left_tables,
@@ -133,7 +130,7 @@ int main(int argc, char **argv) {
   if (FLAGS_honest_broker == true) {
     LOG(INFO) << "Starting Vaultdb Sesssion";
     // auto defaultHandler = logworker->addDefaultLogger("HB", "logs");
-    
+
     grpc::ServerBuilder builder;
 
     std::string server_key;
@@ -148,18 +145,20 @@ int main(int argc, char **argv) {
 
     read("client.key", client_key);
     read("client.crt", client_cert);
-    
-    HonestBrokerPrivate *p = new HonestBrokerPrivate(FLAGS_address, client_key, client_cert, root);
+
+    HonestBrokerPrivate *p =
+        new HonestBrokerPrivate(FLAGS_address, client_key, client_cert, root);
     HonestBrokerImpl hb(p);
 
-    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {server_key, server_cert};
+    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {server_key,
+                                                                 server_cert};
     grpc::SslServerCredentialsOptions sslOps;
     sslOps.pem_root_certs = root;
-    sslOps.pem_key_cert_pairs.push_back (keycert);
+    sslOps.pem_key_cert_pairs.push_back(keycert);
     auto channel_creds = grpc::SslServerCredentials(sslOps);
     builder.AddListeningPort(p->HostName(), channel_creds);
-    //builder.AddListeningPort(p->HostName(),grpc::InsecureServerCredentials());
-   
+    // builder.AddListeningPort(p->HostName(),grpc::InsecureServerCredentials());
+
     builder.RegisterService(&hb);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     auto serveFn = [&]() { server->Wait(); };
@@ -192,7 +191,7 @@ int main(int argc, char **argv) {
     }
     case 5: {
       if (FLAGS_gen_level == 0) {
-        exp5_plain(p,  FLAGS_sgx);
+        exp5_plain(p, FLAGS_sgx);
       } else {
         exp5(p, FLAGS_gen_level, FLAGS_sgx);
       }
@@ -204,18 +203,17 @@ int main(int argc, char **argv) {
     }
     case 7: {
       if (FLAGS_hl_query == "aspirin") {
-        if (FLAGS_gen_level ==0 ) {
+        if (FLAGS_gen_level == 0) {
           aspirin_profile_encrypt(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
-                          FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
-                          FLAGS_sgx);
-        }  else if (FLAGS_gen_level == -1) {
+                                  FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
+                                  FLAGS_sgx);
+        } else if (FLAGS_gen_level == -1) {
           aspirin_profile_obli(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
-                               FLAGS_meds_table, FLAGS_dem_table,
-                               FLAGS_sgx);
+                               FLAGS_meds_table, FLAGS_dem_table, FLAGS_sgx);
         } else if (FLAGS_gen_level == 17) {
           aspirin_profile_gen(p, FLAGS_db, FLAGS_di_table, FLAGS_vit_table,
-                          FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
-                          FLAGS_sgx, FLAGS_gen_level);
+                              FLAGS_meds_table, FLAGS_dem_table, FLAGS_year,
+                              FLAGS_sgx, FLAGS_gen_level);
         } else {
           printf("DONE\n");
         }
@@ -229,11 +227,14 @@ int main(int argc, char **argv) {
         }
       } else if (FLAGS_hl_query == "dos") {
         if (FLAGS_gen_level == 0) {
-          dosage_encrypted(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year);
+          dosage_encrypted(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table,
+                           FLAGS_year);
         } else if (FLAGS_gen_level == -1) {
-          dosage_obliv(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year);
+          dosage_obliv(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table,
+                       FLAGS_year);
         } else {
-          dosage_k(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year, FLAGS_gen_level);
+          dosage_k(p, FLAGS_db, FLAGS_di_table, FLAGS_meds_table, FLAGS_year,
+                   FLAGS_gen_level);
         }
       }
       break;
@@ -243,20 +244,19 @@ int main(int argc, char **argv) {
       auto range = to_string(FLAGS_gen_test_range);
       string table = "gen_test_r" + range + "_s" + size + "_";
       string table1 = table + "1";
-      string table2 =  table + "2";
-      gen_test_rand_table(p, FLAGS_db,table1, table2, FLAGS_gen_level, FLAGS_sgx, size + "," + range);
+      string table2 = table + "2";
+      gen_test_rand_table(p, FLAGS_db, table1, table2, FLAGS_gen_level,
+                          FLAGS_sgx, size + "," + range);
       break;
     }
     case 9: {
-		agg_two_party(p, FLAGS_gen_level, FLAGS_sgx);
-		break;
-
-	    }
-      case 10: {
-		   join_two_party(p, FLAGS_gen_level, FLAGS_sgx);
-
-
-	       }
+      agg_two_party(p, FLAGS_gen_level, FLAGS_sgx);
+      break;
+    }
+    case 10: {
+      join_two_party(p, FLAGS_gen_level, FLAGS_sgx);
+      break;
+    }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
     p->Shutdown();
@@ -279,21 +279,23 @@ int main(int argc, char **argv) {
     read("client.key", client_key);
     read("client.crt", client_cert);
 
-    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {server_key, server_cert};
+    grpc::SslServerCredentialsOptions::PemKeyCertPair keycert = {server_key,
+                                                                 server_cert};
     grpc::SslServerCredentialsOptions sslOps;
     sslOps.pem_root_certs = root;
-    sslOps.pem_key_cert_pairs.push_back (keycert);
+    sslOps.pem_key_cert_pairs.push_back(keycert);
     auto channel_creds = grpc::SslServerCredentials(sslOps);
-    
+
     DataOwnerPrivate *p =
-        new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address, client_key, client_cert, root);
+        new DataOwnerPrivate(FLAGS_address, FLAGS_honest_broker_address,
+                             client_key, client_cert, root);
     auto enclave = get_enclave();
     p->Register();
     DataOwnerImpl d(p);
-    
+
     grpc::ServerBuilder builder;
     builder.AddListeningPort(p->HostName(), channel_creds);
-    
+
     builder.RegisterService(&d);
     std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
     auto serveFn = [&]() { server->Wait(); };
