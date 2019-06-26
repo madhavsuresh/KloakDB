@@ -17,6 +17,7 @@
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp5.h"
 #include "test/experiments/agg_two_party.h"
+#include "test/experiments/join_two_party.h"
 #include <future>
 #include <g3log/g3log.hpp>
 #include <g3log/logworker.hpp>
@@ -248,8 +249,14 @@ int main(int argc, char **argv) {
     }
     case 9: {
 		agg_two_party(p, FLAGS_gen_level, FLAGS_sgx);
+		break;
 
 	    }
+      case 10: {
+		   join_two_party(p, FLAGS_gen_level, FLAGS_sgx);
+
+
+	       }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
     p->Shutdown();
