@@ -29,6 +29,7 @@ void agg_two_party(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   START_TIMER(repartition);
   auto repart_a = p->Repartition(gen_zipped_map[lda]);
   LOG(EXEC) << "======End Repartition====";
+  START_TIMER(agg_two_party);
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
   gbd.set_col_name("a");
@@ -36,4 +37,6 @@ void agg_two_party(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   gbd.set_kanon_col_name("b");
   gbd.add_gb_col_names("b");
  auto final_avg = p->Aggregate(repart_a, gbd, sgx);
+  END_AND_LOG_EXEC_TIMER(agg_two_party);
+  LOG(EXEC) << "======End Generalize====";
 }
