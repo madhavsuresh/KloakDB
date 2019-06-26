@@ -8,7 +8,7 @@
 
 void agg_two_party(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   string lda = "left_deep_joins_4096";
-  string ldb = "left_deep_joins_512_b";
+  string ldb = "left_deep_joins_4096";
   auto scan_a = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + lda);
   auto scan_b = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + ldb);
 
@@ -41,10 +41,10 @@ void agg_two_party(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   START_TIMER(agg_two_party_t);
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
-  gbd.set_col_name("b");
+  gbd.set_col_name("a");
   gbd.set_secure(true);
   gbd.set_kanon_col_name("b");
-  gbd.add_gb_col_names("b");
+  gbd.add_gb_col_names("a");
  auto final_avg = p->Aggregate(repart_a, gbd, sgx);
   END_AND_LOG_EXP5_STAT_TIMER(agg_two_party_t, gen_level);
   LOG(EXEC) << "======End Generalize====";
