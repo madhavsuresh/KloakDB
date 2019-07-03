@@ -163,6 +163,16 @@ int64_t hash_field(groupby_def_t *def,tuple_t *t,
         ptr += sizeof(uint64_t);
         break;
       }
+      case TIMESTAMP: {
+        if (input_col != def->kanon_col) {
+          memcpy(&f[ptr], &(t->field_list[input_col].f.ts_field.val), sizeof(time_t));
+        } else {
+          memcpy(&f[ptr], &(t->field_list[input_col].f.ts_field.val), sizeof(time_t));
+        }
+        ptr += sizeof(time_t);
+
+	 break;
+     }
       default :{
         throw;
       }

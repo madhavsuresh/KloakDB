@@ -12,19 +12,23 @@ int tuple_size_breach;
 
 FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
   switch (oid) {
+  case BPCHAROID:
   case VARCHAROID:
     return FIXEDCHAR;
-  case NUMERIC:
   case INT4OID:
   case INT8OID:
     return INT;
+  //TODO(madhavsuresh): numeric was moved here because of TPC-H
+  case NUMERIC:
   case FLOAT4OID:
   case FLOAT8OID:
     return DOUBLE;
   case TIMESTAMPOID:
+  case DATEOID:
     return TIMESTAMP;
   default: {
     LOG(PQXX) << "ERROR: Unsupported Column Type";
+    printf("oid: %d", oid);
 
     throw std::invalid_argument("Unsupported column type");
   }
@@ -75,7 +79,16 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
         tuple->field_list[field_counter].f.ts_field.genval =
             tuple->field_list[field_counter].f.ts_field.val;
         tuple->field_list[field_counter].type = TIMESTAMP;
-      } else {
+	//TPC-H ELSE IF FOR PARSING
+      } else if (ss >> std::get_time(&t, "%Y-%m-%d")) {
+        tuple->field_list[field_counter].f.ts_field.val =
+            std::mktime(&t) - timezone;
+        tuple->field_list[field_counter].f.ts_field.genval =
+            tuple->field_list[field_counter].f.ts_field.val;
+	tuple->field_list[field_counter].type = TIMESTAMP;
+      }
+      else {
+      //TPC-H PATCH
         printf("\n**\n%s\n**\n", field.c_str());
         LOG(PQXX) << "ERROR Parsing timezone failed";
         throw std::invalid_argument("Parsing timezone failed");

@@ -7,9 +7,11 @@
 
 // OID constants taken from postgres/catalog/pg_type.h, not included in
 // Ubuntu 16.04 postgres package. These are global constants set in postgres
+#define BPCHAROID 1042
 #define VARCHAROID 1043
 #define INT8OID 20
 #define INT4OID 23
+#define DATEOID 1082
 #define TIMESTAMPOID 1114
 #define FLOAT4OID 700
 #define FLOAT8OID 701
