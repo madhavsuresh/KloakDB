@@ -68,7 +68,7 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j2p3->set_colname("o_orderdate");
   auto j2p4 = jd_vd2.add_project_list();
   j2p4->set_side(JoinColID_RelationSide_LEFT);
-  j2p3->set_colname("o_shippriority");
+  j2p4->set_colname("o_shippriority");
   auto to_join2 = zip_join_tables(oc_join_repart, lineitem_repart);
   auto out_loc_join = p->Join(to_join2, jd_vd2, sgx);
 }
