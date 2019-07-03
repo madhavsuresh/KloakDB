@@ -57,6 +57,7 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   jd_vd2.set_l_col_name("o_orderkey");
   jd_vd2.set_r_col_name("l_orderkey");
   //PROJECT
+  jd_vd2.set_project_len(4);
   auto j2p1 = jd_vd2.add_project_list();
   j2p1->set_side(JoinColID_RelationSide_RIGHT);
   j2p1->set_colname("l_orderkey");
