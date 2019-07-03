@@ -45,6 +45,32 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   vdjp3->set_colname("o_shippriority");
   auto to_join1 = zip_join_tables(orders_repart, cust_repart);
   auto out_oc_join = p->Join(to_join1, jd_vd, sgx );
+
+  p->ResetControlFlowCols();
+  p->SetControlFlowColName("o_orderkey");
+  auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
+  p->ResetControlFlowCols();
+  p->SetControlFlowColName("l_orderkey");
+  auto lineitem_repart = p->RepartitionJustHash(lineitem);
+  START_TIMER(join_two);
+  JoinDef jd_vd2;
+  jd_vd2.set_l_col_name("o_orderkey");
+  jd_vd2.set_r_col_name("l_orderkey");
+  //PROJECT
+  auto j2p1 = jd_vd2.add_project_list();
+  j2p1->set_side(JoinColID_RelationSide_RIGHT);
+  j2p1->set_colname("l_orderkey");
+  auto j2p2 = jd_vd2.add_project_list();
+  j2p2->set_side(JoinColID_RelationSide_RIGHT);
+  j2p2->set_colname("revenue");
+  auto j2p3 = jd_vd2.add_project_list();
+  j2p3->set_side(JoinColID_RelationSide_LEFT);
+  j2p3->set_colname("o_orderdate");
+  auto j2p4 = jd_vd2.add_project_list();
+  j2p4->set_side(JoinColID_RelationSide_LEFT);
+  j2p3->set_colname("o_shippriority");
+  auto to_join2 = zip_join_tables(oc_join_repart, lineitem_repart);
+  auto out_loc_join = p->Join(to_join2, jd_vd2, sgx);
 }
 
 
