@@ -80,6 +80,6 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   gbd.add_gb_col_names("l_orderkey");
   gbd.add_gb_col_names("o_orderdate");
   gbd.add_gb_col_names("o_shippriority");
-  gbd.set_kanon_col_name("revenue");
+  gbd.set_kanon_col_name("l_orderkey");
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
 }
