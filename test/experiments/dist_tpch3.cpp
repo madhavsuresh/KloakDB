@@ -71,6 +71,14 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j2p4->set_colname("o_shippriority");
   auto to_join2 = zip_join_tables(oc_join_repart, lineitem_repart);
   auto out_loc_join = p->Join(to_join2, jd_vd2, sgx);
+
+  GroupByDef gbd;
+  gbd.set_type(GroupByDef_GroupByType_AVG);
+  gbd.set_secure(true);
+  gbd.set_col_name("revenue");
+  gbd.add_gb_col_names("l_orderkey");
+  gbd.add_gb_col_names("o_orderdate");
+  gbd.add_gb_col_names("o_shippriority");
+  gbd.set_kanon_col_name("revenue");
+  auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
 }
-
-
