@@ -23,6 +23,7 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   START_TIMER(repartition);
   p->SetControlFlowColName("o_custkey");
   auto orders_repart = p->RepartitionJustHash(orders);
+  p->ResetControlFlowCols();
   p->SetControlFlowColName("c_custkey");
   auto cust_repart = p->RepartitionJustHash(customer);
 
