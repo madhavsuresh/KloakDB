@@ -97,3 +97,79 @@ TEST_F(tpch_test, query3) {
   printf("num tuples :%lu\n", agg_out->num_tuples);
 }
 
+TEST_F(tpch_test, query5) {
+    table_t *customer = get_table("SELECT c_custkey, c_nationkey FROM customer", dbname);
+    table_t *orders = get_table("SELECT o_custkey, o_orderkey FROM orders WHERE o_orderdate >='1993-01-01' AND o_orderdate < '1994-01-01'", dbname);
+    table_t *lineitem = get_table("SELECT l_orderkey, l_suppkey, l_extendedprice*(1-l_discount) as revenue FROM lineitem", dbname);
+    table_t *supplier = get_table("SELECT s_suppkey, s_nationkey FROM supplier", dbname);
+    table_t *nation = get_table("SELECT n_name, n_regionkey, n_nationkey FROM nation", dbname);
+    table_t *region = get_table("SELECT r_regionkey FROM region WHERE r_name= 'AFRICA'", dbname);
+
+    join_def_t jd;
+    jd.l_col = colno_from_name(nation, "n_regionkey");
+    jd.r_col = colno_from_name(region, "r_regionkey");
+    jd.project_len  = 2;
+    jd.project_list[0].side = LEFT_RELATION;
+    jd.project_list[0].col_no = colno_from_name(nation, "n_nationkey");
+    jd.project_list[1].side = LEFT_RELATION;
+    jd.project_list[1].col_no = colno_from_name(nation, "n_name");
+    table_t *nr = hash_join(nation, region, jd);
+    bzero(&jd, sizeof(jd));
+
+    jd.l_col = colno_from_name(customer, "c_nationkey");
+    jd.r_col = colno_from_name(nr, "n_nationkey");
+    jd.project_len = 2;
+    jd.project_list[0].side = RIGHT_RELATION;
+    jd.project_list[0].col_no = colno_from_name(nr, "n_name");
+    jd.project_list[1].side = LEFT_RELATION;
+    jd.project_list[1].col_no = colno_from_name(customer, "c_custkey");
+    table_t *cnr = hash_join(customer, nr, jd);
+    bzero(&jd, sizeof(jd));
+
+    jd.l_col = colno_from_name(orders, "o_custkey");
+    jd.r_col = colno_from_name(cnr, "c_custkey");
+    jd.project_len = 2;
+    jd.project_list[0].side = RIGHT_RELATION;
+    jd.project_list[0].col_no = colno_from_name(cnr, "n_name");
+    jd.project_list[1].side = LEFT_RELATION;
+    jd.project_list[1].col_no = colno_from_name(orders, "o_orderkey");
+    table_t *ocnr = hash_join(orders, cnr, jd);
+    bzero(&jd, sizeof(jd));
+
+    jd.l_col = colno_from_name(lineitem, "l_orderkey");
+    jd.r_col = colno_from_name(ocnr, "o_orderkey");
+    jd.project_len = 3;
+    jd.project_list[0].side = RIGHT_RELATION;
+    jd.project_list[0].col_no = colno_from_name(ocnr, "n_name");
+    jd.project_list[1].side = LEFT_RELATION;
+    jd.project_list[1].col_no = colno_from_name(lineitem, "l_suppkey");
+    jd.project_list[2].side = LEFT_RELATION;
+    jd.project_list[2].col_no = colno_from_name(lineitem, "revenue");
+    table_t *locnr = hash_join(lineitem, ocnr, jd);
+    bzero(&jd, sizeof(jd));
+
+    jd.l_col = colno_from_name(supplier, "s_suppkey");
+    jd.r_col = colno_from_name(locnr, "l_suppkey");
+    jd.project_len = 2;
+    jd.project_list[0].side = RIGHT_RELATION;
+    jd.project_list[0].col_no = colno_from_name(locnr, "n_name");
+    jd.project_list[1].side = RIGHT_RELATION;
+    jd.project_list[1].col_no = colno_from_name(locnr, "revenue");
+    table_t *slocnr = hash_join(supplier, locnr, jd);
+    bzero(&jd, sizeof(jd));
+
+  groupby_def_t def;
+  def.secure = true;
+  def.type=AVG;
+  def.kanon_col = 0;
+  def.colno=colno_from_name(slocnr, "revenue");
+  def.num_cols = 1;
+  def.gb_colnos[0] = colno_from_name(slocnr, "n_name");
+  table_t * agg_out = aggregate(slocnr, &def);
+  sort_t sort_def = {.colno=colno_from_name(agg_out,"sum"), .ascending=false};
+  table_t * sorted = sort(agg_out, &sort_def);
+}
+
+TEST_F(tpch_test, query10) {
+
+}
