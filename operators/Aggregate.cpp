@@ -3,9 +3,9 @@
 #include "sgx_tcrypto.h"
 #include <cstring>
 #include <map>
-#include <unordered_map>
 #include <math.h>
 #include <sgx_tcrypto.h>
+#include <unordered_map>
 using namespace std;
 
 schema_t agg_schema(int32_t colno, table_t *t) {
@@ -101,12 +101,12 @@ schema_t agg_schema_avg_partial(groupby_def_t *def, table_t *t) {
   agg_schema.fields[def->num_cols].col_no = def->num_cols;
   strncpy(agg_schema.fields[def->num_cols].field_name, "sum\0", FIELD_NAME_LEN);
 
-  agg_schema.fields[def->num_cols+1].type = INT;
-  agg_schema.fields[def->num_cols +1].col_no = def->num_cols + 1;
-  strncpy(agg_schema.fields[def->num_cols+1].field_name, "count\0", FIELD_NAME_LEN);
+  agg_schema.fields[def->num_cols + 1].type = INT;
+  agg_schema.fields[def->num_cols + 1].col_no = def->num_cols + 1;
+  strncpy(agg_schema.fields[def->num_cols + 1].field_name, "count\0",
+          FIELD_NAME_LEN);
   return agg_schema;
 }
-
 
 schema_t agg_schema_avg(groupby_def_t *def, table_t *t) {
   schema_t agg_schema;
@@ -123,65 +123,79 @@ schema_t agg_schema_avg(groupby_def_t *def, table_t *t) {
   return agg_schema;
 }
 
-int64_t get_gen(tuple_t * t, int colno) {
-  switch(t->field_list[colno].type) {
-    case FIXEDCHAR: {
-      return t->field_list[colno].f.fixed_char_field.genval;
-    }
-    case INT : {
-      return t->field_list[colno].f.int_field.genval;
-    }
+int64_t get_gen(tuple_t *t, int colno) {
+  switch (t->field_list[colno].type) {
+  case FIXEDCHAR: {
+    return t->field_list[colno].f.fixed_char_field.genval;
+  }
+  case INT: {
+    return t->field_list[colno].f.int_field.genval;
+  }
   }
   throw std::invalid_argument("Cannot get_gen on this type");
 }
 
-
-int64_t hash_field(groupby_def_t *def,tuple_t *t,
-                 table_t *table) {
+int64_t hash_field(groupby_def_t *def, tuple_t *t, table_t *table) {
   sgx_sha256_hash_t hash;
-  uint8_t f[MAX_FIELDS*FIXEDCHAR_LEN];
+  uint8_t f[MAX_FIELDS * FIXEDCHAR_LEN];
   uint32_t ptr = 0;
   for (int i = 0; i < def->num_cols; i++) {
     int input_col = def->gb_colnos[i];
-    switch(t->field_list[input_col].type){
-      case FIXEDCHAR : {
-        if (input_col != def->kanon_col) {
-          memcpy(&f[ptr], t->field_list[input_col].f.fixed_char_field.val, FIXEDCHAR_LEN);
-          ptr += FIXEDCHAR_LEN;
-        } else {
-          memcpy(&f[ptr], &(t->field_list[input_col].f.fixed_char_field.val), sizeof(uint64_t));
-          ptr += sizeof(uint64_t);
-        }
-        break;
-      }
-      case INT: {
-        if (input_col != def->kanon_col) {
-          memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.val), sizeof(uint64_t));
-        } else {
-          memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.val), sizeof(uint64_t));
-        }
+    switch (t->field_list[input_col].type) {
+    case FIXEDCHAR: {
+      if (input_col != def->kanon_col) {
+        memcpy(&f[ptr], t->field_list[input_col].f.fixed_char_field.val,
+               FIXEDCHAR_LEN);
+        ptr += FIXEDCHAR_LEN;
+      } else {
+        memcpy(&f[ptr], &(t->field_list[input_col].f.fixed_char_field.val),
+               sizeof(uint64_t));
         ptr += sizeof(uint64_t);
-        break;
       }
-      case TIMESTAMP: {
-        if (input_col != def->kanon_col) {
-          memcpy(&f[ptr], &(t->field_list[input_col].f.ts_field.val), sizeof(time_t));
-        } else {
-          memcpy(&f[ptr], &(t->field_list[input_col].f.ts_field.val), sizeof(time_t));
-        }
-        ptr += sizeof(time_t);
+      break;
+    }
+    case INT: {
+      if (input_col != def->kanon_col) {
+        memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.val),
+               sizeof(uint64_t));
+      } else {
+        memcpy(&f[ptr], &(t->field_list[input_col].f.int_field.val),
+               sizeof(uint64_t));
+      }
+      ptr += sizeof(uint64_t);
+      break;
+    }
+    case TIMESTAMP: {
+      if (input_col != def->kanon_col) {
+        memcpy(&f[ptr], &(t->field_list[input_col].f.ts_field.val),
+               sizeof(time_t));
+      } else {
+        memcpy(&f[ptr], &(t->field_list[input_col].f.ts_field.val),
+               sizeof(time_t));
+      }
+      ptr += sizeof(time_t);
 
-	 break;
-     }
-      default :{
-        throw;
+      break;
+    }
+    case DOUBLE: {
+      if (input_col != def->kanon_col) {
+        memcpy(&f[ptr], &(t->field_list[input_col].f.double_field.val),
+               sizeof(double));
+      } else {
+        memcpy(&f[ptr], &(t->field_list[input_col].f.double_field.genval),
+               sizeof(double));
       }
+      ptr += sizeof(double);
+
+      break;
+    }
+    default: { throw; }
     }
   }
   sgx_sha256_msg(f, ptr, &hash);
   union {
-      uint64_t u;
-      unsigned char u8[sizeof(uint64_t)];
+    uint64_t u;
+    unsigned char u8[sizeof(uint64_t)];
   } out;
   out.u8[0] = hash[0];
   out.u8[1] = hash[1];
@@ -194,36 +208,36 @@ int64_t hash_field(groupby_def_t *def,tuple_t *t,
   return out.u;
 }
 
-
-void copy_tuple_gb(groupby_def_t *def, tuple_t * to_copy, tuple_t * copy_into, table_builder_t *tb) {
+void copy_tuple_gb(groupby_def_t *def, tuple_t *to_copy, tuple_t *copy_into,
+                   table_builder_t *tb) {
 
   for (int gb = 0; gb < def->num_cols; gb++) {
     copy_into->field_list[gb].type = tb->table->schema.fields[gb].type;
     switch (tb->table->schema.fields[gb].type) {
-      case UNSUPPORTED: {
-        throw;
-      }
-      case FIXEDCHAR: {
-        strncpy(copy_into->field_list[gb].f.fixed_char_field.val,
-                to_copy->field_list[def->gb_colnos[gb]].f.fixed_char_field.val,
-                FIXEDCHAR_LEN);
-        break;
-      }
-      case INT: {
-        copy_into->field_list[gb].f.int_field =
-                to_copy->field_list[def->gb_colnos[gb]].f.int_field;
-        break;
-      }
-      case TIMESTAMP: {
-        copy_into->field_list[gb].f.ts_field =
-                to_copy->field_list[def->gb_colnos[gb]].f.ts_field;
-        break;
-      }
-      case DOUBLE: {
-        copy_into->field_list[gb].f.double_field =
-                to_copy->field_list[def->gb_colnos[gb]].f.double_field;
-        break;
-      }
+    case UNSUPPORTED: {
+      throw;
+    }
+    case FIXEDCHAR: {
+      strncpy(copy_into->field_list[gb].f.fixed_char_field.val,
+              to_copy->field_list[def->gb_colnos[gb]].f.fixed_char_field.val,
+              FIXEDCHAR_LEN);
+      break;
+    }
+    case INT: {
+      copy_into->field_list[gb].f.int_field =
+          to_copy->field_list[def->gb_colnos[gb]].f.int_field;
+      break;
+    }
+    case TIMESTAMP: {
+      copy_into->field_list[gb].f.ts_field =
+          to_copy->field_list[def->gb_colnos[gb]].f.ts_field;
+      break;
+    }
+    case DOUBLE: {
+      copy_into->field_list[gb].f.double_field =
+          to_copy->field_list[def->gb_colnos[gb]].f.double_field;
+      break;
+    }
     }
   }
   copy_into->num_fields = tb->table->schema.num_fields;
@@ -233,20 +247,22 @@ void copy_tuple_gb(groupby_def_t *def, tuple_t * to_copy, tuple_t * copy_into, t
   }
 }
 
-unordered_map<int64_t, pair<int,int>> oblivious_partial_aggregate(
-    unordered_map<int64_t, int> gb_to_tuple,
-    vector<int> gen_tuple_indices, groupby_def_t *gb, table_t * t) {
+unordered_map<int64_t, pair<int, int>>
+oblivious_partial_aggregate(unordered_map<int64_t, int> gb_to_tuple,
+                            vector<int> gen_tuple_indices, groupby_def_t *gb,
+                            table_t *t) {
   unordered_map<int64_t, pair<int, int>> hash_to_count_and_total;
   for (auto &i : gen_tuple_indices) {
-    tuple_t * tup = get_tuple(i, t);
+    tuple_t *tup = get_tuple(i, t);
     int64_t hashed = hash_field(gb, tup, t);
     for (auto &h : gb_to_tuple) {
-	auto first = hash_to_count_and_total[hashed].first;
-	auto second = hash_to_count_and_total[hashed].second;
+      auto first = hash_to_count_and_total[hashed].first;
+      auto second = hash_to_count_and_total[hashed].second;
       if (h.first == hashed && !tup->is_dummy) {
-        hash_to_count_and_total[hashed].first = first+1;
+        hash_to_count_and_total[hashed].first = first + 1;
         if (gb->type != COUNT) {
-          hash_to_count_and_total[hashed].second = second + tup->field_list[gb->colno].f.int_field.val;
+          hash_to_count_and_total[hashed].second =
+              second + tup->field_list[gb->colno].f.int_field.val;
         }
       } else {
         hash_to_count_and_total[hashed].first = first;
@@ -269,8 +285,8 @@ void merge_partials(vector<unordered_map<int64_t, pair<int, int>>> partials,
       grouped_partials[h.first].emplace_back(h.second);
     }
   }
-  for (auto &g: grouped_partials) {
-    tuple_t * tup = get_tuple(gb_to_tuple[g.first], tb.table);
+  for (auto &g : grouped_partials) {
+    tuple_t *tup = get_tuple(gb_to_tuple[g.first], tb.table);
     int count = 0;
     int sum = 0;
     for (auto &cs : g.second) {
@@ -282,10 +298,10 @@ void merge_partials(vector<unordered_map<int64_t, pair<int, int>>> partials,
   }
 }
 
-table_t *kpartial_aggregate_avg(table_t * t, groupby_def_t *def) {
-  //TODO(madhavsuresh): if kanon-col == groupby-col , then map
+table_t *kpartial_aggregate_avg(table_t *t, groupby_def_t *def) {
+  // TODO(madhavsuresh): if kanon-col == groupby-col , then map
   std::unordered_map<int, std::vector<int>> agg_map;
-  std::unordered_map<int,vector<int>> gen_values_to_index;
+  std::unordered_map<int, vector<int>> gen_values_to_index;
   std::unordered_map<int64_t, int> gb_to_tuple;
 
   table_builder_t tb;
@@ -301,11 +317,11 @@ table_t *kpartial_aggregate_avg(table_t * t, groupby_def_t *def) {
   copy_into->is_dummy = false;
   int curr_tuple = 0;
   for (int i = 0; i < t->num_tuples; i++) {
-    tuple_t * input_tup = get_tuple(i, t);
+    tuple_t *input_tup = get_tuple(i, t);
     int64_t gen_val = get_gen(input_tup, def->kanon_col);
     int64_t hashed = hash_field(def, input_tup, t);
     if (gb_to_tuple.find(hashed) == gb_to_tuple.end()) {
-      copy_tuple_gb(def, input_tup,copy_into,&tb);
+      copy_tuple_gb(def, input_tup, copy_into, &tb);
       gb_to_tuple[hashed] = curr_tuple;
       append_tuple(&tb, copy_into);
       curr_tuple++;
@@ -313,10 +329,12 @@ table_t *kpartial_aggregate_avg(table_t * t, groupby_def_t *def) {
     gen_values_to_index[gen_val].emplace_back(i);
   }
 
-  vector<unordered_map<int64_t, pair<int,int>>> partials; //first in pair is count, second is field value sum
+  vector<unordered_map<int64_t, pair<int, int>>>
+      partials; // first in pair is count, second is field value sum
   partials.reserve(gen_values_to_index.size());
-  for (auto &g: gen_values_to_index) {
-    partials.emplace_back(oblivious_partial_aggregate(gb_to_tuple, g.second, def, t));
+  for (auto &g : gen_values_to_index) {
+    partials.emplace_back(
+        oblivious_partial_aggregate(gb_to_tuple, g.second, def, t));
   }
   merge_partials(partials, def, tb, gb_to_tuple);
   return tb.table;
@@ -333,17 +351,17 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
       int colno = def->gb_colnos[j];
       switch (t->schema.fields[colno].type) {
       case INT: {
-        key += tup->field_list[colno].f.int_field.val * (int)pow(10,j +1);
+        key += tup->field_list[colno].f.int_field.val * (int)pow(10, j + 1);
         break;
       }
       case DOUBLE: {
         throw;
       }
       case TIMESTAMP: {
-          throw;
+        throw;
       }
       case FIXEDCHAR: {
-          throw;
+        throw;
       }
       case UNSUPPORTED: {
         throw;
@@ -368,40 +386,40 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
       }
     }
     tuple_t *to_copy = get_tuple(agg_pair.second[0], t);
-    copy_tuple_gb(def, to_copy,tup, &tb);
-    tup->field_list[colno_from_name(tb.table, "count")].f.int_field.val = agg_pair.second.size();
-    tup->field_list[colno_from_name(tb.table, "sum")].f.int_field.val = avg_total;
+    copy_tuple_gb(def, to_copy, tup, &tb);
+    tup->field_list[colno_from_name(tb.table, "count")].f.int_field.val =
+        agg_pair.second.size();
+    tup->field_list[colno_from_name(tb.table, "sum")].f.int_field.val =
+        avg_total;
     append_tuple(&tb, tup);
   }
   free(tup);
   return tb.table;
 }
 
-table_t *merge_partial_aggregate_tables(vector<table_t*> tables) {
-
-}
+table_t *merge_partial_aggregate_tables(vector<table_t *> tables) {}
 
 table_t *aggregate(table_t *t, groupby_def_t *def) {
   if (def->secure) {
-        return kpartial_aggregate_avg(t, def);
+    return kpartial_aggregate_avg(t, def);
   } else {
 
     switch (def->type) {
-      case COUNT: {
-        return aggregate_count(t, def->colno);
-        break;
-      }
-      case AVG: {
-        return aggregate_avg(t, def);
-      }
-      case MINX: {
-        throw;
-        // printf("UNIMPLEMENTED");
-      }
-      case GROUPBY_UNSUPPORTED: {
-        throw;
-        // printf("UNSUPPORTED");
-      }
+    case COUNT: {
+      return aggregate_count(t, def->colno);
+      break;
+    }
+    case AVG: {
+      return aggregate_avg(t, def);
+    }
+    case MINX: {
+      throw;
+      // printf("UNIMPLEMENTED");
+    }
+    case GROUPBY_UNSUPPORTED: {
+      throw;
+      // printf("UNSUPPORTED");
+    }
     }
   }
   return nullptr;
