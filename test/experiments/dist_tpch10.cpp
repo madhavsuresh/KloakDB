@@ -87,8 +87,10 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j2p8->set_colname("revenue");
   auto to_join2= zip_join_tables(lo_repart, cust_repart);
   auto loc = p->Join(to_join2, jd2, sgx);
+  LOG(EXEC) << "JOIN 2 END==";
 
 
+  /*
   //JOIN3
   LOG(EXEC) << "JOIN 3 START==";
   p->ResetControlFlowCols();
@@ -128,4 +130,5 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j3p8->set_colname("n_name");
   auto to_join3= zip_join_tables(loc_repart, nation_repart);
   auto locn = p->Join(to_join3, jd3, sgx);
+  */
 }
