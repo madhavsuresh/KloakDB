@@ -146,7 +146,8 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto j5p2 = jd5.add_project_list();
   j5p2->set_colname("revenue");
   j5p2->set_side(JoinColID_RelationSide_RIGHT);
-  auto to_join5 = zip_join_tables(supp_repart, locnr_repart);
+  //auto to_join5 = zip_join_tables(supp_repart, locnr_repart);
+  auto to_join5 = zip_join_tables(supp_repart, locnr);
   auto slocnr = p->Join(to_join5, jd5, sgx);
   LOG(EXEC) << "JOIN 5 END==";
 }
