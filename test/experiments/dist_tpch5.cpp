@@ -142,15 +142,27 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   JoinDef jd5;
   jd5.set_l_col_name("s_suppkey");
   jd5.set_r_col_name("l_suppkey");
-  jd5.set_project_len(2);
+  jd5.set_project_len(3);
   auto j5p1 = jd5.add_project_list();
   j5p1->set_colname("n_name");
   j5p1->set_side(JoinColID_RelationSide_RIGHT);
   auto j5p2 = jd5.add_project_list();
   j5p2->set_colname("revenue");
   j5p2->set_side(JoinColID_RelationSide_RIGHT);
+  auto j5p3 = jd5.add_project_list();
+  j5p3->set_colname("l_suppkey");
+  j5p3->set_side(JoinColID_RelationSide_RIGHT);
   //auto to_join5 = zip_join_tables(supplier, locnr);
   auto to_join5 = zip_join_tables(supp_repart, locnr_repart);
   auto slocnr = p->Join(to_join5, jd5, sgx);
   LOG(EXEC) << "JOIN 5 END==";
+
+  LOG(EXEC) << "AGGREGATE START";
+  GroupByDef gbd;
+  gbd.set_type(GroupByDef_GroupByType_AVG);
+  gbd.set_secure(true);
+  gbd.set_col_name("revenue");
+  gbd.add_gb_col_names("n_name");
+  gbd.set_kanon_col_name("l_suppkey");
+  auto agg_out = p->Aggregate(slocnr, gbd, sgx);
 }
