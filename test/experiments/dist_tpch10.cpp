@@ -102,7 +102,7 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   JoinDef jd3;
   jd3.set_l_col_name("c_nationkey");
   jd3.set_r_col_name("n_nationkey");
-  jd3.set_project_len(8);
+  jd3.set_project_len(9);
   auto j3p1 = jd3.add_project_list();
   j3p1->set_side(JoinColID_RelationSide_LEFT);
   j3p1->set_colname("c_custkey");
@@ -127,6 +127,9 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto j3p8 = jd3.add_project_list();
   j3p8->set_side(JoinColID_RelationSide_RIGHT);
   j3p8->set_colname("n_name");
+  auto j3p9 = jd3.add_project_list();
+  j3p9->set_side(JoinColID_RelationSide_LEFT);
+  j3p9->set_colname("c_nationkey");
   auto to_join3= zip_join_tables(loc_repart, nation_repart);
   auto locn = p->Join(to_join3, jd3, sgx);
 
