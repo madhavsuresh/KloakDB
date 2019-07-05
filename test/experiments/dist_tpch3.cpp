@@ -122,6 +122,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto gen_zipped_map = p->Generalize(gen_in, 5);
 
 
+  /*
   START_TIMER(repartition);
   p->SetControlFlowColName("o_custkey");
   auto orders_repart = p->RepartitionJustHash(orders);
@@ -186,4 +187,5 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
+  // */
 }
