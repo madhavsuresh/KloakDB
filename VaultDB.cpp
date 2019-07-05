@@ -11,6 +11,8 @@
 #include "rpc/HonestBrokerImpl.h"
 #include "test/experiments/agg_two_party.h"
 #include "test/experiments/dist_gen_test.h"
+#include "test/experiments/dist_tpch3.h"
+#include "test/experiments/dist_tpch5.h"
 #include "test/experiments/distributed_aspirin_profile.h"
 #include "test/experiments/distributed_comorb.h"
 #include "test/experiments/distributed_dosage.h"
@@ -18,7 +20,6 @@
 #include "test/experiments/exp4.h"
 #include "test/experiments/exp5.h"
 #include "test/experiments/join_two_party.h"
-#include "test/experiments/dist_tpch3.h"
 #include <fstream>
 #include <future>
 #include <g3log/g3log.hpp>
@@ -259,8 +260,11 @@ int main(int argc, char **argv) {
       break;
     }
     case 11: {
-		 tpch_3_encrypted(p, "tpch", FLAGS_sgx);
-	     }
+      tpch_3_encrypted(p, "tpch", FLAGS_sgx);
+    }
+    case 12: {
+      tpch_5_encrypted(p, "tpch", FLAGS_sgx);
+    }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
     p->Shutdown();

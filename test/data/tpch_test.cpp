@@ -125,6 +125,7 @@ TEST_F(tpch_test, query5) {
   table_t *region = get_table(
       "SELECT r_regionkey FROM region WHERE r_name= 'AFRICA'", dbname);
 
+  // JOIN1
   join_def_t jd;
   jd.l_col = colno_from_name(nation, "n_regionkey");
   jd.r_col = colno_from_name(region, "r_regionkey");
@@ -136,6 +137,7 @@ TEST_F(tpch_test, query5) {
   table_t *nr = hash_join(nation, region, jd);
   bzero(&jd, sizeof(jd));
 
+  // JOIN2
   jd.l_col = colno_from_name(customer, "c_nationkey");
   jd.r_col = colno_from_name(nr, "n_nationkey");
   jd.project_len = 2;
@@ -146,6 +148,7 @@ TEST_F(tpch_test, query5) {
   table_t *cnr = hash_join(customer, nr, jd);
   bzero(&jd, sizeof(jd));
 
+  // JOIN3
   jd.l_col = colno_from_name(orders, "o_custkey");
   jd.r_col = colno_from_name(cnr, "c_custkey");
   jd.project_len = 2;
@@ -156,6 +159,7 @@ TEST_F(tpch_test, query5) {
   table_t *ocnr = hash_join(orders, cnr, jd);
   bzero(&jd, sizeof(jd));
 
+  // JOIN4
   jd.l_col = colno_from_name(lineitem, "l_orderkey");
   jd.r_col = colno_from_name(ocnr, "o_orderkey");
   jd.project_len = 3;
@@ -168,6 +172,7 @@ TEST_F(tpch_test, query5) {
   table_t *locnr = hash_join(lineitem, ocnr, jd);
   bzero(&jd, sizeof(jd));
 
+  // JOIN5
   jd.l_col = colno_from_name(supplier, "s_suppkey");
   jd.r_col = colno_from_name(locnr, "l_suppkey");
   jd.project_len = 2;
@@ -178,6 +183,7 @@ TEST_F(tpch_test, query5) {
   table_t *slocnr = hash_join(supplier, locnr, jd);
   bzero(&jd, sizeof(jd));
 
+  // AGG
   groupby_def_t def;
   def.secure = true;
   def.type = AVG;
