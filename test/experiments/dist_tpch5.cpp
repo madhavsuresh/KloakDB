@@ -131,11 +131,11 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   LOG(EXEC) << "JOIN 5 START==";
 
   p->ResetControlFlowCols();
-  p->SetControlFlowColName("s_suppkey");
-  auto supp_repart = p->RepartitionJustHash(supplier);
-  p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
   auto locnr_repart = p->RepartitionJustHash(locnr);
+  p->ResetControlFlowCols();
+  p->SetControlFlowColName("s_suppkey");
+  auto supp_repart = p->RepartitionJustHash(supplier);
   /*
   JoinDef jd5;
   jd5.set_l_col_name("s_suppkey");
