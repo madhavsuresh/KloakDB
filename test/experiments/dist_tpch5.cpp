@@ -33,6 +33,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   p->SetControlFlowColName("r_regionkey");
   auto region_repart = p->RepartitionJustHash(region);
 
+  LOG(EXEC) << "JOIN 1 START==";
   // JOIN1
   // join def vitals-diagnoses
   START_TIMER(join_one);
@@ -49,8 +50,11 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   vdjp2->set_colname("n_name");
   auto to_join1 = zip_join_tables(nation_repart, region_repart);
   auto nr = p->Join(to_join1, jd_vd, sgx);
+  LOG(EXEC) << "JOIN 1 END==";
+  sleep(1)
 
   //JOIN2
+  LOG(EXEC) << "JOIN 2 START==";
   p->ResetControlFlowCols();
   p->SetControlFlowColName("n_nationkey");
   auto nr_repart = p->RepartitionJustHash(nr);
@@ -71,6 +75,9 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j2p2->set_colname("c_custkey");
   auto to_join2 = zip_join_tables(customer_repart, nr_repart);
   auto cnr = p->Join(to_join2, jd_vd2, sgx);
+  LOG(EXEC) << "JOIN 2 END==";
+  sleep(1)
+  LOG(EXEC) << "JOIN 3 START==";
 
   //JOIN 3
   p->ResetControlFlowCols();
@@ -90,6 +97,9 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j3p2->set_colname("o_orderkey");
   auto to_join3 = zip_join_tables(orders_repart, cnr_repart);
   auto ocnr = p->Join(to_join3, jd3, sgx);
+  LOG(EXEC) << "JOIN 3 END==";
+  sleep(1)
+  LOG(EXEC) << "JOIN 4 START==";
   //JOIN 4
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
@@ -113,6 +123,9 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto to_join4 = zip_join_tables(lineitem_repart, ocnr_repart);
   auto locnr = p->Join(to_join4, jd4, sgx);
 
+  LOG(EXEC) << "JOIN 4 END==";
+  sleep(1)
+  LOG(EXEC) << "JOIN 5 START==";
 
   p->ResetControlFlowCols();
   p->SetControlFlowColName("s_suppkey");
@@ -132,4 +145,5 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j5p2->set_side(JoinColID_RelationSide_RIGHT);
   auto to_join5 = zip_join_tables(supp_repart, locnr_repart);
   auto slocnr = p->Join(to_join5, jd5, sgx);
+  LOG(EXEC) << "JOIN 5 END==";
 }
