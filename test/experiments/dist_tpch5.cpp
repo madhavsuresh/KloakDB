@@ -114,7 +114,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   JoinDef jd4;
   jd4.set_l_col_name("l_orderkey");
   jd4.set_r_col_name("o_orderkey");
-  jd3.set_project_len(3);
+  jd4.set_project_len(3);
   auto j4p1 = jd4.add_project_list();
   j4p1->set_colname("n_name");
   j4p1->set_side(JoinColID_RelationSide_RIGHT);
