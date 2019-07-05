@@ -24,7 +24,7 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
       p->ClusterDBMSQuery("dbname="+database, "SELECT c_custkey, c_name, c_acctbal, "
 	  "c_phone, c_address, c_comment, c_nationkey FROM customer");
   auto nation =
-      p->ClusterDBMSQuery("dbname="+database, "SELECT n_regionkey, n_nationkey FROM nation");
+      p->ClusterDBMSQuery("dbname="+database, "SELECT n_name, n_nationkey FROM nation");
 
   //JOIN1
   LOG(EXEC) << "JOIN 1 START==";
@@ -127,8 +127,6 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto j3p8 = jd3.add_project_list();
   j3p8->set_side(JoinColID_RelationSide_RIGHT);
   j3p8->set_colname("n_name");
-  LOG(EXEC) << "LOGGING project len:" << jd3.project_len();
-  LOG(EXEC) << "LOGGING project list len:" << jd3.project_list_size();
   auto to_join3= zip_join_tables(loc_repart, nation_repart);
   auto locn = p->Join(to_join3, jd3, sgx);
 }
