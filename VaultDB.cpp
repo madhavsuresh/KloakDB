@@ -266,12 +266,15 @@ int main(int argc, char **argv) {
       } else {
         tpch_3_gen(p, "tpch", FLAGS_sgx, FLAGS_gen_level);
       }
+      break;
     }
     case 12: {
       tpch_5_encrypted(p, "tpch", FLAGS_sgx);
+      break;
     }
     case 13: {
       tpch_10_encrypted(p, "tpch", FLAGS_sgx);
+      break;
     }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
