@@ -264,7 +264,7 @@ int main(int argc, char **argv) {
       if (FLAGS_gen_level == 0) {
         tpch_3_encrypted(p, "tpch", FLAGS_sgx);
       } else {
-        tpch_3_encrypted(p, "tpch", FLAGS_sgx, FLAGS_gen_level);
+        tpch_3_gen(p, "tpch", FLAGS_sgx, FLAGS_gen_level);
       }
     }
     case 12: {
