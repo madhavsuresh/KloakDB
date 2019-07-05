@@ -85,6 +85,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_custkey");
   auto orders_repart = p->RepartitionJustHash(orders);
+  p->ResetControlFlowCols();
   p->SetControlFlowColName("c_custkey");
   auto cnr_repart = p->RepartitionJustHash(cnr);
   JoinDef jd3;
