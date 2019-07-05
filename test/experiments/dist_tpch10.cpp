@@ -3,10 +3,9 @@
 //
 #include "distributed_aspirin_profile.h"
 #include "logger/LoggerDefs.h"
-#include <gflags/gflags.h>
 #include <chrono>
+#include <gflags/gflags.h>
 #include <thread>
-
 
 void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
 
@@ -15,18 +14,19 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   START_TIMER(postgres_read);
   auto lineitem = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT l_orderkey, l_extendedprice*(1-l_discount) "
-                "as revenue FROM lineitem");
-  auto orders =
-      p->ClusterDBMSQuery("dbname="+database, 
-	      "SELECT o_custkey, o_orderkey from orders WHERE o_orderdate "
-                "<'1995-10-01' AND o_orderdate >= '1993-07-01'");
-  auto customer =
-      p->ClusterDBMSQuery("dbname="+database, "SELECT c_custkey, c_name, c_acctbal, "
-	  "c_phone, c_address, c_comment, c_nationkey FROM customer");
-  auto nation =
-      p->ClusterDBMSQuery("dbname="+database, "SELECT n_name, n_nationkey FROM nation");
+                            "as revenue FROM lineitem");
+  auto orders = p->ClusterDBMSQuery(
+      "dbname=" + database,
+      "SELECT o_custkey, o_orderkey from orders WHERE o_orderdate "
+      "<'1995-10-01' AND o_orderdate >= '1993-07-01'");
+  auto customer = p->ClusterDBMSQuery(
+      "dbname=" + database,
+      "SELECT c_custkey, c_name, c_acctbal, "
+      "c_phone, c_address, c_comment, c_nationkey FROM customer");
+  auto nation = p->ClusterDBMSQuery("dbname=" + database,
+                                    "SELECT n_name, n_nationkey FROM nation");
 
-  //JOIN1
+  // JOIN1
   LOG(EXEC) << "JOIN 1 START==";
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
@@ -48,7 +48,7 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto lo = p->Join(to_join1, jd1, sgx);
   LOG(EXEC) << "JOIN 1 END==";
 
-  //JOIN2
+  // JOIN2
   LOG(EXEC) << "JOIN 2 START==";
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_custkey");
@@ -85,12 +85,11 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto j2p8 = jd2.add_project_list();
   j2p8->set_side(JoinColID_RelationSide_LEFT);
   j2p8->set_colname("revenue");
-  auto to_join2= zip_join_tables(lo_repart, cust_repart);
+  auto to_join2 = zip_join_tables(lo_repart, cust_repart);
   auto loc = p->Join(to_join2, jd2, sgx);
   LOG(EXEC) << "JOIN 2 END==";
 
-
-  //JOIN3
+  // JOIN3
   LOG(EXEC) << "JOIN 3 START==";
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_nationkey");
@@ -130,7 +129,7 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto j3p9 = jd3.add_project_list();
   j3p9->set_side(JoinColID_RelationSide_LEFT);
   j3p9->set_colname("c_nationkey");
-  auto to_join3= zip_join_tables(loc_repart, nation_repart);
+  auto to_join3 = zip_join_tables(loc_repart, nation_repart);
   auto locn = p->Join(to_join3, jd3, sgx);
 
   GroupByDef gbd;
@@ -146,7 +145,4 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   gbd.add_gb_col_names("c_address");
   gbd.add_gb_col_names("c_comment");
   auto agg_out = p->Aggregate(locn, gbd, sgx);
-
-
-
 }

@@ -18,13 +18,12 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   auto scan_d = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + ldd);
   auto scan_e = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + lde);
 
-
   unordered_map<table_name, to_gen_t> gen_in;
   to_gen_t to_gen_a;
   to_gen_a.column = "b";
   to_gen_a.dbname = "vaultdb_";
   to_gen_a.scan_tables.insert(to_gen_a.scan_tables.end(), scan_a.begin(),
-                               scan_a.end());
+                              scan_a.end());
   gen_in[lda] = to_gen_a;
 
   to_gen_t to_gen_b;
@@ -106,7 +105,7 @@ void exp5(HonestBrokerPrivate *p, int gen_level, bool sgx) {
   }
 }
 
-void exp5_plain(HonestBrokerPrivate *p,  bool sgx) {
+void exp5_plain(HonestBrokerPrivate *p, bool sgx) {
   string lda = "left_deep_joins_512_a";
   string ldb = "left_deep_joins_512_b";
   string ldc = "left_deep_joins_512_c";
@@ -117,7 +116,6 @@ void exp5_plain(HonestBrokerPrivate *p,  bool sgx) {
   auto scan_c = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + ldc);
   auto scan_d = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + ldd);
   auto scan_e = p->ClusterDBMSQuery("dbname=vaultdb_", "SELECT * FROM " + lde);
-
 
   p->SetControlFlowColName("b");
   LOG(EXEC) << "======Start Repartition==== GEN_LEVEL:[" << 0 << "]";
@@ -155,9 +153,9 @@ void exp5_plain(HonestBrokerPrivate *p,  bool sgx) {
   END_AND_LOG_EXP5_STAT_TIMER(join3, 0);
   LOG(EXEC) << "======END Join 3====";
   auto to_join4 = zip_join_tables(repart_e, out3);
-    LOG(EXEC) << "======Start Join 4====";
-    START_TIMER(join4);
-    auto out4 = p->Join(to_join4, jd, sgx);
-    END_AND_LOG_EXP5_STAT_TIMER(join4, 0);
-    LOG(EXEC) << "======END Join 4====";
+  LOG(EXEC) << "======Start Join 4====";
+  START_TIMER(join4);
+  auto out4 = p->Join(to_join4, jd, sgx);
+  END_AND_LOG_EXP5_STAT_TIMER(join4, 0);
+  LOG(EXEC) << "======END Join 4====";
 }

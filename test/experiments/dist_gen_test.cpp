@@ -11,7 +11,7 @@ std::string global_tag;
 void gen_test_rand_table(HonestBrokerPrivate *p, std::string dbname,
                          std::string table1, std::string table2, int k,
                          bool in_sgx, std::string tag) {
-    global_tag = tag;
+  global_tag = tag;
   START_TIMER(end_to_end);
   std::string column = "b";
   auto gen_scan1 =

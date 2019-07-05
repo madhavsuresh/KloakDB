@@ -5,7 +5,6 @@
 #include "logger/LoggerDefs.h"
 #include <gflags/gflags.h>
 
-
 void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
 
   LOG(EXEC) << "STARTING TPCH-3 ENCRYPTED DISTRIBUTED";
@@ -13,12 +12,16 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   START_TIMER(postgres_read);
   unordered_map<table_name, to_gen_t> gen_in;
   auto lineitem = p->ClusterDBMSQuery(
-      "dbname=" + database, "SELECT l_orderkey, l_extendedprice *(1 - l_discount) as revenue FROM lineitem where l_shipdate > '1995-03-22'");
+      "dbname=" + database,
+      "SELECT l_orderkey, l_extendedprice *(1 - l_discount) as revenue FROM "
+      "lineitem where l_shipdate > '1995-03-22'");
   auto customer = p->ClusterDBMSQuery(
-      "dbname=" + database, "SELECT c_custkey FROM customer WHERE c_mktsegment='BUILDING'");
-  auto orders = p->ClusterDBMSQuery("dbname=" + database, "SELECT o_orderdate, o_shippriority, o_custkey, o_orderkey from orders WHERE o_orderdate <'1995-03-22'");
-
-
+      "dbname=" + database,
+      "SELECT c_custkey FROM customer WHERE c_mktsegment='BUILDING'");
+  auto orders = p->ClusterDBMSQuery(
+      "dbname=" + database,
+      "SELECT o_orderdate, o_shippriority, o_custkey, o_orderkey from orders "
+      "WHERE o_orderdate <'1995-03-22'");
 
   START_TIMER(repartition);
   p->SetControlFlowColName("o_custkey");
@@ -44,7 +47,7 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   vdjp3->set_side(JoinColID_RelationSide_LEFT);
   vdjp3->set_colname("o_shippriority");
   auto to_join1 = zip_join_tables(orders_repart, cust_repart);
-  auto out_oc_join = p->Join(to_join1, jd_vd, sgx );
+  auto out_oc_join = p->Join(to_join1, jd_vd, sgx);
 
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
@@ -56,7 +59,7 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   JoinDef jd_vd2;
   jd_vd2.set_l_col_name("o_orderkey");
   jd_vd2.set_r_col_name("l_orderkey");
-  //PROJECT
+  // PROJECT
   jd_vd2.set_project_len(4);
   auto j2p1 = jd_vd2.add_project_list();
   j2p1->set_side(JoinColID_RelationSide_RIGHT);
@@ -82,6 +85,6 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   gbd.add_gb_col_names("o_shippriority");
   gbd.set_kanon_col_name("l_orderkey");
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
-  //TODO(madhavsuresh): merge all of the aggregates together. 
-  //TODO(madhavsuresh): add sort
+  // TODO(madhavsuresh): merge all of the aggregates together.
+  // TODO(madhavsuresh): add sort
 }

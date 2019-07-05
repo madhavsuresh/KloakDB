@@ -1,10 +1,10 @@
 //
 // Created by madhav on 11/6/18.
 //
+#include "data/pqxx_compat.h"
 #include "operators/Aggregate.h"
 #include "operators/HashJoin.h"
 #include "operators/Sort.h"
-#include "data/pqxx_compat.h"
 #include <chrono>
 #include <gtest/gtest.h>
 

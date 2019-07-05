@@ -1,9 +1,9 @@
 //
 // Created by madhav on 11/6/18.
 //
+#include "data/pqxx_compat.h"
 #include "operators/Aggregate.h"
 #include "operators/HashJoin.h"
-#include "data/pqxx_compat.h"
 #include <chrono>
 #include <gtest/gtest.h>
 
@@ -30,12 +30,16 @@ protected:
 };
 TEST_F(aspirin_profile_test, full_aspirin_tests) {
 
-  table_t *medications_scan = get_table(
-      "SELECT patient_id, medication from medications where medication = 'aspirin'", dbname);
-  table_t *demographics_scan = get_table("SELECT DISTINCT patient_id, gender, race from demographics", dbname);
-  table_t *diagnoses_scan =
-      get_table("SELECT icd9, patient_id from diagnoses where diag_src = 'hd'", dbname);
-  table_t *vitals_scan = get_table("SELECT patient_id, pulse from vitals", dbname);
+  table_t *medications_scan =
+      get_table("SELECT patient_id, medication from medications where "
+                "medication = 'aspirin'",
+                dbname);
+  table_t *demographics_scan = get_table(
+      "SELECT DISTINCT patient_id, gender, race from demographics", dbname);
+  table_t *diagnoses_scan = get_table(
+      "SELECT icd9, patient_id from diagnoses where diag_src = 'hd'", dbname);
+  table_t *vitals_scan =
+      get_table("SELECT patient_id, pulse from vitals", dbname);
   auto start = std::chrono::high_resolution_clock::now();
 
   join_def_t vd_join;

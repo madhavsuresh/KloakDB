@@ -5,7 +5,9 @@
 #include "logger/LoggerDefs.h"
 #include <gflags/gflags.h>
 
-DEFINE_bool(random_run, false, "if this is a sampled random run, we only want to run the distributed workload");
+DEFINE_bool(random_run, false,
+            "if this is a sampled random run, we only want to run the "
+            "distributed workload");
 
 void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
                              std::string diagnoses_table,
@@ -21,13 +23,13 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   LOG(EXP7_ASP) << "STARTING ASPIRIN PROFILE ENCRYPTED";
   vector<std::future<vector<tableid_ptr>>> semi_joined_tables;
   semi_joined_tables.emplace_back(std::async(
-          std::launch::async, &HonestBrokerPrivate::ClusterDBMSQuery, p,
-          "dbname=" + database,
-          "SELECT gender,race, sum(pulse) AS sum, count(*) AS count FROM  "
-          "dem_ex_local de, hd_cohort_local di, vit_ex_local v, meds_ex_local m "
-          "WHERE m.medication ILIKE '%aspirin%'  AND de.patient_id = di.patient_id "
-          "AND di.patient_id = v.patient_id AND m.patient_id = di.patient_id GROUP "
-          "BY gender, race;"));
+      std::launch::async, &HonestBrokerPrivate::ClusterDBMSQuery, p,
+      "dbname=" + database,
+      "SELECT gender,race, sum(pulse) AS sum, count(*) AS count FROM  "
+      "dem_ex_local de, hd_cohort_local di, vit_ex_local v, meds_ex_local m "
+      "WHERE m.medication ILIKE '%aspirin%'  AND de.patient_id = di.patient_id "
+      "AND di.patient_id = v.patient_id AND m.patient_id = di.patient_id GROUP "
+      "BY gender, race;"));
   START_TIMER(aspirin_profile_full);
   START_TIMER(postgres_read);
   p->SetControlFlowColName("patient_id");
@@ -36,17 +38,20 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
       "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
-  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database, "SELECT patient_id, medication from " + medications_table + " WHERE medication ILIKE '%ASPIRIN%'");
+  auto meds_scan = p->ClusterDBMSQuery(
+      "dbname=" + database, "SELECT patient_id, medication from " +
+                                medications_table +
+                                " WHERE medication ILIKE '%ASPIRIN%'");
 
   vector<tableid_ptr> demographics_scan;
   if (FLAGS_random_run) {
     demographics_scan = p->ClusterDBMSQuery(
-            "dbname=" + database,
-            "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+        "dbname=" + database,
+        "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
   } else {
-    auto demographics_single_scan = p->DBMSQuery(0,
-                                                 "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
-                                                                       demographics_table);
+    auto demographics_single_scan = p->DBMSQuery(
+        0, "dbname=" + database,
+        "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
     demographics_scan.emplace_back(demographics_single_scan);
   }
 
@@ -73,7 +78,7 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
-  auto out_vd_join = p->Join(to_join1, jd_vd, sgx );
+  auto out_vd_join = p->Join(to_join1, jd_vd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "encrypted");
 
   // join def first join "plus medications"
@@ -126,9 +131,9 @@ void aspirin_profile_encrypt(HonestBrokerPrivate *p, std::string database,
   vector<string> cfids;
   cfids.emplace_back("gender");
   cfids.emplace_back("race");
- auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
+  auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
   vector<tableid_ptr> semi_joined_out;
-  for (auto &s: semi_joined_tables) {
+  for (auto &s : semi_joined_tables) {
     semi_joined_out = s.get();
   }
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "encrypted");
@@ -147,13 +152,12 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   unordered_map<table_name, to_gen_t> gen_in;
   vector<tableid_ptr> diagnoses_scan;
   if (FLAGS_random_run) {
-    auto diagnoses_single_scan = p->DBMSQuery(0,
-                                              "dbname=" + database, "SELECT patient_id from " +
-                                                                    diagnoses_table);
+    auto diagnoses_single_scan = p->DBMSQuery(
+        0, "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
     diagnoses_scan.emplace_back(diagnoses_single_scan);
   } else {
     diagnoses_scan = p->ClusterDBMSQuery(
-            "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
+        "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   }
   auto vitals_scan = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
@@ -162,17 +166,16 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
                                        "SELECT patient_id, medication from " +
                                            medications_table);
 
-
   vector<tableid_ptr> demographics_scan;
   if (FLAGS_random_run) {
-    auto demographics_single_scan = p->DBMSQuery(0,
-                                                 "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
-                                                                       demographics_table);
+    auto demographics_single_scan = p->DBMSQuery(
+        0, "dbname=" + database,
+        "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
     demographics_scan.emplace_back(demographics_single_scan);
   } else {
     demographics_scan = p->ClusterDBMSQuery(
-            "dbname=" + database,
-            "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+        "dbname=" + database,
+        "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
   }
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "full");
   START_TIMER(make_obli);
@@ -181,7 +184,6 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   p->MakeObli(meds_scan, "patient_id");
   p->MakeObli(demographics_scan, "patient_id");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(make_obli, "full");
-
 
   START_TIMER(repartition);
   auto diagnoses_repart = p->RepartitionJustHash(diagnoses_scan);
@@ -204,7 +206,7 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("pulse");
   auto to_join1 = zip_join_tables(vitals_repart, diagnoses_repart);
-  auto out_vd_join = p->Join(to_join1, jd_vd, sgx );
+  auto out_vd_join = p->Join(to_join1, jd_vd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_one, "full");
 
   // join def first join "plus medications"
@@ -245,7 +247,6 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "full");
 
-
   GroupByDef gbd;
   START_TIMER(aggregate);
   gbd.set_type(GroupByDef_GroupByType_AVG);
@@ -260,14 +261,13 @@ void aspirin_profile_obli(HonestBrokerPrivate *p, std::string database,
   auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "full");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "full");
-
 }
 
 void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
-                     std::string diagnoses_table, std::string vitals_table,
-                     std::string medications_table,
-                     std::string demographics_table, std::string year, bool sgx,
-                     int gen_level) {
+                         std::string diagnoses_table, std::string vitals_table,
+                         std::string medications_table,
+                         std::string demographics_table, std::string year,
+                         bool sgx, int gen_level) {
 
   std::string year_append = "";
   if (year != "") {
@@ -289,7 +289,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   p->SetControlFlowColName("patient_id");
   unordered_map<table_name, to_gen_t> gen_in;
   auto diagnoses_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
+      "dbname=" + database, "SELECT patient_id from " + diagnoses_table);
   to_gen_t diag_gen;
   diag_gen.column = "patient_id";
   diag_gen.dbname = "healthlnk";
@@ -297,16 +297,16 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
                               diagnoses_scan.begin(), diagnoses_scan.end());
   gen_in[diagnoses_table] = diag_gen;
   auto vitals_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
+      "dbname=" + database, "SELECT patient_id, pulse from " + vitals_table);
   to_gen_t vitals_gen;
   vitals_gen.column = "patient_id";
   vitals_gen.dbname = "healthlnk";
   vitals_gen.scan_tables.insert(vitals_gen.scan_tables.end(),
                                 vitals_scan.begin(), vitals_scan.end());
   gen_in[vitals_table] = vitals_gen;
-  auto meds_scan = p->ClusterDBMSQuery(
-          "dbname=" + database, "SELECT patient_id, medication from " +
-                                medications_table);
+  auto meds_scan = p->ClusterDBMSQuery("dbname=" + database,
+                                       "SELECT patient_id, medication from " +
+                                           medications_table);
 
   to_gen_t meds_gen;
   meds_gen.column = "patient_id";
@@ -318,19 +318,21 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   vector<tableid_ptr> demographics_scan;
   if (FLAGS_random_run) {
     demographics_scan = p->ClusterDBMSQuery(
-            "dbname=" + database,
-            "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
+        "dbname=" + database,
+        "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
   } else {
-    auto demographics_single_scan = p->DBMSQuery(0,
-                                                 "dbname=" + database, "SELECT DISTINCT patient_id, gender, race from " +
-                                                                       demographics_table);
+    auto demographics_single_scan = p->DBMSQuery(
+        0, "dbname=" + database,
+        "SELECT DISTINCT patient_id, gender, race from " + demographics_table);
     demographics_scan.emplace_back(demographics_single_scan);
   }
 
   to_gen_t dem_gen;
   dem_gen.column = "patient_id";
   dem_gen.dbname = "healthlnk";
-  dem_gen.scan_tables.insert(dem_gen.scan_tables.end(), demographics_scan.begin(), demographics_scan.end());
+  dem_gen.scan_tables.insert(dem_gen.scan_tables.end(),
+                             demographics_scan.begin(),
+                             demographics_scan.end());
   gen_in[demographics_table] = dem_gen;
 
   END_AND_LOG_EXP7_ASP_STAT_TIMER(postgres_read, "k5");
@@ -346,14 +348,16 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   fieldMed->set_field_type(FieldDesc_FieldType_FIXEDCHAR);
   expr_med.set_charfield("ASPIRIN");
   auto filtered_meds =
-          p->Filter(gen_zipped_map[medications_table], expr_med, false);
+      p->Filter(gen_zipped_map[medications_table], expr_med, false);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(medications_filter, "k5");
 
   START_TIMER(repartition);
-  auto diagnoses_repart = p->RepartitionJustHash(gen_zipped_map[diagnoses_table]);
+  auto diagnoses_repart =
+      p->RepartitionJustHash(gen_zipped_map[diagnoses_table]);
   auto vitals_repart = p->RepartitionJustHash(gen_zipped_map[vitals_table]);
   auto meds_repart = p->RepartitionJustHash(filtered_meds);
-  auto demographics_repart = p->RepartitionJustHash(gen_zipped_map[demographics_table]);
+  auto demographics_repart =
+      p->RepartitionJustHash(gen_zipped_map[demographics_table]);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(repartition, "k5");
 
   START_TIMER(join_one);
@@ -404,7 +408,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   auto pdp4 = jd_pd3.add_project_list();
   pdp4->set_side(JoinColID_RelationSide_LEFT);
   pdp4->set_colname("patient_id");
-  auto to_join3 = zip_join_tables(demographics_repart,out_pm_join);
+  auto to_join3 = zip_join_tables(demographics_repart, out_pm_join);
   LOG(EXP7_ASP) << "Join Input Table 3:";
   auto out_pd_join = p->Join(to_join3, jd_pd3, sgx);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(join_three, "k5");
@@ -424,7 +428,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   cfids.emplace_back("race");
   auto final_avg = p->Aggregate(out_pd_join, gbd, sgx);
   vector<tableid_ptr> semi_joined_out;
-  for (auto &s: semi_joined_tables) {
+  for (auto &s : semi_joined_tables) {
     semi_joined_out = s.get();
   }
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "k5");
@@ -432,4 +436,3 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "k5");
 }
-

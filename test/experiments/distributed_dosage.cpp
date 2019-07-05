@@ -2,8 +2,8 @@
 // Created by madhav on 12/1/18.
 //
 #include "distributed_dosage.h"
-#include <gflags/gflags.h>
 #include <VaultDB.h>
+#include <gflags/gflags.h>
 
 DEFINE_int32(num_pids, 100, "number of pids in query");
 
@@ -52,13 +52,11 @@ void dosage_obliv(HonestBrokerPrivate *p, std::string dbname, std::string diag,
 
   LOG(EXP7_DOS) << "STARTING DOSAGE STUDY ENCRYPTED";
   START_TIMER(dosage_study_obli);
-  auto diag_scan = p->ClusterDBMSQuery("dbname=" + dbname,
-                                       "SELECT patient_id from " +
-                                       diag);
-  auto med_scan =
-          p->ClusterDBMSQuery("dbname=" + dbname,
-                              "SELECT medication, dosage, patient_id from " + meds +
-                              year_append);
+  auto diag_scan =
+      p->ClusterDBMSQuery("dbname=" + dbname, "SELECT patient_id from " + diag);
+  auto med_scan = p->ClusterDBMSQuery(
+      "dbname=" + dbname,
+      "SELECT medication, dosage, patient_id from " + meds + year_append);
   // auto to_join = zip_join_tables(diag_scan, med_scan);
   p->SetControlFlowColName("patient_id");
   auto obli_diag = p->MakeObli(diag_scan, "patient_id");
@@ -160,7 +158,7 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
 
   auto output_join = p->Join(to_join, jd, true /* in_sgx */);
   vector<tableid_ptr> semi_joined_out;
-  for (auto &s: semi_joined_tables) {
+  for (auto &s : semi_joined_tables) {
     semi_joined_out = s.get();
   }
   END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_k, FLAGS_num_pids);
