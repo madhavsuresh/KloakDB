@@ -129,4 +129,21 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j3p8->set_colname("n_name");
   auto to_join3= zip_join_tables(loc_repart, nation_repart);
   auto locn = p->Join(to_join3, jd3, sgx);
+
+  GroupByDef gbd;
+  gbd.set_type(GroupByDef_GroupByType_AVG);
+  gbd.set_secure(true);
+  gbd.set_col_name("revenue");
+  gbd.set_kanon_col_name("c_nationkey");
+  gbd.add_gb_col_names("c_custkey");
+  gbd.add_gb_col_names("c_name");
+  gbd.add_gb_col_names("c_acctbal");
+  gbd.add_gb_col_names("c_phone");
+  gbd.add_gb_col_names("n_name");
+  gbd.add_gb_col_names("c_address");
+  gbd.add_gb_col_names("c_comment");
+  auto agg_out = p->Aggregate(locn, gbd, sgx);
+
+
+
 }
