@@ -81,7 +81,13 @@ void DataOwnerPrivate::Register() {
 
 int DataOwnerPrivate::HostNum() { return this->host_num; }
 
+int in_null_table(uint64_t i) {return i;} ;
+
 int DataOwnerPrivate::AddTable(table_t *t) {
+    if (t == NULL) {
+	LOG(INFO) << "GETTING NULL TABLE";
+	in_null_table((uint64_t) t);
+    }
   int table_id;
   table_catalog_mutex.lock();
   table_id = table_counter;
