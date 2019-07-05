@@ -132,7 +132,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
 
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
-  auto locnr_repart = p->RepartitionJustHash(locnr);
+//  auto locnr_repart = p->RepartitionJustHash(locnr);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("s_suppkey");
   auto supp_repart = p->RepartitionJustHash(supplier);
