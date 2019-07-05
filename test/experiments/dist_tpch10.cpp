@@ -58,6 +58,8 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto cust_repart = p->RepartitionJustHash(customer);
 
   JoinDef jd2;
+  jd2.set_l_col_name("o_custkey");
+  jd2.set_r_col_name("c_custkey");
   jd2.set_project_len(8);
   auto j2p1 = jd2.add_project_list();
   j2p1->set_side(JoinColID_RelationSide_RIGHT);
@@ -97,6 +99,8 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto nation_repart = p->RepartitionJustHash(nation);
 
   JoinDef jd3;
+  jd3.set_l_col_name("c_nationkey");
+  jd3.set_r_col_name("n_nationkey");
   jd3.set_project_len(8);
   auto j3p1 = jd3.add_project_list();
   j3p1->set_side(JoinColID_RelationSide_LEFT);
