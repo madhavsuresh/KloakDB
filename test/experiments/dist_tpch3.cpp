@@ -83,4 +83,5 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   gbd.set_kanon_col_name("l_orderkey");
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
   //TODO(madhavsuresh): merge all of the aggregates together. 
+  //TODO(madhavsuresh): add sort
 }

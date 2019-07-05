@@ -165,4 +165,6 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   gbd.add_gb_col_names("n_name");
   gbd.set_kanon_col_name("l_suppkey");
   auto agg_out = p->Aggregate(slocnr, gbd, sgx);
+  //TODO(madhavsuresh): merge all of the aggregates together. 
+  //TODO(madhavsuresh): add sort
 }
