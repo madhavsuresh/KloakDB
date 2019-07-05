@@ -114,6 +114,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   JoinDef jd4;
   jd4.set_l_col_name("l_orderkey");
   jd4.set_r_col_name("o_orderkey");
+  jd3.set_project_len(3);
   auto j4p1 = jd4.add_project_list();
   j4p1->set_colname("n_name");
   j4p1->set_side(JoinColID_RelationSide_RIGHT);
@@ -125,6 +126,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j4p3->set_side(JoinColID_RelationSide_LEFT);
   auto to_join4 = zip_join_tables(lineitem_repart, ocnr_repart);
   auto locnr = p->Join(to_join4, jd4, sgx);
+  
 
   LOG(EXEC) << "JOIN 4 END==";
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
@@ -132,7 +134,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
 
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
-//  auto locnr_repart = p->RepartitionJustHash(locnr);
+  auto locnr_repart = p->RepartitionJustHash(locnr);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("s_suppkey");
   auto supp_repart = p->RepartitionJustHash(supplier);
