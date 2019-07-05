@@ -130,13 +130,13 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   std::this_thread::sleep_for(std::chrono::milliseconds(500));
   LOG(EXEC) << "JOIN 5 START==";
 
-  /*
   p->ResetControlFlowCols();
   p->SetControlFlowColName("s_suppkey");
-  //auto supp_repart = p->RepartitionJustHash(supplier);
+  auto supp_repart = p->RepartitionJustHash(supplier);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
-//  auto locnr_repart = p->RepartitionJustHash(locnr);
+  auto locnr_repart = p->RepartitionJustHash(locnr);
+  /*
   JoinDef jd5;
   jd5.set_l_col_name("s_suppkey");
   jd5.set_r_col_name("l_suppkey");
