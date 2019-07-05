@@ -113,11 +113,13 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   customer_gen.column = "c_custkey";
   customer_gen.dbname = "tpch";
   customer_gen.scan_tables.insert(customer_gen.scan_tables.end(), customer.begin(), customer.end());
+  gen_in["customer"] = customer_gen;
 
   to_gen_t orders_gen;
   orders_gen.column = "o_custkey";
   orders_gen.dbname = "tpch";
   orders_gen.scan_tables.insert(orders_gen.scan_tables.end(), orders.begin(), orders.end());
+  gen_in["orders"] = orders_gen;
 
   auto gen_zipped_map = p->Generalize(gen_in, 5);
 
