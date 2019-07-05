@@ -13,6 +13,7 @@
 #include "test/experiments/dist_gen_test.h"
 #include "test/experiments/dist_tpch3.h"
 #include "test/experiments/dist_tpch5.h"
+#include "test/experiments/dist_tpch10.h"
 #include "test/experiments/distributed_aspirin_profile.h"
 #include "test/experiments/distributed_comorb.h"
 #include "test/experiments/distributed_dosage.h"
@@ -264,6 +265,9 @@ int main(int argc, char **argv) {
     }
     case 12: {
       tpch_5_encrypted(p, "tpch", FLAGS_sgx);
+    }
+    case 13: {
+      tpch_10_encrypted(p, "tpch", FLAGS_sgx);
     }
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
