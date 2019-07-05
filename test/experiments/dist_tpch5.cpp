@@ -4,6 +4,8 @@
 #include "distributed_aspirin_profile.h"
 #include "logger/LoggerDefs.h"
 #include <gflags/gflags.h>
+#include <chrono>
+#include <thread>
 
 
 void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
@@ -51,7 +53,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto to_join1 = zip_join_tables(nation_repart, region_repart);
   auto nr = p->Join(to_join1, jd_vd, sgx);
   LOG(EXEC) << "JOIN 1 END==";
-  sleep(1)
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
   //JOIN2
   LOG(EXEC) << "JOIN 2 START==";
@@ -76,7 +78,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto to_join2 = zip_join_tables(customer_repart, nr_repart);
   auto cnr = p->Join(to_join2, jd_vd2, sgx);
   LOG(EXEC) << "JOIN 2 END==";
-  sleep(1)
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
   LOG(EXEC) << "JOIN 3 START==";
 
   //JOIN 3
@@ -98,7 +100,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto to_join3 = zip_join_tables(orders_repart, cnr_repart);
   auto ocnr = p->Join(to_join3, jd3, sgx);
   LOG(EXEC) << "JOIN 3 END==";
-  sleep(1)
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
   LOG(EXEC) << "JOIN 4 START==";
   //JOIN 4
   p->ResetControlFlowCols();
@@ -124,7 +126,7 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto locnr = p->Join(to_join4, jd4, sgx);
 
   LOG(EXEC) << "JOIN 4 END==";
-  sleep(1)
+  std::this_thread::sleep_for(std::chrono::milliseconds(500));
   LOG(EXEC) << "JOIN 5 START==";
 
   p->ResetControlFlowCols();
