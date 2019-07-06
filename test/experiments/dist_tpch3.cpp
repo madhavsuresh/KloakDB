@@ -138,7 +138,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
 
   START_TIMER(repartition);
   p->SetControlFlowColName("o_custkey");
-  auto orders_repart = p->RepartitionJustHash(gen_zipped_mapJ2["orders"]);
+  auto orders_repart = p->RepartitionJustHash(gen_zipped_map["orders"]);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_custkey");
   auto cust_repart = p->RepartitionJustHash(gen_zipped_map["customer"]);
