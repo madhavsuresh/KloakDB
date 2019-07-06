@@ -143,7 +143,6 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   p->SetControlFlowColName("c_custkey");
   auto cust_repart = p->RepartitionJustHash(gen_zipped_map["customer"]);
 
-  /*
   // join def vitals-diagnoses
   START_TIMER(join_one);
   JoinDef jd_vd;
@@ -163,12 +162,14 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto to_join1 = zip_join_tables(orders_repart, cust_repart);
   auto out_oc_join = p->Join(to_join1, jd_vd, sgx);
 
+  
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
   auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
   auto lineitem_repart = p->RepartitionJustHash(gen_zipped_mapJ2["lineitem"]);
+  /*
   START_TIMER(join_two);
   JoinDef jd_vd2;
   jd_vd2.set_l_col_name("o_orderkey");
