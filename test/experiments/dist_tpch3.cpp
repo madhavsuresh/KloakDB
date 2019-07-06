@@ -107,26 +107,38 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
       "WHERE o_orderdate <'1995-03-22'");
 
 
+  /* ANON JOIN 1*/
   unordered_map<table_name, to_gen_t> gen_in;
-
   to_gen_t customer_gen;
   customer_gen.column = "c_custkey";
   customer_gen.dbname = "tpch";
   customer_gen.scan_tables.insert(customer_gen.scan_tables.end(), customer.begin(), customer.end());
   gen_in["customer"] = customer_gen;
-
   to_gen_t orders_gen;
   orders_gen.column = "o_custkey";
   orders_gen.dbname = "tpch";
   orders_gen.scan_tables.insert(orders_gen.scan_tables.end(), orders.begin(), orders.end());
   gen_in["orders"] = orders_gen;
-
   auto gen_zipped_map = p->Generalize(gen_in, 5);
+
+  /* ANON JOIN 2*/
+  unordered_map<table_name, to_gen_t> gen_in2;
+  to_gen_t lineitem_gen;
+  lineitem_gen.column = "l_orderkey";
+  lineitem_gen.dbname = "tpch";
+  lineitem_gen.scan_tables.insert(lineitem_gen.scan_tables.end(), lineitem.begin(), lineitem.end());
+  gen_in2["lineitem"] = lineitem_gen;
+  to_gen_t orders2_gen;
+  orders2_gen.column = "o_orderkey";
+  orders2_gen.dbname = "tpch";
+  orders2_gen.scan_tables.insert(orders2_gen.scan_tables.end(), orders.begin(), orders.end());
+  gen_in2["orders"] = orders2_gen;
+  auto gen_zipped_mapJ2 = p->Generalize(gen_in2, 5);
 
 
   START_TIMER(repartition);
   p->SetControlFlowColName("o_custkey");
-  auto orders_repart = p->RepartitionJustHash(gen_zipped_map["orders"]);
+  auto orders_repart = p->RepartitionJustHash(gen_zipped_mapJ2["orders"]);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_custkey");
   auto cust_repart = p->RepartitionJustHash(gen_zipped_map["customer"]);
@@ -149,14 +161,13 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   vdjp3->set_colname("o_shippriority");
   auto to_join1 = zip_join_tables(orders_repart, cust_repart);
   auto out_oc_join = p->Join(to_join1, jd_vd, sgx);
-  /*
 
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
   auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
-  auto lineitem_repart = p->RepartitionJustHash(lineitem);
+  auto lineitem_repart = p->RepartitionJustHash(gen_zipped_mapJ2["lineitem"]);
   START_TIMER(join_two);
   JoinDef jd_vd2;
   jd_vd2.set_l_col_name("o_orderkey");
@@ -178,6 +189,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto to_join2 = zip_join_tables(oc_join_repart, lineitem_repart);
   auto out_loc_join = p->Join(to_join2, jd_vd2, sgx);
 
+  /*
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
   gbd.set_secure(true);
