@@ -131,14 +131,14 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   to_gen_t orders2_gen;
   orders2_gen.column = "o_orderkey";
   orders2_gen.dbname = "tpch";
-  orders2_gen.scan_tables.insert(orders2_gen.scan_tables.end(), orders.begin(), orders.end());
+  orders2_gen.scan_tables.insert(orders2_gen.scan_tables.end(), gen_zipped_map["orders"].begin(), gen_zipped_map["orders"].end());
   gen_in2["orders"] = orders2_gen;
   auto gen_zipped_mapJ2 = p->Generalize(gen_in2, 5);
 
 
   START_TIMER(repartition);
   p->SetControlFlowColName("o_custkey");
-  auto orders_repart = p->RepartitionJustHash(gen_zipped_map["orders"]);
+  auto orders_repart = p->RepartitionJustHash(gen_zipped_mapJ2["orders"]);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_custkey");
   auto cust_repart = p->RepartitionJustHash(gen_zipped_map["customer"]);
