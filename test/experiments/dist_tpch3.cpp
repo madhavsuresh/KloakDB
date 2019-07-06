@@ -119,7 +119,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   orders_gen.dbname = "tpch";
   orders_gen.scan_tables.insert(orders_gen.scan_tables.end(), orders.begin(), orders.end());
   gen_in["orders"] = orders_gen;
-  auto gen_zipped_map = p->Generalize(gen_in, 5);
+  auto gen_zipped_map = p->Generalize(gen_in, gen_level);
 
   /* ANON JOIN 2*/
   unordered_map<table_name, to_gen_t> gen_in2;
@@ -133,7 +133,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   orders2_gen.dbname = "tpch";
   orders2_gen.scan_tables.insert(orders2_gen.scan_tables.end(), gen_zipped_map["orders"].begin(), gen_zipped_map["orders"].end());
   gen_in2["orders"] = orders2_gen;
-  auto gen_zipped_mapJ2 = p->Generalize(gen_in2, 5);
+  auto gen_zipped_mapJ2 = p->Generalize(gen_in2, gen_level);
 
 
   START_TIMER(repartition);
@@ -169,7 +169,6 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
   auto lineitem_repart = p->RepartitionJustHash(gen_zipped_mapJ2["lineitem"]);
-  /*
   START_TIMER(join_two);
   JoinDef jd_vd2;
   jd_vd2.set_l_col_name("o_orderkey");
@@ -202,5 +201,4 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
-  // */
 }
