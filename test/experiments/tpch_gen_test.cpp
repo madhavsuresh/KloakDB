@@ -1,0 +1,31 @@
+//
+// Created by madhav on 12/23/18.
+//
+
+#include "dist_gen_test.h"
+#include <VaultDB.h>
+#include <logger/LoggerDefs.h>
+
+
+void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
+
+  START_TIMER(end_to_end);
+  auto customer = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT c_custkey FROM customer");
+  auto orders = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT o_custkey, o_orderkey FROM orders");
+  auto lineitem = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT l_suppkey, l_orderkey FROM lineitem");
+  auto supplier = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT s_suppkey FROM supplier");
+
+  /*ANON 1*/
+  unordered_map<table_name, to_gen_t> gen_in1;
+  to_gen_t customer_gen1;
+  customer_gen1.column = "c_custkey";
+  customer_gen1.dbname = dbname;
+  customer_gen1.scan_tables.insert(customer_gen1.scan_tables.end(), customer.begin(), customer.end());
+  gen_in1["customer"] = customer_gen1;
+  to_gen_t orders_gen1;
+  orders_gen1.column = "o_custkey";
+  orders_gen1.dbname = dbname;
+  orders_gen1.scan_tables.insert(orders_gen1.scan_tables.end(), orders.begin(), orders.end());
+  gen_in1["orders"] = orders_gen1;
+  auto gen_zipped_map = p->Generalize(gen_in1, k);
+}

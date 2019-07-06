@@ -14,6 +14,7 @@
 #include "test/experiments/dist_tpch10.h"
 #include "test/experiments/dist_tpch3.h"
 #include "test/experiments/dist_tpch5.h"
+#include "test/experiments/tpch_gen_test.h"
 #include "test/experiments/distributed_aspirin_profile.h"
 #include "test/experiments/distributed_comorb.h"
 #include "test/experiments/distributed_dosage.h"
@@ -276,6 +277,9 @@ int main(int argc, char **argv) {
       tpch_10_encrypted(p, "tpch", FLAGS_sgx);
       break;
     }
+    case 14: {
+	tpch_gen_test(p, "tpch", FLAGS_gen_level);
+    }	 
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
     p->Shutdown();
