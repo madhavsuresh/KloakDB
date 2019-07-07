@@ -76,6 +76,6 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   lineitem_gen.dbname = dbname;
   lineitem_gen.scan_tables.insert(lineitem_gen.scan_tables.end(), gen_zipped_map3["lineitem"].begin(), gen_zipped_map3["lineitem"].end());
   gen_in2["lineitem"] = lineitem_gen;
-  auto gen_zipped_map2 = p->Generalize(gen_in2, k);
+  auto gen_zipped_map2 = p->Generalize(gen_in2, k, false);
   END_AND_LOG_TPCH_GEN_STAT_TIMER(anon_3, dbname);
 }
