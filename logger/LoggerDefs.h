@@ -112,10 +112,10 @@ const LEVELS PQXX {INFO.value + 10, "PQXX"};
     LOG_EXP8_GEN_STAT_TIMER(timer_name, tag);                                                     \
   } while (0)
 
-#define END_AND_LOG_TPCH_GEN_STAT_TIMER(timer_name)                                          \
+#define END_AND_LOG_TPCH_GEN_STAT_TIMER(timer_name, tag)                                          \
   do {                                                                         \
     END_TIMER(timer_name);                                                     \
-    LOG_EXP14_TPCH_GEN_STAT_TIMER(timer_name);                                                     \
+    LOG_EXP14_TPCH_GEN_STAT_TIMER(timer_name, tag);                                                     \
   } while (0)
 
 
@@ -190,9 +190,9 @@ const LEVELS PQXX {INFO.value + 10, "PQXX"};
   LOG(EXP5_STAT) << "|" << #timer_name << ","<<  k <<  ","                               \
              << elapsed_##timer_name.count() << ""
 
-#define LOG_EXP14_TPCH_GEN_STAT_TIMER(timer_name) \
+#define LOG_EXP14_TPCH_GEN_STAT_TIMER(timer_name, tag) \
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
-  LOG(EXP14_TPCH_GEN) << "|" << #timer_name << ","  \
+  LOG(EXP14_TPCH_GEN) << "|" << #timer_name << ","  << tag << ","\
              << elapsed_##timer_name.count() << ""
 #endif // PROJECT_LOGGERDEFS_H
