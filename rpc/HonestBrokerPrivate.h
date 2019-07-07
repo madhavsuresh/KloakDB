@@ -29,10 +29,12 @@ typedef struct to_gen {
 class HonestBrokerPrivate : public InfoPrivate {
 
 public:
-  HonestBrokerPrivate(string address, const std::string& key, const std::string& cert, const std::string& root);
+  HonestBrokerPrivate(string address, const std::string &key,
+                      const std::string &cert, const std::string &root);
   ~HonestBrokerPrivate();
   void Shutdown();
-  int RegisterHost(string hostName, const std::string& key, const std::string& cert, const std::string& root);
+  int RegisterHost(string hostName, const std::string &key,
+                   const std::string &cert, const std::string &root);
   int NumHosts();
   vector<tableid_ptr> RepartitionJustHash(vector<tableid_ptr> &ids);
   vector<shared_ptr<const TableID>>
@@ -52,10 +54,11 @@ public:
   Join(vector<pair<shared_ptr<const TableID>, shared_ptr<const TableID>>> &ids,
        JoinDef &join, bool in_sgx);
   vector<shared_ptr<const TableID>>
-  Aggregate(vector<shared_ptr<const TableID>> &ids, GroupByDef &groupby, bool in_sgx);
+  Aggregate(vector<shared_ptr<const TableID>> &ids, GroupByDef &groupby,
+            bool in_sgx);
   ControlFlowColumn GetControlFlowColID();
   void SetControlFlowColID(int col_ID);
-   void  SetControlFlowNotAnon(bool is_anon);
+  void SetControlFlowNotAnon(bool is_anon);
   void SetControlFlowColName(string name);
   void SetControlFlowColNames(vector<string> name);
   void ResetControlFlowCols();
@@ -65,17 +68,19 @@ public:
              vector<shared_ptr<const TableID>> scanned_tables, int gen_level);
   unordered_map<table_name, vector<tableid_ptr>>
   Generalize(unordered_map<table_name, to_gen_t> in, int gen_level);
- vector<tableid_ptr> MakeObli(vector<tableid_ptr> &ids, string col_name);
+  unordered_map<table_name, vector<tableid_ptr>>
+  Generalize(unordered_map<table_name, to_gen_t> in, int gen_level, bool sgx);
+  vector<tableid_ptr> MakeObli(vector<tableid_ptr> &ids, string col_name);
   vector<shared_ptr<const TableID>> ClusterDBMSQuery(string dbname,
                                                      string query);
   shared_ptr<const TableID> DBMSQuery(int host_num, string dbname,
                                       string query);
   void FreeTables(vector<tableid_ptr> &ids);
   void WaitForAllHosts();
-  
-  const std::string& key;
-  const std::string& cert;
-  const std::string& root;
+
+  const std::string &key;
+  const std::string &cert;
+  const std::string &root;
 
 private:
   mutex registrationMutex;

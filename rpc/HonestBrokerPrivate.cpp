@@ -76,6 +76,12 @@ void log_gen_stats(table_t *gen_map) {
 unordered_map<table_name, vector<tableid_ptr>>
 HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
                                 int gen_level) {
+  return Generalize(in, gen_level, true);
+}
+
+unordered_map<table_name, vector<tableid_ptr>>
+HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
+                                int gen_level, bool sgx) {
 
   unordered_map<table_name, vector<tableid_ptr>> out_map;
   std::unordered_map<table_name, std::vector<std::pair<hostnum, table_t *>>>
@@ -101,29 +107,39 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
     for (auto &tt : threads) {
       tids.push_back(tt.get());
     }
-  START_TIMER(stats_get_table);
+    START_TIMER(stats_get_table);
     vector<pair<hostnum, table_t *>> count_tables;
     vector<pair<hostnum, future<table_t *>>> count_tables_future;
-    for (auto &t :tids) {
-  START_TIMER(stats_get_single_table);
-	count_tables_future.emplace_back(t.get()->hostnum(),async(launch::async, &DataOwnerClient::GetTable, do_clients[t.get()->hostnum()],t));
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table, global_tag);
+    for (auto &t : tids) {
+      START_TIMER(stats_get_single_table);
+      count_tables_future.emplace_back(
+          t.get()->hostnum(), async(launch::async, &DataOwnerClient::GetTable,
+                                    do_clients[t.get()->hostnum()], t));
+      END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table, global_tag);
     }
 
     for (auto &t : count_tables_future) {
-  START_TIMER(stats_get_single_table_future);
+      START_TIMER(stats_get_single_table_future);
       count_tables.emplace_back(t.first, t.second.get());
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table_future, global_tag);
+      END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_single_table_future,
+                                      global_tag);
     }
     gen_input[table.first] = count_tables;
-  END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_table, global_tag);
+    END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_get_table, global_tag);
   }
   END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_collection, global_tag);
   START_TIMER(generalize_full);
   START_TIMER(generalize_inner);
-  table_t *gen_map = generalize_table_fast_sgx(
-      gen_input, num_hosts,
-      gen_level); // generalize_table(gen_input, num_hosts, gen_level);
+  table_t *gen_map;
+  if (sgx) {
+    gen_map = generalize_table_fast_sgx(
+        gen_input, num_hosts,
+        gen_level); // generalize_table(gen_input, num_hosts, gen_level);
+  } else {
+    gen_map = generalize_table_fast(
+        gen_input, num_hosts,
+        gen_level); // generalize_table(gen_input, num_hosts, gen_level);
+  }
   LOG(EXEC) << "Size of Generalize: " << gen_map->num_tuple_pages
             << " num tuples: " << gen_map->num_tuples << " size: "
             << gen_map->num_tuples * gen_map->size_of_tuple / (1000 * 1000);
