@@ -278,7 +278,7 @@ int main(int argc, char **argv) {
       break;
     }
     case 14: {
-	tpch_gen_test(p, "tpch", FLAGS_gen_level);
+	tpch_gen_test(p, FLAGS_db, FLAGS_gen_level);
     }	 
     default: { printf("NOTHING HAPPENS HERE\n"); }
     }
