@@ -26,6 +26,7 @@ const LEVELS EXP7_COM {INFO.value- 56, "EXP7-COM"};
 const LEVELS EXP7_DOS {INFO.value- 56, "EXP7-DOS"};
 const LEVELS EXP7_ASP {INFO.value- 57, "EXP7-ASP"};
 const LEVELS EXP8_GEN {INFO.value- 59, "EXP8-GEN"};
+const LEVELS EXP14_TPCH_GEN {INFO.value- 60, "EXP14-TPCH-GEN"};
 const LEVELS PQXX {INFO.value + 10, "PQXX"};
 
 #define START_TIMER(timer_name)                                                \
@@ -111,6 +112,13 @@ const LEVELS PQXX {INFO.value + 10, "PQXX"};
     LOG_EXP8_GEN_STAT_TIMER(timer_name, tag);                                                     \
   } while (0)
 
+#define END_AND_LOG_TPCH_GEN_STAT_TIMER(timer_name)                                          \
+  do {                                                                         \
+    END_TIMER(timer_name);                                                     \
+    LOG_EXP14_TPCH_GEN_STAT_TIMER(timer_name);                                                     \
+  } while (0)
+
+
 #define END_AND_LOG_EXP3_STAT_TIMER(timer_name)                                          \
   do {                                                                         \
     END_TIMER(timer_name);                                                     \
@@ -180,5 +188,11 @@ const LEVELS PQXX {INFO.value + 10, "PQXX"};
   std::chrono::duration<double> elapsed_##timer_name =                         \
       end_##timer_name - start_##timer_name;                                   \
   LOG(EXP5_STAT) << "|" << #timer_name << ","<<  k <<  ","                               \
+             << elapsed_##timer_name.count() << ""
+
+#define LOG_EXP14_TPCH_GEN_STAT_TIMER(timer_name) \
+  std::chrono::duration<double> elapsed_##timer_name =                         \
+      end_##timer_name - start_##timer_name;                                   \
+  LOG(EXP14_TPCH_GEN) << "|" << #timer_name << ","  \
              << elapsed_##timer_name.count() << ""
 #endif // PROJECT_LOGGERDEFS_H
