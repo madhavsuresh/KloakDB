@@ -25,7 +25,23 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   to_gen_t orders_gen1;
   orders_gen1.column = "o_custkey";
   orders_gen1.dbname = dbname;
-  orders_gen1.scan_tables.insert(orders_gen1.scan_tables.end(), orders.begin(), orders.end());
+  orders_gen1.scan_tables.insert(orders_gen1.scan_tables.end(), 
+	  orders.begin(), orders.end());
   gen_in1["orders"] = orders_gen1;
   auto gen_zipped_map = p->Generalize(gen_in1, k);
+
+  /*ANON 2*/
+  unordered_map<table_name, to_gen_t> gen_in2;
+  to_gen_t orders_gen2;
+  orders_gen2.column = "o_orderkey";
+  orders_gen2.dbname = dbname;
+  orders_gen2.scan_tables.insert(orders_gen2.scan_tables.end(), 
+	  gen_zipped_map["orders"].begin(), gen_zipped_map["orders"].end());
+  gen_in2["orders"] = orders_gen2;
+  to_gen_t lineitem_gen;
+  lineitem_gen.column = "l_orderkey";
+  lineitem_gen.dbname = dbname;
+  lineitem_gen.scan_tables.insert(lineitem_gen.scan_tables.end(), lineitem.begin(), lineitem.end());
+  gen_in2["lineitem"] = lineitem_gen;
+  auto gen_zipped_map2 = p->Generalize(gen_in2, k);
 }
