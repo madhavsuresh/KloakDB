@@ -15,6 +15,17 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   auto lineitem = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT l_suppkey, l_orderkey FROM lineitem");
   auto supplier = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT s_suppkey FROM supplier");
 
+  /* ANON 0*/
+  unordered_map<table_name, to_gen_t> gen_in0;
+  to_gen_t customer_gen0;
+  customer_gen0.column = "c_custkey";
+  customer_gen0.dbname = dbname;
+  customer_gen0.scan_tables.insert(customer_gen0.scan_tables.end(), customer.begin(), customer.end());
+  gen_in0["customer"] = customer_gen0;
+  auto gen_zipped_map0 = p->Generalize(gen_in0, k);
+  customer = gen_zipped_map0["customer"];
+
+
   /*ANON 1*/
   unordered_map<table_name, to_gen_t> gen_in1;
   to_gen_t customer_gen1;
