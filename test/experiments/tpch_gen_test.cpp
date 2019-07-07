@@ -44,4 +44,19 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   lineitem_gen.scan_tables.insert(lineitem_gen.scan_tables.end(), lineitem.begin(), lineitem.end());
   gen_in2["lineitem"] = lineitem_gen;
   auto gen_zipped_map2 = p->Generalize(gen_in2, k);
+
+  /*ANON 3*/
+  unordered_map<table_name, to_gen_t> gen_in3;
+  to_gen_t lineitem_gen2;
+  lineitem_gen2.column = "l_suppkey";
+  lineitem_gen2.dbname = dbname;
+  lineitem_gen2.scan_tables.insert(lineitem_gen2.scan_tables.end(), 
+	  gen_zipped_map2["lineitem"].begin(), gen_zipped_map2["lineitem"].end());
+  gen_in2["lineitem"] = lineitem_gen2;
+  to_gen_t supplier_gen;
+  supplier_gen.column = "s_suppkey";
+  supplier_gen.dbname = dbname;
+  supplier_gen.scan_tables.insert(supplier_gen.scan_tables.end(), supplier.begin(), supplier.end());
+  gen_in3["supplier"] = supplier_gen;
+  auto gen_zipped_map3 = p->Generalize(gen_in3, k);
 }
