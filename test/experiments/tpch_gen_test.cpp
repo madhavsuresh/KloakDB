@@ -10,12 +10,13 @@
 void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
 
   START_TIMER(end_to_end);
-  auto customer = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT c_custkey FROM customer");
+//  auto customer = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT c_custkey FROM customer");
   auto orders = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT o_custkey, o_orderkey FROM orders");
   auto lineitem = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT l_suppkey, l_orderkey FROM lineitem");
-  auto supplier = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT s_suppkey FROM supplier");
+ // auto supplier = p->ClusterDBMSQuery("dbname=" + dbname, "SELECT s_suppkey FROM supplier");
 
   /* ANON 0*/
+  /*
   START_TIMER(anon_0);
   unordered_map<table_name, to_gen_t> gen_in0;
   to_gen_t customer_gen0;
@@ -26,9 +27,10 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   auto gen_zipped_map0 = p->Generalize(gen_in0, k);
   customer = gen_zipped_map0["customer"];
   END_AND_LOG_TPCH_GEN_STAT_TIMER(anon_0, dbname);
-
+  */
 
   /*ANON 1*/
+  /*
   START_TIMER(anon_1);
   unordered_map<table_name, to_gen_t> gen_in1;
   to_gen_t customer_gen1;
@@ -44,8 +46,10 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   gen_in1["orders"] = orders_gen1;
   auto gen_zipped_map = p->Generalize(gen_in1, k);
   END_AND_LOG_TPCH_GEN_STAT_TIMER(anon_1, dbname);
+  */
 
   /*ANON 2*/
+  /*
   START_TIMER(anon_2);
   unordered_map<table_name, to_gen_t> gen_in3;
   to_gen_t lineitem_gen2;
@@ -61,6 +65,7 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   gen_in3["supplier"] = supplier_gen;
   auto gen_zipped_map3 = p->Generalize(gen_in3, k);
   END_AND_LOG_TPCH_GEN_STAT_TIMER(anon_2, dbname);
+  */
 
   /*ANON 3*/
   START_TIMER(anon_3);
@@ -69,12 +74,12 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   orders_gen2.column = "o_orderkey";
   orders_gen2.dbname = dbname;
   orders_gen2.scan_tables.insert(orders_gen2.scan_tables.end(), 
-	  gen_zipped_map["orders"].begin(), gen_zipped_map["orders"].end());
+	  orders.begin(), orders.end());
   gen_in2["orders"] = orders_gen2;
   to_gen_t lineitem_gen;
   lineitem_gen.column = "l_orderkey";
   lineitem_gen.dbname = dbname;
-  lineitem_gen.scan_tables.insert(lineitem_gen.scan_tables.end(), gen_zipped_map3["lineitem"].begin(), gen_zipped_map3["lineitem"].end());
+  lineitem_gen.scan_tables.insert(lineitem_gen.scan_tables.end(), lineitem.begin(), lineitem.end());
   gen_in2["lineitem"] = lineitem_gen;
   auto gen_zipped_map2 = p->Generalize(gen_in2, k);
   END_AND_LOG_TPCH_GEN_STAT_TIMER(anon_3, dbname);
