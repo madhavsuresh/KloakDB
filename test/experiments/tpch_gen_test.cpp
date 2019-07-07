@@ -47,23 +47,6 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
 
   /*ANON 2*/
   START_TIMER(anon_2);
-  unordered_map<table_name, to_gen_t> gen_in2;
-  to_gen_t orders_gen2;
-  orders_gen2.column = "o_orderkey";
-  orders_gen2.dbname = dbname;
-  orders_gen2.scan_tables.insert(orders_gen2.scan_tables.end(), 
-	  gen_zipped_map["orders"].begin(), gen_zipped_map["orders"].end());
-  gen_in2["orders"] = orders_gen2;
-  to_gen_t lineitem_gen;
-  lineitem_gen.column = "l_orderkey";
-  lineitem_gen.dbname = dbname;
-  lineitem_gen.scan_tables.insert(lineitem_gen.scan_tables.end(), lineitem.begin(), lineitem.end());
-  gen_in2["lineitem"] = lineitem_gen;
-  auto gen_zipped_map2 = p->Generalize(gen_in2, k);
-  END_AND_LOG_TPCH_GEN_STAT_TIMER(anon_2);
-
-  /*ANON 3*/
-  START_TIMER(anon_3);
   unordered_map<table_name, to_gen_t> gen_in3;
   to_gen_t lineitem_gen2;
   lineitem_gen2.column = "l_suppkey";
@@ -77,5 +60,22 @@ void tpch_gen_test(HonestBrokerPrivate *p, std::string dbname, int k) {
   supplier_gen.scan_tables.insert(supplier_gen.scan_tables.end(), supplier.begin(), supplier.end());
   gen_in3["supplier"] = supplier_gen;
   auto gen_zipped_map3 = p->Generalize(gen_in3, k);
+  END_AND_LOG_TPCH_GEN_STAT_TIMER(anon_3);
+
+  /*ANON 3*/
+  START_TIMER(anon_3);
+  unordered_map<table_name, to_gen_t> gen_in2;
+  to_gen_t orders_gen2;
+  orders_gen2.column = "o_orderkey";
+  orders_gen2.dbname = dbname;
+  orders_gen2.scan_tables.insert(orders_gen2.scan_tables.end(), 
+	  gen_zipped_map["orders"].begin(), gen_zipped_map["orders"].end());
+  gen_in2["orders"] = orders_gen2;
+  to_gen_t lineitem_gen;
+  lineitem_gen.column = "l_orderkey";
+  lineitem_gen.dbname = dbname;
+  lineitem_gen.scan_tables.insert(lineitem_gen.scan_tables.end(), lineitem.begin(), lineitem.end());
+  gen_in2["lineitem"] = lineitem_gen;
+  auto gen_zipped_map2 = p->Generalize(gen_in2, k);
   END_AND_LOG_TPCH_GEN_STAT_TIMER(anon_3);
 }
