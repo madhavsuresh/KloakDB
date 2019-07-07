@@ -439,6 +439,7 @@ int populate_rc_map(
           }
         }
       }
+      free_table(t);
     }
     relation_num++;
   }
