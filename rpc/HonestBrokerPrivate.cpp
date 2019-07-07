@@ -121,7 +121,7 @@ HonestBrokerPrivate::Generalize(unordered_map<table_name, to_gen_t> in,
   END_AND_LOG_EXP8_GEN_STAT_TIMER(stats_collection, global_tag);
   START_TIMER(generalize_full);
   START_TIMER(generalize_inner);
-  table_t *gen_map = generalize_table_fast_sgx(
+  table_t *gen_map = generalize_table_fast(
       gen_input, num_hosts,
       gen_level); // generalize_table(gen_input, num_hosts, gen_level);
   LOG(EXEC) << "Size of Generalize: " << gen_map->num_tuple_pages
