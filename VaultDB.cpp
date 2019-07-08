@@ -263,18 +263,18 @@ int main(int argc, char **argv) {
     }
     case 11: {
       if (FLAGS_gen_level == 0) {
-        tpch_3_encrypted(p, "tpch", FLAGS_sgx);
+        tpch_3_encrypted(p, FLAGS_db, FLAGS_sgx);
       } else {
-        tpch_3_gen(p, "tpch", FLAGS_sgx, FLAGS_gen_level);
+        tpch_3_gen(p, FLAGS_db, FLAGS_sgx, FLAGS_gen_level);
       }
       break;
     }
     case 12: {
-      tpch_5_encrypted(p, "tpch", FLAGS_sgx);
+      tpch_5_encrypted(p, FLAGS_db, FLAGS_sgx);
       break;
     }
     case 13: {
-      tpch_10_encrypted(p, "tpch", FLAGS_sgx);
+      tpch_10_encrypted(p, FLAGS_db, FLAGS_sgx);
       break;
     }
     case 14: {
