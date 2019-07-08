@@ -228,7 +228,7 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
 
 
   p->MakeObli(customer, "c_custkey");
-  p->MakeObli(orders, "c_custkey");
+  p->MakeObli(orders, "o_custkey");
 
   p->MakeObli(lineitem, "l_orderkey");
   p->MakeObli(orders, "o_orderkey");
