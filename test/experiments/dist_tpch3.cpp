@@ -148,7 +148,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   JoinDef jd_vd;
   jd_vd.set_l_col_name("o_custkey");
   jd_vd.set_r_col_name("c_custkey");
-  jd_vd.set_project_len(3);
+  jd_vd.set_project_len(4);
   // vitals-diagnoses-join project 1
   auto vdjp1 = jd_vd.add_project_list();
   vdjp1->set_side(JoinColID_RelationSide_LEFT);
@@ -159,6 +159,9 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto vdjp3 = jd_vd.add_project_list();
   vdjp3->set_side(JoinColID_RelationSide_LEFT);
   vdjp3->set_colname("o_shippriority");
+  auto vdjp4 = jd_vd.add_project_list();
+  vdjp4->set_side(JoinColID_RelationSide_LEFT);
+  vdjp4->set_colname("o_custkey");
   auto to_join1 = zip_join_tables(orders_repart, cust_repart);
   auto out_oc_join = p->Join(to_join1, jd_vd, sgx);
 
@@ -174,7 +177,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   jd_vd2.set_l_col_name("o_orderkey");
   jd_vd2.set_r_col_name("l_orderkey");
   // PROJECT
-  jd_vd2.set_project_len(4);
+  jd_vd2.set_project_len(5);
   auto j2p1 = jd_vd2.add_project_list();
   j2p1->set_side(JoinColID_RelationSide_RIGHT);
   j2p1->set_colname("l_orderkey");
@@ -187,6 +190,9 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto j2p4 = jd_vd2.add_project_list();
   j2p4->set_side(JoinColID_RelationSide_LEFT);
   j2p4->set_colname("o_shippriority");
+  auto j2p5 = jd_vd2.add_project_list();
+  j2p5->set_side(JoinColID_RelationSide_LEFT);
+  j2p5->set_colname("o_custkey");
   auto to_join2 = zip_join_tables(oc_join_repart, lineitem_repart);
   auto out_loc_join = p->Join(to_join2, jd_vd2, sgx);
 
@@ -197,7 +203,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.add_gb_col_names("l_orderkey");
   gbd.add_gb_col_names("o_orderdate");
   gbd.add_gb_col_names("o_shippriority");
-  gbd.set_kanon_col_name("c_custkey");
+  gbd.set_kanon_col_name("o_custkey");
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
