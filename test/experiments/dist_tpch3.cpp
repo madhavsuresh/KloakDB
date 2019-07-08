@@ -197,7 +197,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.add_gb_col_names("l_orderkey");
   gbd.add_gb_col_names("o_orderdate");
   gbd.add_gb_col_names("o_shippriority");
-  gbd.set_kanon_col_name("l_orderkey");
+  gbd.set_kanon_col_name("c_custkey");
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
