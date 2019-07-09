@@ -339,6 +339,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   START_TIMER(generalize);
   auto gen_zipped_map = p->Generalize(gen_in, 5);
   END_AND_LOG_EXP7_ASP_STAT_TIMER(generalize, "k5");
+  /*
 
   START_TIMER(medications_filter);
   ::vaultdb::Expr expr_med;
@@ -434,5 +435,7 @@ void aspirin_profile_gen(HonestBrokerPrivate *p, std::string database,
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aggregate, "k5");
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "k5");
   LOG(EXP7_ASP) << "ENDING ASPIRIN PROFILE ENCRYPTED";
+  */
   END_AND_LOG_EXP7_ASP_STAT_TIMER(aspirin_profile_full, "k5");
+
 }
