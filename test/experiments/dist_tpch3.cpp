@@ -93,7 +93,7 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
 void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_level) {
 
   LOG(EXEC) << "STARTING TPCH-3 ENCRYPTED DISTRIBUTED";
-  START_TIMER(tpch_3_full);
+  START_TIMER(tpch_3_full_gen);
   START_TIMER(postgres_read);
   auto lineitem = p->ClusterDBMSQuery(
       "dbname=" + database,
@@ -209,6 +209,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.set_kanon_col_name("o_custkey");
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_post_gen, gen_level);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_3_full_gen, gen_level);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
 }
