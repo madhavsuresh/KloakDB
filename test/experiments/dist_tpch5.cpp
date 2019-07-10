@@ -234,7 +234,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   customer_gen2.column = "c_custkey";
   customer_gen2.dbname = database;
   customer_gen2.scan_tables.insert(customer_gen2.scan_tables.end(), gen_zipped_map2["customer"].begin(), 
-	  gen_zipped_map1["customer"].end());
+	  gen_zipped_map2["customer"].end());
   gen_in3["customer"] = customer_gen2;
 
   to_gen_t orders_gen1;
