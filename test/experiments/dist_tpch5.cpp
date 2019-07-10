@@ -208,7 +208,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   region_gen.column = "r_regionkey";
   region_gen.dbname = database;
   region_gen.scan_tables.insert(region_gen.scan_tables.end(), region.begin(), region.end());
-  gen_in["orders"] = region_gen;
+  gen_in["region"] = region_gen;
   auto gen_zipped_map1 = p->Generalize(gen_in, gen_level);
   /* END JOIN 1 ANON*/
   /* ANON JOIN 2*/
