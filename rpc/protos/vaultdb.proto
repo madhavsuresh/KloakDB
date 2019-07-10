@@ -350,6 +350,7 @@ message SortDef {
     int32 colno = 1;
     bool ascending = 2;
     string colname = 3;
+    bool sorting_dummies=4;
 }
 
 

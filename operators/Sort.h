@@ -10,6 +10,7 @@
 typedef struct sortdef {
   int32_t colno;
   bool ascending;
+  bool sorting_dummies;
 } sort_t;
 
 table_t *sort(table_t *t, sort_t *s);

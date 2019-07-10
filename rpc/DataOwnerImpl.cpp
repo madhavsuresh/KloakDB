@@ -342,6 +342,7 @@ sort_t make_sort_t(table_t *t, const ::vaultdb::SortDef sort) {
   sort_t s;
   s.colno = colno_from_name(t, sort.colname());
   s.ascending = sort.ascending();
+  s.sorting_dummies = sort.sorting_dummies();
   return s;
 }
 

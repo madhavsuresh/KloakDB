@@ -26,7 +26,7 @@ std::string tuple_string(tuple_t *t) {
     }
     case INT: {
       output += std::to_string(t->field_list[i].f.int_field.val);
-      output += ",[gv]:(" + std::to_string(t->field_list[i].f.int_field.genval) + ")";
+      //output += ",[gv]:(" + std::to_string(t->field_list[i].f.int_field.genval) + ")";
       break;
     }
     case TIMESTAMP: {
@@ -47,6 +47,7 @@ std::string tuple_string(tuple_t *t) {
     }
     output += "| ";
   }
+    output += "(" + std::to_string(t->is_dummy) + ")";
   return output;
 }
 

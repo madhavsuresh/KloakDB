@@ -166,6 +166,26 @@ void sort_swap_dummy_regression(int power_of_two) {
   query(query_destroy, dbname);
 }
 
+TEST_F(sort_test, simple_sort_dummy) {
+  // TODO(madhavsuresh): this test doesn't do anything
+  std::string query1("create table sort_test (a INT, b INT)");
+  query(query1, dbname);
+  query1 = "INSERT INTO sort_test (a,b) VALUES (7,6), (8,3), (9,1), (4, 2)";
+  query(query1, dbname);
+  query1 = "SELECT * FROM sort_test;";
+  table_t *t1 = get_table(query1, dbname);
+  get_tuple(3, t1)->is_dummy = true;
+
+  sort_t sortex = {.colno = 1, .ascending = true, .sorting_dummies=true};
+  table_t *t = sort(t1, &sortex);
+  for (int i = 0; i < t->num_tuples; i++) {
+      std::cout << tuple_string(get_tuple(i, t)) << std::endl;
+  }
+  std::string query_destroy("DROP TABLE sort_test");
+  query(query_destroy, dbname);
+  free_table(t1);
+}
+
 TEST_F(sort_test, large_random_sort_512) { large_random_sort(512); }
 /*
 

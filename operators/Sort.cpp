@@ -92,23 +92,34 @@ void swap_tuples(int t1, int t2, table_t *t, bool to_swap) {
 }
 
 void compare(int i, int j, bool dir, table_t *t, sort_t *s) {
-  switch (t->schema.fields[s->colno].type) {
-  case UNSUPPORTED:
-    throw;
-  case FIXEDCHAR: {
-    throw;
-    // printf("UNSUPPORTED\n");
-  }
-  case INT: {
-    uint64_t i_val = get_tuple(i, t)->field_list[s->colno].f.int_field.val;
-    uint64_t j_val = get_tuple(j, t)->field_list[s->colno].f.int_field.val;
-    if (dir == (i_val > j_val)) {
+  if (s->sorting_dummies) {
+    tuple *t1 = get_tuple(i, t);
+    tuple *t2 = get_tuple(j, t);
+    if (dir == (t1->is_dummy) > t2->is_dummy) {
       swap_tuples(i, j, t, true);
-      // TODO(madhavsuresh): abstract this out to a function
     } else {
       swap_tuples(i, j, t, false);
     }
-  } break;
+  } else {
+
+    switch (t->schema.fields[s->colno].type) {
+    case UNSUPPORTED:
+      throw;
+    case FIXEDCHAR: {
+      throw;
+      // printf("UNSUPPORTED\n");
+    }
+    case INT: {
+      uint64_t i_val = get_tuple(i, t)->field_list[s->colno].f.int_field.val;
+      uint64_t j_val = get_tuple(j, t)->field_list[s->colno].f.int_field.val;
+      if (dir == (i_val > j_val)) {
+        swap_tuples(i, j, t, true);
+        // TODO(madhavsuresh): abstract this out to a function
+      } else {
+        swap_tuples(i, j, t, false);
+      }
+    } break;
+    }
   }
 }
 
