@@ -211,6 +211,8 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gen_in["region"] = region_gen;
   auto gen_zipped_map1 = p->Generalize(gen_in, gen_level);
   /* END JOIN 1 ANON*/
+  /*nation, region*/
+
   /* ANON JOIN 2*/
   unordered_map<table_name, to_gen_t> gen_in2;
   to_gen_t nation_gen_2;
@@ -228,6 +230,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gen_in2["customer"] = customer_gen1;
   auto gen_zipped_map2 = p->Generalize(gen_in2, gen_level);
   /* END JOIN 2 ANON*/
+  /*nation, customer*/
   /* ANON JOIN 3*/
   unordered_map<table_name, to_gen_t> gen_in3;
   to_gen_t customer_gen2;
@@ -288,12 +291,11 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   /****END GEN****/
 
 
-  /*
   p->SetControlFlowColName("n_regionkey");
-  auto nation_repart = p->RepartitionJustHash(nation);
+  auto nation_repart = p->RepartitionJustHash(gen_zipped_map2["nation"]);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("r_regionkey");
-  auto region_repart = p->RepartitionJustHash(region);
+  auto region_repart = p->RepartitionJustHash(gen_zipped_map1["region"]);
   LOG(EXEC) << "JOIN 1 START==";
   // JOIN1
   // join def vitals-diagnoses
@@ -321,7 +323,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto nr_repart = p->RepartitionJustHash(nr);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_nationkey");
-  auto customer_repart = p->RepartitionJustHash(customer);
+  auto customer_repart = p->RepartitionJustHash(gen_zipped_map3["customer"]);
   START_TIMER(join_two);
   JoinDef jd_vd2;
   jd_vd2.set_l_col_name("c_nationkey");
@@ -343,7 +345,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   // JOIN 3
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_custkey");
-  auto orders_repart = p->RepartitionJustHash(orders);
+  auto orders_repart = p->RepartitionJustHash(gen_zipped_map4["orders"]);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_custkey");
   auto cnr_repart = p->RepartitionJustHash(cnr);
@@ -366,7 +368,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   // JOIN 4
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
-  auto lineitem_repart = p->RepartitionJustHash(lineitem);
+  auto lineitem_repart = p->RepartitionJustHash(gen_zipped_map5["lineitem"]);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
   auto ocnr_repart = p->RepartitionJustHash(ocnr);
@@ -396,7 +398,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto locnr_repart = p->RepartitionJustHash(locnr);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("s_suppkey");
-  auto supp_repart = p->RepartitionJustHash(supplier);
+  auto supp_repart = p->RepartitionJustHash(gen_zipped_map5["supplier"]);
 
   JoinDef jd5;
   jd5.set_l_col_name("s_suppkey");
@@ -426,5 +428,4 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto agg_out = p->Aggregate(slocnr, gbd, sgx);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
-   */
 }
