@@ -147,7 +147,8 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto cust_repart = p->RepartitionJustHash(gen_zipped_map["customer"]);
 
   // join def vitals-diagnoses
-  START_TIMER(join_one);
+  /* JOIN 1 */
+  START_TIMER(tpch_3_join_one);
   JoinDef jd_vd;
   jd_vd.set_l_col_name("o_custkey");
   jd_vd.set_r_col_name("c_custkey");
@@ -167,8 +168,14 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   vdjp4->set_colname("o_custkey");
   auto to_join1 = zip_join_tables(orders_repart, cust_repart);
   auto out_oc_join = p->Join(to_join1, jd_vd, sgx);
-
   
+  SortDef sort;
+  sort.set_sorting_dummies(true);
+  auto sorted = p->Sort(out_oc_join, sort, true);
+  
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_3_join_one, gen_level);
+  /* JOIN 2 */
+  /*
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
   auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
@@ -212,6 +219,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_full_gen, gen_level);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
+  */
 }
 
 void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
@@ -247,7 +255,7 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto cust_repart = p->RepartitionJustHash(customer);
 
   // join def vitals-diagnoses
-  START_TIMER(join_one);
+  START_TIMER(tpch_3_join_one);
   JoinDef jd_vd;
   jd_vd.set_l_col_name("o_custkey");
   jd_vd.set_r_col_name("c_custkey");
@@ -268,12 +276,17 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto to_join1 = zip_join_tables(orders_repart, cust_repart);
   auto out_oc_join = p->Join(to_join1, jd_vd, sgx);
 
+  SortDef sort;
+  sort.set_sorting_dummies(true);
+  auto sorted = p->Sort(out_oc_join, sort, true);
   
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_3_join_one, -1);
   /*
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
   auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
   */
+  /*
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
   auto lineitem_repart = p->RepartitionJustHash(lineitem);
@@ -313,4 +326,5 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_full_obli, -1);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
+   */
 }

@@ -340,9 +340,13 @@ expr_t make_expr_t(table_t *t, const ::vaultdb::Expr &expr) {
 
 sort_t make_sort_t(table_t *t, const ::vaultdb::SortDef sort) {
   sort_t s;
+  if (sort.sorting_dummies()) {
+      s.sorting_dummies = sort.sorting_dummies();
+      return s;
+  }
+  s.sorting_dummies = sort.sorting_dummies();
   s.colno = colno_from_name(t, sort.colname());
   s.ascending = sort.ascending();
-  s.sorting_dummies = sort.sorting_dummies();
   return s;
 }
 
