@@ -171,6 +171,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   
   SortDef sort;
   sort.set_sorting_dummies(true);
+  sort.truncate(true);
   auto sorted = p->Sort(out_oc_join, sort, true);
   
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_join_one, gen_level);
@@ -278,6 +279,7 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
 
   SortDef sort;
   sort.set_sorting_dummies(true);
+  sort.truncate(true);
   auto sorted = p->Sort(out_oc_join, sort, true);
   
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_join_one, -1);
