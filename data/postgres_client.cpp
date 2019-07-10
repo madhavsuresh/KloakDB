@@ -113,9 +113,15 @@ tuple_page_t *get_page(int page_num, table_t *table) {
   return table->tuple_pages[page_num];
 }
 
-tuple_t *get_tuple(int tuple_number, table_t *table) {
+int get_page_num_for_tuple(int tuple_number, table_t *table) {
   int num_tuples_per_page = (int)tuples_per_page(table->size_of_tuple);
   int page_num = (tuple_number) / (num_tuples_per_page);
+  return page_num;
+}
+
+tuple_t *get_tuple(int tuple_number, table_t *table) {
+  int num_tuples_per_page = (int)tuples_per_page(table->size_of_tuple);
+  int page_num = get_page_num_for_tuple(tuple_number, table);
   tuple_page_t *tp = get_page(page_num, table);
   int page_tuple_num = tuple_number % num_tuples_per_page;
   return (tuple_t *)(((char *)tp->tuple_list) +

@@ -342,6 +342,7 @@ sort_t make_sort_t(table_t *t, const ::vaultdb::SortDef sort) {
   sort_t s;
   if (sort.sorting_dummies()) {
       s.sorting_dummies = sort.sorting_dummies();
+      s.truncate = sort.truncate();
       return s;
   }
   s.sorting_dummies = sort.sorting_dummies();

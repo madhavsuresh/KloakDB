@@ -18,6 +18,7 @@
 #include <unistd.h>
 #endif
 #include "Sort.h"
+#include "Truncate.h"
 #include <math.h>
 
 #define ASCENDING 1
@@ -155,5 +156,8 @@ void bitonicSort(int lo, int cnt, bool dir, table_t *t, sort_t *s) {
 table_t *sort(table_t *t, sort_t *s) {
   int len = t->num_tuples;
   bitonicSort(0, t->num_tuples, s->ascending, t, s);
+  if (s->sorting_dummies && s->truncate)  {
+      return truncate_dummies(t);
+  }
   return t;
 }

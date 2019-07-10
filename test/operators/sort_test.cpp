@@ -176,7 +176,7 @@ TEST_F(sort_test, simple_sort_dummy) {
   table_t *t1 = get_table(query1, dbname);
   get_tuple(3, t1)->is_dummy = true;
 
-  sort_t sortex = {.colno = 1, .ascending = true, .sorting_dummies=true};
+  sort_t sortex = {.colno = 1, .ascending = true, .sorting_dummies=true, .truncate=true};
   table_t *t = sort(t1, &sortex);
   for (int i = 0; i < t->num_tuples; i++) {
       std::cout << tuple_string(get_tuple(i, t)) << std::endl;
