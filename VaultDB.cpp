@@ -273,7 +273,14 @@ int main(int argc, char **argv) {
       break;
     }
     case 12: {
+      if (FLAGS_gen_level == 0) {
       tpch_5_encrypted(p, FLAGS_db, FLAGS_sgx);
+      } else if (FLAGS_gen_level == -1) {
+
+      }
+      else {
+        tpch_5_gen(p, FLAGS_db, FLAGS_sgx, FLAGS_gen_level);
+      }
       break;
     }
     case 13: {
