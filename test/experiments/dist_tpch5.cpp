@@ -195,6 +195,8 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto region = p->ClusterDBMSQuery(
       "dbname=" + database,
       "SELECT r_regionkey FROM region WHERE r_name= 'AFRICA'");
+
+  START_TIMER(tpch_5_gen);
   /****GEN****/
   /*JOIN 1 ANON*/
   unordered_map<table_name, to_gen_t> gen_in;
@@ -288,7 +290,10 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   /* lineitem, suplier*/
   /* END JOIN 5 ANON*/
 
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_5_gen, gen_level);
   /****END GEN****/
+
+  START_TIMER(tpch_5_no_gen_full);
 
 
   p->SetControlFlowColName("n_regionkey");
@@ -426,6 +431,8 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.add_gb_col_names("n_name");
   gbd.set_kanon_col_name("l_suppkey");
   auto agg_out = p->Aggregate(slocnr, gbd, sgx);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full, gen_level);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_5_no_gen_full, gen_level);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
 }

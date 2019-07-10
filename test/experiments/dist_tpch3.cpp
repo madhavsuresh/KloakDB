@@ -137,7 +137,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto gen_zipped_mapJ2 = p->Generalize(gen_in2, gen_level);
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_gen, gen_level);
 
-  START_TIMER(tpch_3_post_gen);
+  START_TIMER(tpch_3_no_gen_full);
 
   START_TIMER(repartition);
   p->SetControlFlowColName("o_custkey");
@@ -208,7 +208,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.add_gb_col_names("o_shippriority");
   gbd.set_kanon_col_name("o_custkey");
   auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
-  END_AND_LOG_EXP_TPCH_TIMER(tpch_3_post_gen, gen_level);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_3_no_gen_full, gen_level);
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_full_gen, gen_level);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort

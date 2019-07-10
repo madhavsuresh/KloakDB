@@ -152,7 +152,7 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
 
   LOG(EXEC) << "STARTING TPCH-10 ENCRYPTED DISTRIBUTED";
   START_TIMER(tpch_10_full);
-  START_TIMER(postgres_read);
+  START_TIMER(tpch_10_postgres_read);
   auto lineitem = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT l_orderkey, l_extendedprice*(1-l_discount) "
                             "as revenue FROM lineitem");
@@ -167,6 +167,8 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
   auto nation = p->ClusterDBMSQuery("dbname=" + database,
                                     "SELECT n_name, n_nationkey FROM nation");
 
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_10_postgres_read, gen_level);
+  START_TIMER(tpch_10_gen);
   /*JOIN 1 ANON*/
   unordered_map<table_name, to_gen_t> gen_in;
   to_gen_t lineitem_gen;
@@ -220,7 +222,10 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
   gen_in3["nation"] = nation_gen1;
   auto gen_zipped_map3 = p->Generalize(gen_in3, gen_level);
   /*END JOIN 3 ANON*/
+
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_10_gen, gen_level);
   /*customer, nation*/
+  START_TIMER(tpch_10_no_gen_full);
   // JOIN1
   LOG(EXEC) << "JOIN 1 START==";
   p->ResetControlFlowCols();
@@ -340,4 +345,6 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
   gbd.add_gb_col_names("c_address");
   gbd.add_gb_col_names("c_comment");
   auto agg_out = p->Aggregate(locn, gbd, sgx);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_10_full, gen_level);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_10_no_gen_full, gen_level);
 }
