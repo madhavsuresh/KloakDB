@@ -145,6 +145,7 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   gbd.add_gb_col_names("c_address");
   gbd.add_gb_col_names("c_comment");
   auto agg_out = p->Aggregate(locn, gbd, sgx);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_10_full, 0);
 }
 
 
