@@ -195,12 +195,6 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto region = p->ClusterDBMSQuery(
       "dbname=" + database,
       "SELECT r_regionkey FROM region WHERE r_name= 'AFRICA'");
-
-  p->SetControlFlowColName("n_regionkey");
-  auto nation_repart = p->RepartitionJustHash(nation);
-  p->ResetControlFlowCols();
-  p->SetControlFlowColName("r_regionkey");
-  auto region_repart = p->RepartitionJustHash(region);
   /****GEN****/
   /*JOIN 1 ANON*/
   unordered_map<table_name, to_gen_t> gen_in;
@@ -293,6 +287,13 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
 
   /****END GEN****/
 
+
+  /*
+  p->SetControlFlowColName("n_regionkey");
+  auto nation_repart = p->RepartitionJustHash(nation);
+  p->ResetControlFlowCols();
+  p->SetControlFlowColName("r_regionkey");
+  auto region_repart = p->RepartitionJustHash(region);
   LOG(EXEC) << "JOIN 1 START==";
   // JOIN1
   // join def vitals-diagnoses
@@ -425,4 +426,5 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto agg_out = p->Aggregate(slocnr, gbd, sgx);
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
+   */
 }
