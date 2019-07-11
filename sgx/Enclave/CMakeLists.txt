@@ -41,6 +41,7 @@ SET(VAULTDB_SOURCES
 		${CMAKE_SOURCE_DIR}/operators/Expressions.cpp
 		${CMAKE_SOURCE_DIR}/data/postgres_client.cpp
 		${CMAKE_SOURCE_DIR}/operators/Generalize.cpp
+		${CMAKE_SOURCE_DIR}/operators/Truncate.cpp
 		)
 
 set(ENCLAVE_LINK_FLAGS "-Wl,--no-undefined -nostdlib -nodefaultlibs -nostartfiles -Wl,-Bstatic -Wl,-Bsymbolic -Wl,--no-undefined -Wl,-pie,-eenclave_entry -Wl,--export-dynamic -Wl,--defsym,__ImageBase=0 -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/Enclave_debug.lds")
