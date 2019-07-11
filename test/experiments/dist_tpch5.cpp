@@ -608,7 +608,7 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx, bool tr
 
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
-  p->MakeObli(locnr, "l_suppkey");
+  //p->MakeObli(locnr, "l_suppkey");
   /*
   auto locnr_repart = p->RepartitionJustHash(locnr);
   p->ResetControlFlowCols();
