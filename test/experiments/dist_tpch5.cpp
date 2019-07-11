@@ -284,14 +284,16 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
 	  gen_zipped_map4["lineitem"].end());
   gen_in5["lineitem"] = lineitem_gen2;
 
+  /*
   to_gen_t supp_gen1;
   supp_gen1.column = "s_suppkey";
   supp_gen1.dbname = database;
   supp_gen1.scan_tables.insert(supp_gen1.scan_tables.end(), 
 	  supplier.begin(), supplier.end());
   gen_in5["supplier"] = supp_gen1;
+  */
   auto gen_zipped_map5 = p->Generalize(gen_in5, gen_level);
-  /* lineitem, suplier*/
+  /* lineitem*/
   /* END JOIN 5 ANON*/
 
   END_AND_LOG_EXP_TPCH_TIMER(tpch_5_gen, gen_level);
@@ -410,12 +412,14 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   LOG(EXEC) << "JOIN 4 END==";
   LOG(EXEC) << "JOIN 5 START==";
 
+  /*
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
   auto locnr_repart = p->RepartitionJustHash(locnr);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("s_suppkey");
   auto supp_repart = p->RepartitionJustHash(gen_zipped_map5["supplier"]);
+  */
 
   JoinDef jd5;
   jd5.set_l_col_name("s_suppkey");
@@ -431,7 +435,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   j5p3->set_colname("l_suppkey");
   j5p3->set_side(JoinColID_RelationSide_RIGHT);
   // auto to_join5 = zip_join_tables(supplier, locnr);
-  auto to_join5 = zip_join_tables(supp_repart, locnr_repart);
+  auto to_join5 = zip_join_tables(supplier, locnr);
   auto slocnr = p->Join(to_join5, jd5, sgx);
   if (truncate) {
       auto sorted_slocnr = p->Sort(slocnr, sort, sgx);
@@ -601,11 +605,13 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx, bool tr
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
   p->MakeObli(locnr, "l_suppkey");
+  /*
   auto locnr_repart = p->RepartitionJustHash(locnr);
   p->ResetControlFlowCols();
   p->MakeObli(supplier, "s_suppkey");
   p->SetControlFlowColName("s_suppkey");
   auto supp_repart = p->RepartitionJustHash(supplier);
+  */
 
   JoinDef jd5;
   jd5.set_l_col_name("s_suppkey");
@@ -621,7 +627,7 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx, bool tr
   j5p3->set_colname("l_suppkey");
   j5p3->set_side(JoinColID_RelationSide_RIGHT);
   // auto to_join5 = zip_join_tables(supplier, locnr);
-  auto to_join5 = zip_join_tables(supp_repart, locnr_repart);
+  auto to_join5 = zip_join_tables(supplier, locnr);
   auto slocnr = p->Join(to_join5, jd5, sgx);
   LOG(EXEC) << "JOIN 5 END==";
   if (truncate) {
