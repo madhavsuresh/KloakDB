@@ -380,6 +380,7 @@ sort_t make_sort_t(table_t *t, const ::vaultdb::SortDef sort) {
   tid->set_tableid(p->AddTable(sorted));
   END_TIMER(sort_full);
   LOG_TIMER(sort_full);
+  LOG(DO_IMPL) << "Sort Length" << sorted->num_tuples;
   LOG(DO_IMPL) << "Sort OK";
   return ::grpc::Status::OK;
 }
