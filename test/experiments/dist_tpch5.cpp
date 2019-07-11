@@ -460,10 +460,10 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
       "SELECT r_regionkey FROM region WHERE r_name= 'AFRICA'");
 
   p->SetControlFlowColName("n_regionkey");
-  auto nation_repart = p->RepartitionJustHash(nation);
+  //auto nation_repart = p->RepartitionJustHash(nation);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("r_regionkey");
-  auto region_repart = p->RepartitionJustHash(region);
+  //auto region_repart = p->RepartitionJustHash(region);
 
   LOG(EXEC) << "JOIN 1 START==";
   // JOIN1
@@ -480,21 +480,22 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto vdjp2 = jd_vd.add_project_list();
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("n_name");
-  auto to_join1 = zip_join_tables(nation_repart, region_repart);
+  auto to_join1 = zip_join_tables(nation, region);
   auto nr = p->Join(to_join1, jd_vd, sgx);
   LOG(EXEC) << "JOIN 1 END==";
   SortDef sort;
-  sort.set_sorting_dummies(true);
-  sort.set_truncate(true);
-  auto sorted_nr = p->Sort(nr, sort, sgx);
+  //sort.set_sorting_dummies(true);
+  //sort.set_truncate(true);
+  //auto sorted_nr = p->Sort(nr, sort, sgx);
 
   // JOIN2
   LOG(EXEC) << "JOIN 2 START==";
   p->ResetControlFlowCols();
   p->SetControlFlowColName("n_nationkey");
-  auto nr_repart = p->RepartitionJustHash(sorted_nr);
+  //auto nr_repart = p->RepartitionJustHash(sorted_nr);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_nationkey");
+  p->MakeObli(customer, "c_nationkey");
   auto customer_repart = p->RepartitionJustHash(customer);
   START_TIMER(join_two);
   JoinDef jd_vd2;
@@ -508,7 +509,7 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto j2p2 = jd_vd2.add_project_list();
   j2p2->set_side(JoinColID_RelationSide_LEFT);
   j2p2->set_colname("c_custkey");
-  auto to_join2 = zip_join_tables(customer_repart, nr_repart);
+  auto to_join2 = zip_join_tables(customer_repart, nr);
   auto cnr = p->Join(to_join2, jd_vd2, sgx);
   LOG(EXEC) << "JOIN 2 END==";
   LOG(EXEC) << "JOIN 3 START==";
@@ -517,8 +518,10 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   // JOIN 3
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_custkey");
+  p->MakeObli(orders, "o_custkey");
   auto orders_repart = p->RepartitionJustHash(orders);
   p->ResetControlFlowCols();
+  p->MakeObli(sorted_cnr, "c_custkey");
   p->SetControlFlowColName("c_custkey");
   auto cnr_repart = p->RepartitionJustHash(sorted_cnr);
   JoinDef jd3;
@@ -539,8 +542,10 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   // JOIN 4
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
+  p->MakeObli(lineitem, "l_orderkey");
   auto lineitem_repart = p->RepartitionJustHash(lineitem);
   p->ResetControlFlowCols();
+  p->MakeObli(sorted_ocnr, "o_orderkey");
   p->SetControlFlowColName("o_orderkey");
   auto ocnr_repart = p->RepartitionJustHash(sorted_ocnr);
 
@@ -566,8 +571,10 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
 
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
+  p->MakeObli(sorted_locnr, "l_suppkey");
   auto locnr_repart = p->RepartitionJustHash(sorted_locnr);
   p->ResetControlFlowCols();
+  p->MakeObli(supplier, "s_suppkey");
   p->SetControlFlowColName("s_suppkey");
   auto supp_repart = p->RepartitionJustHash(supplier);
 
