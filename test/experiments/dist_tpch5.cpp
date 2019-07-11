@@ -515,7 +515,6 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   LOG(EXEC) << "JOIN 3 START==";
   auto sorted_cnr = p->Sort(cnr, sort, sgx);
 
-  /*
   // JOIN 3
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_custkey");
@@ -609,5 +608,5 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   // TODO(madhavsuresh): merge all of the aggregates together.
   END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full, 0);
   // TODO(madhavsuresh): add sort
-  // */
+  // 
 }
