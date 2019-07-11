@@ -168,9 +168,12 @@ void tpch_5_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   // TODO(madhavsuresh): add sort
 }
 
-void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_level) {
+void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_level, bool truncate) {
 
   LOG(EXEC) << "STARTING TPCH-5 ENCRYPTED DISTRIBUTED";
+  SortDef sort;
+  sort.set_sorting_dummies(true);
+  sort.set_truncate(true);
   START_TIMER(tpch_5_full);
   START_TIMER(postgres_read);
   auto customer = p->ClusterDBMSQuery(
@@ -343,6 +346,10 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   j2p2->set_colname("c_custkey");
   auto to_join2 = zip_join_tables(customer_repart, nr_repart);
   auto cnr = p->Join(to_join2, jd_vd2, sgx);
+  if (truncate) {
+      auto sorted_cnr = p->Sort(cnr, sort, sgx);
+      cnr = sorted_cnr;
+  }
   LOG(EXEC) << "JOIN 2 END==";
   LOG(EXEC) << "JOIN 3 START==";
 
@@ -365,6 +372,10 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   j3p2->set_colname("o_orderkey");
   auto to_join3 = zip_join_tables(orders_repart, cnr_repart);
   auto ocnr = p->Join(to_join3, jd3, sgx);
+  if (truncate) {
+      auto sorted_ocnr = p->Sort(ocnr, sort, sgx);
+      ocnr = sorted_ocnr;
+  }
   LOG(EXEC) << "JOIN 3 END==";
   LOG(EXEC) << "JOIN 4 START==";
 
@@ -391,6 +402,10 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   j4p3->set_side(JoinColID_RelationSide_LEFT);
   auto to_join4 = zip_join_tables(lineitem_repart, ocnr_repart);
   auto locnr = p->Join(to_join4, jd4, sgx);
+  if (truncate) {
+      auto sorted_locnr = p->Sort(locnr, sort, sgx);
+      locnr = sorted_locnr;
+  }
 
   LOG(EXEC) << "JOIN 4 END==";
   LOG(EXEC) << "JOIN 5 START==";
@@ -418,6 +433,10 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   // auto to_join5 = zip_join_tables(supplier, locnr);
   auto to_join5 = zip_join_tables(supp_repart, locnr_repart);
   auto slocnr = p->Join(to_join5, jd5, sgx);
+  if (truncate) {
+      auto sorted_slocnr = p->Sort(slocnr, sort, sgx);
+      slocnr = sorted_slocnr;
+  }
   LOG(EXEC) << "JOIN 5 END==";
 
   LOG(EXEC) << "AGGREGATE START";
@@ -434,7 +453,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   // TODO(madhavsuresh): add sort
 }
 
-void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
+void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx, bool truncate) {
 
   LOG(EXEC) << "STARTING TPCH-5 ENCRYPTED DISTRIBUTED";
   SortDef sort;
@@ -513,7 +532,10 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto cnr = p->Join(to_join2, jd_vd2, sgx);
   LOG(EXEC) << "JOIN 2 END==";
   LOG(EXEC) << "JOIN 3 START==";
-  auto sorted_cnr = p->Sort(cnr, sort, sgx);
+  if (truncate) {
+      auto sorted_cnr = p->Sort(cnr, sort, sgx);
+      cnr = sorted_cnr;
+  }
 
   // JOIN 3
   p->ResetControlFlowCols();
@@ -521,9 +543,9 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   p->MakeObli(orders, "o_custkey");
   auto orders_repart = p->RepartitionJustHash(orders);
   p->ResetControlFlowCols();
-  p->MakeObli(sorted_cnr, "c_custkey");
+  p->MakeObli(cnr, "c_custkey");
   p->SetControlFlowColName("c_custkey");
-  auto cnr_repart = p->RepartitionJustHash(sorted_cnr);
+  auto cnr_repart = p->RepartitionJustHash(cnr);
   JoinDef jd3;
   jd3.set_l_col_name("o_custkey");
   jd3.set_r_col_name("c_custkey");
@@ -536,7 +558,11 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   j3p2->set_colname("o_orderkey");
   auto to_join3 = zip_join_tables(orders_repart, cnr_repart);
   auto ocnr = p->Join(to_join3, jd3, sgx);
-  auto sorted_ocnr = p->Sort(ocnr, sort, sgx);
+  if (truncate) {
+      auto sorted_ocnr = p->Sort(ocnr, sort, sgx);
+      ocnr = sorted_ocnr;
+  }
+
   LOG(EXEC) << "JOIN 3 END==";
   LOG(EXEC) << "JOIN 4 START==";
   // JOIN 4
@@ -545,9 +571,9 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   p->MakeObli(lineitem, "l_orderkey");
   auto lineitem_repart = p->RepartitionJustHash(lineitem);
   p->ResetControlFlowCols();
-  p->MakeObli(sorted_ocnr, "o_orderkey");
+  p->MakeObli(ocnr, "o_orderkey");
   p->SetControlFlowColName("o_orderkey");
-  auto ocnr_repart = p->RepartitionJustHash(sorted_ocnr);
+  //auto ocnr_repart = p->RepartitionJustHash(ocnr);
 
   JoinDef jd4;
   jd4.set_l_col_name("l_orderkey");
@@ -562,17 +588,20 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto j4p3 = jd4.add_project_list();
   j4p3->set_colname("revenue");
   j4p3->set_side(JoinColID_RelationSide_LEFT);
-  auto to_join4 = zip_join_tables(lineitem_repart, ocnr_repart);
+  auto to_join4 = zip_join_tables(lineitem_repart, ocnr);
   auto locnr = p->Join(to_join4, jd4, sgx);
-  auto sorted_locnr = p->Sort(locnr, sort, sgx);
+  if (truncate) {
+      auto sorted_locnr = p->Sort(locnr, sort, sgx);
+      locnr = sorted_locnr;
+  }
 
   LOG(EXEC) << "JOIN 4 END==";
   LOG(EXEC) << "JOIN 5 START==";
 
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_suppkey");
-  p->MakeObli(sorted_locnr, "l_suppkey");
-  auto locnr_repart = p->RepartitionJustHash(sorted_locnr);
+  p->MakeObli(locnr, "l_suppkey");
+  auto locnr_repart = p->RepartitionJustHash(locnr);
   p->ResetControlFlowCols();
   p->MakeObli(supplier, "s_suppkey");
   p->SetControlFlowColName("s_suppkey");
@@ -595,7 +624,10 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto to_join5 = zip_join_tables(supp_repart, locnr_repart);
   auto slocnr = p->Join(to_join5, jd5, sgx);
   LOG(EXEC) << "JOIN 5 END==";
-  auto sorted_slocnr = p->Sort(slocnr, sort, sgx);
+  if (truncate) {
+      auto sorted_slocnr = p->Sort(slocnr, sort, sgx);
+      slocnr = sorted_slocnr;
+  }
 
   LOG(EXEC) << "AGGREGATE START";
   GroupByDef gbd;
@@ -604,7 +636,7 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   gbd.set_col_name("revenue");
   gbd.add_gb_col_names("n_name");
   gbd.set_kanon_col_name("l_suppkey");
-  auto agg_out = p->Aggregate(sorted_slocnr, gbd, sgx);
+  auto agg_out = p->Aggregate(slocnr, gbd, sgx);
   // TODO(madhavsuresh): merge all of the aggregates together.
   END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full, 0);
   // TODO(madhavsuresh): add sort

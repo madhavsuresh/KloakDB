@@ -60,6 +60,7 @@ DEFINE_string(host_short, "vaultdb", "short host name");
 DEFINE_int32(gen_test_range, 1000, "range for gen test (exp8)");
 DEFINE_int32(gen_test_size, 1000, "range for gen test (exp8)");
 DEFINE_bool(sgx, false, "Use SGX for queries");
+DEFINE_bool(truncate, true, "Sort and Truncate outputs (for TPCH queries)");
 
 std::promise<void> exit_requested;
 void read(const std::string &filename, std::string &data) {
@@ -276,11 +277,11 @@ int main(int argc, char **argv) {
       if (FLAGS_gen_level == 0) {
       tpch_5_encrypted(p, FLAGS_db, FLAGS_sgx);
       } else if (FLAGS_gen_level == -1) {
-      tpch_5_obli(p, FLAGS_db, FLAGS_sgx);
+      tpch_5_obli(p, FLAGS_db, FLAGS_sgx, FLAGS_truncate);
 
       }
       else {
-        tpch_5_gen(p, FLAGS_db, FLAGS_sgx, FLAGS_gen_level);
+        tpch_5_gen(p, FLAGS_db, FLAGS_sgx, FLAGS_gen_level, FLAGS_truncate);
       }
       break;
     }
