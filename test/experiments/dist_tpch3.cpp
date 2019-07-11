@@ -230,14 +230,14 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto lineitem = p->ClusterDBMSQuery(
       "dbname=" + database,
       "SELECT l_orderkey, l_extendedprice *(1 - l_discount) as revenue FROM "
-      "lineitem where l_shipdate > '1995-03-22' LIMIT 20");
+      "lineitem where l_shipdate > '1995-03-22'");
   auto customer = p->ClusterDBMSQuery(
       "dbname=" + database,
-      "SELECT c_custkey FROM customer WHERE c_mktsegment='BUILDING' LIMIT 20");
+      "SELECT c_custkey FROM customer WHERE c_mktsegment='BUILDING'");
   auto orders = p->ClusterDBMSQuery(
       "dbname=" + database,
       "SELECT o_orderdate, o_shippriority, o_custkey, o_orderkey from orders "
-      "WHERE o_orderdate <'1995-03-22' LIMIT 20");
+      "WHERE o_orderdate <'1995-03-22'");
 
 
   p->MakeObli(customer, "c_custkey");
