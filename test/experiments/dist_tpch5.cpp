@@ -200,6 +200,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   START_TIMER(tpch_5_gen);
   /****GEN****/
   /*JOIN 1 ANON*/
+  /*
   unordered_map<table_name, to_gen_t> gen_in;
   to_gen_t nation_gen;
   nation_gen.column = "n_regionkey";
@@ -213,17 +214,20 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   region_gen.scan_tables.insert(region_gen.scan_tables.end(), region.begin(), region.end());
   gen_in["region"] = region_gen;
   auto gen_zipped_map1 = p->Generalize(gen_in, gen_level);
+  */
   /* END JOIN 1 ANON*/
   /*nation, region*/
 
   /* ANON JOIN 2*/
   unordered_map<table_name, to_gen_t> gen_in2;
+  /*
   to_gen_t nation_gen_2;
   nation_gen_2.column = "n_nationkey";
   nation_gen_2.dbname = database;
   nation_gen_2.scan_tables.insert(nation_gen_2.scan_tables.end(), gen_zipped_map1["nation"].begin(), 
 	  gen_zipped_map1["nation"].end());
   gen_in2["nation"] = nation_gen_2;
+  */
 
   to_gen_t customer_gen1;
   customer_gen1.column = "c_nationkey";
@@ -298,10 +302,10 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
 
 
   p->SetControlFlowColName("n_regionkey");
-  auto nation_repart = p->RepartitionJustHash(gen_zipped_map2["nation"]);
+  //auto nation_repart = p->RepartitionJustHash(nation);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("r_regionkey");
-  auto region_repart = p->RepartitionJustHash(gen_zipped_map1["region"]);
+  //auto region_repart = p->RepartitionJustHash(region);
   LOG(EXEC) << "JOIN 1 START==";
   // JOIN1
   // join def vitals-diagnoses
@@ -317,10 +321,9 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto vdjp2 = jd_vd.add_project_list();
   vdjp2->set_side(JoinColID_RelationSide_LEFT);
   vdjp2->set_colname("n_name");
-  auto to_join1 = zip_join_tables(nation_repart, region_repart);
+  auto to_join1 = zip_join_tables(nation, region);
   auto nr = p->Join(to_join1, jd_vd, sgx);
   LOG(EXEC) << "JOIN 1 END==";
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
   // JOIN2
   LOG(EXEC) << "JOIN 2 START==";
@@ -345,7 +348,6 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto to_join2 = zip_join_tables(customer_repart, nr_repart);
   auto cnr = p->Join(to_join2, jd_vd2, sgx);
   LOG(EXEC) << "JOIN 2 END==";
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
   LOG(EXEC) << "JOIN 3 START==";
 
   // JOIN 3
@@ -368,7 +370,6 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto to_join3 = zip_join_tables(orders_repart, cnr_repart);
   auto ocnr = p->Join(to_join3, jd3, sgx);
   LOG(EXEC) << "JOIN 3 END==";
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
   LOG(EXEC) << "JOIN 4 START==";
 
   // JOIN 4
@@ -396,7 +397,6 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto locnr = p->Join(to_join4, jd4, sgx);
 
   LOG(EXEC) << "JOIN 4 END==";
-  std::this_thread::sleep_for(std::chrono::milliseconds(500));
   LOG(EXEC) << "JOIN 5 START==";
 
   p->ResetControlFlowCols();
