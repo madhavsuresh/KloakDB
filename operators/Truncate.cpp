@@ -1,5 +1,4 @@
 #include "Truncate.h"
-#include <strings.h>
 
 table_t *truncate_dummies(table_t *t) {
   int i = 0;
