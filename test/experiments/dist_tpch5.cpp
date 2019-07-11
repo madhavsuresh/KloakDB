@@ -175,6 +175,8 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   sort.set_sorting_dummies(true);
   sort.set_truncate(true);
   START_TIMER(tpch_5_full);
+  START_TIMER(tpch_5_full_truncate);
+  START_TIMER(tpch_5_full_no_truncate);
   START_TIMER(postgres_read);
   auto customer = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT c_custkey, c_nationkey FROM customer");
@@ -196,45 +198,9 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
       "dbname=" + database,
       "SELECT r_regionkey FROM region WHERE r_name= 'AFRICA'");
 
-  START_TIMER(tpch_5_gen);
-  /****GEN****/
-  /*JOIN 1 ANON*/
-  /*
-  unordered_map<table_name, to_gen_t> gen_in;
-  to_gen_t nation_gen;
-  nation_gen.column = "n_regionkey";
-  nation_gen.dbname = database;
-  nation_gen.scan_tables.insert(nation_gen.scan_tables.end(), nation.begin(), nation.end());
-  gen_in["nation"] = nation_gen;
-
-  to_gen_t region_gen;
-  region_gen.column = "r_regionkey";
-  region_gen.dbname = database;
-  region_gen.scan_tables.insert(region_gen.scan_tables.end(), region.begin(), region.end());
-  gen_in["region"] = region_gen;
-  auto gen_zipped_map1 = p->Generalize(gen_in, gen_level);
-  */
-  /* END JOIN 1 ANON*/
-  /*nation, region*/
 
   /* ANON JOIN 2*/
   unordered_map<table_name, to_gen_t> gen_in2;
-  /*
-  to_gen_t nation_gen_2;
-  nation_gen_2.column = "n_nationkey";
-  nation_gen_2.dbname = database;
-  nation_gen_2.scan_tables.insert(nation_gen_2.scan_tables.end(), gen_zipped_map1["nation"].begin(), 
-	  gen_zipped_map1["nation"].end());
-  gen_in2["nation"] = nation_gen_2;
-  */
-
-  to_gen_t customer_gen1;
-  customer_gen1.column = "c_nationkey";
-  customer_gen1.dbname = database;
-  customer_gen1.scan_tables.insert(customer_gen1.scan_tables.end(), 
-	  customer.begin(), customer.end());
-  gen_in2["customer"] = customer_gen1;
-  auto gen_zipped_map2 = p->Generalize(gen_in2, gen_level);
   /* END JOIN 2 ANON*/
   /*nation, customer*/
   /* ANON JOIN 3*/
@@ -242,8 +208,8 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   to_gen_t customer_gen2;
   customer_gen2.column = "c_custkey";
   customer_gen2.dbname = database;
-  customer_gen2.scan_tables.insert(customer_gen2.scan_tables.end(), gen_zipped_map2["customer"].begin(), 
-	  gen_zipped_map2["customer"].end());
+  customer_gen2.scan_tables.insert(customer_gen2.scan_tables.end(), customer.begin(), 
+	  customer.end());
   gen_in3["customer"] = customer_gen2;
 
   to_gen_t orders_gen1;
@@ -297,10 +263,9 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   /* lineitem*/
   /* END JOIN 5 ANON*/
 
-  END_AND_LOG_EXP_TPCH_TIMER(tpch_5_gen, gen_level);
+  //END_AND_LOG_EXP_TPCH_TIMER(tpch_5_gen, gen_level);
   /****END GEN****/
 
-  START_TIMER(tpch_5_no_gen_full);
 
 
   p->SetControlFlowColName("n_regionkey");
@@ -455,8 +420,11 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.add_gb_col_names("n_name");
   gbd.set_kanon_col_name("l_orderkey");
   auto agg_out = p->Aggregate(slocnr, gbd, sgx);
-  END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full, gen_level);
-  END_AND_LOG_EXP_TPCH_TIMER(tpch_5_no_gen_full, gen_level);
+  if(truncate) {
+      END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full_truncate, gen_level);
+  } else {
+      END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full_no_truncate, gen_level);
+  }
   // TODO(madhavsuresh): merge all of the aggregates together.
   // TODO(madhavsuresh): add sort
 }
@@ -467,7 +435,7 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx, bool tr
   SortDef sort;
   sort.set_sorting_dummies(true);
   sort.set_truncate(true);
-  START_TIMER(tpch_5_full);
+  START_TIMER(tpch_5_full_truncate);
   START_TIMER(postgres_read);
   auto customer = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT c_custkey, c_nationkey FROM customer");
@@ -648,7 +616,7 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx, bool tr
   gbd.set_kanon_col_name("l_suppkey");
   auto agg_out = p->Aggregate(slocnr, gbd, sgx);
   // TODO(madhavsuresh): merge all of the aggregates together.
-  END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full, 0);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full_truncate, -1);
   // TODO(madhavsuresh): add sort
   // 
 }

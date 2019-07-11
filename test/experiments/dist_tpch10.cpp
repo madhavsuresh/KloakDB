@@ -207,6 +207,7 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
   /*orders, customer*/
 
   /*JOIN 3 ANON*/
+  /*
   unordered_map<table_name, to_gen_t> gen_in3;
   to_gen_t customer_gen_2;
   customer_gen_2.column = "c_nationkey";
@@ -256,7 +257,7 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
   auto lo_repart = p->RepartitionJustHash(lo);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_custkey");
-  auto cust_repart = p->RepartitionJustHash(gen_zipped_map3["customer"]);
+  auto cust_repart = p->RepartitionJustHash(gen_zipped_map2["customer"]);
 
   JoinDef jd2;
   jd2.set_l_col_name("o_custkey");
@@ -292,12 +293,12 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
 
   // JOIN3
   LOG(EXEC) << "JOIN 3 START==";
-  p->ResetControlFlowCols();
-  p->SetControlFlowColName("c_nationkey");
-  auto loc_repart = p->RepartitionJustHash(loc);
-  p->ResetControlFlowCols();
-  p->SetControlFlowColName("n_nationkey");
-  auto nation_repart = p->RepartitionJustHash(gen_zipped_map3["nation"]);
+  //p->ResetControlFlowCols();
+  //p->SetControlFlowColName("c_nationkey");
+  //auto loc_repart = p->RepartitionJustHash(loc);
+  //p->ResetControlFlowCols();
+  //p->SetControlFlowColName("n_nationkey");
+  //auto nation_repart = p->RepartitionJustHash(nation);
 
   JoinDef jd3;
   jd3.set_l_col_name("c_nationkey");
@@ -330,7 +331,7 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
   auto j3p9 = jd3.add_project_list();
   j3p9->set_side(JoinColID_RelationSide_LEFT);
   j3p9->set_colname("c_nationkey");
-  auto to_join3 = zip_join_tables(loc_repart, nation_repart);
+  auto to_join3 = zip_join_tables(loc, nation);
   auto locn = p->Join(to_join3, jd3, sgx);
 
   GroupByDef gbd;
