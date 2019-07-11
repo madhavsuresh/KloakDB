@@ -437,6 +437,9 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
 void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
 
   LOG(EXEC) << "STARTING TPCH-5 ENCRYPTED DISTRIBUTED";
+  SortDef sort;
+  sort.set_sorting_dummies(true);
+  sort.set_truncate(true);
   START_TIMER(tpch_5_full);
   START_TIMER(postgres_read);
   auto customer = p->ClusterDBMSQuery(
@@ -464,7 +467,6 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   p->ResetControlFlowCols();
   p->SetControlFlowColName("r_regionkey");
   //auto region_repart = p->RepartitionJustHash(region);
-
   LOG(EXEC) << "JOIN 1 START==";
   // JOIN1
   // join def vitals-diagnoses
@@ -483,9 +485,6 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto to_join1 = zip_join_tables(nation, region);
   auto nr = p->Join(to_join1, jd_vd, sgx);
   LOG(EXEC) << "JOIN 1 END==";
-  SortDef sort;
-  //sort.set_sorting_dummies(true);
-  //sort.set_truncate(true);
   //auto sorted_nr = p->Sort(nr, sort, sgx);
 
   // JOIN2
