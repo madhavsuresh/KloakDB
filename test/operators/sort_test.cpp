@@ -102,6 +102,42 @@ TEST_F(sort_test, string_type) {
   free_table(t);
   free(tb);
 }
+void large_dummy_sort(int power_of_two) {
+  std::string dbname;
+  dbname = "dbname=test";
+  char buf[128];
+  sprintf(buf,
+          "create table if not exists test_random_sort as select s, "
+          "floor(random() * 100 +1)::int from generate_series(1,%d) s;",
+          power_of_two);
+  std::string query_create(buf);
+  query(query_create, dbname);
+  std::string query_string = "SELECT * FROM test_random_sort";
+  pqxx::result t_random = query(query_string, dbname);
+  table_builder_t *tb = table_builder_init(query_string, dbname);
+  int before_num_tuples = tb->table->num_tuples;
+  for (int i = 0; i < tb->table->num_tuples/2; i++)  {
+      get_tuple(i, tb->table)->is_dummy = true;
+  }
+   std::cerr << "BEFORE: " <<  tb->table->num_tuple_pages << std::endl;
+   //sort_t sortex = {.colno = 1, .ascending = true};
+  sort_t sortex = {.colno = 1, .ascending = true, .sorting_dummies=true, .truncate=true};
+  uint64_t max_val = 0;
+  table_t *t = sort(tb->table, &sortex);
+   std::cerr << "AFTER: " <<  t->num_tuple_pages << std::endl;
+   ASSERT_TRUE(t->num_tuples == before_num_tuples/2);
+   std::cerr << "AFTER: " <<  t->num_tuples << std::endl;
+  for (int i = 0; i < t->num_tuples; i++) {
+    auto tup = get_tuple(i, t);
+    std::cout << tuple_string(get_tuple(i,t)) << std::endl;
+    ASSERT_TRUE(!tup->is_dummy);
+  }
+
+  free_table(tb->table);
+  free(tb);
+  std::string query_destroy("DROP TABLE test_random_sort");
+  query(query_destroy, dbname);
+}
 
 void large_random_sort(int power_of_two) {
   std::string dbname;
@@ -148,7 +184,8 @@ void sort_swap_dummy_regression(int power_of_two) {
   table_builder_t *tb = table_builder_init(query_string, dbname);
 
   // sort on column 1
-  sort_t sortex = {.colno = 1, .ascending = true};
+  sort_t sortex = {.colno = 1, .ascending = true, .sorting_dummies=true, .truncate=true};
+
 
   uint64_t max_val = 0;
   table_t *t = sort(tb->table, &sortex);
@@ -185,8 +222,10 @@ TEST_F(sort_test, simple_sort_dummy) {
   query(query_destroy, dbname);
   free_table(t1);
 }
+TEST_F(sort_test, large_random_sort_500000) { large_random_sort(500000); }
+TEST_F(sort_test, dummy_random_sort_500000) { large_dummy_sort(500); }
 
-TEST_F(sort_test, large_random_sort_512) { large_random_sort(512); }
+//TEST_F(sort_test, large_random_sort_512) { large_random_sort(512); }
 /*
 
 TEST_F(sort_test, large_random_sort_256) { large_random_sort(256); }
@@ -195,7 +234,6 @@ TEST_F(sort_test, large_random_sort_600) { large_random_sort(600); }
 
 TEST_F(sort_test, large_random_sort_90000) { large_random_sort(90000); }
 
-TEST_F(sort_test, large_random_sort_500000) { large_random_sort(500000); }
 
 TEST_F(sort_test, large_random_sort_1000000) { large_random_sort(1000000); }
 
