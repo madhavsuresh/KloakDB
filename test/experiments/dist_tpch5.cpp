@@ -610,4 +610,5 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   // TODO(madhavsuresh): merge all of the aggregates together.
   END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full, 0);
   // TODO(madhavsuresh): add sort
+  // */
 }
