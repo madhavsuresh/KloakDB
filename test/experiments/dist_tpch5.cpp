@@ -492,6 +492,7 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   LOG(EXEC) << "JOIN 2 START==";
   p->ResetControlFlowCols();
   p->SetControlFlowColName("n_nationkey");
+  p->MakeObli(nr, "n_nationkey");
   //auto nr_repart = p->RepartitionJustHash(sorted_nr);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("c_nationkey");
@@ -515,6 +516,7 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   LOG(EXEC) << "JOIN 3 START==";
   auto sorted_cnr = p->Sort(cnr, sort, sgx);
 
+  /*
   // JOIN 3
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_custkey");
