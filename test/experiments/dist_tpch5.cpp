@@ -392,7 +392,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   JoinDef jd4;
   jd4.set_l_col_name("l_orderkey");
   jd4.set_r_col_name("o_orderkey");
-  jd4.set_project_len(3);
+  jd4.set_project_len(4);
   auto j4p1 = jd4.add_project_list();
   j4p1->set_colname("n_name");
   j4p1->set_side(JoinColID_RelationSide_RIGHT);
@@ -402,6 +402,9 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   auto j4p3 = jd4.add_project_list();
   j4p3->set_colname("revenue");
   j4p3->set_side(JoinColID_RelationSide_LEFT);
+  auto j4p4 = jd4.add_project_list();
+  j4p4->set_colname("l_orderkey");
+  j4p4->set_side(JoinColID_RelationSide_LEFT);
   auto to_join4 = zip_join_tables(lineitem_repart, ocnr_repart);
   auto locnr = p->Join(to_join4, jd4, sgx);
   if (truncate) {
@@ -432,7 +435,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   j5p2->set_colname("revenue");
   j5p2->set_side(JoinColID_RelationSide_RIGHT);
   auto j5p3 = jd5.add_project_list();
-  j5p3->set_colname("l_suppkey");
+  j5p3->set_colname("l_orderkey");
   j5p3->set_side(JoinColID_RelationSide_RIGHT);
   // auto to_join5 = zip_join_tables(supplier, locnr);
   auto to_join5 = zip_join_tables(supplier, locnr);
@@ -449,7 +452,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.set_secure(true);
   gbd.set_col_name("revenue");
   gbd.add_gb_col_names("n_name");
-  gbd.set_kanon_col_name("l_suppkey");
+  gbd.set_kanon_col_name("l_orderkey");
   auto agg_out = p->Aggregate(slocnr, gbd, sgx);
   END_AND_LOG_EXP_TPCH_TIMER(tpch_5_full, gen_level);
   END_AND_LOG_EXP_TPCH_TIMER(tpch_5_no_gen_full, gen_level);
