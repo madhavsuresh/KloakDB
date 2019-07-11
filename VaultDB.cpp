@@ -276,6 +276,7 @@ int main(int argc, char **argv) {
       if (FLAGS_gen_level == 0) {
       tpch_5_encrypted(p, FLAGS_db, FLAGS_sgx);
       } else if (FLAGS_gen_level == -1) {
+      tpch_5_obli(p, FLAGS_db, FLAGS_sgx);
 
       }
       else {

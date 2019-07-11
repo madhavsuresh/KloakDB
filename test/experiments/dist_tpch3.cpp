@@ -172,14 +172,14 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   SortDef sort;
   sort.set_sorting_dummies(true);
   sort.set_truncate(true);
-  //auto sorted_oc_join = p->Sort(out_oc_join, sort, true);
+  auto sorted_oc_join = p->Sort(out_oc_join, sort, true);
   
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_join_one, gen_level);
   /* JOIN 2 */
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
-  //auto oc_join_repart = p->RepartitionJustHash(sorted_oc_join);
-  auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
+  auto oc_join_repart = p->RepartitionJustHash(sorted_oc_join);
+  //auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
   auto lineitem_repart = p->RepartitionJustHash(gen_zipped_mapJ2["lineitem"]);
@@ -206,7 +206,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   j2p5->set_colname("o_custkey");
   auto to_join2 = zip_join_tables(oc_join_repart, lineitem_repart);
   auto out_loc_join = p->Join(to_join2, jd_vd2, sgx);
-  //auto sorted_loc_join = p->Sort(out_loc_join, sort, true);
+  auto sorted_loc_join = p->Sort(out_loc_join, sort, true);
 
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
@@ -216,7 +216,7 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.add_gb_col_names("o_orderdate");
   gbd.add_gb_col_names("o_shippriority");
   gbd.set_kanon_col_name("o_custkey");
-  auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
+  auto agg_out = p->Aggregate(sorted_loc_join, gbd, sgx);
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_no_gen_full, gen_level);
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_full_gen, gen_level);
   // TODO(madhavsuresh): merge all of the aggregates together.
