@@ -288,7 +288,7 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
   auto lineitem_repart = p->RepartitionJustHash(lineitem);
-  START_TIMER(join_two);
+  START_TIMER(tpch_3_join_two);
   JoinDef jd_vd2;
   jd_vd2.set_l_col_name("o_orderkey");
   jd_vd2.set_r_col_name("l_orderkey");
@@ -312,6 +312,7 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   auto to_join2 = zip_join_tables(sorted_oc_join, lineitem_repart);
   auto out_loc_join = p->Join(to_join2, jd_vd2, sgx);
   auto sorted_loc_join = p->Sort(out_loc_join, sort, true);
+  END_AND_LOG_EXP_TPCH_TIMER(tpch_3_join_two, -1);
 
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
