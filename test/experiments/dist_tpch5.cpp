@@ -276,6 +276,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   /* END JOIN 4 ANON*/
 
   /* START JOIN 5 ANON*/
+  /*
   unordered_map<table_name, to_gen_t> gen_in5;
   to_gen_t lineitem_gen2;
   lineitem_gen2.column = "l_suppkey";
@@ -291,8 +292,8 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   supp_gen1.scan_tables.insert(supp_gen1.scan_tables.end(), 
 	  supplier.begin(), supplier.end());
   gen_in5["supplier"] = supp_gen1;
-  */
   auto gen_zipped_map5 = p->Generalize(gen_in5, gen_level);
+  */
   /* lineitem*/
   /* END JOIN 5 ANON*/
 
@@ -384,7 +385,7 @@ void tpch_5_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   // JOIN 4
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
-  auto lineitem_repart = p->RepartitionJustHash(gen_zipped_map5["lineitem"]);
+  auto lineitem_repart = p->RepartitionJustHash(gen_zipped_map4["lineitem"]);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
   auto ocnr_repart = p->RepartitionJustHash(ocnr);
