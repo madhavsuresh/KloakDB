@@ -457,16 +457,23 @@ void tpch_5_obli(HonestBrokerPrivate *p, std::string database, bool sgx, bool tr
   sort.set_truncate(true);
   START_TIMER(tpch_5_full_truncate);
   START_TIMER(postgres_read);
-  auto customer = p->ClusterDBMSQuery(
+
+  vector<tableid_ptr> customer;
+  vector<tableid_ptr> orders;
+  vector<tableid_ptr> lineitem;
+  auto customer_table = p->DBMSQuery(0,
       "dbname=" + database, "SELECT c_custkey, c_nationkey FROM customer");
-  auto orders = p->ClusterDBMSQuery(
+  customer.push_back(customer_table);
+  auto orders_table = p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT o_custkey, o_orderkey FROM orders WHERE o_orderdate "
       ">='1993-01-01' AND o_orderdate < '1994-01-01'");
-  auto lineitem = p->ClusterDBMSQuery(
+  orders.push_back(orders_table);
+  auto lineitem_table = p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT l_orderkey, l_suppkey, l_extendedprice*(1-l_discount) "
       "as revenue FROM lineitem");
+  lineitem.push_back(lineitem_table);
 
   auto supplier = p->ClusterDBMSQuery(
       "dbname=" + database, "SELECT s_suppkey, s_nationkey FROM supplier");
