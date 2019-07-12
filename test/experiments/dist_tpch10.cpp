@@ -398,9 +398,9 @@ void tpch_10_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   p->MakeObli(lineitem, "l_orderkey");
   p->MakeObli(orders, "o_orderkey");
   p->MakeObli(orders, "o_custkey");
-  p->MakeObli(orders, "c_custkey");
-  p->MakeObli(orders, "c_nationkey");
-  p->MakeObli(orders, "n_nationkey");
+  p->MakeObli(customer, "c_custkey");
+  p->MakeObli(customer, "c_nationkey");
+  p->MakeObli(nation, "n_nationkey");
 
   // JOIN1
   LOG(EXEC) << "JOIN 1 START==";
