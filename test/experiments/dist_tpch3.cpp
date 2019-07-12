@@ -90,10 +90,16 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   // TODO(madhavsuresh): add sort
 }
 
-void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_level) {
+void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_level, bool truncate) {
 
+
+  SortDef sort;
+  sort.set_sorting_dummies(true);
+  sort.set_truncate(true);
   LOG(EXEC) << "STARTING TPCH-3 ENCRYPTED DISTRIBUTED";
   START_TIMER(tpch_3_full_gen);
+  START_TIMER(tpch_3_full_truncate);
+  START_TIMER(tpch_3_full_no_truncate);
   START_TIMER(postgres_read);
   auto lineitem = p->ClusterDBMSQuery(
       "dbname=" + database,
@@ -168,17 +174,16 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   vdjp4->set_colname("o_custkey");
   auto to_join1 = zip_join_tables(orders_repart, cust_repart);
   auto out_oc_join = p->Join(to_join1, jd_vd, sgx);
-  
-  SortDef sort;
-  sort.set_sorting_dummies(true);
-  sort.set_truncate(true);
-  auto sorted_oc_join = p->Sort(out_oc_join, sort, true);
+  if (truncate) {
+      auto sorted_oc = p->Sort(out_oc_join, sort, sgx);
+      out_oc_join = sorted_oc;
+  }
   
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_join_one, gen_level);
   /* JOIN 2 */
   p->ResetControlFlowCols();
   p->SetControlFlowColName("o_orderkey");
-  auto oc_join_repart = p->RepartitionJustHash(sorted_oc_join);
+  auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
   //auto oc_join_repart = p->RepartitionJustHash(out_oc_join);
   p->ResetControlFlowCols();
   p->SetControlFlowColName("l_orderkey");
@@ -206,7 +211,10 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   j2p5->set_colname("o_custkey");
   auto to_join2 = zip_join_tables(oc_join_repart, lineitem_repart);
   auto out_loc_join = p->Join(to_join2, jd_vd2, sgx);
-  auto sorted_loc_join = p->Sort(out_loc_join, sort, true);
+  if (truncate) {
+      auto sorted_loc = p->Sort(out_loc_join, sort, sgx);
+      out_loc_join = sorted_loc;
+  }
 
   GroupByDef gbd;
   gbd.set_type(GroupByDef_GroupByType_AVG);
@@ -216,7 +224,12 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   gbd.add_gb_col_names("o_orderdate");
   gbd.add_gb_col_names("o_shippriority");
   gbd.set_kanon_col_name("o_custkey");
-  auto agg_out = p->Aggregate(sorted_loc_join, gbd, sgx);
+  auto agg_out = p->Aggregate(out_loc_join, gbd, sgx);
+  if(truncate) {
+      END_AND_LOG_EXP_TPCH_TIMER(tpch_3_full_truncate, gen_level);
+  } else {
+      END_AND_LOG_EXP_TPCH_TIMER(tpch_3_full_no_truncate, gen_level);
+  }
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_no_gen_full, gen_level);
   END_AND_LOG_EXP_TPCH_TIMER(tpch_3_full_gen, gen_level);
   // TODO(madhavsuresh): merge all of the aggregates together.

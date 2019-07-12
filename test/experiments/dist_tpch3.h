@@ -8,7 +8,7 @@
 #include <VaultDB.h>
 #include <rpc/HonestBrokerPrivate.h>
 void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx);
-void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_level);
+void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_level, bool truncate);
 void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx);
 
 #endif // PROJECT_DISTRIBUTED_ASPIRIN_PROFILE_H

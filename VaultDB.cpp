@@ -269,7 +269,7 @@ int main(int argc, char **argv) {
 	tpch_3_obli(p, FLAGS_db, FLAGS_sgx);
       }
       else {
-        tpch_3_gen(p, FLAGS_db, FLAGS_sgx, FLAGS_gen_level);
+        tpch_3_gen(p, FLAGS_db, FLAGS_sgx, FLAGS_gen_level, FLAGS_truncate);
       }
       break;
     }
@@ -289,10 +289,10 @@ int main(int argc, char **argv) {
       if (FLAGS_gen_level == 0) {
       tpch_10_encrypted(p, FLAGS_db, FLAGS_sgx);
       } else if (FLAGS_gen_level == -1) {
-
+      tpch_10_obli(p, FLAGS_db, FLAGS_sgx);
       }
       else {
-        tpch_10_gen(p, FLAGS_db, FLAGS_sgx, FLAGS_gen_level);
+        tpch_10_gen(p, FLAGS_db, FLAGS_sgx, FLAGS_gen_level, FLAGS_truncate);
       }
       break;
     }
