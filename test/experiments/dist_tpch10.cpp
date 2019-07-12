@@ -15,7 +15,6 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   vector<tableid_ptr> lineitem;
   vector<tableid_ptr> orders;
   vector<tableid_ptr> customer;
-  vector<tableid_ptr> nation;
   auto lineitem_table = p->DBMSQuery(0,
       "dbname=" + database, "SELECT l_orderkey, l_extendedprice*(1-l_discount) "
                             "as revenue FROM lineitem");
@@ -30,9 +29,8 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
       "SELECT c_custkey, c_name, c_acctbal, "
       "c_phone, c_address, c_comment, c_nationkey FROM customer");
   customer.push_back(customer_table);
-  auto nation_table = p->DBMSQuery(0,"dbname=" + database,
+  auto nation = p->ClusterDBMSQuery("dbname=" + database,
                                     "SELECT n_name, n_nationkey FROM nation");
-  nation.push_back(nation_table);
 
   // JOIN1
   LOG(EXEC) << "JOIN 1 START==";
@@ -170,7 +168,6 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
   vector<tableid_ptr> lineitem;
   vector<tableid_ptr> orders;
   vector<tableid_ptr> customer;
-  vector<tableid_ptr> nation;
   auto lineitem_table = p->DBMSQuery(0,
       "dbname=" + database, "SELECT l_orderkey, l_extendedprice*(1-l_discount) "
                             "as revenue FROM lineitem");
@@ -185,9 +182,8 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
       "SELECT c_custkey, c_name, c_acctbal, "
       "c_phone, c_address, c_comment, c_nationkey FROM customer");
   customer.push_back(customer_table);
-  auto nation_table = p->DBMSQuery(0,"dbname=" + database,
+  auto nation = p->ClusterDBMSQuery("dbname=" + database,
                                     "SELECT n_name, n_nationkey FROM nation");
-  nation.push_back(nation_table);
 
   END_AND_LOG_EXP_TPCH_TIMER(tpch_10_postgres_read, gen_level);
   START_TIMER(tpch_10_gen);
@@ -400,7 +396,6 @@ void tpch_10_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   vector<tableid_ptr> lineitem;
   vector<tableid_ptr> orders;
   vector<tableid_ptr> customer;
-  vector<tableid_ptr> nation;
   auto lineitem_table = p->DBMSQuery(0,
       "dbname=" + database, "SELECT l_orderkey, l_extendedprice*(1-l_discount) "
                             "as revenue FROM lineitem");
@@ -415,10 +410,8 @@ void tpch_10_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
       "SELECT c_custkey, c_name, c_acctbal, "
       "c_phone, c_address, c_comment, c_nationkey FROM customer");
   customer.push_back(customer_table);
-  auto nation_table = p->DBMSQuery(0,"dbname=" + database,
+  auto nation = p->ClusterDBMSQuery("dbname=" + database,
                                     "SELECT n_name, n_nationkey FROM nation");
-  nation.push_back(nation_table);
-
   p->MakeObli(lineitem, "l_orderkey");
   p->MakeObli(orders, "o_orderkey");
   p->MakeObli(orders, "o_custkey");
