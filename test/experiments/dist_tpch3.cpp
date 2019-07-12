@@ -11,17 +11,23 @@ void tpch_3_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   START_TIMER(tpch_3_full_encrypted);
   START_TIMER(postgres_read);
   unordered_map<table_name, to_gen_t> gen_in;
-  auto lineitem = p->ClusterDBMSQuery(
+  vector<tableid_ptr> lineitem;
+  vector<tableid_ptr> orders;
+  vector<tableid_ptr> customer;
+  auto lineitem_table= p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT l_orderkey, l_extendedprice *(1 - l_discount) as revenue FROM "
       "lineitem where l_shipdate > '1995-03-22'");
-  auto customer = p->ClusterDBMSQuery(
+  auto customer_table= p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT c_custkey FROM customer WHERE c_mktsegment='BUILDING'");
-  auto orders = p->ClusterDBMSQuery(
+  auto orders_table= p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT o_orderdate, o_shippriority, o_custkey, o_orderkey from orders "
       "WHERE o_orderdate <'1995-03-22'");
+  customer.push_back(customer_table);
+  lineitem.push_back(lineitem_table);
+  orders.push_back(orders_table);
 
   START_TIMER(repartition);
   p->SetControlFlowColName("o_custkey");
@@ -101,17 +107,24 @@ void tpch_3_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen_
   START_TIMER(tpch_3_full_truncate);
   START_TIMER(tpch_3_full_no_truncate);
   START_TIMER(postgres_read);
-  auto lineitem = p->ClusterDBMSQuery(
+
+  vector<tableid_ptr> lineitem;
+  vector<tableid_ptr> orders;
+  vector<tableid_ptr> customer;
+  auto lineitem_table= p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT l_orderkey, l_extendedprice *(1 - l_discount) as revenue FROM "
       "lineitem where l_shipdate > '1995-03-22'");
-  auto customer = p->ClusterDBMSQuery(
+  auto customer_table= p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT c_custkey FROM customer WHERE c_mktsegment='BUILDING'");
-  auto orders = p->ClusterDBMSQuery(
+  auto orders_table= p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT o_orderdate, o_shippriority, o_custkey, o_orderkey from orders "
       "WHERE o_orderdate <'1995-03-22'");
+  customer.push_back(customer_table);
+  lineitem.push_back(lineitem_table);
+  orders.push_back(orders_table);
 
 
   START_TIMER(tpch_3_gen);
@@ -241,17 +254,23 @@ void tpch_3_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   LOG(EXEC) << "STARTING TPCH-3 OBLI DISTRIBUTED";
   START_TIMER(tpch_3_full_obli);
   START_TIMER(postgres_read);
-  auto lineitem = p->ClusterDBMSQuery(
+  vector<tableid_ptr> lineitem;
+  vector<tableid_ptr> orders;
+  vector<tableid_ptr> customer;
+  auto lineitem_table = p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT l_orderkey, l_extendedprice *(1 - l_discount) as revenue FROM "
       "lineitem where l_shipdate > '1995-03-22'");
-  auto customer = p->ClusterDBMSQuery(
+  auto customer_table = p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT c_custkey FROM customer WHERE c_mktsegment='BUILDING'");
-  auto orders = p->ClusterDBMSQuery(
+  auto orders_table= p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT o_orderdate, o_shippriority, o_custkey, o_orderkey from orders "
       "WHERE o_orderdate <'1995-03-22'");
+  customer.push_back(customer_table);
+  lineitem.push_back(lineitem_table);
+  orders.push_back(orders_table);
 
 
   p->MakeObli(customer, "c_custkey");

@@ -17,7 +17,7 @@ void tpch_10_encrypted(HonestBrokerPrivate *p, std::string database, bool sgx) {
   vector<tableid_ptr> customer;
   auto lineitem_table = p->DBMSQuery(0,
       "dbname=" + database, "SELECT l_orderkey, l_extendedprice*(1-l_discount) "
-                            "as revenue FROM lineitem");
+                            "as revenue FROM lineitem WHERE l_returnflag= 'R'");
   lineitem.push_back(lineitem_table);
   auto order_table = p->DBMSQuery(0,
       "dbname=" + database,
@@ -170,7 +170,7 @@ void tpch_10_gen(HonestBrokerPrivate *p, std::string database, bool sgx, int gen
   vector<tableid_ptr> customer;
   auto lineitem_table = p->DBMSQuery(0,
       "dbname=" + database, "SELECT l_orderkey, l_extendedprice*(1-l_discount) "
-                            "as revenue FROM lineitem");
+                            "as revenue FROM lineitem WHERE l_returnflag= 'R'");
   lineitem.push_back(lineitem_table);
   auto order_table = p->DBMSQuery(0,
       "dbname=" + database,
@@ -398,18 +398,18 @@ void tpch_10_obli(HonestBrokerPrivate *p, std::string database, bool sgx) {
   vector<tableid_ptr> customer;
   auto lineitem_table = p->DBMSQuery(0,
       "dbname=" + database, "SELECT l_orderkey, l_extendedprice*(1-l_discount) "
-                            "as revenue FROM lineitem");
-  lineitem.push_back(lineitem_table);
+                            "as revenue FROM lineitem WHERE l_returnflag= 'R'");
   auto order_table = p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT o_custkey, o_orderkey from orders WHERE o_orderdate "
       "<'1995-10-01' AND o_orderdate >= '1993-07-01'");
-  orders.push_back(order_table);
   auto customer_table = p->DBMSQuery(0,
       "dbname=" + database,
       "SELECT c_custkey, c_name, c_acctbal, "
       "c_phone, c_address, c_comment, c_nationkey FROM customer");
   customer.push_back(customer_table);
+  lineitem.push_back(lineitem_table);
+  orders.push_back(order_table);
   auto nation = p->ClusterDBMSQuery("dbname=" + database,
                                     "SELECT n_name, n_nationkey FROM nation");
   p->MakeObli(lineitem, "l_orderkey");
