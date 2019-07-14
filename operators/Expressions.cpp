@@ -16,7 +16,7 @@ bool eq_expr(tuple *t, expr_t *ex) {
     throw;
   case TIMESTAMP:
     throw;
-  case DOUBLE:
+  case DOUBLE_V:
     throw;
   }
 }

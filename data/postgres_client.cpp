@@ -37,7 +37,7 @@ std::string tuple_string(tuple_t *t) {
       output += std::string(timetext);
       break;
     }
-    case DOUBLE: {
+    case DOUBLE_V: {
       output += std::to_string(t->field_list[i].f.double_field.val);
       break;
     }
@@ -184,7 +184,7 @@ bool compare_tuple_cols_val(tuple_t *t1, tuple_t *t2, int t1_col, int t2_col) {
       return false;
     }
   }
-  case DOUBLE: {
+  case DOUBLE_V: {
     if (t1->field_list[t1_col].f.double_field.val ==
         t2->field_list[t2_col].f.double_field.val) {
       return true;
@@ -290,7 +290,7 @@ double get_num_field(table_t *t, int tuple_no, int colno) {
   case TIMESTAMP: {
     return (double)get_tuple(tuple_no, t)->field_list[colno].f.ts_field.val;
   }
-  case DOUBLE: {
+  case DOUBLE_V: {
     return (double)get_tuple(tuple_no, t)->field_list[colno].f.double_field.val;
   }
   }

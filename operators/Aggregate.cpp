@@ -117,7 +117,7 @@ schema_t agg_schema_avg(groupby_def_t *def, table_t *t) {
     strncpy(agg_schema.fields[i].field_name,
             t->schema.fields[def->gb_colnos[i]].field_name, FIELD_NAME_LEN);
   }
-  agg_schema.fields[def->num_cols].type = DOUBLE;
+  agg_schema.fields[def->num_cols].type = DOUBLE_V;
   agg_schema.fields[def->num_cols].col_no = def->num_cols;
   strncpy(agg_schema.fields[def->num_cols].field_name, "avg\0", FIELD_NAME_LEN);
   return agg_schema;
@@ -177,7 +177,7 @@ int64_t hash_field(groupby_def_t *def, tuple_t *t, table_t *table) {
 
       break;
     }
-    case DOUBLE: {
+    case DOUBLE_V: {
       if (input_col != def->kanon_col) {
         memcpy(&f[ptr], &(t->field_list[input_col].f.double_field.val),
                sizeof(double));
@@ -233,7 +233,7 @@ void copy_tuple_gb(groupby_def_t *def, tuple_t *to_copy, tuple_t *copy_into,
           to_copy->field_list[def->gb_colnos[gb]].f.ts_field;
       break;
     }
-    case DOUBLE: {
+    case DOUBLE_V: {
       copy_into->field_list[gb].f.double_field =
           to_copy->field_list[def->gb_colnos[gb]].f.double_field;
       break;
@@ -354,7 +354,7 @@ table_t *aggregate_avg(table_t *t, groupby_def_t *def) {
         key += tup->field_list[colno].f.int_field.val * (int)pow(10, j + 1);
         break;
       }
-      case DOUBLE: {
+      case DOUBLE_V: {
         throw;
       }
       case TIMESTAMP: {

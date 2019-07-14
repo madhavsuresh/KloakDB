@@ -22,7 +22,7 @@ FIELD_TYPE get_OID_field_type(pqxx::oid oid) {
   case NUMERIC:
   case FLOAT4OID:
   case FLOAT8OID:
-    return DOUBLE;
+    return DOUBLE_V;
   case TIMESTAMPOID:
   case DATEOID:
     return TIMESTAMP;
@@ -95,11 +95,11 @@ void build_tuple_from_pq(pqxx::row tup, tuple_t *tuple, schema_t *s, table_build
       }
       break;
     }
-    case DOUBLE: {
+    case DOUBLE_V: {
       tuple->field_list[field_counter].f.double_field.val = field.as<double>();
       tuple->field_list[field_counter].f.double_field.genval =
           tuple->field_list[field_counter].f.double_field.val;
-      tuple->field_list[field_counter].type = DOUBLE;
+      tuple->field_list[field_counter].type = DOUBLE_V;
       break;
     }
     case UNSUPPORTED: {

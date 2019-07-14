@@ -186,8 +186,8 @@ TEST_F(postgres_client_test, real) {
   query("CREATE TABLE real (a REAL, b REAL);", dbname);
   query("INSERT INTO real (a,b) VALUES (1,1.1);", dbname);
   table_t *t = get_table("SELECT * FROM real;", dbname);
-  ASSERT_EQ(t->schema.fields[0].type, DOUBLE);
-  ASSERT_EQ(t->schema.fields[1].type, DOUBLE);
+  ASSERT_EQ(t->schema.fields[0].type, DOUBLE_V);
+  ASSERT_EQ(t->schema.fields[1].type, DOUBLE_V);
   ASSERT_EQ(get_tuple(0, t)->field_list[0].f.double_field.val, 1);
   ASSERT_EQ(get_tuple(0, t)->field_list[1].f.double_field.val, 1.1);
   query("DROP TABLE real", dbname);

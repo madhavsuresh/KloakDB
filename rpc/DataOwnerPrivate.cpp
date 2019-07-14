@@ -20,7 +20,7 @@ void proto_schema_to_table_schema(table_t *t, const vaultdb::Schema &s) {
       break;
     }
     case vaultdb::FieldDesc_FieldType_DOUBLE: {
-      t->schema.fields[i].type = DOUBLE;
+      t->schema.fields[i].type = DOUBLE_V;
       break;
     }
     case vaultdb::FieldDesc_FieldType_TIMESTAMP: {

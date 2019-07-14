@@ -65,7 +65,7 @@ void merge_tuple(tuple_t *to_fill, tuple_t *left_tup, tuple_t *right_tup,
           copyFromTup->field_list[def.project_list[i].col_no].f.ts_field.genval;
       break;
     }
-    case DOUBLE: {
+    case DOUBLE_V: {
       to_fill->field_list[i].f.double_field.val =
           copyFromTup->field_list[def.project_list[i].col_no]
               .f.double_field.val;

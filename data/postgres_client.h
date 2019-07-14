@@ -31,7 +31,7 @@
 // invariant that every table has the same size tuple
 
 // TODO(madhavsuresh): change to intfield
-enum FIELD_TYPE { UNSUPPORTED, FIXEDCHAR, INT, DOUBLE, TIMESTAMP};
+enum FIELD_TYPE { UNSUPPORTED, FIXEDCHAR, INT, DOUBLE_V, TIMESTAMP};
 
 enum FILTER_EXPR { UNSUPPORTED_EXPR, EQ_EXPR, NEQ_EXPR, LIKE_EXPR };
 

@@ -191,7 +191,7 @@ TEST_F(health_lnk_schema_test, vitals) {
   ASSERT_STREQ(t->schema.fields[2].field_name, "height_visit_no");
   ASSERT_EQ(t->schema.fields[2].type, INT);
   ASSERT_STREQ(t->schema.fields[3].field_name, "height");
-  ASSERT_EQ(t->schema.fields[3].type, DOUBLE);
+  ASSERT_EQ(t->schema.fields[3].type, DOUBLE_V);
   ASSERT_STREQ(t->schema.fields[4].field_name, "height_units");
   ASSERT_EQ(t->schema.fields[4].type, FIXEDCHAR);
   ASSERT_STREQ(t->schema.fields[5].field_name, "weight_timestamp");
@@ -199,7 +199,7 @@ TEST_F(health_lnk_schema_test, vitals) {
   ASSERT_STREQ(t->schema.fields[6].field_name, "weight_visit_no");
   ASSERT_EQ(t->schema.fields[6].type, INT);
   ASSERT_STREQ(t->schema.fields[7].field_name, "weight");
-  ASSERT_EQ(t->schema.fields[7].type, DOUBLE);
+  ASSERT_EQ(t->schema.fields[7].type, DOUBLE_V);
   ASSERT_STREQ(t->schema.fields[8].field_name, "weight_units");
   ASSERT_EQ(t->schema.fields[8].type, FIXEDCHAR);
   ASSERT_STREQ(t->schema.fields[9].field_name, "bmi_timestamp");
@@ -207,7 +207,7 @@ TEST_F(health_lnk_schema_test, vitals) {
   ASSERT_STREQ(t->schema.fields[10].field_name, "bmi_visit_no");
   ASSERT_EQ(t->schema.fields[10].type, INT);
   ASSERT_STREQ(t->schema.fields[11].field_name, "bmi");
-  ASSERT_EQ(t->schema.fields[11].type, DOUBLE);
+  ASSERT_EQ(t->schema.fields[11].type, DOUBLE_V);
   ASSERT_STREQ(t->schema.fields[12].field_name, "bmi_units");
   ASSERT_EQ(t->schema.fields[12].type, FIXEDCHAR);
   ASSERT_STREQ(t->schema.fields[13].field_name, "pulse");
@@ -243,9 +243,9 @@ TEST_F(health_lnk_schema_test, labs) {
   ASSERT_STREQ(t->schema.fields[4].field_name, "unit");
   ASSERT_EQ(t->schema.fields[4].type, FIXEDCHAR);
   ASSERT_STREQ(t->schema.fields[5].field_name, "value_low");
-  ASSERT_EQ(t->schema.fields[5].type, DOUBLE);
+  ASSERT_EQ(t->schema.fields[5].type, DOUBLE_V);
   ASSERT_STREQ(t->schema.fields[6].field_name, "value_high");
-  ASSERT_EQ(t->schema.fields[6].type, DOUBLE);
+  ASSERT_EQ(t->schema.fields[6].type, DOUBLE_V);
   query("DROP TABLE labs;", dbname);
   free_table(t);
 }

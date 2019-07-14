@@ -114,7 +114,7 @@ void table_schema_to_proto_schema(table_t *t, vaultdb::Schema *s) {
       fd->set_field_type(vaultdb::FieldDesc_FieldType_INT);
       break;
     }
-    case DOUBLE: {
+    case DOUBLE_V: {
       fd->set_field_type(vaultdb::FieldDesc_FieldType_DOUBLE);
       break;
     }
