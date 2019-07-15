@@ -16,6 +16,11 @@ using namespace emp;
 using namespace std;
 using namespace chrono;
 
+DEFINE_int32(party, 1, "party for EMP execution");
+DEFINE_int32(port, 43439, "port for EMP execution");
+DEFINE_int32(gen, 5, "anonymization level");
+DEFINE_string(dbname, "tpch_scale_001", "database to query from");
+DEFINE_bool(obli, false, "run obliviously");
 enum VAULT_FIELD_TYPE { UNSUPPORTED_EMP, INT64, FLOAT, BITSTRING };
 
 NetIO *io;
@@ -214,9 +219,11 @@ tableE_t *emp_join_table(tableE_t *left, tableE_t *right, join_defE_t def) {
   for (int i = 0; i < left->num_tuples; i++) {
     int curr_eq =  left->tuples[i].eq_class;
     for (int j = 0; j < right->num_tuples; j++) {
+	if (!FLAGS_obli) {
 	    if ( !(right->tuples[j].eq_class == curr_eq && curr_eq !=1)) {
 		    continue;
 	    }
+	}
 	    int curr_eq =  left->tuples[i].eq_class;
       // EMP Codepath
       Bit cmp = *left->tuples[i].fields[def.l_col].int_f ==
@@ -374,10 +381,6 @@ tableE_t *ingest_and_share_as_table(std::string query_string,
 }
 
 
-DEFINE_int32(party, 1, "party for EMP execution");
-DEFINE_int32(port, 43439, "port for EMP execution");
-DEFINE_int32(gen, 5, "anonymization level");
-DEFINE_string(dbname, "tpch_scale_001", "database to query from");
 
 int main(int argc, char **argv) {
   printf("sizeof: %d", sizeof(tupleE_t));
