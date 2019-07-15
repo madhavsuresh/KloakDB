@@ -18,6 +18,7 @@ using namespace chrono;
 
 DEFINE_int32(party, 1, "party for EMP execution");
 DEFINE_int32(port, 43439, "port for EMP execution");
+DEFINE_string(hostname, "vaultdb02.research.northwestern.edu", "hostname for execution");
 DEFINE_int32(gen, 5, "anonymization level");
 DEFINE_string(dbname, "tpch_scale_001", "database to query from");
 DEFINE_bool(obli, false, "run obliviously");
@@ -385,7 +386,7 @@ tableE_t *ingest_and_share_as_table(std::string query_string,
 int main(int argc, char **argv) {
   printf("sizeof: %d", sizeof(tupleE_t));
   gflags::ParseCommandLineFlags(&argc, &argv, true);
-  io = new NetIO(FLAGS_party == ALICE ? nullptr : "127.0.0.1", FLAGS_port);
+  io = new NetIO(FLAGS_party == ALICE ? nullptr : FLAGS_hostname.c_str(), FLAGS_port);
   setup_semi_honest(io, FLAGS_party);
   auto gen_table = get_gen_fields(FLAGS_dbname, FLAGS_gen);
 
