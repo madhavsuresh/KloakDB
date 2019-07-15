@@ -26,4 +26,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -O0")
 
 
 add_executable(left_deep_lib test/left_deep.cpp)
-target_link_libraries(left_deep_lib pqxxcompat operators dataformat pqxx pq gflags ${EMP-OT_LIBRARIES} ${TCRYPTO_LIB})
+target_link_libraries(left_deep_lib pqxxcompat operators dataformat pqxx pq gflags klogger krpc ${EMP-OT_LIBRARIES} ${TCRYPTO_LIB})

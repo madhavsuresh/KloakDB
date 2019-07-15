@@ -8,6 +8,12 @@
 #include <gflags/gflags.h>
 #include <operators/Generalize.h>
 #include <pqxx/pqxx>
+#include <logger/LoggerDefs.h>
+#include <g3log/g3log.hpp>
+#include <g3log/logworker.hpp>
+#include <gflags/gflags.h>
+#include <grpcpp/grpcpp.h>
+#include "logger/Logger.h"
 
 #define INT8OID 20
 #define INT4OID 23
@@ -16,12 +22,15 @@ using namespace emp;
 using namespace std;
 using namespace chrono;
 
+DEFINE_string(host_short, "vaultdb", "short host name");
 DEFINE_int32(party, 1, "party for EMP execution");
 DEFINE_int32(port, 43439, "port for EMP execution");
 DEFINE_string(hostname, "vaultdb02.research.northwestern.edu", "hostname for execution");
 DEFINE_int32(gen, 5, "anonymization level");
 DEFINE_string(dbname, "tpch_scale_001", "database to query from");
 DEFINE_bool(obli, false, "run obliviously");
+DEFINE_string(logger_host_name, "guinea-pig.cs.northwestern.edu:60000",
+              "port for logger");
 enum VAULT_FIELD_TYPE { UNSUPPORTED_EMP, INT64, FLOAT, BITSTRING };
 
 NetIO *io;
@@ -386,10 +395,20 @@ tableE_t *ingest_and_share_as_table(std::string query_string,
 int main(int argc, char **argv) {
   printf("sizeof: %d", sizeof(tupleE_t));
   gflags::ParseCommandLineFlags(&argc, &argv, true);
+  std::unique_ptr<g3::LogWorker> logworker{g3::LogWorker::createLogWorker()};
+  logworker->addSink(
+      std::make_unique<RemoteSink>(
+          FLAGS_host_short,
+          grpc::CreateChannel(FLAGS_logger_host_name,
+                              grpc::InsecureChannelCredentials())),
+      &RemoteSink::ReceiveLogMessage);
+  g3::initializeLogging(logworker.get());
   io = new NetIO(FLAGS_party == ALICE ? nullptr : FLAGS_hostname.c_str(), FLAGS_port);
   setup_semi_honest(io, FLAGS_party);
   auto gen_table = get_gen_fields(FLAGS_dbname, FLAGS_gen);
 
+  int gen_level = FLAGS_obli ? -1 : FLAGS_gen;
+  LOG(MPC) << "Starting MPC workload with k=" << gen_level;
   HalfGateGen<NetIO> *gate_counter =
       (HalfGateGen<NetIO> *)CircuitExecution::circ_exec;
   int gates1 = gate_counter->gid;
@@ -429,7 +448,9 @@ int main(int argc, char **argv) {
   start_time = high_resolution_clock::now();
 
   fflush(0);
+  START_TIMER(mpc_join);
   auto joined_table = emp_join_table(t1, t2, jd);
+  END_AND_LOG_MPC_TIMER(mpc_join, gen_level);
   end_time = high_resolution_clock::now();
   elapsed = end_time - start_time;
   cout << "Join (table): " << elapsed.count() << endl;
