@@ -3,7 +3,6 @@
 //
 
 #include "data/postgres_client.h"
-#include "operators/Test.h"
 #include <data/pqxx_compat.h>
 #include <emp-sh2pc/emp-sh2pc.h>
 #include <gflags/gflags.h>
