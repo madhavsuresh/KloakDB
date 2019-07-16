@@ -139,6 +139,7 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   START_TIMER(gen_dos_timer);
   auto gen_zipped_map = p->Generalize(gen_in, gen_level);
   END_AND_LOG_EXP7_DOS_STAT_TIMER(gen_dos_timer, FLAGS_num_pids);
+  START_TIMER(outside_gen);
   LOG(EXP7_DOS) << "MEDICATIONS FILTER";
   auto filtered_meds = p->Filter(gen_zipped_map[meds], expr_med, false);
   LOG(EXP7_DOS) << "DOSAGE FILTER";
@@ -163,6 +164,7 @@ void dosage_k(HonestBrokerPrivate *p, std::string dbname, std::string diag,
   for (auto &s : semi_joined_tables) {
     semi_joined_out = s.get();
   }
+  END_AND_LOG_EXP7_DOS_STAT_TIMER(outside_gen, FLAGS_num_pids);
   END_AND_LOG_EXP7_DOS_STAT_TIMER(dosage_study_k, FLAGS_num_pids);
   LOG(EXP7_DOS) << "ENDING DOSAGE STUDY K-ANON";
 }
